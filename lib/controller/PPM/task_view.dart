@@ -220,7 +220,7 @@ class _TaskViewState extends State<TaskView>
           'Check',
           'Verify',
           'Re-Open',
-          'Closed'
+          'Completed'
         ].map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
             value: value,

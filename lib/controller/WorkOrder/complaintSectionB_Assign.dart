@@ -45,6 +45,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
   String dropdownId2;
   String dropdownId3;
   String dropdownId4;
+  String dropdownAssist;
 
   String typeCategory;
   List<WorkOrderStatus> _internalCategory = List<WorkOrderStatus>();
@@ -101,8 +102,10 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
         .then((value) {
           groupList = value.wostatusList.toList();
           Provider provider = Provider(
-              fetchURL: "/api/m_wo.php?type=assign_and_severity&woTaskId=",
-              taskID: widget.id);
+            fetchURL:
+                "/wo_v2/assign_and_severity/", //"/api/m_wo.php?type=assign_and_severity&woTaskId=",
+            taskID: widget.id,
+          );
           return provider.fetch();
         })
         .then((onValue) {
@@ -112,6 +115,10 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
 
           if (data.assistUserId != null)
             assistUserId = data.assistUserId.toList();
+
+          if (data.woTaskMaxAssistant != null) {
+            dropdownAssist = data.woTaskMaxAssistant;
+          }
 
           if (data.userId != "" && data.groupId != "" && data.severity != "") {
             dropdownId1 = data.groupId;
@@ -188,9 +195,25 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
                       typeCategory == "Internal"
                           ? _internalCategory
                           : _externalCategory,
-                      "Category"),
-              assistantList.length > 0 ? _addAssistant : new Container(),
-              assistantList.length > 0 ? _listAssistant : new Container(),
+                      "Category",
+                    ),
+              _getTitle("Select Number of Assistant"),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: DropdownButton(
+                  hint: Text("Max 5"),
+                  isExpanded: true,
+                  items: ["0", "1", "2", "3", "4", "5"]
+                      .map<DropdownMenuItem<String>>(
+                        (e) => DropdownMenuItem(child: Text(e), value: e),
+                      )
+                      .toList(),
+                  onChanged: (value) => setState(() => dropdownAssist = value),
+                  value: dropdownAssist,
+                ),
+              ),
+              // assistantList.length > 0 ? _addAssistant : new Container(),
+              // assistantList.length > 0 ? _listAssistant : new Container(),
               SizedBox(height: 12),
               technicianDetails == null ? new Container() : _getAllDetails(),
               technicianDetails == null ? new Container() : _getTable(),
@@ -212,7 +235,8 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
                   "groupId": dropdownId1,
                   "userId": dropdownId2,
                   "severity": dropdownId3,
-                  "woTaskCategory": dropdownId4
+                  "woTaskCategory": dropdownId4,
+                  "woTaskMaxAssistant": dropdownAssist ?? "0",
                 };
 
                 selectedassistantList.forEach((f) =>
@@ -220,7 +244,9 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
                         f.userId);
 
                 provider
-                    .post(url: "/api/m_wo.php", body: body)
+                    .post(
+                        url: "/wo_v2/save_assigned_technician/${widget.id}",
+                        body: body)
                     .then((value) => Toast.show("Assignation Saved", context))
                     .catchError((err) => Toast.show(err, context))
                     .whenComplete(() => setState(() => loading = false));
@@ -246,14 +272,16 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
           Navigator.of(context)
               .push(MaterialPageRoute(
                   builder: (context) => AddTechnicianCheckList(
-                        listTechnician: assistantList,
-                        assistantList: selectedassistantList,
+                        id: widget.id,
+                        viewer: true,
                       )))
               .then((value) {
             if (value != null) {
               print(value);
-              selectedassistantList = List<WorkOrderStatus>();
-              if (value.length > 0) selectedassistantList = value;
+              setState(() {
+                selectedassistantList = List<WorkOrderStatus>();
+                if (value.length > 0) selectedassistantList = value;
+              });
             }
           });
         },

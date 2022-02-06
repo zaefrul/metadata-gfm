@@ -40,7 +40,10 @@ class _UtilitiesHomeState extends State<UtilitiesHome> {
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Text("Utilities"),
+          title: Text(
+            "Utilities",
+            style: TextStyle(color: colorTheme3),
+          ),
           backgroundColor: Colors.white,
           centerTitle: true,
           actions: [

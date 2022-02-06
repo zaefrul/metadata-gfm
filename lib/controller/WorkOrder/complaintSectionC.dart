@@ -64,7 +64,7 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
           iconTheme: IconThemeData(
             color: colorTheme3,
           ),
-          title: _getTitle("C. Image", bold: true),
+          title: _getTitle("D. Image", bold: true),
         ),
         body: _loading
             ? Stack(

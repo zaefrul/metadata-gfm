@@ -1,4 +1,4 @@
-import 'package:barcode_scan/barcode_scan.dart';
+import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
@@ -9,8 +9,10 @@ import 'package:flutter/services.dart';
 class ComplaintSectionD extends StatefulWidget {
   final String id;
   final bool viewer;
+  final String name;
 
   ComplaintSectionD({
+    this.name = "D",
     this.id,
     this.viewer,
   });
@@ -46,7 +48,7 @@ class _ComplaintSectionDState extends State<ComplaintSectionD> {
         iconTheme: IconThemeData(
           color: colorTheme3,
         ),
-        title: getTitle("D. Asset No", bold: true),
+        title: getTitle("${widget.name}. Asset No", bold: true),
         actions: widget.viewer
             ? null
             : <Widget>[
@@ -135,10 +137,10 @@ class _ComplaintSectionDState extends State<ComplaintSectionD> {
 
   Future scan() async {
     try {
-      String barcode = await BarcodeScanner.scan();
-      controller.text = barcode;
+      ScanResult barcode = await BarcodeScanner.scan();
+      controller.text = barcode.rawContent;
     } on PlatformException catch (e) {
-      if (e.code == BarcodeScanner.CameraAccessDenied)
+      if (e.code == BarcodeScanner.cameraAccessDenied)
         this.keyword = 'The user did not grant the camera permission!';
       else
         this.keyword = 'image scanning fail, please try again';

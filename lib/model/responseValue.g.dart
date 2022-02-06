@@ -85,15 +85,9 @@ class _$ResponseValue extends ResponseValue {
       this.technicianImages,
       this.technicianAssign})
       : super._() {
-    if (success == null) {
-      throw new BuiltValueNullFieldError('ResponseValue', 'success');
-    }
-    if (error == null) {
-      throw new BuiltValueNullFieldError('ResponseValue', 'error');
-    }
-    if (errmsg == null) {
-      throw new BuiltValueNullFieldError('ResponseValue', 'errmsg');
-    }
+    BuiltValueNullFieldError.checkNotNull(success, 'ResponseValue', 'success');
+    BuiltValueNullFieldError.checkNotNull(error, 'ResponseValue', 'error');
+    BuiltValueNullFieldError.checkNotNull(errmsg, 'ResponseValue', 'errmsg');
   }
 
   @override
@@ -345,31 +339,32 @@ class ResponseValueBuilder
   ResponseValueBuilder();
 
   ResponseValueBuilder get _$this {
-    if (_$v != null) {
-      _success = _$v.success;
-      _error = _$v.error;
-      _errmsg = _$v.errmsg;
-      _result = _$v.result;
-      _taskList = _$v.taskList?.toBuilder();
-      _workorderTask = _$v.workorderTask?.toBuilder();
-      _woDetail = _$v.woDetail?.toBuilder();
-      _monitorTaskList = _$v.monitorTaskList?.toBuilder();
-      _monitorDetail = _$v.monitorDetail?.toBuilder();
-      _dotList = _$v.dotList?.toBuilder();
-      _wostatusList = _$v.wostatusList?.toBuilder();
-      _statusList = _$v.statusList?.toBuilder();
-      _sectionAList = _$v.sectionAList?.toBuilder();
-      _sectionBList = _$v.sectionBList?.toBuilder();
-      _sectionCList = _$v.sectionCList?.toBuilder();
-      _sectionDList = _$v.sectionDList?.toBuilder();
-      _sectionEList = _$v.sectionEList?.toBuilder();
-      _sectionFList = _$v.sectionFList?.toBuilder();
-      _sectionGList = _$v.sectionGList?.toBuilder();
-      _sectionHList = _$v.sectionHList?.toBuilder();
-      _technicianDetails = _$v.technicianDetails?.toBuilder();
-      _technicianTask = _$v.technicianTask?.toBuilder();
-      _technicianImages = _$v.technicianImages?.toBuilder();
-      _technicianAssign = _$v.technicianAssign?.toBuilder();
+    final $v = _$v;
+    if ($v != null) {
+      _success = $v.success;
+      _error = $v.error;
+      _errmsg = $v.errmsg;
+      _result = $v.result;
+      _taskList = $v.taskList?.toBuilder();
+      _workorderTask = $v.workorderTask?.toBuilder();
+      _woDetail = $v.woDetail?.toBuilder();
+      _monitorTaskList = $v.monitorTaskList?.toBuilder();
+      _monitorDetail = $v.monitorDetail?.toBuilder();
+      _dotList = $v.dotList?.toBuilder();
+      _wostatusList = $v.wostatusList?.toBuilder();
+      _statusList = $v.statusList?.toBuilder();
+      _sectionAList = $v.sectionAList?.toBuilder();
+      _sectionBList = $v.sectionBList?.toBuilder();
+      _sectionCList = $v.sectionCList?.toBuilder();
+      _sectionDList = $v.sectionDList?.toBuilder();
+      _sectionEList = $v.sectionEList?.toBuilder();
+      _sectionFList = $v.sectionFList?.toBuilder();
+      _sectionGList = $v.sectionGList?.toBuilder();
+      _sectionHList = $v.sectionHList?.toBuilder();
+      _technicianDetails = $v.technicianDetails?.toBuilder();
+      _technicianTask = $v.technicianTask?.toBuilder();
+      _technicianImages = $v.technicianImages?.toBuilder();
+      _technicianAssign = $v.technicianAssign?.toBuilder();
       _$v = null;
     }
     return this;
@@ -377,9 +372,7 @@ class ResponseValueBuilder
 
   @override
   void replace(ResponseValue other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ResponseValue;
   }
 
@@ -394,9 +387,12 @@ class ResponseValueBuilder
     try {
       _$result = _$v ??
           new _$ResponseValue._(
-              success: success,
-              error: error,
-              errmsg: errmsg,
+              success: BuiltValueNullFieldError.checkNotNull(
+                  success, 'ResponseValue', 'success'),
+              error: BuiltValueNullFieldError.checkNotNull(
+                  error, 'ResponseValue', 'error'),
+              errmsg: BuiltValueNullFieldError.checkNotNull(
+                  errmsg, 'ResponseValue', 'errmsg'),
               result: result,
               taskList: _taskList?.build(),
               workorderTask: _workorderTask?.build(),
@@ -472,4 +468,4 @@ class ResponseValueBuilder
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new
+// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new

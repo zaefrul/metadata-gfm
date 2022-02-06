@@ -7,9 +7,11 @@ import 'package:toast/toast.dart';
 
 class ComplaintSectionB extends StatefulWidget {
   final String id;
+  final String name;
   final bool viewer;
 
   ComplaintSectionB({
+    this.name = "B",
     this.id,
     this.viewer,
   });
@@ -43,7 +45,8 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
         iconTheme: IconThemeData(
           color: colorTheme3,
         ),
-        title: getTitle("B. Description of Repair Work", bold: true),
+        title:
+            getTitle("${widget.name}. Description of Repair Work", bold: true),
       ),
       body: loading == false
           ? _body()

@@ -28,7 +28,7 @@ class ComplaintList extends StatelessWidget {
         color = colorTheme5;
       else if (text == "Assign")
         color = colorTheme1;
-      else if (text == "Closed")
+      else if (text == "Completed")
         color = colorTheme2;
       else if (text == "Verify")
         color = colorTheme3;

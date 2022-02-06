@@ -20,7 +20,7 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   bool isStorekeeper = false;
   bool isUtilities = false;
 
@@ -28,7 +28,6 @@ class _HomepageState extends State<Homepage> {
   void initState() {
     super.initState();
 
-    if (Platform.isIOS) iOSPermission();
     _firebaseMessaging.getToken().then((token) {
       if (token != null) {
         var body = {"action": "save_token", "token": token};
@@ -79,15 +78,6 @@ class _HomepageState extends State<Homepage> {
     });
   }
 
-  void iOSPermission() {
-    _firebaseMessaging.requestNotificationPermissions(
-        IosNotificationSettings(sound: true, badge: true, alert: true));
-    _firebaseMessaging.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings) {
-      print("Settings registered: $settings");
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,12 +94,11 @@ class _HomepageState extends State<Homepage> {
                 padding: EdgeInsets.all(3.0),
                 children: <Widget>[
                   gridView("Preventive Maintenance", Colors.cyanAccent,
-                      "workorder.png",
-                      route: "/ppm"),
-                  gridView("Work Order", Colors.cyanAccent, "work_order.png",
-                      route: "/workorder"),
+                      icon: "workorder.png", route: "/ppm"),
+                  gridView("Work Order", Colors.cyanAccent,
+                      icon: "work_order.png", route: "/workorder"),
                   gridView("StoreKeeper", Colors.yellowAccent,
-                      "facilitycondition.png", onTap: () async {
+                      icon: "facilitycondition.png", onTap: () async {
                     final user = User.fromMap(await User.getPrefUser);
                     final _role = user.roles.map((role) => role.desc).toList();
                     if (_role.contains("Storekeeper") ||
@@ -118,24 +107,44 @@ class _HomepageState extends State<Homepage> {
                     else
                       Toast.show("You have no access rights", context);
                   }, notAllowed: isStorekeeper),
-                  gridView("Utilities", Colors.greenAccent, "bpm.png",
-                      //     onTap: () async {
-                      //   final user = User.fromMap(await User.getPrefUser);
-                      //   final _role = user.roles.map((role) => role.desc).toList();
-                      //   if (_role.contains("Administrator"))
-                      //     UtilsBill().selectType(context);
-                      //   else
-                      //     Toast.show("You have no access rights", context);
-                      // },
-                      route: routeUtilities,
-                      notAllowed: isUtilities),
+                  gridView(
+                    "Utilities", Colors.greenAccent, icon: "bpm.png",
+                    //     onTap: () async {
+                    //   final user = User.fromMap(await User.getPrefUser);
+                    //   final _role = user.roles.map((role) => role.desc).toList();
+                    //   if (_role.contains("Administrator"))
+                    //     UtilsBill().selectType(context);
+                    //   else
+                    //     Toast.show("You have no access rights", context);
+                    // },
+                    route: routeUtilities,
+                    notAllowed: isUtilities,
+                  ),
+                  gridView(
+                    "Leaderboard",
+                    Colors.black,
+                    image: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Image.asset(
+                        "assets/Complete.png",
+                        color: Colors.white,
+                      ),
+                    ),
+                    onTap: () {},
+                    route: routeLeaderboard,
+                    // notAllowed: isUtilities,
+                  ),
                 ]),
           ],
         ));
   }
 
-  Widget gridView(text, color, icon,
-          {String route, Function onTap, bool notAllowed = true}) =>
+  Widget gridView(text, color,
+          {String icon,
+          Widget image,
+          String route,
+          Function onTap,
+          bool notAllowed = true}) =>
       new GestureDetector(
           onTap: () => notAllowed == false
               ? Toast.show("No Access Rights", context, duration: 3)
@@ -150,7 +159,13 @@ class _HomepageState extends State<Homepage> {
                 children: <Widget>[
                   new Container(
                     height: 100,
-                    child: Image.asset("assets/$icon", fit: BoxFit.fitHeight),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50),
+                      color: color,
+                    ),
+                    child: icon == null
+                        ? image
+                        : Image.asset("assets/$icon", fit: BoxFit.fitHeight),
                   ),
                   SizedBox(height: 20),
                   Align(

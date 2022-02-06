@@ -41,7 +41,7 @@ class _$DotSerializer implements StructuredSerializer<Dot> {
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'date':
           result.date = serializers.deserialize(value,
@@ -55,7 +55,7 @@ class _$DotSerializer implements StructuredSerializer<Dot> {
           result.status.replace(serializers.deserialize(value,
                   specifiedType:
                       const FullType(BuiltList, const [const FullType(String)]))
-              as BuiltList<dynamic>);
+              as BuiltList<Object>);
           break;
       }
     }
@@ -76,15 +76,9 @@ class _$Dot extends Dot {
       (new DotBuilder()..update(updates)).build();
 
   _$Dot._({this.date, this.total, this.status}) : super._() {
-    if (date == null) {
-      throw new BuiltValueNullFieldError('Dot', 'date');
-    }
-    if (total == null) {
-      throw new BuiltValueNullFieldError('Dot', 'total');
-    }
-    if (status == null) {
-      throw new BuiltValueNullFieldError('Dot', 'status');
-    }
+    BuiltValueNullFieldError.checkNotNull(date, 'Dot', 'date');
+    BuiltValueNullFieldError.checkNotNull(total, 'Dot', 'total');
+    BuiltValueNullFieldError.checkNotNull(status, 'Dot', 'status');
   }
 
   @override
@@ -138,10 +132,11 @@ class DotBuilder implements Builder<Dot, DotBuilder> {
   DotBuilder();
 
   DotBuilder get _$this {
-    if (_$v != null) {
-      _date = _$v.date;
-      _total = _$v.total;
-      _status = _$v.status?.toBuilder();
+    final $v = _$v;
+    if ($v != null) {
+      _date = $v.date;
+      _total = $v.total;
+      _status = $v.status.toBuilder();
       _$v = null;
     }
     return this;
@@ -149,9 +144,7 @@ class DotBuilder implements Builder<Dot, DotBuilder> {
 
   @override
   void replace(Dot other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$Dot;
   }
 
@@ -164,8 +157,12 @@ class DotBuilder implements Builder<Dot, DotBuilder> {
   _$Dot build() {
     _$Dot _$result;
     try {
-      _$result =
-          _$v ?? new _$Dot._(date: date, total: total, status: status.build());
+      _$result = _$v ??
+          new _$Dot._(
+              date: BuiltValueNullFieldError.checkNotNull(date, 'Dot', 'date'),
+              total:
+                  BuiltValueNullFieldError.checkNotNull(total, 'Dot', 'total'),
+              status: status.build());
     } catch (_) {
       String _$failedField;
       try {
@@ -182,4 +179,4 @@ class DotBuilder implements Builder<Dot, DotBuilder> {
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new
+// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new

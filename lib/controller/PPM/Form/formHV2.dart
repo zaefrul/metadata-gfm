@@ -401,13 +401,12 @@ class _FormHState extends State<FormH> {
 
     setState(() => _loading = true);
 
-    var geo = Geolocator();
-    GeolocationStatus geolocationStatus =
-        await geo.checkGeolocationPermissionStatus();
-    if (await geo.isLocationServiceEnabled()) {
-      Position position =
-          await geo.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-      if (geolocationStatus == GeolocationStatus.granted) {
+    LocationPermission geolocationStatus = await Geolocator.checkPermission();
+    if (await Geolocator.isLocationServiceEnabled()) {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      if (geolocationStatus == LocationPermission.whileInUse ||
+          geolocationStatus == LocationPermission.always) {
         latitude = position.latitude.toString();
         longitude = position.longitude.toString();
         if (position != null) {

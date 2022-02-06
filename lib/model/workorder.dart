@@ -245,6 +245,7 @@ abstract class TechnicianAssign
   String get groupId;
   String get woTaskCategory;
   String get userCategory;
+  String get woTaskMaxAssistant;
   BuiltList<String> get assistUserId;
 
   TechnicianAssign._();

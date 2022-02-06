@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc_technician.dart';
 import 'controller/Homepage/signature.dart';
+import 'controller/Leaderboard/leaderboard.dart';
 import 'controller/PPM/PMaintenance.dart';
 import 'controller/PPM/search.dart';
 import 'controller/Storekeeper/route/storekeeper/checkin_add_material.dart';
@@ -33,10 +36,71 @@ import 'controller/login.dart';
 import 'controller/Profile/profile.dart';
 import 'controller/Homepage/resetPassword.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'firebase_config.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+AndroidNotificationChannel channel;
+
 void main() async {
   material(init) => MyApp();
 
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: const FirebaseOptions(
+      apiKey: 'AIzaSyAHAsf51D0A407EklG1bs-5wA7EbyfNFg0',
+      appId: '1:448618578101:ios:2bc5c1fe2ec336f8ac3efc',
+      messagingSenderId: '448618578101',
+      projectId: 'react-native-firebase-testing',
+    ),
+  );
+
+  // Set the background messaging handler early on, as a named top-level function
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  if (Platform.isAndroid && Platform.isIOS) {
+    channel = const AndroidNotificationChannel(
+      'high_importance_channel', // id
+      'High Importance Notifications', // title
+      description:
+          'This channel is used for important notifications.', // description
+      importance: Importance.high,
+    );
+
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+    /// Create an Android Notification Channel.
+    ///
+    /// We use this channel in the `AndroidManifest.xml` file to override the
+    /// default FCM channel to enable heads up notifications.
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+
+    /// Update the iOS foreground notification presentation options to allow
+    /// heads up notifications.
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+  }
+
   return runApp(material("/"));
+}
+
+/// call.
+///
+/// To verify things are working, check out the native platform logs.
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp(options: DefaultFirebaseConfig.platformOptions);
+  print('Handling a background message ${message.messageId}');
 }
 
 class MyApp extends StatelessWidget {
@@ -46,9 +110,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        fontFamily: "Avenir",
-        primaryColor: colorTheme1,
-      ),
+          fontFamily: "Avenir",
+          appBarTheme: AppBarTheme(
+            backgroundColor: Colors.white,
+            foregroundColor: colorTheme3,
+          ),
+          primaryColor: colorTheme3,
+          primaryTextTheme:
+              TextTheme(headline6: TextStyle(color: colorTheme3))),
       title: "GEMS 2.0",
       initialRoute: "/",
       debugShowCheckedModeBanner: false,
@@ -174,6 +243,9 @@ class MyApp extends StatelessWidget {
           builder: (_) => SignatureView(id: settings.arguments),
           settings: settings,
         );
+      case routeLeaderboard:
+        return MaterialPageRoute(
+            builder: (_) => LeaderboardView(), settings: settings);
       default:
         return MaterialPageRoute(builder: (ctx) => ProcumentHomepage());
     }

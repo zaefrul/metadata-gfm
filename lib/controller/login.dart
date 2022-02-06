@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:gfm_gems/model/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:location/location.dart' as CheckLocation;
 import 'package:toast/toast.dart';
 
 import '../view/button.dart';
@@ -181,29 +181,31 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       );
 
   Future<bool> get keepLocationSession async {
-    bool value = true;
-    var location = CheckLocation.Location();
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      bool value = permission == LocationPermission.always ||
+          permission == LocationPermission.whileInUse;
 
-    if ((await location.hasPermission()) == false)
-      value = (await location.requestPermission()) ==
-          CheckLocation.PermissionStatus.GRANTED;
+      while (value == false) {
+        Geolocator.requestPermission().then((value) => permission = value);
+        value = permission == LocationPermission.always ||
+            permission == LocationPermission.whileInUse;
+      }
+      var position = await Geolocator.getLastKnownPosition(
+          forceAndroidLocationManager: true);
+      if (position == null)
+        position = await Geolocator.getCurrentPosition(
+            forceAndroidLocationManager: true);
 
-    if (value == false) return value;
+      var prefs = await SharedPreferences.getInstance();
 
-    if (await location.serviceEnabled() == false)
-      value = await location.requestService();
+      prefs.setString(prefsLATITUDE, position.latitude.toString());
+      prefs.setString(prefsLONGITUDE, position.longitude.toString());
 
-    if (value == false) return value;
-
-    var position = await location.getLocation();
-
-    if (position == null) return false;
-
-    var prefs = await SharedPreferences.getInstance();
-
-    prefs.setString(prefsLATITUDE, position.latitude.toString());
-    prefs.setString(prefsLONGITUDE, position.longitude.toString());
-
-    return value;
+      return value;
+    } catch (err) {
+      print(err);
+      return true;
+    }
   }
 }

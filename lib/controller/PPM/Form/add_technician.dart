@@ -1,30 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
 import 'package:gfm_gems/model/responseValue.dart';
 import 'package:gfm_gems/utils/network.dart';
-import 'package:toast/toast.dart';
+import 'package:gfm_gems/utils/reference.dart';
 
-class AddTechnicianCheckList extends StatefulWidget {
+class PPMAddTechnician extends StatefulWidget {
   final String id;
-  final bool viewer;
+  final bool verified;
+  final Function refreshStatus;
+  final bool disable;
 
-  AddTechnicianCheckList({this.id, this.viewer});
+  PPMAddTechnician(this.id, this.verified, this.refreshStatus, this.disable);
 
   @override
-  _AddTechnicianCheckListState createState() =>
-      _AddTechnicianCheckListState(this.id);
+  PPMAddTechnicianState createState() => PPMAddTechnicianState(this.id);
 }
 
-class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
+// ignore: camel_case_types
+class PPMAddTechnicianState extends State<PPMAddTechnician> {
   final TextEditingController _controller = TextEditingController();
 
   final List<_Model> listTechnician = [];
   final List<_Model> listTechnicianSearch = [];
   final List<_Model> listTechnicianSelected = [];
   final _Controller _provider;
-  int max;
 
-  _AddTechnicianCheckListState(String id) : _provider = _Controller(id) {
+  PPMAddTechnicianState(String id) : _provider = _Controller(id) {
     _provider.list.then(
       (value) => setState(() {
         listTechnician.addAll(value);
@@ -51,84 +51,75 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
           listTechnicianSearch.addAll(listTechnician);
       });
     });
-
-    Provider(
-      fetchURL:
-          "/wo_v2/assign_and_severity/", //"/api/m_wo.php?type=assign_and_severity&woTaskId=",
-      taskID: id,
-    ).fetch().then((onValue) {
-      var data = onValue.technicianAssign;
-      max = int.parse(data.woTaskMaxAssistant);
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: new Text("Add Technician Assistant"),
-        backgroundColor: Colors.white,
-      ),
-      body: Container(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          children: <Widget>[
-            TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                hintText: "Search",
-                icon: Icon(
-                  Icons.search,
+    return WillPopScope(
+      onWillPop: () async {
+        widget.refreshStatus();
+
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: new Text("Add Technician Assistant"),
+          backgroundColor: Colors.white,
+        ),
+        body: Container(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            children: <Widget>[
+              TextField(
+                controller: _controller,
+                decoration: InputDecoration(
+                  hintText: "Search",
+                  icon: Icon(
+                    Icons.search,
+                  ),
                 ),
               ),
-            ),
-            Expanded(
-              child: ListView(
-                children: listTechnicianSearch
-                    .map(
-                      (f) => new CheckboxListTile(
-                        title: new Text(f.userFullName),
-                        value: listTechnicianSelected.contains(f),
-                        onChanged: (value) {
-                          if (widget.viewer) return;
-                          // if (value) showsheet();
-                          // print(value);
-                          if (listTechnicianSelected.length == max) {
-                            Toast.show(
-                              "Assistant allowed $max!",
-                              context,
-                              duration: 2,
-                            );
-                          }
-                          if (value && listTechnicianSelected.length < max) {
-                            if (listTechnicianSelected.contains(f) == false) {
-                              setState(() => listTechnicianSelected.add(f));
-                              _provider.add(f);
-                            }
-                          } else
-                            setState(() {
-                              listTechnicianSelected
-                                  .removeWhere((technician) => technician == f);
-                              _provider.delete(f);
-                            });
-                        },
-                      ),
-                    )
-                    .toList(),
+              Expanded(
+                child: ListView(
+                  children: listTechnicianSearch
+                      .map(
+                        (f) => new CheckboxListTile(
+                          title: new Text(f.userFullName),
+                          value: listTechnicianSelected.contains(f),
+                          onChanged: (value) {
+                            if (widget.disable) return;
+                            // if (value) showsheet();
+                            // print(value);
+                            if (value) {
+                              if (listTechnicianSelected.contains(f) == false) {
+                                setState(() => listTechnicianSelected.add(f));
+                                _provider.add(f);
+                              }
+                            } else
+                              setState(() {
+                                listTechnicianSelected.removeWhere(
+                                    (technician) => technician == f);
+                                _provider.delete(f);
+                              });
+                          },
+                        ),
+                      )
+                      .toList(),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        floatingActionButton: widget.disable
+            ? null
+            : FloatingActionButton.extended(
+                label: new Text("Done"),
+                onPressed: () async {
+                  await _provider.submit();
+                  Navigator.of(context).pop(listTechnicianSelected);
+                },
+              ),
       ),
-      floatingActionButton: widget.viewer
-          ? null
-          : FloatingActionButton.extended(
-              label: new Text("Done"),
-              onPressed: () async {
-                await _provider.submit();
-                Navigator.of(context).pop(listTechnicianSelected);
-              },
-            ),
     );
   }
 
@@ -228,7 +219,7 @@ class _Controller {
   _Controller(this.id);
 
   Future<List<_Model>> get list async {
-    final url = "/wo_task_assist/dropdown_list/";
+    final url = "/ppm_task_assist/dropdown_list/";
     final Provider _provider = Provider(fetchURL: url, taskID: id);
 
     try {
@@ -244,7 +235,7 @@ class _Controller {
   }
 
   Future<List<_Model>> get selected async {
-    final url = "/wo_task_assist/assistant_list/";
+    final url = "/ppm_task_assist/assistant_list/";
     final Provider _provider = Provider(fetchURL: url, taskID: id);
     try {
       final result = await _provider.getJson();
@@ -259,7 +250,7 @@ class _Controller {
   }
 
   Future<void> add(_Model model) async {
-    final url = "/wo_task_assist";
+    final url = "/ppm_task_assist";
     final Provider _provider = Provider();
 
     final body = {
@@ -276,7 +267,7 @@ class _Controller {
   }
 
   Future<void> delete(_Model model) async {
-    final url = "/wo_task_assist/${model.assistantId}";
+    final url = "/ppm_task_assist/${model.assistantId}";
     final Provider _provider = Provider(fetchURL: url, taskID: id);
     try {
       final _ = await _provider.delete(url: url);
@@ -288,7 +279,7 @@ class _Controller {
   }
 
   Future<void> submit() async {
-    final url = "/wo_v2/save_assistant_list/$id";
+    final url = "/ppm_v2/ppm_task_assist/$id";
     final Provider _provider = Provider();
     try {
       final _ = await _provider.post(url: url);
@@ -316,5 +307,5 @@ class _Model {
   _Model(this.assistantId, this.userId, this.userFullName);
 
   factory _Model.fromJson(Map<String, dynamic> json) =>
-      _Model(json["woTaskAssistId"], json["userId"], json["userFullName"]);
+      _Model(json["ppmTaskAssistId"], json["userId"], json["userFullName"]);
 }

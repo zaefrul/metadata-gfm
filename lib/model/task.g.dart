@@ -63,7 +63,7 @@ class _$TaskSerializer implements StructuredSerializer<Task> {
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'taskId':
           result.taskId = serializers.deserialize(value,
@@ -105,7 +105,7 @@ class _$TaskSerializer implements StructuredSerializer<Task> {
           result.frequency.replace(serializers.deserialize(value,
                   specifiedType:
                       const FullType(BuiltList, const [const FullType(String)]))
-              as BuiltList<dynamic>);
+              as BuiltList<Object>);
           break;
       }
     }
@@ -151,36 +151,18 @@ class _$Task extends Task {
       this.technician,
       this.frequency})
       : super._() {
-    if (taskId == null) {
-      throw new BuiltValueNullFieldError('Task', 'taskId');
-    }
-    if (ppmTaskId == null) {
-      throw new BuiltValueNullFieldError('Task', 'ppmTaskId');
-    }
-    if (transactionNo == null) {
-      throw new BuiltValueNullFieldError('Task', 'transactionNo');
-    }
-    if (assetNo == null) {
-      throw new BuiltValueNullFieldError('Task', 'assetNo');
-    }
-    if (siteName == null) {
-      throw new BuiltValueNullFieldError('Task', 'siteName');
-    }
-    if (assetTypeName == null) {
-      throw new BuiltValueNullFieldError('Task', 'assetTypeName');
-    }
-    if (statusDesc == null) {
-      throw new BuiltValueNullFieldError('Task', 'statusDesc');
-    }
-    if (taskDateDue == null) {
-      throw new BuiltValueNullFieldError('Task', 'taskDateDue');
-    }
-    if (technician == null) {
-      throw new BuiltValueNullFieldError('Task', 'technician');
-    }
-    if (frequency == null) {
-      throw new BuiltValueNullFieldError('Task', 'frequency');
-    }
+    BuiltValueNullFieldError.checkNotNull(taskId, 'Task', 'taskId');
+    BuiltValueNullFieldError.checkNotNull(ppmTaskId, 'Task', 'ppmTaskId');
+    BuiltValueNullFieldError.checkNotNull(
+        transactionNo, 'Task', 'transactionNo');
+    BuiltValueNullFieldError.checkNotNull(assetNo, 'Task', 'assetNo');
+    BuiltValueNullFieldError.checkNotNull(siteName, 'Task', 'siteName');
+    BuiltValueNullFieldError.checkNotNull(
+        assetTypeName, 'Task', 'assetTypeName');
+    BuiltValueNullFieldError.checkNotNull(statusDesc, 'Task', 'statusDesc');
+    BuiltValueNullFieldError.checkNotNull(taskDateDue, 'Task', 'taskDateDue');
+    BuiltValueNullFieldError.checkNotNull(technician, 'Task', 'technician');
+    BuiltValueNullFieldError.checkNotNull(frequency, 'Task', 'frequency');
   }
 
   @override
@@ -294,17 +276,18 @@ class TaskBuilder implements Builder<Task, TaskBuilder> {
   TaskBuilder();
 
   TaskBuilder get _$this {
-    if (_$v != null) {
-      _taskId = _$v.taskId;
-      _ppmTaskId = _$v.ppmTaskId;
-      _transactionNo = _$v.transactionNo;
-      _assetNo = _$v.assetNo;
-      _siteName = _$v.siteName;
-      _assetTypeName = _$v.assetTypeName;
-      _statusDesc = _$v.statusDesc;
-      _taskDateDue = _$v.taskDateDue;
-      _technician = _$v.technician;
-      _frequency = _$v.frequency?.toBuilder();
+    final $v = _$v;
+    if ($v != null) {
+      _taskId = $v.taskId;
+      _ppmTaskId = $v.ppmTaskId;
+      _transactionNo = $v.transactionNo;
+      _assetNo = $v.assetNo;
+      _siteName = $v.siteName;
+      _assetTypeName = $v.assetTypeName;
+      _statusDesc = $v.statusDesc;
+      _taskDateDue = $v.taskDateDue;
+      _technician = $v.technician;
+      _frequency = $v.frequency.toBuilder();
       _$v = null;
     }
     return this;
@@ -312,9 +295,7 @@ class TaskBuilder implements Builder<Task, TaskBuilder> {
 
   @override
   void replace(Task other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$Task;
   }
 
@@ -329,15 +310,24 @@ class TaskBuilder implements Builder<Task, TaskBuilder> {
     try {
       _$result = _$v ??
           new _$Task._(
-              taskId: taskId,
-              ppmTaskId: ppmTaskId,
-              transactionNo: transactionNo,
-              assetNo: assetNo,
-              siteName: siteName,
-              assetTypeName: assetTypeName,
-              statusDesc: statusDesc,
-              taskDateDue: taskDateDue,
-              technician: technician,
+              taskId: BuiltValueNullFieldError.checkNotNull(
+                  taskId, 'Task', 'taskId'),
+              ppmTaskId: BuiltValueNullFieldError.checkNotNull(
+                  ppmTaskId, 'Task', 'ppmTaskId'),
+              transactionNo: BuiltValueNullFieldError.checkNotNull(
+                  transactionNo, 'Task', 'transactionNo'),
+              assetNo: BuiltValueNullFieldError.checkNotNull(
+                  assetNo, 'Task', 'assetNo'),
+              siteName: BuiltValueNullFieldError.checkNotNull(
+                  siteName, 'Task', 'siteName'),
+              assetTypeName: BuiltValueNullFieldError.checkNotNull(
+                  assetTypeName, 'Task', 'assetTypeName'),
+              statusDesc: BuiltValueNullFieldError.checkNotNull(
+                  statusDesc, 'Task', 'statusDesc'),
+              taskDateDue: BuiltValueNullFieldError.checkNotNull(
+                  taskDateDue, 'Task', 'taskDateDue'),
+              technician: BuiltValueNullFieldError.checkNotNull(
+                  technician, 'Task', 'technician'),
               frequency: frequency.build());
     } catch (_) {
       String _$failedField;
@@ -355,4 +345,4 @@ class TaskBuilder implements Builder<Task, TaskBuilder> {
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new
+// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new

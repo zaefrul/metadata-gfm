@@ -58,7 +58,7 @@ class _$FormSerializer implements StructuredSerializer<Form> {
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'ppmTaskSectionId':
           result.ppmTaskSectionId = serializers.deserialize(value,
@@ -157,7 +157,7 @@ class _$FormAItemSerializer implements StructuredSerializer<FormAItem> {
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'ppmTaskId':
           result.ppmTaskId = serializers.deserialize(value,
@@ -252,7 +252,7 @@ class _$FormBItemSerializer implements StructuredSerializer<FormBItem> {
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'ppmTaskId':
           result.ppmTaskId = serializers.deserialize(value,
@@ -317,7 +317,7 @@ class _$FormCItemSerializer implements StructuredSerializer<FormCItem> {
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'ppmTaskQualId':
           result.ppmTaskQualId = serializers.deserialize(value,
@@ -418,7 +418,7 @@ class _$FormDItemSerializer implements StructuredSerializer<FormDItem> {
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'ppmTaskQuanId':
           result.ppmTaskQuanId = serializers.deserialize(value,
@@ -508,7 +508,7 @@ class _$FormEItemSerializer implements StructuredSerializer<FormEItem> {
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'ppmTaskPartsId':
           result.ppmTaskPartsId = serializers.deserialize(value,
@@ -577,7 +577,7 @@ class _$FormFItemSerializer implements StructuredSerializer<FormFItem> {
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'ppmTaskUploadId':
           result.ppmTaskUploadId = serializers.deserialize(value,
@@ -648,7 +648,7 @@ class _$FormGItemSerializer implements StructuredSerializer<FormGItem> {
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'ppmTaskId':
           result.ppmTaskId = serializers.deserialize(value,
@@ -709,10 +709,12 @@ class _$FormHItemSerializer implements StructuredSerializer<FormHItem> {
       serializers.serialize(object.documentSrc,
           specifiedType: const FullType(String)),
     ];
-    if (object.uploadId != null) {
+    Object value;
+    value = object.uploadId;
+    if (value != null) {
       result
         ..add('uploadId')
-        ..add(serializers.serialize(object.uploadId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
     return result;
@@ -727,7 +729,7 @@ class _$FormHItemSerializer implements StructuredSerializer<FormHItem> {
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'ppmTaskUploadId':
           result.ppmTaskUploadId = serializers.deserialize(value,
@@ -809,24 +811,16 @@ class _$Form extends Form {
       this.checkParts,
       this.checkAdditionalReport})
       : super._() {
-    if (ppmTaskSectionId == null) {
-      throw new BuiltValueNullFieldError('Form', 'ppmTaskSectionId');
-    }
-    if (ppmTaskSectionName == null) {
-      throw new BuiltValueNullFieldError('Form', 'ppmTaskSectionName');
-    }
-    if (ppmTaskId == null) {
-      throw new BuiltValueNullFieldError('Form', 'ppmTaskId');
-    }
-    if (ppmTaskSectionStatus == null) {
-      throw new BuiltValueNullFieldError('Form', 'ppmTaskSectionStatus');
-    }
-    if (checkParts == null) {
-      throw new BuiltValueNullFieldError('Form', 'checkParts');
-    }
-    if (checkAdditionalReport == null) {
-      throw new BuiltValueNullFieldError('Form', 'checkAdditionalReport');
-    }
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskSectionId, 'Form', 'ppmTaskSectionId');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskSectionName, 'Form', 'ppmTaskSectionName');
+    BuiltValueNullFieldError.checkNotNull(ppmTaskId, 'Form', 'ppmTaskId');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskSectionStatus, 'Form', 'ppmTaskSectionStatus');
+    BuiltValueNullFieldError.checkNotNull(checkParts, 'Form', 'checkParts');
+    BuiltValueNullFieldError.checkNotNull(
+        checkAdditionalReport, 'Form', 'checkAdditionalReport');
   }
 
   @override
@@ -909,13 +903,14 @@ class FormBuilder implements Builder<Form, FormBuilder> {
   FormBuilder();
 
   FormBuilder get _$this {
-    if (_$v != null) {
-      _ppmTaskSectionId = _$v.ppmTaskSectionId;
-      _ppmTaskSectionName = _$v.ppmTaskSectionName;
-      _ppmTaskId = _$v.ppmTaskId;
-      _ppmTaskSectionStatus = _$v.ppmTaskSectionStatus;
-      _checkParts = _$v.checkParts;
-      _checkAdditionalReport = _$v.checkAdditionalReport;
+    final $v = _$v;
+    if ($v != null) {
+      _ppmTaskSectionId = $v.ppmTaskSectionId;
+      _ppmTaskSectionName = $v.ppmTaskSectionName;
+      _ppmTaskId = $v.ppmTaskId;
+      _ppmTaskSectionStatus = $v.ppmTaskSectionStatus;
+      _checkParts = $v.checkParts;
+      _checkAdditionalReport = $v.checkAdditionalReport;
       _$v = null;
     }
     return this;
@@ -923,9 +918,7 @@ class FormBuilder implements Builder<Form, FormBuilder> {
 
   @override
   void replace(Form other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$Form;
   }
 
@@ -938,12 +931,18 @@ class FormBuilder implements Builder<Form, FormBuilder> {
   _$Form build() {
     final _$result = _$v ??
         new _$Form._(
-            ppmTaskSectionId: ppmTaskSectionId,
-            ppmTaskSectionName: ppmTaskSectionName,
-            ppmTaskId: ppmTaskId,
-            ppmTaskSectionStatus: ppmTaskSectionStatus,
-            checkParts: checkParts,
-            checkAdditionalReport: checkAdditionalReport);
+            ppmTaskSectionId: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskSectionId, 'Form', 'ppmTaskSectionId'),
+            ppmTaskSectionName: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskSectionName, 'Form', 'ppmTaskSectionName'),
+            ppmTaskId: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskId, 'Form', 'ppmTaskId'),
+            ppmTaskSectionStatus: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskSectionStatus, 'Form', 'ppmTaskSectionStatus'),
+            checkParts: BuiltValueNullFieldError.checkNotNull(
+                checkParts, 'Form', 'checkParts'),
+            checkAdditionalReport: BuiltValueNullFieldError.checkNotNull(
+                checkAdditionalReport, 'Form', 'checkAdditionalReport'));
     replace(_$result);
     return _$result;
   }
@@ -998,48 +997,30 @@ class _$FormAItem extends FormAItem {
       this.ppmTaskTimeStart,
       this.ppmTaskTimeServiced})
       : super._() {
-    if (ppmTaskId == null) {
-      throw new BuiltValueNullFieldError('FormAItem', 'ppmTaskId');
-    }
-    if (ppmTaskScheduleDate == null) {
-      throw new BuiltValueNullFieldError('FormAItem', 'ppmTaskScheduleDate');
-    }
-    if (assetId == null) {
-      throw new BuiltValueNullFieldError('FormAItem', 'assetId');
-    }
-    if (assetGroupName == null) {
-      throw new BuiltValueNullFieldError('FormAItem', 'assetGroupName');
-    }
-    if (assetCategoryName == null) {
-      throw new BuiltValueNullFieldError('FormAItem', 'assetCategoryName');
-    }
-    if (assetTypeName == null) {
-      throw new BuiltValueNullFieldError('FormAItem', 'assetTypeName');
-    }
-    if (assetBrandName == null) {
-      throw new BuiltValueNullFieldError('FormAItem', 'assetBrandName');
-    }
-    if (assetModelName == null) {
-      throw new BuiltValueNullFieldError('FormAItem', 'assetModelName');
-    }
-    if (assetNo == null) {
-      throw new BuiltValueNullFieldError('FormAItem', 'assetNo');
-    }
-    if (assetName == null) {
-      throw new BuiltValueNullFieldError('FormAItem', 'assetName');
-    }
-    if (locationCodeId == null) {
-      throw new BuiltValueNullFieldError('FormAItem', 'locationCodeId');
-    }
-    if (assetCapacity == null) {
-      throw new BuiltValueNullFieldError('FormAItem', 'assetCapacity');
-    }
-    if (ppmTaskTimeStart == null) {
-      throw new BuiltValueNullFieldError('FormAItem', 'ppmTaskTimeStart');
-    }
-    if (ppmTaskTimeServiced == null) {
-      throw new BuiltValueNullFieldError('FormAItem', 'ppmTaskTimeServiced');
-    }
+    BuiltValueNullFieldError.checkNotNull(ppmTaskId, 'FormAItem', 'ppmTaskId');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskScheduleDate, 'FormAItem', 'ppmTaskScheduleDate');
+    BuiltValueNullFieldError.checkNotNull(assetId, 'FormAItem', 'assetId');
+    BuiltValueNullFieldError.checkNotNull(
+        assetGroupName, 'FormAItem', 'assetGroupName');
+    BuiltValueNullFieldError.checkNotNull(
+        assetCategoryName, 'FormAItem', 'assetCategoryName');
+    BuiltValueNullFieldError.checkNotNull(
+        assetTypeName, 'FormAItem', 'assetTypeName');
+    BuiltValueNullFieldError.checkNotNull(
+        assetBrandName, 'FormAItem', 'assetBrandName');
+    BuiltValueNullFieldError.checkNotNull(
+        assetModelName, 'FormAItem', 'assetModelName');
+    BuiltValueNullFieldError.checkNotNull(assetNo, 'FormAItem', 'assetNo');
+    BuiltValueNullFieldError.checkNotNull(assetName, 'FormAItem', 'assetName');
+    BuiltValueNullFieldError.checkNotNull(
+        locationCodeId, 'FormAItem', 'locationCodeId');
+    BuiltValueNullFieldError.checkNotNull(
+        assetCapacity, 'FormAItem', 'assetCapacity');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskTimeStart, 'FormAItem', 'ppmTaskTimeStart');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskTimeServiced, 'FormAItem', 'ppmTaskTimeServiced');
   }
 
   @override
@@ -1195,21 +1176,22 @@ class FormAItemBuilder implements Builder<FormAItem, FormAItemBuilder> {
   FormAItemBuilder();
 
   FormAItemBuilder get _$this {
-    if (_$v != null) {
-      _ppmTaskId = _$v.ppmTaskId;
-      _ppmTaskScheduleDate = _$v.ppmTaskScheduleDate;
-      _assetId = _$v.assetId;
-      _assetGroupName = _$v.assetGroupName;
-      _assetCategoryName = _$v.assetCategoryName;
-      _assetTypeName = _$v.assetTypeName;
-      _assetBrandName = _$v.assetBrandName;
-      _assetModelName = _$v.assetModelName;
-      _assetNo = _$v.assetNo;
-      _assetName = _$v.assetName;
-      _locationCodeId = _$v.locationCodeId;
-      _assetCapacity = _$v.assetCapacity;
-      _ppmTaskTimeStart = _$v.ppmTaskTimeStart;
-      _ppmTaskTimeServiced = _$v.ppmTaskTimeServiced;
+    final $v = _$v;
+    if ($v != null) {
+      _ppmTaskId = $v.ppmTaskId;
+      _ppmTaskScheduleDate = $v.ppmTaskScheduleDate;
+      _assetId = $v.assetId;
+      _assetGroupName = $v.assetGroupName;
+      _assetCategoryName = $v.assetCategoryName;
+      _assetTypeName = $v.assetTypeName;
+      _assetBrandName = $v.assetBrandName;
+      _assetModelName = $v.assetModelName;
+      _assetNo = $v.assetNo;
+      _assetName = $v.assetName;
+      _locationCodeId = $v.locationCodeId;
+      _assetCapacity = $v.assetCapacity;
+      _ppmTaskTimeStart = $v.ppmTaskTimeStart;
+      _ppmTaskTimeServiced = $v.ppmTaskTimeServiced;
       _$v = null;
     }
     return this;
@@ -1217,9 +1199,7 @@ class FormAItemBuilder implements Builder<FormAItem, FormAItemBuilder> {
 
   @override
   void replace(FormAItem other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$FormAItem;
   }
 
@@ -1232,20 +1212,28 @@ class FormAItemBuilder implements Builder<FormAItem, FormAItemBuilder> {
   _$FormAItem build() {
     final _$result = _$v ??
         new _$FormAItem._(
-            ppmTaskId: ppmTaskId,
-            ppmTaskScheduleDate: ppmTaskScheduleDate,
-            assetId: assetId,
-            assetGroupName: assetGroupName,
-            assetCategoryName: assetCategoryName,
-            assetTypeName: assetTypeName,
-            assetBrandName: assetBrandName,
-            assetModelName: assetModelName,
-            assetNo: assetNo,
-            assetName: assetName,
-            locationCodeId: locationCodeId,
-            assetCapacity: assetCapacity,
-            ppmTaskTimeStart: ppmTaskTimeStart,
-            ppmTaskTimeServiced: ppmTaskTimeServiced);
+            ppmTaskId: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskId, 'FormAItem', 'ppmTaskId'),
+            ppmTaskScheduleDate: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskScheduleDate, 'FormAItem', 'ppmTaskScheduleDate'),
+            assetId: BuiltValueNullFieldError.checkNotNull(
+                assetId, 'FormAItem', 'assetId'),
+            assetGroupName: BuiltValueNullFieldError.checkNotNull(
+                assetGroupName, 'FormAItem', 'assetGroupName'),
+            assetCategoryName: BuiltValueNullFieldError.checkNotNull(
+                assetCategoryName, 'FormAItem', 'assetCategoryName'),
+            assetTypeName: BuiltValueNullFieldError.checkNotNull(
+                assetTypeName, 'FormAItem', 'assetTypeName'),
+            assetBrandName: BuiltValueNullFieldError.checkNotNull(
+                assetBrandName, 'FormAItem', 'assetBrandName'),
+            assetModelName: BuiltValueNullFieldError.checkNotNull(
+                assetModelName, 'FormAItem', 'assetModelName'),
+            assetNo: BuiltValueNullFieldError.checkNotNull(assetNo, 'FormAItem', 'assetNo'),
+            assetName: BuiltValueNullFieldError.checkNotNull(assetName, 'FormAItem', 'assetName'),
+            locationCodeId: BuiltValueNullFieldError.checkNotNull(locationCodeId, 'FormAItem', 'locationCodeId'),
+            assetCapacity: BuiltValueNullFieldError.checkNotNull(assetCapacity, 'FormAItem', 'assetCapacity'),
+            ppmTaskTimeStart: BuiltValueNullFieldError.checkNotNull(ppmTaskTimeStart, 'FormAItem', 'ppmTaskTimeStart'),
+            ppmTaskTimeServiced: BuiltValueNullFieldError.checkNotNull(ppmTaskTimeServiced, 'FormAItem', 'ppmTaskTimeServiced'));
     replace(_$result);
     return _$result;
   }
@@ -1261,12 +1249,9 @@ class _$FormBItem extends FormBItem {
       (new FormBItemBuilder()..update(updates)).build();
 
   _$FormBItem._({this.ppmTaskId, this.ppmTaskGuideline}) : super._() {
-    if (ppmTaskId == null) {
-      throw new BuiltValueNullFieldError('FormBItem', 'ppmTaskId');
-    }
-    if (ppmTaskGuideline == null) {
-      throw new BuiltValueNullFieldError('FormBItem', 'ppmTaskGuideline');
-    }
+    BuiltValueNullFieldError.checkNotNull(ppmTaskId, 'FormBItem', 'ppmTaskId');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskGuideline, 'FormBItem', 'ppmTaskGuideline');
   }
 
   @override
@@ -1313,9 +1298,10 @@ class FormBItemBuilder implements Builder<FormBItem, FormBItemBuilder> {
   FormBItemBuilder();
 
   FormBItemBuilder get _$this {
-    if (_$v != null) {
-      _ppmTaskId = _$v.ppmTaskId;
-      _ppmTaskGuideline = _$v.ppmTaskGuideline;
+    final $v = _$v;
+    if ($v != null) {
+      _ppmTaskId = $v.ppmTaskId;
+      _ppmTaskGuideline = $v.ppmTaskGuideline;
       _$v = null;
     }
     return this;
@@ -1323,9 +1309,7 @@ class FormBItemBuilder implements Builder<FormBItem, FormBItemBuilder> {
 
   @override
   void replace(FormBItem other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$FormBItem;
   }
 
@@ -1338,7 +1322,10 @@ class FormBItemBuilder implements Builder<FormBItem, FormBItemBuilder> {
   _$FormBItem build() {
     final _$result = _$v ??
         new _$FormBItem._(
-            ppmTaskId: ppmTaskId, ppmTaskGuideline: ppmTaskGuideline);
+            ppmTaskId: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskId, 'FormBItem', 'ppmTaskId'),
+            ppmTaskGuideline: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskGuideline, 'FormBItem', 'ppmTaskGuideline'));
     replace(_$result);
     return _$result;
   }
@@ -1375,30 +1362,21 @@ class _$FormCItem extends FormCItem {
       this.ppmTaskQualResult,
       this.ppmTaskQualRemark})
       : super._() {
-    if (ppmTaskQualId == null) {
-      throw new BuiltValueNullFieldError('FormCItem', 'ppmTaskQualId');
-    }
-    if (ppmTaskId == null) {
-      throw new BuiltValueNullFieldError('FormCItem', 'ppmTaskId');
-    }
-    if (ppmTaskQualNumb == null) {
-      throw new BuiltValueNullFieldError('FormCItem', 'ppmTaskQualNumb');
-    }
-    if (ppmTaskQualDesc == null) {
-      throw new BuiltValueNullFieldError('FormCItem', 'ppmTaskQualDesc');
-    }
-    if (frequencyId == null) {
-      throw new BuiltValueNullFieldError('FormCItem', 'frequencyId');
-    }
-    if (frequencyName == null) {
-      throw new BuiltValueNullFieldError('FormCItem', 'frequencyName');
-    }
-    if (ppmTaskQualResult == null) {
-      throw new BuiltValueNullFieldError('FormCItem', 'ppmTaskQualResult');
-    }
-    if (ppmTaskQualRemark == null) {
-      throw new BuiltValueNullFieldError('FormCItem', 'ppmTaskQualRemark');
-    }
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskQualId, 'FormCItem', 'ppmTaskQualId');
+    BuiltValueNullFieldError.checkNotNull(ppmTaskId, 'FormCItem', 'ppmTaskId');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskQualNumb, 'FormCItem', 'ppmTaskQualNumb');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskQualDesc, 'FormCItem', 'ppmTaskQualDesc');
+    BuiltValueNullFieldError.checkNotNull(
+        frequencyId, 'FormCItem', 'frequencyId');
+    BuiltValueNullFieldError.checkNotNull(
+        frequencyName, 'FormCItem', 'frequencyName');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskQualResult, 'FormCItem', 'ppmTaskQualResult');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskQualRemark, 'FormCItem', 'ppmTaskQualRemark');
   }
 
   @override
@@ -1499,15 +1477,16 @@ class FormCItemBuilder implements Builder<FormCItem, FormCItemBuilder> {
   FormCItemBuilder();
 
   FormCItemBuilder get _$this {
-    if (_$v != null) {
-      _ppmTaskQualId = _$v.ppmTaskQualId;
-      _ppmTaskId = _$v.ppmTaskId;
-      _ppmTaskQualNumb = _$v.ppmTaskQualNumb;
-      _ppmTaskQualDesc = _$v.ppmTaskQualDesc;
-      _frequencyId = _$v.frequencyId;
-      _frequencyName = _$v.frequencyName;
-      _ppmTaskQualResult = _$v.ppmTaskQualResult;
-      _ppmTaskQualRemark = _$v.ppmTaskQualRemark;
+    final $v = _$v;
+    if ($v != null) {
+      _ppmTaskQualId = $v.ppmTaskQualId;
+      _ppmTaskId = $v.ppmTaskId;
+      _ppmTaskQualNumb = $v.ppmTaskQualNumb;
+      _ppmTaskQualDesc = $v.ppmTaskQualDesc;
+      _frequencyId = $v.frequencyId;
+      _frequencyName = $v.frequencyName;
+      _ppmTaskQualResult = $v.ppmTaskQualResult;
+      _ppmTaskQualRemark = $v.ppmTaskQualRemark;
       _$v = null;
     }
     return this;
@@ -1515,9 +1494,7 @@ class FormCItemBuilder implements Builder<FormCItem, FormCItemBuilder> {
 
   @override
   void replace(FormCItem other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$FormCItem;
   }
 
@@ -1530,14 +1507,22 @@ class FormCItemBuilder implements Builder<FormCItem, FormCItemBuilder> {
   _$FormCItem build() {
     final _$result = _$v ??
         new _$FormCItem._(
-            ppmTaskQualId: ppmTaskQualId,
-            ppmTaskId: ppmTaskId,
-            ppmTaskQualNumb: ppmTaskQualNumb,
-            ppmTaskQualDesc: ppmTaskQualDesc,
-            frequencyId: frequencyId,
-            frequencyName: frequencyName,
-            ppmTaskQualResult: ppmTaskQualResult,
-            ppmTaskQualRemark: ppmTaskQualRemark);
+            ppmTaskQualId: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskQualId, 'FormCItem', 'ppmTaskQualId'),
+            ppmTaskId: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskId, 'FormCItem', 'ppmTaskId'),
+            ppmTaskQualNumb: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskQualNumb, 'FormCItem', 'ppmTaskQualNumb'),
+            ppmTaskQualDesc: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskQualDesc, 'FormCItem', 'ppmTaskQualDesc'),
+            frequencyId: BuiltValueNullFieldError.checkNotNull(
+                frequencyId, 'FormCItem', 'frequencyId'),
+            frequencyName: BuiltValueNullFieldError.checkNotNull(
+                frequencyName, 'FormCItem', 'frequencyName'),
+            ppmTaskQualResult: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskQualResult, 'FormCItem', 'ppmTaskQualResult'),
+            ppmTaskQualRemark: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskQualRemark, 'FormCItem', 'ppmTaskQualRemark'));
     replace(_$result);
     return _$result;
   }
@@ -1586,43 +1571,29 @@ class _$FormDItem extends FormDItem {
       this.ppmTaskQuanResult,
       this.ppmTaskQuanRemark})
       : super._() {
-    if (ppmTaskQuanId == null) {
-      throw new BuiltValueNullFieldError('FormDItem', 'ppmTaskQuanId');
-    }
-    if (ppmTaskId == null) {
-      throw new BuiltValueNullFieldError('FormDItem', 'ppmTaskId');
-    }
-    if (ppmTaskQuanNumb == null) {
-      throw new BuiltValueNullFieldError('FormDItem', 'ppmTaskQuanNumb');
-    }
-    if (ppmTaskQuanDesc == null) {
-      throw new BuiltValueNullFieldError('FormDItem', 'ppmTaskQuanDesc');
-    }
-    if (frequencyId == null) {
-      throw new BuiltValueNullFieldError('FormDItem', 'frequencyId');
-    }
-    if (frequencyName == null) {
-      throw new BuiltValueNullFieldError('FormDItem', 'frequencyName');
-    }
-    if (ppmTaskQuanUnit == null) {
-      throw new BuiltValueNullFieldError('FormDItem', 'ppmTaskQuanUnit');
-    }
-    if (ppmTaskQuanSetValues == null) {
-      throw new BuiltValueNullFieldError('FormDItem', 'ppmTaskQuanSetValues');
-    }
-    if (ppmTaskQuanMeasuredValues == null) {
-      throw new BuiltValueNullFieldError(
-          'FormDItem', 'ppmTaskQuanMeasuredValues');
-    }
-    if (ppmTaskQuanLimit == null) {
-      throw new BuiltValueNullFieldError('FormDItem', 'ppmTaskQuanLimit');
-    }
-    if (ppmTaskQuanResult == null) {
-      throw new BuiltValueNullFieldError('FormDItem', 'ppmTaskQuanResult');
-    }
-    if (ppmTaskQuanRemark == null) {
-      throw new BuiltValueNullFieldError('FormDItem', 'ppmTaskQuanRemark');
-    }
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskQuanId, 'FormDItem', 'ppmTaskQuanId');
+    BuiltValueNullFieldError.checkNotNull(ppmTaskId, 'FormDItem', 'ppmTaskId');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskQuanNumb, 'FormDItem', 'ppmTaskQuanNumb');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskQuanDesc, 'FormDItem', 'ppmTaskQuanDesc');
+    BuiltValueNullFieldError.checkNotNull(
+        frequencyId, 'FormDItem', 'frequencyId');
+    BuiltValueNullFieldError.checkNotNull(
+        frequencyName, 'FormDItem', 'frequencyName');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskQuanUnit, 'FormDItem', 'ppmTaskQuanUnit');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskQuanSetValues, 'FormDItem', 'ppmTaskQuanSetValues');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskQuanMeasuredValues, 'FormDItem', 'ppmTaskQuanMeasuredValues');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskQuanLimit, 'FormDItem', 'ppmTaskQuanLimit');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskQuanResult, 'FormDItem', 'ppmTaskQuanResult');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskQuanRemark, 'FormDItem', 'ppmTaskQuanRemark');
   }
 
   @override
@@ -1759,19 +1730,20 @@ class FormDItemBuilder implements Builder<FormDItem, FormDItemBuilder> {
   FormDItemBuilder();
 
   FormDItemBuilder get _$this {
-    if (_$v != null) {
-      _ppmTaskQuanId = _$v.ppmTaskQuanId;
-      _ppmTaskId = _$v.ppmTaskId;
-      _ppmTaskQuanNumb = _$v.ppmTaskQuanNumb;
-      _ppmTaskQuanDesc = _$v.ppmTaskQuanDesc;
-      _frequencyId = _$v.frequencyId;
-      _frequencyName = _$v.frequencyName;
-      _ppmTaskQuanUnit = _$v.ppmTaskQuanUnit;
-      _ppmTaskQuanSetValues = _$v.ppmTaskQuanSetValues;
-      _ppmTaskQuanMeasuredValues = _$v.ppmTaskQuanMeasuredValues;
-      _ppmTaskQuanLimit = _$v.ppmTaskQuanLimit;
-      _ppmTaskQuanResult = _$v.ppmTaskQuanResult;
-      _ppmTaskQuanRemark = _$v.ppmTaskQuanRemark;
+    final $v = _$v;
+    if ($v != null) {
+      _ppmTaskQuanId = $v.ppmTaskQuanId;
+      _ppmTaskId = $v.ppmTaskId;
+      _ppmTaskQuanNumb = $v.ppmTaskQuanNumb;
+      _ppmTaskQuanDesc = $v.ppmTaskQuanDesc;
+      _frequencyId = $v.frequencyId;
+      _frequencyName = $v.frequencyName;
+      _ppmTaskQuanUnit = $v.ppmTaskQuanUnit;
+      _ppmTaskQuanSetValues = $v.ppmTaskQuanSetValues;
+      _ppmTaskQuanMeasuredValues = $v.ppmTaskQuanMeasuredValues;
+      _ppmTaskQuanLimit = $v.ppmTaskQuanLimit;
+      _ppmTaskQuanResult = $v.ppmTaskQuanResult;
+      _ppmTaskQuanRemark = $v.ppmTaskQuanRemark;
       _$v = null;
     }
     return this;
@@ -1779,9 +1751,7 @@ class FormDItemBuilder implements Builder<FormDItem, FormDItemBuilder> {
 
   @override
   void replace(FormDItem other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$FormDItem;
   }
 
@@ -1794,18 +1764,27 @@ class FormDItemBuilder implements Builder<FormDItem, FormDItemBuilder> {
   _$FormDItem build() {
     final _$result = _$v ??
         new _$FormDItem._(
-            ppmTaskQuanId: ppmTaskQuanId,
-            ppmTaskId: ppmTaskId,
-            ppmTaskQuanNumb: ppmTaskQuanNumb,
-            ppmTaskQuanDesc: ppmTaskQuanDesc,
-            frequencyId: frequencyId,
-            frequencyName: frequencyName,
-            ppmTaskQuanUnit: ppmTaskQuanUnit,
-            ppmTaskQuanSetValues: ppmTaskQuanSetValues,
-            ppmTaskQuanMeasuredValues: ppmTaskQuanMeasuredValues,
-            ppmTaskQuanLimit: ppmTaskQuanLimit,
-            ppmTaskQuanResult: ppmTaskQuanResult,
-            ppmTaskQuanRemark: ppmTaskQuanRemark);
+            ppmTaskQuanId: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskQuanId, 'FormDItem', 'ppmTaskQuanId'),
+            ppmTaskId: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskId, 'FormDItem', 'ppmTaskId'),
+            ppmTaskQuanNumb: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskQuanNumb, 'FormDItem', 'ppmTaskQuanNumb'),
+            ppmTaskQuanDesc: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskQuanDesc, 'FormDItem', 'ppmTaskQuanDesc'),
+            frequencyId: BuiltValueNullFieldError.checkNotNull(
+                frequencyId, 'FormDItem', 'frequencyId'),
+            frequencyName: BuiltValueNullFieldError.checkNotNull(
+                frequencyName, 'FormDItem', 'frequencyName'),
+            ppmTaskQuanUnit: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskQuanUnit, 'FormDItem', 'ppmTaskQuanUnit'),
+            ppmTaskQuanSetValues: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskQuanSetValues, 'FormDItem', 'ppmTaskQuanSetValues'),
+            ppmTaskQuanMeasuredValues:
+                BuiltValueNullFieldError.checkNotNull(ppmTaskQuanMeasuredValues, 'FormDItem', 'ppmTaskQuanMeasuredValues'),
+            ppmTaskQuanLimit: BuiltValueNullFieldError.checkNotNull(ppmTaskQuanLimit, 'FormDItem', 'ppmTaskQuanLimit'),
+            ppmTaskQuanResult: BuiltValueNullFieldError.checkNotNull(ppmTaskQuanResult, 'FormDItem', 'ppmTaskQuanResult'),
+            ppmTaskQuanRemark: BuiltValueNullFieldError.checkNotNull(ppmTaskQuanRemark, 'FormDItem', 'ppmTaskQuanRemark'));
     replace(_$result);
     return _$result;
   }
@@ -1824,15 +1803,11 @@ class _$FormEItem extends FormEItem {
 
   _$FormEItem._({this.ppmTaskPartsId, this.ppmTaskId, this.ppmTaskPartsDesc})
       : super._() {
-    if (ppmTaskPartsId == null) {
-      throw new BuiltValueNullFieldError('FormEItem', 'ppmTaskPartsId');
-    }
-    if (ppmTaskId == null) {
-      throw new BuiltValueNullFieldError('FormEItem', 'ppmTaskId');
-    }
-    if (ppmTaskPartsDesc == null) {
-      throw new BuiltValueNullFieldError('FormEItem', 'ppmTaskPartsDesc');
-    }
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskPartsId, 'FormEItem', 'ppmTaskPartsId');
+    BuiltValueNullFieldError.checkNotNull(ppmTaskId, 'FormEItem', 'ppmTaskId');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskPartsDesc, 'FormEItem', 'ppmTaskPartsDesc');
   }
 
   @override
@@ -1887,10 +1862,11 @@ class FormEItemBuilder implements Builder<FormEItem, FormEItemBuilder> {
   FormEItemBuilder();
 
   FormEItemBuilder get _$this {
-    if (_$v != null) {
-      _ppmTaskPartsId = _$v.ppmTaskPartsId;
-      _ppmTaskId = _$v.ppmTaskId;
-      _ppmTaskPartsDesc = _$v.ppmTaskPartsDesc;
+    final $v = _$v;
+    if ($v != null) {
+      _ppmTaskPartsId = $v.ppmTaskPartsId;
+      _ppmTaskId = $v.ppmTaskId;
+      _ppmTaskPartsDesc = $v.ppmTaskPartsDesc;
       _$v = null;
     }
     return this;
@@ -1898,9 +1874,7 @@ class FormEItemBuilder implements Builder<FormEItem, FormEItemBuilder> {
 
   @override
   void replace(FormEItem other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$FormEItem;
   }
 
@@ -1913,9 +1887,12 @@ class FormEItemBuilder implements Builder<FormEItem, FormEItemBuilder> {
   _$FormEItem build() {
     final _$result = _$v ??
         new _$FormEItem._(
-            ppmTaskPartsId: ppmTaskPartsId,
-            ppmTaskId: ppmTaskId,
-            ppmTaskPartsDesc: ppmTaskPartsDesc);
+            ppmTaskPartsId: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskPartsId, 'FormEItem', 'ppmTaskPartsId'),
+            ppmTaskId: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskId, 'FormEItem', 'ppmTaskId'),
+            ppmTaskPartsDesc: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskPartsDesc, 'FormEItem', 'ppmTaskPartsDesc'));
     replace(_$result);
     return _$result;
   }
@@ -1952,30 +1929,20 @@ class _$FormFItem extends FormFItem {
       this.documentFilename,
       this.documentSrc})
       : super._() {
-    if (ppmTaskUploadId == null) {
-      throw new BuiltValueNullFieldError('FormFItem', 'ppmTaskUploadId');
-    }
-    if (ppmTaskUploadType == null) {
-      throw new BuiltValueNullFieldError('FormFItem', 'ppmTaskUploadType');
-    }
-    if (ppmTaskId == null) {
-      throw new BuiltValueNullFieldError('FormFItem', 'ppmTaskId');
-    }
-    if (uploadId == null) {
-      throw new BuiltValueNullFieldError('FormFItem', 'uploadId');
-    }
-    if (uploadName == null) {
-      throw new BuiltValueNullFieldError('FormFItem', 'uploadName');
-    }
-    if (documentDesc == null) {
-      throw new BuiltValueNullFieldError('FormFItem', 'documentDesc');
-    }
-    if (documentFilename == null) {
-      throw new BuiltValueNullFieldError('FormFItem', 'documentFilename');
-    }
-    if (documentSrc == null) {
-      throw new BuiltValueNullFieldError('FormFItem', 'documentSrc');
-    }
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskUploadId, 'FormFItem', 'ppmTaskUploadId');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskUploadType, 'FormFItem', 'ppmTaskUploadType');
+    BuiltValueNullFieldError.checkNotNull(ppmTaskId, 'FormFItem', 'ppmTaskId');
+    BuiltValueNullFieldError.checkNotNull(uploadId, 'FormFItem', 'uploadId');
+    BuiltValueNullFieldError.checkNotNull(
+        uploadName, 'FormFItem', 'uploadName');
+    BuiltValueNullFieldError.checkNotNull(
+        documentDesc, 'FormFItem', 'documentDesc');
+    BuiltValueNullFieldError.checkNotNull(
+        documentFilename, 'FormFItem', 'documentFilename');
+    BuiltValueNullFieldError.checkNotNull(
+        documentSrc, 'FormFItem', 'documentSrc');
   }
 
   @override
@@ -2073,15 +2040,16 @@ class FormFItemBuilder implements Builder<FormFItem, FormFItemBuilder> {
   FormFItemBuilder();
 
   FormFItemBuilder get _$this {
-    if (_$v != null) {
-      _ppmTaskUploadId = _$v.ppmTaskUploadId;
-      _ppmTaskUploadType = _$v.ppmTaskUploadType;
-      _ppmTaskId = _$v.ppmTaskId;
-      _uploadId = _$v.uploadId;
-      _uploadName = _$v.uploadName;
-      _documentDesc = _$v.documentDesc;
-      _documentFilename = _$v.documentFilename;
-      _documentSrc = _$v.documentSrc;
+    final $v = _$v;
+    if ($v != null) {
+      _ppmTaskUploadId = $v.ppmTaskUploadId;
+      _ppmTaskUploadType = $v.ppmTaskUploadType;
+      _ppmTaskId = $v.ppmTaskId;
+      _uploadId = $v.uploadId;
+      _uploadName = $v.uploadName;
+      _documentDesc = $v.documentDesc;
+      _documentFilename = $v.documentFilename;
+      _documentSrc = $v.documentSrc;
       _$v = null;
     }
     return this;
@@ -2089,9 +2057,7 @@ class FormFItemBuilder implements Builder<FormFItem, FormFItemBuilder> {
 
   @override
   void replace(FormFItem other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$FormFItem;
   }
 
@@ -2104,14 +2070,22 @@ class FormFItemBuilder implements Builder<FormFItem, FormFItemBuilder> {
   _$FormFItem build() {
     final _$result = _$v ??
         new _$FormFItem._(
-            ppmTaskUploadId: ppmTaskUploadId,
-            ppmTaskUploadType: ppmTaskUploadType,
-            ppmTaskId: ppmTaskId,
-            uploadId: uploadId,
-            uploadName: uploadName,
-            documentDesc: documentDesc,
-            documentFilename: documentFilename,
-            documentSrc: documentSrc);
+            ppmTaskUploadId: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskUploadId, 'FormFItem', 'ppmTaskUploadId'),
+            ppmTaskUploadType: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskUploadType, 'FormFItem', 'ppmTaskUploadType'),
+            ppmTaskId: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskId, 'FormFItem', 'ppmTaskId'),
+            uploadId: BuiltValueNullFieldError.checkNotNull(
+                uploadId, 'FormFItem', 'uploadId'),
+            uploadName: BuiltValueNullFieldError.checkNotNull(
+                uploadName, 'FormFItem', 'uploadName'),
+            documentDesc: BuiltValueNullFieldError.checkNotNull(
+                documentDesc, 'FormFItem', 'documentDesc'),
+            documentFilename: BuiltValueNullFieldError.checkNotNull(
+                documentFilename, 'FormFItem', 'documentFilename'),
+            documentSrc: BuiltValueNullFieldError.checkNotNull(
+                documentSrc, 'FormFItem', 'documentSrc'));
     replace(_$result);
     return _$result;
   }
@@ -2127,12 +2101,9 @@ class _$FormGItem extends FormGItem {
       (new FormGItemBuilder()..update(updates)).build();
 
   _$FormGItem._({this.ppmTaskId, this.ppmTaskRemark}) : super._() {
-    if (ppmTaskId == null) {
-      throw new BuiltValueNullFieldError('FormGItem', 'ppmTaskId');
-    }
-    if (ppmTaskRemark == null) {
-      throw new BuiltValueNullFieldError('FormGItem', 'ppmTaskRemark');
-    }
+    BuiltValueNullFieldError.checkNotNull(ppmTaskId, 'FormGItem', 'ppmTaskId');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskRemark, 'FormGItem', 'ppmTaskRemark');
   }
 
   @override
@@ -2179,9 +2150,10 @@ class FormGItemBuilder implements Builder<FormGItem, FormGItemBuilder> {
   FormGItemBuilder();
 
   FormGItemBuilder get _$this {
-    if (_$v != null) {
-      _ppmTaskId = _$v.ppmTaskId;
-      _ppmTaskRemark = _$v.ppmTaskRemark;
+    final $v = _$v;
+    if ($v != null) {
+      _ppmTaskId = $v.ppmTaskId;
+      _ppmTaskRemark = $v.ppmTaskRemark;
       _$v = null;
     }
     return this;
@@ -2189,9 +2161,7 @@ class FormGItemBuilder implements Builder<FormGItem, FormGItemBuilder> {
 
   @override
   void replace(FormGItem other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$FormGItem;
   }
 
@@ -2203,7 +2173,11 @@ class FormGItemBuilder implements Builder<FormGItem, FormGItemBuilder> {
   @override
   _$FormGItem build() {
     final _$result = _$v ??
-        new _$FormGItem._(ppmTaskId: ppmTaskId, ppmTaskRemark: ppmTaskRemark);
+        new _$FormGItem._(
+            ppmTaskId: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskId, 'FormGItem', 'ppmTaskId'),
+            ppmTaskRemark: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskRemark, 'FormGItem', 'ppmTaskRemark'));
     replace(_$result);
     return _$result;
   }
@@ -2252,39 +2226,27 @@ class _$FormHItem extends FormHItem {
       this.documentFilename,
       this.documentSrc})
       : super._() {
-    if (ppmTaskUploadId == null) {
-      throw new BuiltValueNullFieldError('FormHItem', 'ppmTaskUploadId');
-    }
-    if (ppmTaskUploadType == null) {
-      throw new BuiltValueNullFieldError('FormHItem', 'ppmTaskUploadType');
-    }
-    if (ppmTaskUploadLongitude == null) {
-      throw new BuiltValueNullFieldError('FormHItem', 'ppmTaskUploadLongitude');
-    }
-    if (ppmTaskUploadLatitude == null) {
-      throw new BuiltValueNullFieldError('FormHItem', 'ppmTaskUploadLatitude');
-    }
-    if (ppmTaskUploadTimestamp == null) {
-      throw new BuiltValueNullFieldError('FormHItem', 'ppmTaskUploadTimestamp');
-    }
-    if (ppmTaskUploadDesc == null) {
-      throw new BuiltValueNullFieldError('FormHItem', 'ppmTaskUploadDesc');
-    }
-    if (ppmTaskId == null) {
-      throw new BuiltValueNullFieldError('FormHItem', 'ppmTaskId');
-    }
-    if (uploadName == null) {
-      throw new BuiltValueNullFieldError('FormHItem', 'uploadName');
-    }
-    if (documentDesc == null) {
-      throw new BuiltValueNullFieldError('FormHItem', 'documentDesc');
-    }
-    if (documentFilename == null) {
-      throw new BuiltValueNullFieldError('FormHItem', 'documentFilename');
-    }
-    if (documentSrc == null) {
-      throw new BuiltValueNullFieldError('FormHItem', 'documentSrc');
-    }
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskUploadId, 'FormHItem', 'ppmTaskUploadId');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskUploadType, 'FormHItem', 'ppmTaskUploadType');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskUploadLongitude, 'FormHItem', 'ppmTaskUploadLongitude');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskUploadLatitude, 'FormHItem', 'ppmTaskUploadLatitude');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskUploadTimestamp, 'FormHItem', 'ppmTaskUploadTimestamp');
+    BuiltValueNullFieldError.checkNotNull(
+        ppmTaskUploadDesc, 'FormHItem', 'ppmTaskUploadDesc');
+    BuiltValueNullFieldError.checkNotNull(ppmTaskId, 'FormHItem', 'ppmTaskId');
+    BuiltValueNullFieldError.checkNotNull(
+        uploadName, 'FormHItem', 'uploadName');
+    BuiltValueNullFieldError.checkNotNull(
+        documentDesc, 'FormHItem', 'documentDesc');
+    BuiltValueNullFieldError.checkNotNull(
+        documentFilename, 'FormHItem', 'documentFilename');
+    BuiltValueNullFieldError.checkNotNull(
+        documentSrc, 'FormHItem', 'documentSrc');
   }
 
   @override
@@ -2420,19 +2382,20 @@ class FormHItemBuilder implements Builder<FormHItem, FormHItemBuilder> {
   FormHItemBuilder();
 
   FormHItemBuilder get _$this {
-    if (_$v != null) {
-      _ppmTaskUploadId = _$v.ppmTaskUploadId;
-      _ppmTaskUploadType = _$v.ppmTaskUploadType;
-      _ppmTaskUploadLongitude = _$v.ppmTaskUploadLongitude;
-      _ppmTaskUploadLatitude = _$v.ppmTaskUploadLatitude;
-      _ppmTaskUploadTimestamp = _$v.ppmTaskUploadTimestamp;
-      _ppmTaskUploadDesc = _$v.ppmTaskUploadDesc;
-      _ppmTaskId = _$v.ppmTaskId;
-      _uploadId = _$v.uploadId;
-      _uploadName = _$v.uploadName;
-      _documentDesc = _$v.documentDesc;
-      _documentFilename = _$v.documentFilename;
-      _documentSrc = _$v.documentSrc;
+    final $v = _$v;
+    if ($v != null) {
+      _ppmTaskUploadId = $v.ppmTaskUploadId;
+      _ppmTaskUploadType = $v.ppmTaskUploadType;
+      _ppmTaskUploadLongitude = $v.ppmTaskUploadLongitude;
+      _ppmTaskUploadLatitude = $v.ppmTaskUploadLatitude;
+      _ppmTaskUploadTimestamp = $v.ppmTaskUploadTimestamp;
+      _ppmTaskUploadDesc = $v.ppmTaskUploadDesc;
+      _ppmTaskId = $v.ppmTaskId;
+      _uploadId = $v.uploadId;
+      _uploadName = $v.uploadName;
+      _documentDesc = $v.documentDesc;
+      _documentFilename = $v.documentFilename;
+      _documentSrc = $v.documentSrc;
       _$v = null;
     }
     return this;
@@ -2440,9 +2403,7 @@ class FormHItemBuilder implements Builder<FormHItem, FormHItemBuilder> {
 
   @override
   void replace(FormHItem other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$FormHItem;
   }
 
@@ -2455,21 +2416,28 @@ class FormHItemBuilder implements Builder<FormHItem, FormHItemBuilder> {
   _$FormHItem build() {
     final _$result = _$v ??
         new _$FormHItem._(
-            ppmTaskUploadId: ppmTaskUploadId,
-            ppmTaskUploadType: ppmTaskUploadType,
-            ppmTaskUploadLongitude: ppmTaskUploadLongitude,
-            ppmTaskUploadLatitude: ppmTaskUploadLatitude,
-            ppmTaskUploadTimestamp: ppmTaskUploadTimestamp,
-            ppmTaskUploadDesc: ppmTaskUploadDesc,
-            ppmTaskId: ppmTaskId,
+            ppmTaskUploadId: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskUploadId, 'FormHItem', 'ppmTaskUploadId'),
+            ppmTaskUploadType: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskUploadType, 'FormHItem', 'ppmTaskUploadType'),
+            ppmTaskUploadLongitude: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskUploadLongitude, 'FormHItem', 'ppmTaskUploadLongitude'),
+            ppmTaskUploadLatitude: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskUploadLatitude, 'FormHItem', 'ppmTaskUploadLatitude'),
+            ppmTaskUploadTimestamp: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskUploadTimestamp, 'FormHItem', 'ppmTaskUploadTimestamp'),
+            ppmTaskUploadDesc: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskUploadDesc, 'FormHItem', 'ppmTaskUploadDesc'),
+            ppmTaskId: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskId, 'FormHItem', 'ppmTaskId'),
             uploadId: uploadId,
-            uploadName: uploadName,
-            documentDesc: documentDesc,
-            documentFilename: documentFilename,
-            documentSrc: documentSrc);
+            uploadName: BuiltValueNullFieldError.checkNotNull(uploadName, 'FormHItem', 'uploadName'),
+            documentDesc: BuiltValueNullFieldError.checkNotNull(documentDesc, 'FormHItem', 'documentDesc'),
+            documentFilename: BuiltValueNullFieldError.checkNotNull(documentFilename, 'FormHItem', 'documentFilename'),
+            documentSrc: BuiltValueNullFieldError.checkNotNull(documentSrc, 'FormHItem', 'documentSrc'));
     replace(_$result);
     return _$result;
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new
+// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new

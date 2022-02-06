@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/WorkOrder/repository/provider.dart';
+import 'package:gfm_gems/model/execution.dart';
 import 'package:gfm_gems/model/workorder.dart';
 import 'package:rxdart/subjects.dart';
 
+import '../addTechnician.dart';
 import '../complaintPDF.dart';
 import '../complaintSectionA.dart';
 import '../complaintSectionB_Assign.dart';
@@ -25,6 +29,8 @@ class MainBloc {
   final BehaviorSubject<bool> _enableSubmit =
       BehaviorSubject<bool>.seeded(false);
   final BehaviorSubject<bool> _loading = BehaviorSubject<bool>.seeded(false);
+  final BehaviorSubject<ExecutionModel> _execution =
+      BehaviorSubject<ExecutionModel>();
 
   // -- INITIALIZER
   MainBloc({@required String id, String status, @required String taskNo})
@@ -40,17 +46,20 @@ class MainBloc {
     _sections.close();
     _enableSubmit.close();
     _loading.close();
+    _execution.close();
   }
 
   // -- GET
   Stream get sections$ => _sections.stream;
   Stream get enable$ => _enableSubmit.stream;
   Stream get loading$ => _loading.stream;
+  Stream get execution$ => _execution.stream;
 
   // -- SINK
   set sections(List values) => _sections.sink.add(values);
   set enable(bool value) => _enableSubmit.sink.add(value);
   set loading(bool value) => _loading.sink.add(value);
+  set execution(Map v) => _execution.sink.add(ExecutionModel.fromJson(v));
   set context(BuildContext context) => _provider = WOProvider(context: context);
 
   // -- METHODS
@@ -74,18 +83,23 @@ class MainBloc {
     final listWR = ["WR Check", "WR Verified", "WR Re-Open"];
 
     String url = "/api/m_wo.php?type=section_status";
+    String urlExecution = "/wo_v2/section_assign/";
 
     if (listAssign.contains(status)) {
       url += "_assign";
-    } else if (listWR.contains(status)) {
+      url += "&woTaskId=";
+    } else if (listAssign.contains(status)) {
       url += "_wr";
+      url += "&woTaskId=";
+    } else {
+      url = urlExecution;
     }
-
-    url += "&woTaskId=";
 
     try {
       final result = await _provider.fetch(url, id);
       sections = result;
+      _provider.fetchExecution(id).then((value) => execution = value);
+
       return;
     } catch (err) {
       print(err);
@@ -146,16 +160,32 @@ class MainBloc {
           _status == "WR Re-Open") {
         ComplaintSectionE(order.comment, named);
       } else {
-        object = ComplaintSectionB(
-            id: _id, viewer: viewOnly ? true : checkpoint == 1);
+        object = ComplaintAssign(id: _id, viewer: true);
+        // object = ComplaintSectionB(
+        // id: _id, viewer: viewOnly ? true : checkpoint == 1, name: named);
       }
     }
     if (named == "C") {
+      object = ComplaintSectionB(
+        id: _id,
+        viewer: viewOnly ? true : checkpoint == 1,
+        name: named,
+      );
+    }
+    if (named == "D") {
       object = ComplaintSectionC(_id, viewOnly ? true : checkpoint == 1);
-    } else if (named == "D" && desc == "Asset No") {
-      object =
-          ComplaintSectionD(id: _id, viewer: viewOnly ? true : checkpoint == 1);
-    } else if (named == "E" && desc == "Material / Spare Parts") {
+    } else if (named == "E" && desc == "Asset No") {
+      object = ComplaintSectionD(
+        id: _id,
+        viewer: viewOnly ? true : checkpoint == 1,
+        name: named,
+      );
+    } else if (named == "F" && desc == "Assistants") {
+      object = AddTechnicianCheckList(
+        id: _id,
+        viewer: viewOnly ? true : checkpoint == 1,
+      );
+    } else if (named == "G" && desc == "Material / Spare Parts") {
       final status = order.sectionStatusMaterial;
       object = ComplaintSectionDMaterial(
         _id,

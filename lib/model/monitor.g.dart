@@ -44,40 +44,47 @@ class _$MonitorTaskSerializer implements StructuredSerializer<MonitorTask> {
       serializers.serialize(object.transactionStatus,
           specifiedType: const FullType(String)),
     ];
-    if (object.userFullName != null) {
+    Object value;
+    value = object.userFullName;
+    if (value != null) {
       result
         ..add('userFullName')
-        ..add(serializers.serialize(object.userFullName,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.assetNo != null) {
+    value = object.assetNo;
+    if (value != null) {
       result
         ..add('assetNo')
-        ..add(serializers.serialize(object.assetNo,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.currentTaskOwner != null) {
+    value = object.currentTaskOwner;
+    if (value != null) {
       result
         ..add('currentTaskOwner')
-        ..add(serializers.serialize(object.currentTaskOwner,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.woTaskType != null) {
+    value = object.woTaskType;
+    if (value != null) {
       result
         ..add('woTaskType')
-        ..add(serializers.serialize(object.woTaskType,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.woTaskSeverity != null) {
+    value = object.woTaskSeverity;
+    if (value != null) {
       result
         ..add('woTaskSeverity')
-        ..add(serializers.serialize(object.woTaskSeverity,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.assignedTo != null) {
+    value = object.assignedTo;
+    if (value != null) {
       result
         ..add('assignedTo')
-        ..add(serializers.serialize(object.assignedTo,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
     return result;
@@ -92,7 +99,7 @@ class _$MonitorTaskSerializer implements StructuredSerializer<MonitorTask> {
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'transactionId':
           result.transactionId = serializers.deserialize(value,
@@ -201,22 +208,26 @@ class _$MonitorDetailSerializer implements StructuredSerializer<MonitorDetail> {
           specifiedType: const FullType(
               BuiltList, const [const FullType(MonitorHistory)])),
     ];
-    if (object.woTaskId != null) {
+    Object value;
+    value = object.woTaskId;
+    if (value != null) {
       result
         ..add('woTaskId')
-        ..add(serializers.serialize(object.woTaskId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.ppmTaskId != null) {
+    value = object.ppmTaskId;
+    if (value != null) {
       result
         ..add('ppmTaskId')
-        ..add(serializers.serialize(object.ppmTaskId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.siteName != null) {
+    value = object.siteName;
+    if (value != null) {
       result
         ..add('siteName')
-        ..add(serializers.serialize(object.siteName,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
     return result;
@@ -232,7 +243,7 @@ class _$MonitorDetailSerializer implements StructuredSerializer<MonitorDetail> {
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'flowName':
           result.flowName = serializers.deserialize(value,
@@ -294,7 +305,7 @@ class _$MonitorDetailSerializer implements StructuredSerializer<MonitorDetail> {
           result.taskHistory.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
                       BuiltList, const [const FullType(MonitorHistory)]))
-              as BuiltList<dynamic>);
+              as BuiltList<Object>);
           break;
       }
     }
@@ -353,7 +364,7 @@ class _$MonitorHistorySerializer
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'checkpointId':
           result.checkpointId = serializers.deserialize(value,
@@ -440,28 +451,18 @@ class _$MonitorTask extends MonitorTask {
       this.woTaskSeverity,
       this.assignedTo})
       : super._() {
-    if (transactionId == null) {
-      throw new BuiltValueNullFieldError('MonitorTask', 'transactionId');
-    }
-    if (transactionNo == null) {
-      throw new BuiltValueNullFieldError('MonitorTask', 'transactionNo');
-    }
-    if (transactionTimeCreated == null) {
-      throw new BuiltValueNullFieldError(
-          'MonitorTask', 'transactionTimeCreated');
-    }
-    if (flowId == null) {
-      throw new BuiltValueNullFieldError('MonitorTask', 'flowId');
-    }
-    if (flowName == null) {
-      throw new BuiltValueNullFieldError('MonitorTask', 'flowName');
-    }
-    if (checkpointName == null) {
-      throw new BuiltValueNullFieldError('MonitorTask', 'checkpointName');
-    }
-    if (transactionStatus == null) {
-      throw new BuiltValueNullFieldError('MonitorTask', 'transactionStatus');
-    }
+    BuiltValueNullFieldError.checkNotNull(
+        transactionId, 'MonitorTask', 'transactionId');
+    BuiltValueNullFieldError.checkNotNull(
+        transactionNo, 'MonitorTask', 'transactionNo');
+    BuiltValueNullFieldError.checkNotNull(
+        transactionTimeCreated, 'MonitorTask', 'transactionTimeCreated');
+    BuiltValueNullFieldError.checkNotNull(flowId, 'MonitorTask', 'flowId');
+    BuiltValueNullFieldError.checkNotNull(flowName, 'MonitorTask', 'flowName');
+    BuiltValueNullFieldError.checkNotNull(
+        checkpointName, 'MonitorTask', 'checkpointName');
+    BuiltValueNullFieldError.checkNotNull(
+        transactionStatus, 'MonitorTask', 'transactionStatus');
   }
 
   @override
@@ -606,20 +607,21 @@ class MonitorTaskBuilder implements Builder<MonitorTask, MonitorTaskBuilder> {
   MonitorTaskBuilder();
 
   MonitorTaskBuilder get _$this {
-    if (_$v != null) {
-      _transactionId = _$v.transactionId;
-      _transactionNo = _$v.transactionNo;
-      _transactionTimeCreated = _$v.transactionTimeCreated;
-      _flowId = _$v.flowId;
-      _flowName = _$v.flowName;
-      _checkpointName = _$v.checkpointName;
-      _transactionStatus = _$v.transactionStatus;
-      _userFullName = _$v.userFullName;
-      _assetNo = _$v.assetNo;
-      _currentTaskOwner = _$v.currentTaskOwner;
-      _woTaskType = _$v.woTaskType;
-      _woTaskSeverity = _$v.woTaskSeverity;
-      _assignedTo = _$v.assignedTo;
+    final $v = _$v;
+    if ($v != null) {
+      _transactionId = $v.transactionId;
+      _transactionNo = $v.transactionNo;
+      _transactionTimeCreated = $v.transactionTimeCreated;
+      _flowId = $v.flowId;
+      _flowName = $v.flowName;
+      _checkpointName = $v.checkpointName;
+      _transactionStatus = $v.transactionStatus;
+      _userFullName = $v.userFullName;
+      _assetNo = $v.assetNo;
+      _currentTaskOwner = $v.currentTaskOwner;
+      _woTaskType = $v.woTaskType;
+      _woTaskSeverity = $v.woTaskSeverity;
+      _assignedTo = $v.assignedTo;
       _$v = null;
     }
     return this;
@@ -627,9 +629,7 @@ class MonitorTaskBuilder implements Builder<MonitorTask, MonitorTaskBuilder> {
 
   @override
   void replace(MonitorTask other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$MonitorTask;
   }
 
@@ -642,13 +642,22 @@ class MonitorTaskBuilder implements Builder<MonitorTask, MonitorTaskBuilder> {
   _$MonitorTask build() {
     final _$result = _$v ??
         new _$MonitorTask._(
-            transactionId: transactionId,
-            transactionNo: transactionNo,
-            transactionTimeCreated: transactionTimeCreated,
-            flowId: flowId,
-            flowName: flowName,
-            checkpointName: checkpointName,
-            transactionStatus: transactionStatus,
+            transactionId: BuiltValueNullFieldError.checkNotNull(
+                transactionId, 'MonitorTask', 'transactionId'),
+            transactionNo: BuiltValueNullFieldError.checkNotNull(
+                transactionNo, 'MonitorTask', 'transactionNo'),
+            transactionTimeCreated: BuiltValueNullFieldError.checkNotNull(
+                transactionTimeCreated,
+                'MonitorTask',
+                'transactionTimeCreated'),
+            flowId: BuiltValueNullFieldError.checkNotNull(
+                flowId, 'MonitorTask', 'flowId'),
+            flowName: BuiltValueNullFieldError.checkNotNull(
+                flowName, 'MonitorTask', 'flowName'),
+            checkpointName: BuiltValueNullFieldError.checkNotNull(
+                checkpointName, 'MonitorTask', 'checkpointName'),
+            transactionStatus: BuiltValueNullFieldError.checkNotNull(
+                transactionStatus, 'MonitorTask', 'transactionStatus'),
             userFullName: userFullName,
             assetNo: assetNo,
             currentTaskOwner: currentTaskOwner,
@@ -712,43 +721,30 @@ class _$MonitorDetail extends MonitorDetail {
       this.siteName,
       this.taskHistory})
       : super._() {
-    if (flowName == null) {
-      throw new BuiltValueNullFieldError('MonitorDetail', 'flowName');
-    }
-    if (transactionNo == null) {
-      throw new BuiltValueNullFieldError('MonitorDetail', 'transactionNo');
-    }
-    if (initiateBy == null) {
-      throw new BuiltValueNullFieldError('MonitorDetail', 'initiateBy');
-    }
-    if (initiateByGroup == null) {
-      throw new BuiltValueNullFieldError('MonitorDetail', 'initiateByGroup');
-    }
-    if (initiateTimeCreated == null) {
-      throw new BuiltValueNullFieldError(
-          'MonitorDetail', 'initiateTimeCreated');
-    }
-    if (taskStatus == null) {
-      throw new BuiltValueNullFieldError('MonitorDetail', 'taskStatus');
-    }
-    if (currentUser == null) {
-      throw new BuiltValueNullFieldError('MonitorDetail', 'currentUser');
-    }
-    if (receivedTime == null) {
-      throw new BuiltValueNullFieldError('MonitorDetail', 'receivedTime');
-    }
-    if (flowStatus == null) {
-      throw new BuiltValueNullFieldError('MonitorDetail', 'flowStatus');
-    }
-    if (flowDueDate == null) {
-      throw new BuiltValueNullFieldError('MonitorDetail', 'flowDueDate');
-    }
-    if (checkpointId == null) {
-      throw new BuiltValueNullFieldError('MonitorDetail', 'checkpointId');
-    }
-    if (taskHistory == null) {
-      throw new BuiltValueNullFieldError('MonitorDetail', 'taskHistory');
-    }
+    BuiltValueNullFieldError.checkNotNull(
+        flowName, 'MonitorDetail', 'flowName');
+    BuiltValueNullFieldError.checkNotNull(
+        transactionNo, 'MonitorDetail', 'transactionNo');
+    BuiltValueNullFieldError.checkNotNull(
+        initiateBy, 'MonitorDetail', 'initiateBy');
+    BuiltValueNullFieldError.checkNotNull(
+        initiateByGroup, 'MonitorDetail', 'initiateByGroup');
+    BuiltValueNullFieldError.checkNotNull(
+        initiateTimeCreated, 'MonitorDetail', 'initiateTimeCreated');
+    BuiltValueNullFieldError.checkNotNull(
+        taskStatus, 'MonitorDetail', 'taskStatus');
+    BuiltValueNullFieldError.checkNotNull(
+        currentUser, 'MonitorDetail', 'currentUser');
+    BuiltValueNullFieldError.checkNotNull(
+        receivedTime, 'MonitorDetail', 'receivedTime');
+    BuiltValueNullFieldError.checkNotNull(
+        flowStatus, 'MonitorDetail', 'flowStatus');
+    BuiltValueNullFieldError.checkNotNull(
+        flowDueDate, 'MonitorDetail', 'flowDueDate');
+    BuiltValueNullFieldError.checkNotNull(
+        checkpointId, 'MonitorDetail', 'checkpointId');
+    BuiltValueNullFieldError.checkNotNull(
+        taskHistory, 'MonitorDetail', 'taskHistory');
   }
 
   @override
@@ -910,22 +906,23 @@ class MonitorDetailBuilder
   MonitorDetailBuilder();
 
   MonitorDetailBuilder get _$this {
-    if (_$v != null) {
-      _flowName = _$v.flowName;
-      _transactionNo = _$v.transactionNo;
-      _initiateBy = _$v.initiateBy;
-      _initiateByGroup = _$v.initiateByGroup;
-      _initiateTimeCreated = _$v.initiateTimeCreated;
-      _taskStatus = _$v.taskStatus;
-      _currentUser = _$v.currentUser;
-      _receivedTime = _$v.receivedTime;
-      _flowStatus = _$v.flowStatus;
-      _flowDueDate = _$v.flowDueDate;
-      _checkpointId = _$v.checkpointId;
-      _woTaskId = _$v.woTaskId;
-      _ppmTaskId = _$v.ppmTaskId;
-      _siteName = _$v.siteName;
-      _taskHistory = _$v.taskHistory?.toBuilder();
+    final $v = _$v;
+    if ($v != null) {
+      _flowName = $v.flowName;
+      _transactionNo = $v.transactionNo;
+      _initiateBy = $v.initiateBy;
+      _initiateByGroup = $v.initiateByGroup;
+      _initiateTimeCreated = $v.initiateTimeCreated;
+      _taskStatus = $v.taskStatus;
+      _currentUser = $v.currentUser;
+      _receivedTime = $v.receivedTime;
+      _flowStatus = $v.flowStatus;
+      _flowDueDate = $v.flowDueDate;
+      _checkpointId = $v.checkpointId;
+      _woTaskId = $v.woTaskId;
+      _ppmTaskId = $v.ppmTaskId;
+      _siteName = $v.siteName;
+      _taskHistory = $v.taskHistory.toBuilder();
       _$v = null;
     }
     return this;
@@ -933,9 +930,7 @@ class MonitorDetailBuilder
 
   @override
   void replace(MonitorDetail other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$MonitorDetail;
   }
 
@@ -950,17 +945,25 @@ class MonitorDetailBuilder
     try {
       _$result = _$v ??
           new _$MonitorDetail._(
-              flowName: flowName,
-              transactionNo: transactionNo,
-              initiateBy: initiateBy,
-              initiateByGroup: initiateByGroup,
-              initiateTimeCreated: initiateTimeCreated,
-              taskStatus: taskStatus,
-              currentUser: currentUser,
-              receivedTime: receivedTime,
-              flowStatus: flowStatus,
-              flowDueDate: flowDueDate,
-              checkpointId: checkpointId,
+              flowName: BuiltValueNullFieldError.checkNotNull(
+                  flowName, 'MonitorDetail', 'flowName'),
+              transactionNo: BuiltValueNullFieldError.checkNotNull(
+                  transactionNo, 'MonitorDetail', 'transactionNo'),
+              initiateBy: BuiltValueNullFieldError.checkNotNull(
+                  initiateBy, 'MonitorDetail', 'initiateBy'),
+              initiateByGroup: BuiltValueNullFieldError.checkNotNull(
+                  initiateByGroup, 'MonitorDetail', 'initiateByGroup'),
+              initiateTimeCreated: BuiltValueNullFieldError.checkNotNull(
+                  initiateTimeCreated, 'MonitorDetail', 'initiateTimeCreated'),
+              taskStatus: BuiltValueNullFieldError.checkNotNull(
+                  taskStatus, 'MonitorDetail', 'taskStatus'),
+              currentUser: BuiltValueNullFieldError.checkNotNull(
+                  currentUser, 'MonitorDetail', 'currentUser'),
+              receivedTime:
+                  BuiltValueNullFieldError.checkNotNull(receivedTime, 'MonitorDetail', 'receivedTime'),
+              flowStatus: BuiltValueNullFieldError.checkNotNull(flowStatus, 'MonitorDetail', 'flowStatus'),
+              flowDueDate: BuiltValueNullFieldError.checkNotNull(flowDueDate, 'MonitorDetail', 'flowDueDate'),
+              checkpointId: BuiltValueNullFieldError.checkNotNull(checkpointId, 'MonitorDetail', 'checkpointId'),
               woTaskId: woTaskId,
               ppmTaskId: ppmTaskId,
               siteName: siteName,
@@ -1012,30 +1015,21 @@ class _$MonitorHistory extends MonitorHistory {
       this.taskTimeSubmit,
       this.taskStatus})
       : super._() {
-    if (checkpointId == null) {
-      throw new BuiltValueNullFieldError('MonitorHistory', 'checkpointId');
-    }
-    if (roleId == null) {
-      throw new BuiltValueNullFieldError('MonitorHistory', 'roleId');
-    }
-    if (taskClaimedUser == null) {
-      throw new BuiltValueNullFieldError('MonitorHistory', 'taskClaimedUser');
-    }
-    if (taskRemark == null) {
-      throw new BuiltValueNullFieldError('MonitorHistory', 'taskRemark');
-    }
-    if (taskDateDue == null) {
-      throw new BuiltValueNullFieldError('MonitorHistory', 'taskDateDue');
-    }
-    if (taskTimeCreated == null) {
-      throw new BuiltValueNullFieldError('MonitorHistory', 'taskTimeCreated');
-    }
-    if (taskTimeSubmit == null) {
-      throw new BuiltValueNullFieldError('MonitorHistory', 'taskTimeSubmit');
-    }
-    if (taskStatus == null) {
-      throw new BuiltValueNullFieldError('MonitorHistory', 'taskStatus');
-    }
+    BuiltValueNullFieldError.checkNotNull(
+        checkpointId, 'MonitorHistory', 'checkpointId');
+    BuiltValueNullFieldError.checkNotNull(roleId, 'MonitorHistory', 'roleId');
+    BuiltValueNullFieldError.checkNotNull(
+        taskClaimedUser, 'MonitorHistory', 'taskClaimedUser');
+    BuiltValueNullFieldError.checkNotNull(
+        taskRemark, 'MonitorHistory', 'taskRemark');
+    BuiltValueNullFieldError.checkNotNull(
+        taskDateDue, 'MonitorHistory', 'taskDateDue');
+    BuiltValueNullFieldError.checkNotNull(
+        taskTimeCreated, 'MonitorHistory', 'taskTimeCreated');
+    BuiltValueNullFieldError.checkNotNull(
+        taskTimeSubmit, 'MonitorHistory', 'taskTimeSubmit');
+    BuiltValueNullFieldError.checkNotNull(
+        taskStatus, 'MonitorHistory', 'taskStatus');
   }
 
   @override
@@ -1133,15 +1127,16 @@ class MonitorHistoryBuilder
   MonitorHistoryBuilder();
 
   MonitorHistoryBuilder get _$this {
-    if (_$v != null) {
-      _checkpointId = _$v.checkpointId;
-      _roleId = _$v.roleId;
-      _taskClaimedUser = _$v.taskClaimedUser;
-      _taskRemark = _$v.taskRemark;
-      _taskDateDue = _$v.taskDateDue;
-      _taskTimeCreated = _$v.taskTimeCreated;
-      _taskTimeSubmit = _$v.taskTimeSubmit;
-      _taskStatus = _$v.taskStatus;
+    final $v = _$v;
+    if ($v != null) {
+      _checkpointId = $v.checkpointId;
+      _roleId = $v.roleId;
+      _taskClaimedUser = $v.taskClaimedUser;
+      _taskRemark = $v.taskRemark;
+      _taskDateDue = $v.taskDateDue;
+      _taskTimeCreated = $v.taskTimeCreated;
+      _taskTimeSubmit = $v.taskTimeSubmit;
+      _taskStatus = $v.taskStatus;
       _$v = null;
     }
     return this;
@@ -1149,9 +1144,7 @@ class MonitorHistoryBuilder
 
   @override
   void replace(MonitorHistory other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$MonitorHistory;
   }
 
@@ -1164,17 +1157,25 @@ class MonitorHistoryBuilder
   _$MonitorHistory build() {
     final _$result = _$v ??
         new _$MonitorHistory._(
-            checkpointId: checkpointId,
-            roleId: roleId,
-            taskClaimedUser: taskClaimedUser,
-            taskRemark: taskRemark,
-            taskDateDue: taskDateDue,
-            taskTimeCreated: taskTimeCreated,
-            taskTimeSubmit: taskTimeSubmit,
-            taskStatus: taskStatus);
+            checkpointId: BuiltValueNullFieldError.checkNotNull(
+                checkpointId, 'MonitorHistory', 'checkpointId'),
+            roleId: BuiltValueNullFieldError.checkNotNull(
+                roleId, 'MonitorHistory', 'roleId'),
+            taskClaimedUser: BuiltValueNullFieldError.checkNotNull(
+                taskClaimedUser, 'MonitorHistory', 'taskClaimedUser'),
+            taskRemark: BuiltValueNullFieldError.checkNotNull(
+                taskRemark, 'MonitorHistory', 'taskRemark'),
+            taskDateDue: BuiltValueNullFieldError.checkNotNull(
+                taskDateDue, 'MonitorHistory', 'taskDateDue'),
+            taskTimeCreated: BuiltValueNullFieldError.checkNotNull(
+                taskTimeCreated, 'MonitorHistory', 'taskTimeCreated'),
+            taskTimeSubmit: BuiltValueNullFieldError.checkNotNull(
+                taskTimeSubmit, 'MonitorHistory', 'taskTimeSubmit'),
+            taskStatus: BuiltValueNullFieldError.checkNotNull(
+                taskStatus, 'MonitorHistory', 'taskStatus'));
     replace(_$result);
     return _$result;
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new
+// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new

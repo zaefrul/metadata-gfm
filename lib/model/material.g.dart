@@ -18,106 +18,124 @@ class _$MaterialSerializer implements StructuredSerializer<Material> {
   Iterable<Object> serialize(Serializers serializers, Material object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[];
-    if (object.assetGroupName != null) {
+    Object value;
+    value = object.assetGroupName;
+    if (value != null) {
       result
         ..add('assetGroupName')
-        ..add(serializers.serialize(object.assetGroupName,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemDescription != null) {
+    value = object.itemDescription;
+    if (value != null) {
       result
         ..add('itemDescription')
-        ..add(serializers.serialize(object.itemDescription,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemId != null) {
+    value = object.itemId;
+    if (value != null) {
       result
         ..add('itemId')
-        ..add(serializers.serialize(object.itemId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemTypeDesc != null) {
+    value = object.itemTypeDesc;
+    if (value != null) {
       result
         ..add('itemTypeDesc')
-        ..add(serializers.serialize(object.itemTypeDesc,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partAvailable != null) {
+    value = object.partAvailable;
+    if (value != null) {
       result
         ..add('partAvailable')
-        ..add(serializers.serialize(object.partAvailable,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partCount != null) {
+    value = object.partCount;
+    if (value != null) {
       result
         ..add('partCount')
-        ..add(serializers.serialize(object.partCount,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partId != null) {
+    value = object.partId;
+    if (value != null) {
       result
         ..add('partId')
-        ..add(serializers.serialize(object.partId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partLocked != null) {
+    value = object.partLocked;
+    if (value != null) {
       result
         ..add('partLocked')
-        ..add(serializers.serialize(object.partLocked,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partThreshold != null) {
+    value = object.partThreshold;
+    if (value != null) {
       result
         ..add('partThreshold')
-        ..add(serializers.serialize(object.partThreshold,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.statusDesc != null) {
+    value = object.statusDesc;
+    if (value != null) {
       result
         ..add('statusDesc')
-        ..add(serializers.serialize(object.statusDesc,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.statusStorekeeper != null) {
+    value = object.statusStorekeeper;
+    if (value != null) {
       result
         ..add('statusStorekeeper')
-        ..add(serializers.serialize(object.statusStorekeeper,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.woTaskPartsId != null) {
+    value = object.woTaskPartsId;
+    if (value != null) {
       result
         ..add('woTaskPartsId')
-        ..add(serializers.serialize(object.woTaskPartsId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.woTaskPartsQuantity != null) {
+    value = object.woTaskPartsQuantity;
+    if (value != null) {
       result
         ..add('woTaskPartsQuantity')
-        ..add(serializers.serialize(object.woTaskPartsQuantity,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.woTaskPartsRemark != null) {
+    value = object.woTaskPartsRemark;
+    if (value != null) {
       result
         ..add('woTaskPartsRemark')
-        ..add(serializers.serialize(object.woTaskPartsRemark,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.woTaskPartStatus != null) {
+    value = object.woTaskPartStatus;
+    if (value != null) {
       result
         ..add('woTaskPartStatus')
-        ..add(serializers.serialize(object.woTaskPartStatus,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.woTaskRequestId != null) {
+    value = object.woTaskRequestId;
+    if (value != null) {
       result
         ..add('woTaskRequestId')
-        ..add(serializers.serialize(object.woTaskRequestId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.images != null) {
+    value = object.images;
+    if (value != null) {
       result
         ..add('images')
-        ..add(serializers.serialize(object.images,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(
                 BuiltList, const [const FullType(ComplaintDImage)])));
     }
@@ -133,7 +151,7 @@ class _$MaterialSerializer implements StructuredSerializer<Material> {
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'assetGroupName':
           result.assetGroupName = serializers.deserialize(value,
@@ -203,7 +221,7 @@ class _$MaterialSerializer implements StructuredSerializer<Material> {
           result.images.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
                       BuiltList, const [const FullType(ComplaintDImage)]))
-              as BuiltList<dynamic>);
+              as BuiltList<Object>);
           break;
       }
     }
@@ -453,24 +471,25 @@ class MaterialBuilder implements Builder<Material, MaterialBuilder> {
   MaterialBuilder();
 
   MaterialBuilder get _$this {
-    if (_$v != null) {
-      _assetGroupName = _$v.assetGroupName;
-      _itemDescription = _$v.itemDescription;
-      _itemId = _$v.itemId;
-      _itemTypeDesc = _$v.itemTypeDesc;
-      _partAvailable = _$v.partAvailable;
-      _partCount = _$v.partCount;
-      _partId = _$v.partId;
-      _partLocked = _$v.partLocked;
-      _partThreshold = _$v.partThreshold;
-      _statusDesc = _$v.statusDesc;
-      _statusStorekeeper = _$v.statusStorekeeper;
-      _woTaskPartsId = _$v.woTaskPartsId;
-      _woTaskPartsQuantity = _$v.woTaskPartsQuantity;
-      _woTaskPartsRemark = _$v.woTaskPartsRemark;
-      _woTaskPartStatus = _$v.woTaskPartStatus;
-      _woTaskRequestId = _$v.woTaskRequestId;
-      _images = _$v.images?.toBuilder();
+    final $v = _$v;
+    if ($v != null) {
+      _assetGroupName = $v.assetGroupName;
+      _itemDescription = $v.itemDescription;
+      _itemId = $v.itemId;
+      _itemTypeDesc = $v.itemTypeDesc;
+      _partAvailable = $v.partAvailable;
+      _partCount = $v.partCount;
+      _partId = $v.partId;
+      _partLocked = $v.partLocked;
+      _partThreshold = $v.partThreshold;
+      _statusDesc = $v.statusDesc;
+      _statusStorekeeper = $v.statusStorekeeper;
+      _woTaskPartsId = $v.woTaskPartsId;
+      _woTaskPartsQuantity = $v.woTaskPartsQuantity;
+      _woTaskPartsRemark = $v.woTaskPartsRemark;
+      _woTaskPartStatus = $v.woTaskPartStatus;
+      _woTaskRequestId = $v.woTaskRequestId;
+      _images = $v.images?.toBuilder();
       _$v = null;
     }
     return this;
@@ -478,9 +497,7 @@ class MaterialBuilder implements Builder<Material, MaterialBuilder> {
 
   @override
   void replace(Material other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$Material;
   }
 
@@ -528,4 +545,4 @@ class MaterialBuilder implements Builder<Material, MaterialBuilder> {
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new
+// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new

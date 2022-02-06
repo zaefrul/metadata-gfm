@@ -57,49 +57,52 @@ class _FormComplaintState extends State<FormComplaint> {
         listItem.length >= 3 ? _section(listItem[2]) : new Container(),
       ],
     );
-    return Scaffold(
-      appBar: AppBar(
-        title: new Text(
-          "Add Complaint",
-          style: TextStyle(color: colorTheme3),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: new Text(
+            "Add Complaint",
+            style: TextStyle(color: colorTheme3),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.white,
         ),
-        centerTitle: true,
-        backgroundColor: Colors.white,
+        body: loading
+            ? Stack(
+                children: <Widget>[
+                  body,
+                  Container(
+                    child: Center(child: CircularProgressIndicator()),
+                    height: double.infinity,
+                    width: double.infinity,
+                    color: Colors.black.withOpacity(0.4),
+                  )
+                ],
+              )
+            : body,
+        floatingActionButton: new FloatingActionButton.extended(
+            label: new Text("Submit"),
+            backgroundColor: colorTheme2,
+            onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (context) => CustomDialog(
+                        cancel: true,
+                        description: "Do you confirm want to submit?",
+                        buttonText: "Yes",
+                        image: Image.asset(
+                          "assets/icon_trans.png",
+                          height: 40,
+                        ),
+                        okayTapped: () {
+                          Navigator.pop(context);
+                          _upload();
+                        },
+                      ));
+            }),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
-      body: loading
-          ? Stack(
-              children: <Widget>[
-                body,
-                Container(
-                  child: Center(child: CircularProgressIndicator()),
-                  height: double.infinity,
-                  width: double.infinity,
-                  color: Colors.black.withOpacity(0.4),
-                )
-              ],
-            )
-          : body,
-      floatingActionButton: new FloatingActionButton.extended(
-          label: new Text("Submit"),
-          backgroundColor: colorTheme2,
-          onPressed: () {
-            showDialog(
-                context: context,
-                builder: (context) => CustomDialog(
-                      cancel: true,
-                      description: "Do you confirm want to submit?",
-                      buttonText: "Yes",
-                      image: Image.asset(
-                        "assets/icon_trans.png",
-                        height: 40,
-                      ),
-                      okayTapped: () {
-                        Navigator.pop(context);
-                        _upload();
-                      },
-                    ));
-          }),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 

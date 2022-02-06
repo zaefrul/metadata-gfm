@@ -1,4 +1,4 @@
-import 'package:barcode_scan/barcode_scan.dart';
+import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/TaskMonitoring/task_detail.dart';
 import 'package:gfm_gems/model/monitor.dart';
@@ -178,13 +178,13 @@ class _SearchTaskMonitoringState extends State<SearchTaskMonitoring> {
 
   Future scan() async {
     try {
-      String barcode = await BarcodeScanner.scan();
+      ScanResult barcode = await BarcodeScanner.scan();
       keyword = "Success";
 
-      controller.text = this.searchText = barcode;
-      qrTask(barcode);
+      controller.text = this.searchText = barcode.rawContent;
+      qrTask(barcode.rawContent);
     } on PlatformException catch (e) {
-      if (e.code == BarcodeScanner.CameraAccessDenied)
+      if (e.code == BarcodeScanner.cameraAccessDenied)
         setState(() =>
             this.keyword = 'The user did not grant the camera permission!');
       else

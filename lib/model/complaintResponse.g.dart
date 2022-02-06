@@ -30,31 +30,36 @@ class _$ComplaintResponseSerializer
       serializers.serialize(object.errmsg,
           specifiedType: const FullType(String)),
     ];
-    if (object.items != null) {
+    Object value;
+    value = object.items;
+    if (value != null) {
       result
         ..add('result')
-        ..add(serializers.serialize(object.items,
+        ..add(serializers.serialize(value,
             specifiedType:
                 const FullType(BuiltList, const [const FullType(ComplaintD)])));
     }
-    if (object.groups != null) {
+    value = object.groups;
+    if (value != null) {
       result
         ..add('result')
-        ..add(serializers.serialize(object.groups,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(
                 BuiltList, const [const FullType(ComplaintDGroup)])));
     }
-    if (object.types != null) {
+    value = object.types;
+    if (value != null) {
       result
         ..add('result')
-        ..add(serializers.serialize(object.types,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(
                 BuiltList, const [const FullType(ComplaintDType)])));
     }
-    if (object.parts != null) {
+    value = object.parts;
+    if (value != null) {
       result
         ..add('result')
-        ..add(serializers.serialize(object.parts,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(
                 BuiltList, const [const FullType(ComplaintDPart)])));
     }
@@ -71,7 +76,7 @@ class _$ComplaintResponseSerializer
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'success':
           result.success = serializers.deserialize(value,
@@ -89,25 +94,25 @@ class _$ComplaintResponseSerializer
           result.items.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
                       BuiltList, const [const FullType(ComplaintD)]))
-              as BuiltList<dynamic>);
+              as BuiltList<Object>);
           break;
         case 'result':
           result.groups.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
                       BuiltList, const [const FullType(ComplaintDGroup)]))
-              as BuiltList<dynamic>);
+              as BuiltList<Object>);
           break;
         case 'result':
           result.types.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
                       BuiltList, const [const FullType(ComplaintDType)]))
-              as BuiltList<dynamic>);
+              as BuiltList<Object>);
           break;
         case 'result':
           result.parts.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
                       BuiltList, const [const FullType(ComplaintDPart)]))
-              as BuiltList<dynamic>);
+              as BuiltList<Object>);
           break;
       }
     }
@@ -145,15 +150,11 @@ class _$ComplaintResponse extends ComplaintResponse {
       this.types,
       this.parts})
       : super._() {
-    if (success == null) {
-      throw new BuiltValueNullFieldError('ComplaintResponse', 'success');
-    }
-    if (error == null) {
-      throw new BuiltValueNullFieldError('ComplaintResponse', 'error');
-    }
-    if (errmsg == null) {
-      throw new BuiltValueNullFieldError('ComplaintResponse', 'errmsg');
-    }
+    BuiltValueNullFieldError.checkNotNull(
+        success, 'ComplaintResponse', 'success');
+    BuiltValueNullFieldError.checkNotNull(error, 'ComplaintResponse', 'error');
+    BuiltValueNullFieldError.checkNotNull(
+        errmsg, 'ComplaintResponse', 'errmsg');
   }
 
   @override
@@ -244,14 +245,15 @@ class ComplaintResponseBuilder
   ComplaintResponseBuilder();
 
   ComplaintResponseBuilder get _$this {
-    if (_$v != null) {
-      _success = _$v.success;
-      _error = _$v.error;
-      _errmsg = _$v.errmsg;
-      _items = _$v.items?.toBuilder();
-      _groups = _$v.groups?.toBuilder();
-      _types = _$v.types?.toBuilder();
-      _parts = _$v.parts?.toBuilder();
+    final $v = _$v;
+    if ($v != null) {
+      _success = $v.success;
+      _error = $v.error;
+      _errmsg = $v.errmsg;
+      _items = $v.items?.toBuilder();
+      _groups = $v.groups?.toBuilder();
+      _types = $v.types?.toBuilder();
+      _parts = $v.parts?.toBuilder();
       _$v = null;
     }
     return this;
@@ -259,9 +261,7 @@ class ComplaintResponseBuilder
 
   @override
   void replace(ComplaintResponse other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintResponse;
   }
 
@@ -276,9 +276,12 @@ class ComplaintResponseBuilder
     try {
       _$result = _$v ??
           new _$ComplaintResponse._(
-              success: success,
-              error: error,
-              errmsg: errmsg,
+              success: BuiltValueNullFieldError.checkNotNull(
+                  success, 'ComplaintResponse', 'success'),
+              error: BuiltValueNullFieldError.checkNotNull(
+                  error, 'ComplaintResponse', 'error'),
+              errmsg: BuiltValueNullFieldError.checkNotNull(
+                  errmsg, 'ComplaintResponse', 'errmsg'),
               items: _items?.build(),
               groups: _groups?.build(),
               types: _types?.build(),
@@ -305,4 +308,4 @@ class ComplaintResponseBuilder
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new
+// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new

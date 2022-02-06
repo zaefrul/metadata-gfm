@@ -179,30 +179,30 @@ class _FormHState extends State<FormH> {
     }
 
     uploadImage() async {
-      var geo = Geolocator();
-      GeolocationStatus geolocationStatus =
-          await geo.checkGeolocationPermissionStatus();
-      if (await geo.isLocationServiceEnabled()) {
-        Position position = await geo.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.high);
-        if (geolocationStatus == GeolocationStatus.granted) {
-          latitude = position.latitude.toString();
-          longitude = position.longitude.toString();
-          if (position != null) {
-            setState(() {
-              loading = true;
-            });
-            await getImage().then((value) {
-              createObject(value);
-              setState(() {
-                loading = false;
-              });
-            });
-          }
-        }
-      } else {
-        openLocationSetting;
-      }
+      // var geo = Geolocator();
+      // GeolocationStatus geolocationStatus =
+      //     await geo.checkGeolocationPermissionStatus();
+      // if (await geo.isLocationServiceEnabled()) {
+      //   Position position = await geo.getCurrentPosition(
+      //       desiredAccuracy: LocationAccuracy.high);
+      //   if (geolocationStatus == GeolocationStatus.granted) {
+      //     latitude = position.latitude.toString();
+      //     longitude = position.longitude.toString();
+      //     if (position != null) {
+      //       setState(() {
+      //         loading = true;
+      //       });
+      //       await getImage().then((value) {
+      //         createObject(value);
+      //         setState(() {
+      //           loading = false;
+      //         });
+      //       });
+      //     }
+      //   }
+      // } else {
+      //   openLocationSetting;
+      // }
     }
 
     var leading = uploadItem == null

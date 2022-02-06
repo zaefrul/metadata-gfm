@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/WorkOrder/bloc/mainBloc.dart';
+import 'package:gfm_gems/model/execution.dart';
+import 'package:gfm_gems/model/user.dart';
 import 'package:gfm_gems/model/workorder.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/dialog.dart';
@@ -31,9 +33,17 @@ class ComplaintSection extends StatefulWidget {
 
 class _ComplaintSectionState extends State<ComplaintSection> {
   final MainBloc _bloc;
+  bool showtime = false;
 
   _ComplaintSectionState(String id, String status, String taskNo)
-      : this._bloc = MainBloc(id: id, status: status, taskNo: taskNo);
+      : this._bloc = MainBloc(id: id, status: status, taskNo: taskNo) {
+    User.getPrefUser.then((value) {
+      final User user = User.fromMap(value);
+
+      final List<String> role = user.roles.map((role) => role.desc).toList();
+      if (role.contains("WO Executor")) setState(() => showtime = true);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +70,12 @@ class _ComplaintSectionState extends State<ComplaintSection> {
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(widget.siteName),
-              Text(widget.taskNo, style: TextStyle(fontSize: 16)),
+              Text(
+                widget.siteName,
+                style: TextStyle(color: colorTheme3),
+              ),
+              Text(widget.taskNo,
+                  style: TextStyle(fontSize: 16, color: colorTheme3)),
             ],
           ),
         ),
@@ -75,18 +89,22 @@ class _ComplaintSectionState extends State<ComplaintSection> {
             return RefreshIndicator(
               onRefresh: _bloc.refresh,
               child: ListView.separated(
-                padding: EdgeInsets.symmetric(vertical: 12),
-                itemCount: snapshot.data.length,
-                separatorBuilder: (_, __) => Divider(),
-                itemBuilder: (_, index) => _buildTile(
-                  snapshot.data[index],
-                  () => _bloc.openScreen(
-                    context,
-                    snapshot.data[index],
-                    viewOnly: widget.viewer,
-                  ),
-                ),
-              ),
+                  // physics: NeverScrollableScrollPhysics(),
+                  padding: EdgeInsets.only(top: 12, bottom: 120),
+                  itemCount: snapshot.data.length + (showtime ? 1 : 0),
+                  separatorBuilder: (_, __) => Divider(),
+                  itemBuilder: (_, index) {
+                    if (index == 0 && showtime)
+                      return _TimeDuration(stream: _bloc.execution$);
+                    return _buildTile(
+                      snapshot.data[index - (showtime ? 1 : 0)],
+                      () => _bloc.openScreen(
+                        context,
+                        snapshot.data[index - 1],
+                        viewOnly: widget.viewer,
+                      ),
+                    );
+                  }),
             );
           },
         ),
@@ -156,6 +174,51 @@ class _buildTile extends StatelessWidget {
                     ? status
                     : object.sectionStatusMaterial
                 : status,
+            style: TextStyle(color: Colors.white, fontFamily: 'Avenir'),
+            overflow: TextOverflow.clip,
+          ),
+        ),
+      ]),
+      trailing: Icon(Icons.arrow_right),
+      onTap: openScreen,
+    );
+  }
+}
+
+class _buildTempTile extends StatelessWidget {
+  final String title;
+  final String status;
+  final Function openScreen;
+
+  const _buildTempTile(this.title, this.status, this.openScreen);
+
+  @override
+  Widget build(BuildContext context) {
+    var color = colorTheme4;
+
+    return ListTile(
+      title: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+        Text(
+          "F. ",
+          style: TextStyle(fontWeight: FontWeight.normal, color: colorTheme3),
+        ),
+        Expanded(
+          child: Text(
+            title,
+            style: TextStyle(fontWeight: FontWeight.normal, color: colorTheme3),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        Container(
+          alignment: Alignment.center,
+          height: 30.0,
+          width: 130.0,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: new BorderRadius.circular(20.0),
+          ),
+          child: Text(
+            status,
             style: TextStyle(color: Colors.white, fontFamily: 'Avenir'),
             overflow: TextOverflow.clip,
           ),
@@ -313,6 +376,87 @@ class _BuildStandardButton extends StatelessWidget {
       image: Image.asset(
         "assets/icon_trans.png",
         height: 40,
+      ),
+    );
+  }
+}
+
+class _TimeDuration extends StatelessWidget {
+  final Stream<ExecutionModel> stream;
+  _TimeDuration({@required Stream<ExecutionModel> stream})
+      : this.stream = stream;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: StreamBuilder<ExecutionModel>(
+          stream: stream,
+          builder: (context, snapshot) {
+            final String maxReponse = snapshot.data?.responseTimeSla ?? "0";
+            final String remainReponse = snapshot.data?.responseTimeDue ?? "0";
+            final String assignTime = snapshot.data?.assignTime ?? "0";
+            final String executeTime = snapshot.data?.execute ?? "0";
+            final String maxCompletion =
+                snapshot.data?.completionTimeSla ?? "0";
+            final String remainCompletion =
+                snapshot.data?.completionTimeDue ?? "0";
+            final bool exceedResponse =
+                snapshot.data?.responseTimeExceeded ?? false;
+            final bool exceedCompletion =
+                snapshot.data?.completionTimeExceeded ?? false;
+            return Table(
+              children: [
+                TableRow(children: [
+                  _text("Response Time", isBold: true),
+                  _text("Completion Time", isBold: true),
+                ]),
+                TableRow(children: [
+                  _text("SLA Time :", isTitle: true),
+                  _text("SLA Time :", isTitle: true),
+                ]),
+                TableRow(children: [
+                  _text(maxReponse, isRed: exceedResponse),
+                  _text(maxCompletion, isRed: exceedCompletion),
+                ]),
+                TableRow(children: [
+                  _text("Time Due :", isTitle: true),
+                  _text("Time Due :", isTitle: true),
+                ]),
+                TableRow(children: [
+                  _text(remainReponse, isRed: exceedResponse),
+                  _text(remainCompletion, isRed: exceedCompletion),
+                ]),
+                TableRow(children: [
+                  _text("Assigned Time :", isTitle: true),
+                  _text("Execute Time :", isTitle: true),
+                ]),
+                TableRow(children: [
+                  _text(assignTime, isRed: exceedResponse),
+                  _text(executeTime, isRed: exceedCompletion),
+                ]),
+              ],
+            );
+          }),
+    );
+  }
+
+  Widget _text(String value,
+      {bool isBold = false, bool isRed = false, isTitle = false}) {
+    return TableCell(
+      child: Padding(
+        padding: EdgeInsets.only(
+          top: isTitle ? 12 : 3,
+          left: 3,
+          right: 3,
+          bottom: 3,
+        ),
+        child: Text(
+          value,
+          style: TextStyle(
+              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+              color: isRed ? colorTheme4 : colorTheme3),
+        ),
       ),
     );
   }

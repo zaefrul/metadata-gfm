@@ -41,70 +41,82 @@ class _$ComplaintDSerializer implements StructuredSerializer<ComplaintD> {
   Iterable<Object> serialize(Serializers serializers, ComplaintD object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[];
-    if (object.woTaskPartsId != null) {
+    Object value;
+    value = object.woTaskPartsId;
+    if (value != null) {
       result
         ..add('woTaskPartsId')
-        ..add(serializers.serialize(object.woTaskPartsId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.woTaskRequestId != null) {
+    value = object.woTaskRequestId;
+    if (value != null) {
       result
         ..add('woTaskRequestId')
-        ..add(serializers.serialize(object.woTaskRequestId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partId != null) {
+    value = object.partId;
+    if (value != null) {
       result
         ..add('partId')
-        ..add(serializers.serialize(object.partId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.woTaskPartsQuantity != null) {
+    value = object.woTaskPartsQuantity;
+    if (value != null) {
       result
         ..add('woTaskPartsQuantity')
-        ..add(serializers.serialize(object.woTaskPartsQuantity,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.woTaskPartsRemark != null) {
+    value = object.woTaskPartsRemark;
+    if (value != null) {
       result
         ..add('woTaskPartsRemark')
-        ..add(serializers.serialize(object.woTaskPartsRemark,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.woTaskPartsStatus != null) {
+    value = object.woTaskPartsStatus;
+    if (value != null) {
       result
         ..add('woTaskPartsStatus')
-        ..add(serializers.serialize(object.woTaskPartsStatus,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemDescription != null) {
+    value = object.itemDescription;
+    if (value != null) {
       result
         ..add('itemDescription')
-        ..add(serializers.serialize(object.itemDescription,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemTypeDesc != null) {
+    value = object.itemTypeDesc;
+    if (value != null) {
       result
         ..add('itemTypeDesc')
-        ..add(serializers.serialize(object.itemTypeDesc,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.assetGroupName != null) {
+    value = object.assetGroupName;
+    if (value != null) {
       result
         ..add('assetGroupName')
-        ..add(serializers.serialize(object.assetGroupName,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.statusDesc != null) {
+    value = object.statusDesc;
+    if (value != null) {
       result
         ..add('statusDesc')
-        ..add(serializers.serialize(object.statusDesc,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.images != null) {
+    value = object.images;
+    if (value != null) {
       result
         ..add('images')
-        ..add(serializers.serialize(object.images,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(
                 BuiltList, const [const FullType(ComplaintDImage)])));
     }
@@ -120,7 +132,7 @@ class _$ComplaintDSerializer implements StructuredSerializer<ComplaintD> {
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'woTaskPartsId':
           result.woTaskPartsId = serializers.deserialize(value,
@@ -166,7 +178,7 @@ class _$ComplaintDSerializer implements StructuredSerializer<ComplaintD> {
           result.images.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
                       BuiltList, const [const FullType(ComplaintDImage)]))
-              as BuiltList<dynamic>);
+              as BuiltList<Object>);
           break;
       }
     }
@@ -186,16 +198,19 @@ class _$ComplaintDStoreSerializer
   Iterable<Object> serialize(Serializers serializers, ComplaintDStore object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[];
-    if (object.itemId != null) {
+    Object value;
+    value = object.itemId;
+    if (value != null) {
       result
         ..add('storeId')
-        ..add(serializers.serialize(object.itemId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemName != null) {
+    value = object.itemName;
+    if (value != null) {
       result
         ..add('storeName')
-        ..add(serializers.serialize(object.itemName,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
     return result;
@@ -211,7 +226,7 @@ class _$ComplaintDStoreSerializer
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'storeId':
           result.itemId = serializers.deserialize(value,
@@ -243,22 +258,26 @@ class _$ComplaintDGroupStoreSerializer
       Serializers serializers, ComplaintDGroupStore object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[];
-    if (object.itemId != null) {
+    Object value;
+    value = object.itemId;
+    if (value != null) {
       result
         ..add('assetGroupId')
-        ..add(serializers.serialize(object.itemId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemName != null) {
+    value = object.itemName;
+    if (value != null) {
       result
         ..add('assetGroupName')
-        ..add(serializers.serialize(object.itemName,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemTypes != null) {
+    value = object.itemTypes;
+    if (value != null) {
       result
         ..add('itemTypes')
-        ..add(serializers.serialize(object.itemTypes,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(
                 BuiltList, const [const FullType(ComplaintDType)])));
     }
@@ -275,7 +294,7 @@ class _$ComplaintDGroupStoreSerializer
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'assetGroupId':
           result.itemId = serializers.deserialize(value,
@@ -289,7 +308,7 @@ class _$ComplaintDGroupStoreSerializer
           result.itemTypes.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
                       BuiltList, const [const FullType(ComplaintDType)]))
-              as BuiltList<dynamic>);
+              as BuiltList<Object>);
           break;
       }
     }
@@ -309,28 +328,33 @@ class _$ComplaintDGroupSerializer
   Iterable<Object> serialize(Serializers serializers, ComplaintDGroup object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[];
-    if (object.itemId != null) {
+    Object value;
+    value = object.itemId;
+    if (value != null) {
       result
         ..add('asset_group_id')
-        ..add(serializers.serialize(object.itemId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemName != null) {
+    value = object.itemName;
+    if (value != null) {
       result
         ..add('asset_group_name')
-        ..add(serializers.serialize(object.itemName,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemDesc != null) {
+    value = object.itemDesc;
+    if (value != null) {
       result
         ..add('assetGroupDesc')
-        ..add(serializers.serialize(object.itemDesc,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemStatus != null) {
+    value = object.itemStatus;
+    if (value != null) {
       result
         ..add('assetGroupStatus')
-        ..add(serializers.serialize(object.itemStatus,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
     return result;
@@ -346,7 +370,7 @@ class _$ComplaintDGroupSerializer
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'asset_group_id':
           result.itemId = serializers.deserialize(value,
@@ -382,40 +406,47 @@ class _$ComplaintDTypeSerializer
   Iterable<Object> serialize(Serializers serializers, ComplaintDType object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[];
-    if (object.itemId != null) {
+    Object value;
+    value = object.itemId;
+    if (value != null) {
       result
         ..add('item_type_id')
-        ..add(serializers.serialize(object.itemId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemGroupId != null) {
+    value = object.itemGroupId;
+    if (value != null) {
       result
         ..add('assetGroupId')
-        ..add(serializers.serialize(object.itemGroupId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemName != null) {
+    value = object.itemName;
+    if (value != null) {
       result
         ..add('item_type_desc')
-        ..add(serializers.serialize(object.itemName,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemTypeDesc != null) {
+    value = object.itemTypeDesc;
+    if (value != null) {
       result
         ..add('itemTypeDesc')
-        ..add(serializers.serialize(object.itemTypeDesc,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemStatus != null) {
+    value = object.itemStatus;
+    if (value != null) {
       result
         ..add('itemTypeStatus')
-        ..add(serializers.serialize(object.itemStatus,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.parts != null) {
+    value = object.parts;
+    if (value != null) {
       result
         ..add('parts')
-        ..add(serializers.serialize(object.parts,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(
                 BuiltList, const [const FullType(ComplaintMaterial)])));
     }
@@ -432,7 +463,7 @@ class _$ComplaintDTypeSerializer
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'item_type_id':
           result.itemId = serializers.deserialize(value,
@@ -458,7 +489,7 @@ class _$ComplaintDTypeSerializer
           result.parts.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
                       BuiltList, const [const FullType(ComplaintMaterial)]))
-              as BuiltList<dynamic>);
+              as BuiltList<Object>);
           break;
       }
     }
@@ -482,22 +513,26 @@ class _$ComplaintDStoreTypeSerializer
       Serializers serializers, ComplaintDStoreType object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[];
-    if (object.itemId != null) {
+    Object value;
+    value = object.itemId;
+    if (value != null) {
       result
         ..add('itemTypeId')
-        ..add(serializers.serialize(object.itemId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemName != null) {
+    value = object.itemName;
+    if (value != null) {
       result
         ..add('itemTypeDesc')
-        ..add(serializers.serialize(object.itemName,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.parts != null) {
+    value = object.parts;
+    if (value != null) {
       result
         ..add('parts')
-        ..add(serializers.serialize(object.parts,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(
                 BuiltList, const [const FullType(ComplaintMaterial)])));
     }
@@ -514,7 +549,7 @@ class _$ComplaintDStoreTypeSerializer
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'itemTypeId':
           result.itemId = serializers.deserialize(value,
@@ -528,7 +563,7 @@ class _$ComplaintDStoreTypeSerializer
           result.parts.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
                       BuiltList, const [const FullType(ComplaintMaterial)]))
-              as BuiltList<dynamic>);
+              as BuiltList<Object>);
           break;
       }
     }
@@ -548,52 +583,61 @@ class _$ComplaintDPartSerializer
   Iterable<Object> serialize(Serializers serializers, ComplaintDPart object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[];
-    if (object.itemId != null) {
+    Object value;
+    value = object.itemId;
+    if (value != null) {
       result
         ..add('item_id')
-        ..add(serializers.serialize(object.itemId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemName != null) {
+    value = object.itemName;
+    if (value != null) {
       result
         ..add('item_description')
-        ..add(serializers.serialize(object.itemName,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemQuantity != null) {
+    value = object.itemQuantity;
+    if (value != null) {
       result
         ..add('partCounts')
-        ..add(serializers.serialize(object.itemQuantity,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemTypeDesc != null) {
+    value = object.itemTypeDesc;
+    if (value != null) {
       result
         ..add('itemTypeDesc')
-        ..add(serializers.serialize(object.itemTypeDesc,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partLocked != null) {
+    value = object.partLocked;
+    if (value != null) {
       result
         ..add('partLocked')
-        ..add(serializers.serialize(object.partLocked,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partMaxOrder != null) {
+    value = object.partMaxOrder;
+    if (value != null) {
       result
         ..add('partMaxOrder')
-        ..add(serializers.serialize(object.partMaxOrder,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partMinOrder != null) {
+    value = object.partMinOrder;
+    if (value != null) {
       result
         ..add('partMinOrder')
-        ..add(serializers.serialize(object.partMinOrder,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partRemark != null) {
+    value = object.partRemark;
+    if (value != null) {
       result
         ..add('partRemark')
-        ..add(serializers.serialize(object.partRemark,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
     return result;
@@ -609,7 +653,7 @@ class _$ComplaintDPartSerializer
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'item_id':
           result.itemId = serializers.deserialize(value,
@@ -661,52 +705,61 @@ class _$MaterialStorePartSerializer
   Iterable<Object> serialize(Serializers serializers, MaterialStorePart object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[];
-    if (object.itemDescription != null) {
+    Object value;
+    value = object.itemDescription;
+    if (value != null) {
       result
         ..add('itemDescription')
-        ..add(serializers.serialize(object.itemDescription,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partAvailable != null) {
+    value = object.partAvailable;
+    if (value != null) {
       result
         ..add('partAvailable')
-        ..add(serializers.serialize(object.partAvailable,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partCount != null) {
+    value = object.partCount;
+    if (value != null) {
       result
         ..add('partCount')
-        ..add(serializers.serialize(object.partCount,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partId != null) {
+    value = object.partId;
+    if (value != null) {
       result
         ..add('partId')
-        ..add(serializers.serialize(object.partId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partLocked != null) {
+    value = object.partLocked;
+    if (value != null) {
       result
         ..add('partLocked')
-        ..add(serializers.serialize(object.partLocked,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partMaxOrder != null) {
+    value = object.partMaxOrder;
+    if (value != null) {
       result
         ..add('partMaxOrder')
-        ..add(serializers.serialize(object.partMaxOrder,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partMinOrder != null) {
+    value = object.partMinOrder;
+    if (value != null) {
       result
         ..add('partMinOrder')
-        ..add(serializers.serialize(object.partMinOrder,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partRemark != null) {
+    value = object.partRemark;
+    if (value != null) {
       result
         ..add('partRemark')
-        ..add(serializers.serialize(object.partRemark,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
     return result;
@@ -722,7 +775,7 @@ class _$MaterialStorePartSerializer
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'itemDescription':
           result.itemDescription = serializers.deserialize(value,
@@ -774,28 +827,33 @@ class _$ComplaintDImageSerializer
   Iterable<Object> serialize(Serializers serializers, ComplaintDImage object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[];
-    if (object.file != null) {
+    Object value;
+    value = object.file;
+    if (value != null) {
       result
         ..add('file')
-        ..add(serializers.serialize(object.file,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.title != null) {
+    value = object.title;
+    if (value != null) {
       result
         ..add('title')
-        ..add(serializers.serialize(object.title,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.width != null) {
+    value = object.width;
+    if (value != null) {
       result
         ..add('width')
-        ..add(serializers.serialize(object.width,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.height != null) {
+    value = object.height;
+    if (value != null) {
       result
         ..add('height')
-        ..add(serializers.serialize(object.height,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
     return result;
@@ -811,7 +869,7 @@ class _$ComplaintDImageSerializer
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'file':
           result.file = serializers.deserialize(value,
@@ -846,82 +904,96 @@ class _$RequestTaskSerializer implements StructuredSerializer<RequestTask> {
   Iterable<Object> serialize(Serializers serializers, RequestTask object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[];
-    if (object.requestBy != null) {
+    Object value;
+    value = object.requestBy;
+    if (value != null) {
       result
         ..add('requestBy')
-        ..add(serializers.serialize(object.requestBy,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.requestTime != null) {
+    value = object.requestTime;
+    if (value != null) {
       result
         ..add('requestTime')
-        ..add(serializers.serialize(object.requestTime,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.statusDesc != null) {
+    value = object.statusDesc;
+    if (value != null) {
       result
         ..add('statusDesc')
-        ..add(serializers.serialize(object.statusDesc,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.statusId != null) {
+    value = object.statusId;
+    if (value != null) {
       result
         ..add('statusId')
-        ..add(serializers.serialize(object.statusId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.taskFrom != null) {
+    value = object.taskFrom;
+    if (value != null) {
       result
         ..add('taskFrom')
-        ..add(serializers.serialize(object.taskFrom,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.taskReceivedTime != null) {
+    value = object.taskReceivedTime;
+    if (value != null) {
       result
         ..add('taskReceivedTime')
-        ..add(serializers.serialize(object.taskReceivedTime,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.woSeverityDesc != null) {
+    value = object.woSeverityDesc;
+    if (value != null) {
       result
         ..add('woSeverityDesc')
-        ..add(serializers.serialize(object.woSeverityDesc,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.woTaskNo != null) {
+    value = object.woTaskNo;
+    if (value != null) {
       result
         ..add('woTaskNo')
-        ..add(serializers.serialize(object.woTaskNo,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.woTaskRequestId != null) {
+    value = object.woTaskRequestId;
+    if (value != null) {
       result
         ..add('woTaskRequestId')
-        ..add(serializers.serialize(object.woTaskRequestId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.woTaskRequestNo != null) {
+    value = object.woTaskRequestNo;
+    if (value != null) {
       result
         ..add('woTaskRequestNo')
-        ..add(serializers.serialize(object.woTaskRequestNo,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.woTypeDesc != null) {
+    value = object.woTypeDesc;
+    if (value != null) {
       result
         ..add('woTypeDesc')
-        ..add(serializers.serialize(object.woTypeDesc,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.collectTime != null) {
+    value = object.collectTime;
+    if (value != null) {
       result
         ..add('collectTime')
-        ..add(serializers.serialize(object.collectTime,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.siteName != null) {
+    value = object.siteName;
+    if (value != null) {
       result
         ..add('siteName')
-        ..add(serializers.serialize(object.siteName,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
     return result;
@@ -936,7 +1008,7 @@ class _$RequestTaskSerializer implements StructuredSerializer<RequestTask> {
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'requestBy':
           result.requestBy = serializers.deserialize(value,
@@ -1008,101 +1080,118 @@ class _$ComplaintMaterialSerializer
   Iterable<Object> serialize(Serializers serializers, ComplaintMaterial object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[];
-    if (object.assetGroupId != null) {
+    Object value;
+    value = object.assetGroupId;
+    if (value != null) {
       result
         ..add('assetGroupId')
-        ..add(serializers.serialize(object.assetGroupId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.assetGroupName != null) {
+    value = object.assetGroupName;
+    if (value != null) {
       result
         ..add('assetGroupName')
-        ..add(serializers.serialize(object.assetGroupName,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemDescription != null) {
+    value = object.itemDescription;
+    if (value != null) {
       result
         ..add('itemDescription')
-        ..add(serializers.serialize(object.itemDescription,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemId != null) {
+    value = object.itemId;
+    if (value != null) {
       result
         ..add('itemId')
-        ..add(serializers.serialize(object.itemId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemTypeDesc != null) {
+    value = object.itemTypeDesc;
+    if (value != null) {
       result
         ..add('itemTypeDesc')
-        ..add(serializers.serialize(object.itemTypeDesc,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemTypeId != null) {
+    value = object.itemTypeId;
+    if (value != null) {
       result
         ..add('itemTypeId')
-        ..add(serializers.serialize(object.itemTypeId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partAvailable != null) {
+    value = object.partAvailable;
+    if (value != null) {
       result
         ..add('partAvailable')
-        ..add(serializers.serialize(object.partAvailable,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partCount != null) {
+    value = object.partCount;
+    if (value != null) {
       result
         ..add('partCount')
-        ..add(serializers.serialize(object.partCount,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partId != null) {
+    value = object.partId;
+    if (value != null) {
       result
         ..add('partId')
-        ..add(serializers.serialize(object.partId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partLocked != null) {
+    value = object.partLocked;
+    if (value != null) {
       result
         ..add('partLocked')
-        ..add(serializers.serialize(object.partLocked,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partMaxOrder != null) {
+    value = object.partMaxOrder;
+    if (value != null) {
       result
         ..add('partMaxOrder')
-        ..add(serializers.serialize(object.partMaxOrder,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partMinOrder != null) {
+    value = object.partMinOrder;
+    if (value != null) {
       result
         ..add('partMinOrder')
-        ..add(serializers.serialize(object.partMinOrder,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partRemark != null) {
+    value = object.partRemark;
+    if (value != null) {
       result
         ..add('partRemark')
-        ..add(serializers.serialize(object.partRemark,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.partThreshold != null) {
+    value = object.partThreshold;
+    if (value != null) {
       result
         ..add('partThreshold')
-        ..add(serializers.serialize(object.partThreshold,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.itemGrouped != null) {
+    value = object.itemGrouped;
+    if (value != null) {
       result
         ..add('itemGrouped')
-        ..add(serializers.serialize(object.itemGrouped,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(
                 BuiltList, const [const FullType(ComplaintMaterialGrouped)])));
     }
-    if (object.images != null) {
+    value = object.images;
+    if (value != null) {
       result
         ..add('images')
-        ..add(serializers.serialize(object.images,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(
                 BuiltList, const [const FullType(ComplaintMaterialImage)])));
     }
@@ -1119,7 +1208,7 @@ class _$ComplaintMaterialSerializer
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'assetGroupId':
           result.assetGroupId = serializers.deserialize(value,
@@ -1181,13 +1270,13 @@ class _$ComplaintMaterialSerializer
           result.itemGrouped.replace(serializers.deserialize(value,
               specifiedType: const FullType(BuiltList, const [
                 const FullType(ComplaintMaterialGrouped)
-              ])) as BuiltList<dynamic>);
+              ])) as BuiltList<Object>);
           break;
         case 'images':
           result.images.replace(serializers.deserialize(value,
               specifiedType: const FullType(BuiltList, const [
                 const FullType(ComplaintMaterialImage)
-              ])) as BuiltList<dynamic>);
+              ])) as BuiltList<Object>);
           break;
       }
     }
@@ -1249,7 +1338,7 @@ class _$ComplaintMaterialGroupedSerializer
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'dateCheckIn':
           result.dateCheckIn = serializers.deserialize(value,
@@ -1305,28 +1394,33 @@ class _$ComplaintMaterialImageSerializer
       Serializers serializers, ComplaintMaterialImage object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[];
-    if (object.file != null) {
+    Object value;
+    value = object.file;
+    if (value != null) {
       result
         ..add('file')
-        ..add(serializers.serialize(object.file,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.height != null) {
+    value = object.height;
+    if (value != null) {
       result
         ..add('height')
-        ..add(serializers.serialize(object.height,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.width != null) {
+    value = object.width;
+    if (value != null) {
       result
         ..add('width')
-        ..add(serializers.serialize(object.width,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.title != null) {
+    value = object.title;
+    if (value != null) {
       result
         ..add('title')
-        ..add(serializers.serialize(object.title,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
     return result;
@@ -1342,7 +1436,7 @@ class _$ComplaintMaterialImageSerializer
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'file':
           result.file = serializers.deserialize(value,
@@ -1532,18 +1626,19 @@ class ComplaintDBuilder implements Builder<ComplaintD, ComplaintDBuilder> {
   ComplaintDBuilder();
 
   ComplaintDBuilder get _$this {
-    if (_$v != null) {
-      _woTaskPartsId = _$v.woTaskPartsId;
-      _woTaskRequestId = _$v.woTaskRequestId;
-      _partId = _$v.partId;
-      _woTaskPartsQuantity = _$v.woTaskPartsQuantity;
-      _woTaskPartsRemark = _$v.woTaskPartsRemark;
-      _woTaskPartsStatus = _$v.woTaskPartsStatus;
-      _itemDescription = _$v.itemDescription;
-      _itemTypeDesc = _$v.itemTypeDesc;
-      _assetGroupName = _$v.assetGroupName;
-      _statusDesc = _$v.statusDesc;
-      _images = _$v.images?.toBuilder();
+    final $v = _$v;
+    if ($v != null) {
+      _woTaskPartsId = $v.woTaskPartsId;
+      _woTaskRequestId = $v.woTaskRequestId;
+      _partId = $v.partId;
+      _woTaskPartsQuantity = $v.woTaskPartsQuantity;
+      _woTaskPartsRemark = $v.woTaskPartsRemark;
+      _woTaskPartsStatus = $v.woTaskPartsStatus;
+      _itemDescription = $v.itemDescription;
+      _itemTypeDesc = $v.itemTypeDesc;
+      _assetGroupName = $v.assetGroupName;
+      _statusDesc = $v.statusDesc;
+      _images = $v.images?.toBuilder();
       _$v = null;
     }
     return this;
@@ -1551,9 +1646,7 @@ class ComplaintDBuilder implements Builder<ComplaintD, ComplaintDBuilder> {
 
   @override
   void replace(ComplaintD other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintD;
   }
 
@@ -1651,9 +1744,10 @@ class ComplaintDStoreBuilder
   ComplaintDStoreBuilder();
 
   ComplaintDStoreBuilder get _$this {
-    if (_$v != null) {
-      _itemId = _$v.itemId;
-      _itemName = _$v.itemName;
+    final $v = _$v;
+    if ($v != null) {
+      _itemId = $v.itemId;
+      _itemName = $v.itemName;
       _$v = null;
     }
     return this;
@@ -1661,9 +1755,7 @@ class ComplaintDStoreBuilder
 
   @override
   void replace(ComplaintDStore other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintDStore;
   }
 
@@ -1751,10 +1843,11 @@ class ComplaintDGroupStoreBuilder
   ComplaintDGroupStoreBuilder();
 
   ComplaintDGroupStoreBuilder get _$this {
-    if (_$v != null) {
-      _itemId = _$v.itemId;
-      _itemName = _$v.itemName;
-      _itemTypes = _$v.itemTypes?.toBuilder();
+    final $v = _$v;
+    if ($v != null) {
+      _itemId = $v.itemId;
+      _itemName = $v.itemName;
+      _itemTypes = $v.itemTypes?.toBuilder();
       _$v = null;
     }
     return this;
@@ -1762,9 +1855,7 @@ class ComplaintDGroupStoreBuilder
 
   @override
   void replace(ComplaintDGroupStore other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintDGroupStore;
   }
 
@@ -1874,11 +1965,12 @@ class ComplaintDGroupBuilder
   ComplaintDGroupBuilder();
 
   ComplaintDGroupBuilder get _$this {
-    if (_$v != null) {
-      _itemId = _$v.itemId;
-      _itemName = _$v.itemName;
-      _itemDesc = _$v.itemDesc;
-      _itemStatus = _$v.itemStatus;
+    final $v = _$v;
+    if ($v != null) {
+      _itemId = $v.itemId;
+      _itemName = $v.itemName;
+      _itemDesc = $v.itemDesc;
+      _itemStatus = $v.itemStatus;
       _$v = null;
     }
     return this;
@@ -1886,9 +1978,7 @@ class ComplaintDGroupBuilder
 
   @override
   void replace(ComplaintDGroup other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintDGroup;
   }
 
@@ -2013,13 +2103,14 @@ class ComplaintDTypeBuilder
   ComplaintDTypeBuilder();
 
   ComplaintDTypeBuilder get _$this {
-    if (_$v != null) {
-      _itemId = _$v.itemId;
-      _itemGroupId = _$v.itemGroupId;
-      _itemName = _$v.itemName;
-      _itemTypeDesc = _$v.itemTypeDesc;
-      _itemStatus = _$v.itemStatus;
-      _parts = _$v.parts?.toBuilder();
+    final $v = _$v;
+    if ($v != null) {
+      _itemId = $v.itemId;
+      _itemGroupId = $v.itemGroupId;
+      _itemName = $v.itemName;
+      _itemTypeDesc = $v.itemTypeDesc;
+      _itemStatus = $v.itemStatus;
+      _parts = $v.parts?.toBuilder();
       _$v = null;
     }
     return this;
@@ -2027,9 +2118,7 @@ class ComplaintDTypeBuilder
 
   @override
   void replace(ComplaintDType other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintDType;
   }
 
@@ -2134,10 +2223,11 @@ class ComplaintDStoreTypeBuilder
   ComplaintDStoreTypeBuilder();
 
   ComplaintDStoreTypeBuilder get _$this {
-    if (_$v != null) {
-      _itemId = _$v.itemId;
-      _itemName = _$v.itemName;
-      _parts = _$v.parts?.toBuilder();
+    final $v = _$v;
+    if ($v != null) {
+      _itemId = $v.itemId;
+      _itemName = $v.itemName;
+      _parts = $v.parts?.toBuilder();
       _$v = null;
     }
     return this;
@@ -2145,9 +2235,7 @@ class ComplaintDStoreTypeBuilder
 
   @override
   void replace(ComplaintDStoreType other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintDStoreType;
   }
 
@@ -2303,15 +2391,16 @@ class ComplaintDPartBuilder
   ComplaintDPartBuilder();
 
   ComplaintDPartBuilder get _$this {
-    if (_$v != null) {
-      _itemId = _$v.itemId;
-      _itemName = _$v.itemName;
-      _itemQuantity = _$v.itemQuantity;
-      _itemTypeDesc = _$v.itemTypeDesc;
-      _partLocked = _$v.partLocked;
-      _partMaxOrder = _$v.partMaxOrder;
-      _partMinOrder = _$v.partMinOrder;
-      _partRemark = _$v.partRemark;
+    final $v = _$v;
+    if ($v != null) {
+      _itemId = $v.itemId;
+      _itemName = $v.itemName;
+      _itemQuantity = $v.itemQuantity;
+      _itemTypeDesc = $v.itemTypeDesc;
+      _partLocked = $v.partLocked;
+      _partMaxOrder = $v.partMaxOrder;
+      _partMinOrder = $v.partMinOrder;
+      _partRemark = $v.partRemark;
       _$v = null;
     }
     return this;
@@ -2319,9 +2408,7 @@ class ComplaintDPartBuilder
 
   @override
   void replace(ComplaintDPart other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintDPart;
   }
 
@@ -2476,15 +2563,16 @@ class MaterialStorePartBuilder
   MaterialStorePartBuilder();
 
   MaterialStorePartBuilder get _$this {
-    if (_$v != null) {
-      _itemDescription = _$v.itemDescription;
-      _partAvailable = _$v.partAvailable;
-      _partCount = _$v.partCount;
-      _partId = _$v.partId;
-      _partLocked = _$v.partLocked;
-      _partMaxOrder = _$v.partMaxOrder;
-      _partMinOrder = _$v.partMinOrder;
-      _partRemark = _$v.partRemark;
+    final $v = _$v;
+    if ($v != null) {
+      _itemDescription = $v.itemDescription;
+      _partAvailable = $v.partAvailable;
+      _partCount = $v.partCount;
+      _partId = $v.partId;
+      _partLocked = $v.partLocked;
+      _partMaxOrder = $v.partMaxOrder;
+      _partMinOrder = $v.partMinOrder;
+      _partRemark = $v.partRemark;
       _$v = null;
     }
     return this;
@@ -2492,9 +2580,7 @@ class MaterialStorePartBuilder
 
   @override
   void replace(MaterialStorePart other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$MaterialStorePart;
   }
 
@@ -2595,11 +2681,12 @@ class ComplaintDImageBuilder
   ComplaintDImageBuilder();
 
   ComplaintDImageBuilder get _$this {
-    if (_$v != null) {
-      _file = _$v.file;
-      _title = _$v.title;
-      _width = _$v.width;
-      _height = _$v.height;
+    final $v = _$v;
+    if ($v != null) {
+      _file = $v.file;
+      _title = $v.title;
+      _width = $v.width;
+      _height = $v.height;
       _$v = null;
     }
     return this;
@@ -2607,9 +2694,7 @@ class ComplaintDImageBuilder
 
   @override
   void replace(ComplaintDImage other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintDImage;
   }
 
@@ -2811,20 +2896,21 @@ class RequestTaskBuilder implements Builder<RequestTask, RequestTaskBuilder> {
   RequestTaskBuilder();
 
   RequestTaskBuilder get _$this {
-    if (_$v != null) {
-      _requestBy = _$v.requestBy;
-      _requestTime = _$v.requestTime;
-      _statusDesc = _$v.statusDesc;
-      _statusId = _$v.statusId;
-      _taskFrom = _$v.taskFrom;
-      _taskReceivedTime = _$v.taskReceivedTime;
-      _woSeverityDesc = _$v.woSeverityDesc;
-      _woTaskNo = _$v.woTaskNo;
-      _woTaskRequestId = _$v.woTaskRequestId;
-      _woTaskRequestNo = _$v.woTaskRequestNo;
-      _woTypeDesc = _$v.woTypeDesc;
-      _collectTime = _$v.collectTime;
-      _siteName = _$v.siteName;
+    final $v = _$v;
+    if ($v != null) {
+      _requestBy = $v.requestBy;
+      _requestTime = $v.requestTime;
+      _statusDesc = $v.statusDesc;
+      _statusId = $v.statusId;
+      _taskFrom = $v.taskFrom;
+      _taskReceivedTime = $v.taskReceivedTime;
+      _woSeverityDesc = $v.woSeverityDesc;
+      _woTaskNo = $v.woTaskNo;
+      _woTaskRequestId = $v.woTaskRequestId;
+      _woTaskRequestNo = $v.woTaskRequestNo;
+      _woTypeDesc = $v.woTypeDesc;
+      _collectTime = $v.collectTime;
+      _siteName = $v.siteName;
       _$v = null;
     }
     return this;
@@ -2832,9 +2918,7 @@ class RequestTaskBuilder implements Builder<RequestTask, RequestTaskBuilder> {
 
   @override
   void replace(RequestTask other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$RequestTask;
   }
 
@@ -3094,23 +3178,24 @@ class ComplaintMaterialBuilder
   ComplaintMaterialBuilder();
 
   ComplaintMaterialBuilder get _$this {
-    if (_$v != null) {
-      _assetGroupId = _$v.assetGroupId;
-      _assetGroupName = _$v.assetGroupName;
-      _itemDescription = _$v.itemDescription;
-      _itemId = _$v.itemId;
-      _itemTypeDesc = _$v.itemTypeDesc;
-      _itemTypeId = _$v.itemTypeId;
-      _partAvailable = _$v.partAvailable;
-      _partCount = _$v.partCount;
-      _partId = _$v.partId;
-      _partLocked = _$v.partLocked;
-      _partMaxOrder = _$v.partMaxOrder;
-      _partMinOrder = _$v.partMinOrder;
-      _partRemark = _$v.partRemark;
-      _partThreshold = _$v.partThreshold;
-      _itemGrouped = _$v.itemGrouped?.toBuilder();
-      _images = _$v.images?.toBuilder();
+    final $v = _$v;
+    if ($v != null) {
+      _assetGroupId = $v.assetGroupId;
+      _assetGroupName = $v.assetGroupName;
+      _itemDescription = $v.itemDescription;
+      _itemId = $v.itemId;
+      _itemTypeDesc = $v.itemTypeDesc;
+      _itemTypeId = $v.itemTypeId;
+      _partAvailable = $v.partAvailable;
+      _partCount = $v.partCount;
+      _partId = $v.partId;
+      _partLocked = $v.partLocked;
+      _partMaxOrder = $v.partMaxOrder;
+      _partMinOrder = $v.partMinOrder;
+      _partRemark = $v.partRemark;
+      _partThreshold = $v.partThreshold;
+      _itemGrouped = $v.itemGrouped?.toBuilder();
+      _images = $v.images?.toBuilder();
       _$v = null;
     }
     return this;
@@ -3118,9 +3203,7 @@ class ComplaintMaterialBuilder
 
   @override
   void replace(ComplaintMaterial other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintMaterial;
   }
 
@@ -3201,36 +3284,22 @@ class _$ComplaintMaterialGrouped extends ComplaintMaterialGrouped {
       this.supplierName,
       this.total})
       : super._() {
-    if (dateCheckIn == null) {
-      throw new BuiltValueNullFieldError(
-          'ComplaintMaterialGrouped', 'dateCheckIn');
-    }
-    if (doNo == null) {
-      throw new BuiltValueNullFieldError('ComplaintMaterialGrouped', 'doNo');
-    }
-    if (partSubCost == null) {
-      throw new BuiltValueNullFieldError(
-          'ComplaintMaterialGrouped', 'partSubCost');
-    }
-    if (partSubLocation == null) {
-      throw new BuiltValueNullFieldError(
-          'ComplaintMaterialGrouped', 'partSubLocation');
-    }
-    if (partSubValidity == null) {
-      throw new BuiltValueNullFieldError(
-          'ComplaintMaterialGrouped', 'partSubValidity');
-    }
-    if (partSubWarranty == null) {
-      throw new BuiltValueNullFieldError(
-          'ComplaintMaterialGrouped', 'partSubWarranty');
-    }
-    if (supplierName == null) {
-      throw new BuiltValueNullFieldError(
-          'ComplaintMaterialGrouped', 'supplierName');
-    }
-    if (total == null) {
-      throw new BuiltValueNullFieldError('ComplaintMaterialGrouped', 'total');
-    }
+    BuiltValueNullFieldError.checkNotNull(
+        dateCheckIn, 'ComplaintMaterialGrouped', 'dateCheckIn');
+    BuiltValueNullFieldError.checkNotNull(
+        doNo, 'ComplaintMaterialGrouped', 'doNo');
+    BuiltValueNullFieldError.checkNotNull(
+        partSubCost, 'ComplaintMaterialGrouped', 'partSubCost');
+    BuiltValueNullFieldError.checkNotNull(
+        partSubLocation, 'ComplaintMaterialGrouped', 'partSubLocation');
+    BuiltValueNullFieldError.checkNotNull(
+        partSubValidity, 'ComplaintMaterialGrouped', 'partSubValidity');
+    BuiltValueNullFieldError.checkNotNull(
+        partSubWarranty, 'ComplaintMaterialGrouped', 'partSubWarranty');
+    BuiltValueNullFieldError.checkNotNull(
+        supplierName, 'ComplaintMaterialGrouped', 'supplierName');
+    BuiltValueNullFieldError.checkNotNull(
+        total, 'ComplaintMaterialGrouped', 'total');
   }
 
   @override
@@ -3330,15 +3399,16 @@ class ComplaintMaterialGroupedBuilder
   ComplaintMaterialGroupedBuilder();
 
   ComplaintMaterialGroupedBuilder get _$this {
-    if (_$v != null) {
-      _dateCheckIn = _$v.dateCheckIn;
-      _doNo = _$v.doNo;
-      _partSubCost = _$v.partSubCost;
-      _partSubLocation = _$v.partSubLocation;
-      _partSubValidity = _$v.partSubValidity;
-      _partSubWarranty = _$v.partSubWarranty;
-      _supplierName = _$v.supplierName;
-      _total = _$v.total;
+    final $v = _$v;
+    if ($v != null) {
+      _dateCheckIn = $v.dateCheckIn;
+      _doNo = $v.doNo;
+      _partSubCost = $v.partSubCost;
+      _partSubLocation = $v.partSubLocation;
+      _partSubValidity = $v.partSubValidity;
+      _partSubWarranty = $v.partSubWarranty;
+      _supplierName = $v.supplierName;
+      _total = $v.total;
       _$v = null;
     }
     return this;
@@ -3346,9 +3416,7 @@ class ComplaintMaterialGroupedBuilder
 
   @override
   void replace(ComplaintMaterialGrouped other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintMaterialGrouped;
   }
 
@@ -3361,14 +3429,22 @@ class ComplaintMaterialGroupedBuilder
   _$ComplaintMaterialGrouped build() {
     final _$result = _$v ??
         new _$ComplaintMaterialGrouped._(
-            dateCheckIn: dateCheckIn,
-            doNo: doNo,
-            partSubCost: partSubCost,
-            partSubLocation: partSubLocation,
-            partSubValidity: partSubValidity,
-            partSubWarranty: partSubWarranty,
-            supplierName: supplierName,
-            total: total);
+            dateCheckIn: BuiltValueNullFieldError.checkNotNull(
+                dateCheckIn, 'ComplaintMaterialGrouped', 'dateCheckIn'),
+            doNo: BuiltValueNullFieldError.checkNotNull(
+                doNo, 'ComplaintMaterialGrouped', 'doNo'),
+            partSubCost: BuiltValueNullFieldError.checkNotNull(
+                partSubCost, 'ComplaintMaterialGrouped', 'partSubCost'),
+            partSubLocation: BuiltValueNullFieldError.checkNotNull(
+                partSubLocation, 'ComplaintMaterialGrouped', 'partSubLocation'),
+            partSubValidity: BuiltValueNullFieldError.checkNotNull(
+                partSubValidity, 'ComplaintMaterialGrouped', 'partSubValidity'),
+            partSubWarranty: BuiltValueNullFieldError.checkNotNull(
+                partSubWarranty, 'ComplaintMaterialGrouped', 'partSubWarranty'),
+            supplierName: BuiltValueNullFieldError.checkNotNull(
+                supplierName, 'ComplaintMaterialGrouped', 'supplierName'),
+            total: BuiltValueNullFieldError.checkNotNull(
+                total, 'ComplaintMaterialGrouped', 'total'));
     replace(_$result);
     return _$result;
   }
@@ -3451,11 +3527,12 @@ class ComplaintMaterialImageBuilder
   ComplaintMaterialImageBuilder();
 
   ComplaintMaterialImageBuilder get _$this {
-    if (_$v != null) {
-      _file = _$v.file;
-      _height = _$v.height;
-      _width = _$v.width;
-      _title = _$v.title;
+    final $v = _$v;
+    if ($v != null) {
+      _file = $v.file;
+      _height = $v.height;
+      _width = $v.width;
+      _title = $v.title;
       _$v = null;
     }
     return this;
@@ -3463,9 +3540,7 @@ class ComplaintMaterialImageBuilder
 
   @override
   void replace(ComplaintMaterialImage other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintMaterialImage;
   }
 
@@ -3484,4 +3559,4 @@ class ComplaintMaterialImageBuilder
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new
+// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new

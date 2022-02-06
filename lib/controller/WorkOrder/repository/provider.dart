@@ -46,6 +46,14 @@ class WOProvider {
       throw err;
     }
   }
+
+  Future<Map<String, dynamic>> fetchExecution(String id) async {
+    Provider _provider =
+        Provider(fetchURL: "/wo_v2/execution_info/", taskID: id);
+
+    final result = await _provider.getJson();
+    return result as Map<String, dynamic>;
+  }
 }
 
 class UploadItem extends Upload {

@@ -38,28 +38,33 @@ class _$MeterSerializer implements StructuredSerializer<Meter> {
       serializers.serialize(object.siteId,
           specifiedType: const FullType(String)),
     ];
-    if (object.dailyLatestDate != null) {
+    Object value;
+    value = object.dailyLatestDate;
+    if (value != null) {
       result
         ..add('dailyLatestDate')
-        ..add(serializers.serialize(object.dailyLatestDate,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.dailyLatestReading != null) {
+    value = object.dailyLatestReading;
+    if (value != null) {
       result
         ..add('dailyLatestReading')
-        ..add(serializers.serialize(object.dailyLatestReading,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.dailyTotal != null) {
+    value = object.dailyTotal;
+    if (value != null) {
       result
         ..add('dailyTotal')
-        ..add(serializers.serialize(object.dailyTotal,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.monthlyTotalRm != null) {
+    value = object.monthlyTotalRm;
+    if (value != null) {
       result
         ..add('monthlyTotalRm')
-        ..add(serializers.serialize(object.monthlyTotalRm,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
     return result;
@@ -74,7 +79,7 @@ class _$MeterSerializer implements StructuredSerializer<Meter> {
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'meterId':
           result.meterId = serializers.deserialize(value,
@@ -133,82 +138,96 @@ class _$ReadingSerializer implements StructuredSerializer<Reading> {
   Iterable<Object> serialize(Serializers serializers, Reading object,
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[];
-    if (object.utilityId != null) {
+    Object value;
+    value = object.utilityId;
+    if (value != null) {
       result
         ..add('utilityId')
-        ..add(serializers.serialize(object.utilityId,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.utilityType != null) {
+    value = object.utilityType;
+    if (value != null) {
       result
         ..add('utilityType')
-        ..add(serializers.serialize(object.utilityType,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.utilityReadingType != null) {
+    value = object.utilityReadingType;
+    if (value != null) {
       result
         ..add('utilityReadingType')
-        ..add(serializers.serialize(object.utilityReadingType,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.utilityReading != null) {
+    value = object.utilityReading;
+    if (value != null) {
       result
         ..add('utilityReading')
-        ..add(serializers.serialize(object.utilityReading,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.utilityDate != null) {
+    value = object.utilityDate;
+    if (value != null) {
       result
         ..add('utilityDate')
-        ..add(serializers.serialize(object.utilityDate,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.utilityTotalRm != null) {
+    value = object.utilityTotalRm;
+    if (value != null) {
       result
         ..add('utilityTotalRm')
-        ..add(serializers.serialize(object.utilityTotalRm,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.utilityMaxDemand != null) {
+    value = object.utilityMaxDemand;
+    if (value != null) {
       result
         ..add('utilityMaxDemand')
-        ..add(serializers.serialize(object.utilityMaxDemand,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.utilityTimestamp != null) {
+    value = object.utilityTimestamp;
+    if (value != null) {
       result
         ..add('utilityTimestamp')
-        ..add(serializers.serialize(object.utilityTimestamp,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.meterName != null) {
+    value = object.meterName;
+    if (value != null) {
       result
         ..add('meterName')
-        ..add(serializers.serialize(object.meterName,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.meterLocation != null) {
+    value = object.meterLocation;
+    if (value != null) {
       result
         ..add('meterLocation')
-        ..add(serializers.serialize(object.meterLocation,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.utilityRecordedBy != null) {
+    value = object.utilityRecordedBy;
+    if (value != null) {
       result
         ..add('utilityRecordedBy')
-        ..add(serializers.serialize(object.utilityRecordedBy,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.utilityImage != null) {
+    value = object.utilityImage;
+    if (value != null) {
       result
         ..add('utilityImage')
-        ..add(serializers.serialize(object.utilityImage,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
-    if (object.utilityShift != null) {
+    value = object.utilityShift;
+    if (value != null) {
       result
         ..add('utilityShift')
-        ..add(serializers.serialize(object.utilityShift,
+        ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
     return result;
@@ -223,7 +242,7 @@ class _$ReadingSerializer implements StructuredSerializer<Reading> {
     while (iterator.moveNext()) {
       final key = iterator.current as String;
       iterator.moveNext();
-      final dynamic value = iterator.current;
+      final Object value = iterator.current;
       switch (key) {
         case 'utilityId':
           result.utilityId = serializers.deserialize(value,
@@ -321,24 +340,13 @@ class _$Meter extends Meter {
       this.dailyTotal,
       this.monthlyTotalRm})
       : super._() {
-    if (meterId == null) {
-      throw new BuiltValueNullFieldError('Meter', 'meterId');
-    }
-    if (meterLocation == null) {
-      throw new BuiltValueNullFieldError('Meter', 'meterLocation');
-    }
-    if (meterName == null) {
-      throw new BuiltValueNullFieldError('Meter', 'meterName');
-    }
-    if (meterStatus == null) {
-      throw new BuiltValueNullFieldError('Meter', 'meterStatus');
-    }
-    if (meterType == null) {
-      throw new BuiltValueNullFieldError('Meter', 'meterType');
-    }
-    if (siteId == null) {
-      throw new BuiltValueNullFieldError('Meter', 'siteId');
-    }
+    BuiltValueNullFieldError.checkNotNull(meterId, 'Meter', 'meterId');
+    BuiltValueNullFieldError.checkNotNull(
+        meterLocation, 'Meter', 'meterLocation');
+    BuiltValueNullFieldError.checkNotNull(meterName, 'Meter', 'meterName');
+    BuiltValueNullFieldError.checkNotNull(meterStatus, 'Meter', 'meterStatus');
+    BuiltValueNullFieldError.checkNotNull(meterType, 'Meter', 'meterType');
+    BuiltValueNullFieldError.checkNotNull(siteId, 'Meter', 'siteId');
   }
 
   @override
@@ -453,17 +461,18 @@ class MeterBuilder implements Builder<Meter, MeterBuilder> {
   MeterBuilder();
 
   MeterBuilder get _$this {
-    if (_$v != null) {
-      _meterId = _$v.meterId;
-      _meterLocation = _$v.meterLocation;
-      _meterName = _$v.meterName;
-      _meterStatus = _$v.meterStatus;
-      _meterType = _$v.meterType;
-      _siteId = _$v.siteId;
-      _dailyLatestDate = _$v.dailyLatestDate;
-      _dailyLatestReading = _$v.dailyLatestReading;
-      _dailyTotal = _$v.dailyTotal;
-      _monthlyTotalRm = _$v.monthlyTotalRm;
+    final $v = _$v;
+    if ($v != null) {
+      _meterId = $v.meterId;
+      _meterLocation = $v.meterLocation;
+      _meterName = $v.meterName;
+      _meterStatus = $v.meterStatus;
+      _meterType = $v.meterType;
+      _siteId = $v.siteId;
+      _dailyLatestDate = $v.dailyLatestDate;
+      _dailyLatestReading = $v.dailyLatestReading;
+      _dailyTotal = $v.dailyTotal;
+      _monthlyTotalRm = $v.monthlyTotalRm;
       _$v = null;
     }
     return this;
@@ -471,9 +480,7 @@ class MeterBuilder implements Builder<Meter, MeterBuilder> {
 
   @override
   void replace(Meter other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$Meter;
   }
 
@@ -486,12 +493,18 @@ class MeterBuilder implements Builder<Meter, MeterBuilder> {
   _$Meter build() {
     final _$result = _$v ??
         new _$Meter._(
-            meterId: meterId,
-            meterLocation: meterLocation,
-            meterName: meterName,
-            meterStatus: meterStatus,
-            meterType: meterType,
-            siteId: siteId,
+            meterId: BuiltValueNullFieldError.checkNotNull(
+                meterId, 'Meter', 'meterId'),
+            meterLocation: BuiltValueNullFieldError.checkNotNull(
+                meterLocation, 'Meter', 'meterLocation'),
+            meterName: BuiltValueNullFieldError.checkNotNull(
+                meterName, 'Meter', 'meterName'),
+            meterStatus: BuiltValueNullFieldError.checkNotNull(
+                meterStatus, 'Meter', 'meterStatus'),
+            meterType: BuiltValueNullFieldError.checkNotNull(
+                meterType, 'Meter', 'meterType'),
+            siteId: BuiltValueNullFieldError.checkNotNull(
+                siteId, 'Meter', 'siteId'),
             dailyLatestDate: dailyLatestDate,
             dailyLatestReading: dailyLatestReading,
             dailyTotal: dailyTotal,
@@ -687,20 +700,21 @@ class ReadingBuilder implements Builder<Reading, ReadingBuilder> {
   ReadingBuilder();
 
   ReadingBuilder get _$this {
-    if (_$v != null) {
-      _utilityId = _$v.utilityId;
-      _utilityType = _$v.utilityType;
-      _utilityReadingType = _$v.utilityReadingType;
-      _utilityReading = _$v.utilityReading;
-      _utilityDate = _$v.utilityDate;
-      _utilityTotalRm = _$v.utilityTotalRm;
-      _utilityMaxDemand = _$v.utilityMaxDemand;
-      _utilityTimestamp = _$v.utilityTimestamp;
-      _meterName = _$v.meterName;
-      _meterLocation = _$v.meterLocation;
-      _utilityRecordedBy = _$v.utilityRecordedBy;
-      _utilityImage = _$v.utilityImage;
-      _utilityShift = _$v.utilityShift;
+    final $v = _$v;
+    if ($v != null) {
+      _utilityId = $v.utilityId;
+      _utilityType = $v.utilityType;
+      _utilityReadingType = $v.utilityReadingType;
+      _utilityReading = $v.utilityReading;
+      _utilityDate = $v.utilityDate;
+      _utilityTotalRm = $v.utilityTotalRm;
+      _utilityMaxDemand = $v.utilityMaxDemand;
+      _utilityTimestamp = $v.utilityTimestamp;
+      _meterName = $v.meterName;
+      _meterLocation = $v.meterLocation;
+      _utilityRecordedBy = $v.utilityRecordedBy;
+      _utilityImage = $v.utilityImage;
+      _utilityShift = $v.utilityShift;
       _$v = null;
     }
     return this;
@@ -708,9 +722,7 @@ class ReadingBuilder implements Builder<Reading, ReadingBuilder> {
 
   @override
   void replace(Reading other) {
-    if (other == null) {
-      throw new ArgumentError.notNull('other');
-    }
+    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$Reading;
   }
 
@@ -741,4 +753,4 @@ class ReadingBuilder implements Builder<Reading, ReadingBuilder> {
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new
+// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new
