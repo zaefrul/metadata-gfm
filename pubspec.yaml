@@ -18,14 +18,14 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.5.0+25
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.11.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
 
-  table_calendar: ^1.2.3
+  table_calendar: ^3.0.6
   shared_preferences : 0.5.6+1
   http: ^0.11.3+16
   toast : any
@@ -36,7 +36,7 @@ dependencies:
   qr_flutter: ^1.1.1
   image_picker: ^0.6.0+9
   built_value: ^8.1.3
-  intl: ^0.15.8
+  intl: ^0.17.0
   device_info: ^0.4.1+4
   geolocator: ^8.0.0
   android_intent: 2.0.2
@@ -47,13 +47,13 @@ dependencies:
   flutter_image_compress: ^1.1.0
   firebase_messaging: ^11.2.0
   percent_indicator: ^2.1.1
-  flutter_typeahead: ^3.2.4
+  flutter_typeahead: ^4.0.0
   rating_dialog: ^1.0.0
   auto_size_text: ^2.1.0
   date_format: ^1.0.9
   rxdart: ^0.22.6
   flutter_slidable: ^0.5.7
-  searchable_dropdown: ^1.1.3
+  # searchable_dropdown: ^1.1.3
   image_size_getter: ^1.0.0
   flutter_local_notifications: ^9.1.4
   

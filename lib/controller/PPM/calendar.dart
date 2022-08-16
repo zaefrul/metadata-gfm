@@ -148,9 +148,9 @@ class _CalendarState extends State<Calendar>
     return TableCalendar(
       headerVisible: false,
       locale: 'en_US',
-      events: _visibleEvents,
-      initialCalendarFormat: CalendarFormat.month,
-      formatAnimation: FormatAnimation.slide,
+      // events: _visibleEvents,
+      // initialCalendarFormat: CalendarFormat.month,
+      // formatAnimation: FormatAnimation.slide,
       startingDayOfWeek: StartingDayOfWeek.monday,
       availableGestures: AvailableGestures.all,
       availableCalendarFormats: const {
@@ -159,10 +159,10 @@ class _CalendarState extends State<Calendar>
         CalendarFormat.week: 'Week',
       },
       calendarStyle: CalendarStyle(
-        selectedColor: colorTheme3,
-        todayColor: colorTheme2,
-        markersColor: colorTheme1,
-      ),
+          // selectedColor: colorTheme3,
+          // todayColor: colorTheme2,
+          // markersColor: colorTheme1,
+          ),
       headerStyle: HeaderStyle(
         formatButtonTextStyle:
             TextStyle().copyWith(color: Colors.white, fontSize: 15.0),
@@ -171,8 +171,8 @@ class _CalendarState extends State<Calendar>
           borderRadius: BorderRadius.circular(16.0),
         ),
       ),
-      onDaySelected: _onDaySelected,
-      onVisibleDaysChanged: _onVisibleDaysChanged,
+      // onDaySelected: _onDaySelected,
+      // onVisibleDaysChanged: _onVisibleDaysChanged,
     );
   }
 

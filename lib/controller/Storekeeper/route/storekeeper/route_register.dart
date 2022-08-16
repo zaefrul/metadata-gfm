@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc_technician.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
-import 'package:searchable_dropdown/searchable_dropdown.dart';
+// import 'package:searchable_dropdown/searchable_dropdown.dart';
 
 class RegisterItem extends StatelessWidget {
   final BlocTechnicianDetails _bloc;
@@ -58,43 +58,45 @@ class _Dropdown extends StatelessWidget {
               enabled: false,
             );
 
-          return SearchableDropdown.single(
-              items: (listValue ?? ["select one"])
-                  .map<DropdownMenuItem<String>>((f) => DropdownMenuItem(
-                        child: Text(f),
-                        value: f,
-                      ))
-                  .toList(),
-              value: selectedValue,
-              label: label,
-              hint: selectedValue == null
-                  ? "Please select one $label"
-                  : selectedValue,
-              onChanged: (value) => value == null ? null : dispatch(value),
-              isExpanded: true,
-              searchFn: (String keyword, items) {
-                List<int> ret = List<int>();
-                if (keyword != null && items != null && keyword.isNotEmpty) {
-                  dispatch(keyword);
-                  keyword.split(" ").forEach((k) {
-                    int i = 0;
-                    items.forEach((item) {
-                      if (k.isNotEmpty &&
-                          (item.value
-                              .toString()
-                              .toLowerCase()
-                              .contains(k.toLowerCase()))) {
-                        ret.add(i);
-                      }
-                      i++;
-                    });
-                  });
-                }
-                if (keyword.isEmpty) {
-                  ret = Iterable<int>.generate(items.length).toList();
-                }
-                return (ret);
-              });
+          return Container();
+
+          // return SearchableDropdown.single(
+          //     items: (listValue ?? ["select one"])
+          //         .map<DropdownMenuItem<String>>((f) => DropdownMenuItem(
+          //               child: Text(f),
+          //               value: f,
+          //             ))
+          //         .toList(),
+          //     value: selectedValue,
+          //     label: label,
+          //     hint: selectedValue == null
+          //         ? "Please select one $label"
+          //         : selectedValue,
+          //     onChanged: (value) => value == null ? null : dispatch(value),
+          //     isExpanded: true,
+          //     searchFn: (String keyword, items) {
+          //       List<int> ret = List<int>();
+          //       if (keyword != null && items != null && keyword.isNotEmpty) {
+          //         dispatch(keyword);
+          //         keyword.split(" ").forEach((k) {
+          //           int i = 0;
+          //           items.forEach((item) {
+          //             if (k.isNotEmpty &&
+          //                 (item.value
+          //                     .toString()
+          //                     .toLowerCase()
+          //                     .contains(k.toLowerCase()))) {
+          //               ret.add(i);
+          //             }
+          //             i++;
+          //           });
+          //         });
+          //       }
+          //       if (keyword.isEmpty) {
+          //         ret = Iterable<int>.generate(items.length).toList();
+          //       }
+          //       return (ret);
+          //     });
         },
       ),
     );

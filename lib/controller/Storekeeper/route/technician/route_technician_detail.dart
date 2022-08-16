@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc_technician.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
-import 'package:searchable_dropdown/searchable_dropdown.dart';
 import 'package:toast/toast.dart';
 
 class RouteTechnicianDetail extends StatefulWidget {
@@ -92,19 +91,19 @@ class _Dropdown extends StatelessWidget {
               enabled: false,
             );
 
-          return SearchableDropdown.single(
-            items: (listValue ?? ["select one"])
-                .map<DropdownMenuItem<String>>((f) => DropdownMenuItem(
-                      child: Text(f),
-                      value: f,
-                    ))
-                .toList(),
-            value: selectedValue,
-            label: label,
-            hint: "Please select one $label",
-            onChanged: dispatch,
-            isExpanded: true,
-          );
+          // return SearchableDropdown.single(
+          //   items: (listValue ?? ["select one"])
+          //       .map<DropdownMenuItem<String>>((f) => DropdownMenuItem(
+          //             child: Text(f),
+          //             value: f,
+          //           ))
+          //       .toList(),
+          //   value: selectedValue,
+          //   label: label,
+          //   hint: "Please select one $label",
+          //   onChanged: dispatch,
+          //   isExpanded: true,
+          // );
         },
       ),
     );

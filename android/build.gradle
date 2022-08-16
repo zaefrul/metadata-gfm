@@ -5,11 +5,12 @@ buildscript {
         jcenter()
         maven {
             url "https://maven.google.com"
+            name 'Google'
         }
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath 'com.android.tools.build:gradle:4.2.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -20,6 +21,7 @@ allprojects {
         jcenter()
         maven {
             url "https://maven.google.com"
+            name 'Google'
         }
     }
 }
