@@ -98,7 +98,7 @@ class SignatureViewState extends State<SignatureView> {
 
   post(BuildContext context) async {
     if (_signatureCanvas.isEmpty) {
-      Toast.show("Please sign first before submit", context);
+      Toast.show("Please sign first before submit");
       setState(() => loading = false);
       return;
     }

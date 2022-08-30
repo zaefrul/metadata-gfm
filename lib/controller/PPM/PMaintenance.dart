@@ -19,14 +19,18 @@ class _PreventiveMaintenanceState extends State<PreventiveMaintenance>
   TabController _tabController;
   bool isOpened = false;
 
-  _PreventiveMaintenanceState() {
-    _tabController = TabController(vsync: this, length: 2);
-  }
-
   @override
   void dispose() {
     super.dispose();
     _tabController.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (_tabController == null) {
+      _tabController = TabController(vsync: this, length: 2);
+    }
   }
 
   @override

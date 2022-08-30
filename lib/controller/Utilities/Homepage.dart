@@ -30,11 +30,12 @@ class _UtilitiesHomeState extends State<UtilitiesHome> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    bloc.err$.listen((event) => Toast.show(event, context, duration: 4));
+    bloc.err$.listen((event) => Toast.show(event, duration: 4));
   }
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     return DefaultTabController(
       length: 2,
       child: Scaffold(

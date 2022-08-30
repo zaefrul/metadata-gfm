@@ -57,7 +57,7 @@ class _CheckinAddState extends State<CheckinAdd> {
             "/",
           );
         });
-      Toast.show(event, context);
+      Toast.show(event);
     });
     super.didChangeDependencies();
   }
@@ -422,11 +422,11 @@ class Controller extends Bloc {
   Future<void> upload(BuildContext context) {
     FocusScope.of(context).unfocus();
     if (_invalidQuantity.value == true) {
-      Toast.show(_invalidMessage.value, context, duration: 3);
+      Toast.show(_invalidMessage.value, duration: 3);
       throw "";
     } else {
       if (_invalidMessage.value != null)
-        Toast.show(_invalidMessage.value, context, duration: 3);
+        Toast.show(_invalidMessage.value, duration: 3);
       return _request.post(
         _valueThird.value.partId,
         remark: remark.text,
@@ -448,7 +448,7 @@ class Controller extends Bloc {
             orElse: () => null) !=
         null;
     if (checkEmpty) {
-      Toast.show("Please check all fields", context);
+      Toast.show("Please check all fields");
       throw "Please check all fields";
     }
 
@@ -462,8 +462,7 @@ class Controller extends Bloc {
       try {
         final _ = int.parse(ctrl.text);
       } catch (err) {
-        Toast.show(
-            "Please check all fields must be numerical and integer", context);
+        Toast.show("Please check all fields must be numerical and integer");
         throw "Please check all fields must be numerical  and integer";
       }
     }
@@ -477,7 +476,7 @@ class Controller extends Bloc {
       try {
         final _ = double.parse(ctrl.text);
       } catch (err) {
-        Toast.show("Please check all fields must be numerical", context);
+        Toast.show("Please check all fields must be numerical");
         throw "Please check all fields must be numerical";
       }
     }
@@ -487,20 +486,20 @@ class Controller extends Bloc {
     final minOrder = int.parse(_valueThird.value.partMinOrder ?? 0);
 
     if (quantity < minOrder) {
-      Toast.show("Min order is : $minOrder", context);
+      Toast.show("Min order is : $minOrder");
       throw "Min order is : $minOrder ";
     }
     if (quantity > maxOrder) {
-      Toast.show("Max order is : $maxOrder", context);
+      Toast.show("Max order is : $maxOrder");
       throw "Max order is : $maxOrder ";
     }
 
     if (_invalidQuantity.value == true) {
-      Toast.show(_invalidMessage.value, context, duration: 3);
+      Toast.show(_invalidMessage.value, duration: 3);
       throw "";
     } else {
       if (_invalidMessage.value != null)
-        Toast.show(_invalidMessage.value, context, duration: 3);
+        Toast.show(_invalidMessage.value, duration: 3);
       return Item(
         _valueFirst.value.itemName,
         _valueSecond.value.itemName,

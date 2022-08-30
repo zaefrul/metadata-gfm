@@ -346,21 +346,17 @@ class _BuildStandardButton extends StatelessWidget {
                   if (snapshot.data) {
                     bloc.submit().then((_) {
                       showDialog(context: context, builder: _buildDialog);
-                    }).catchError((err) => Toast.show(err, context));
+                    }).catchError((err) => Toast.show(err));
                   } else {
-                    Toast.show(
-                        "All sections must be completed before submit", context,
+                    Toast.show("All sections must be completed before submit",
                         duration: 1);
                   }
                 } else {
                   if (snapshot.data) {
                     bloc.openComplaint(context, viewOnly: viewOnly);
                   } else {
-                    Toast.show(
-                      "All sections must be completed before submit",
-                      context,
-                      duration: 1,
-                    );
+                    Toast.show("All sections must be completed before submit",
+                        duration: 1);
                   }
                 }
               });

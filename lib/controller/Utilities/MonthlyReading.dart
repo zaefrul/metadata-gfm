@@ -36,44 +36,53 @@ class ListReading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 1,
       child: Scaffold(
         appBar: AppBar(
-          title: Text("${reading.meterLocation} : Reading"),
+          title: Text("${reading.meterLocation} : Daily Reading"),
           backgroundColor: Colors.white,
-          bottom: TabBar(
-            indicatorColor: colorTheme2,
-            tabs: [
-              Tab(child: Text("Monthly")),
-              Tab(child: Text("Daily")),
-            ],
-          ),
+          // bottom: TabBar(
+          //   indicatorColor: colorTheme2,
+          //   tabs: [
+          //     // Tab(
+          //     //     child: Text(
+          //     //   "Monthly",
+          //     //   style: TextStyle(color: Colors.black),
+          //     // )),
+          //     Tab(
+          //         child: Text(
+          //       "Daily",
+          //       style: TextStyle(color: Colors.black),
+          //     )),
+          //   ],
+          // ),
         ),
-        body: TabBarView(
-          children: [
-            StreamBuilder<List<Reading>>(
-                stream: streamMonthly,
-                builder: (_, s) {
-                  if (s.hasData == false)
-                    return Center(child: CircularProgressIndicator());
-                  return RefreshIndicator(
-                    onRefresh: () => isWater
-                        ? bloc.fetch(api.ReadingMW)
-                        : bloc.fetch(api.ReadingME),
-                    child: ListView.separated(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      itemBuilder: (_, i) => TileMonthly(
-                        bloc,
-                        s.data[i] ?? null,
-                        isWater: isWater,
-                        isElectric: isElectric,
-                      ),
-                      itemCount: s.data?.length ?? 0,
-                      separatorBuilder: (_, __) =>
-                          Divider(color: colorTheme3.withOpacity(0.7)),
-                    ),
-                  );
-                }),
+        body:
+            // TabBarView(
+            //   children: [
+            // StreamBuilder<List<Reading>>(
+            //     stream: streamMonthly,
+            //     builder: (_, s) {
+            //       if (s.hasData == false)
+            //         return Center(child: CircularProgressIndicator());
+            //       return RefreshIndicator(
+            //         onRefresh: () => isWater
+            //             ? bloc.fetch(api.ReadingMW)
+            //             : bloc.fetch(api.ReadingME),
+            //         child: ListView.separated(
+            //           padding: EdgeInsets.symmetric(vertical: 12),
+            //           itemBuilder: (_, i) => TileMonthly(
+            //             bloc,
+            //             s.data[i] ?? null,
+            //             isWater: isWater,
+            //             isElectric: isElectric,
+            //           ),
+            //           itemCount: s.data?.length ?? 0,
+            //           separatorBuilder: (_, __) =>
+            //               Divider(color: colorTheme3.withOpacity(0.7)),
+            //         ),
+            //       );
+            //     }),
             StreamBuilder<List<Reading>>(
                 stream: streamDaily,
                 builder: (_, s) {
@@ -91,8 +100,8 @@ class ListReading extends StatelessWidget {
                     ),
                   );
                 }),
-          ],
-        ),
+        // ],
+        // ),
       ),
     );
   }

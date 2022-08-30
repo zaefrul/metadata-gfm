@@ -148,6 +148,7 @@ class _CalendarState extends State<Calendar>
     return TableCalendar(
       headerVisible: false,
       locale: 'en_US',
+
       // events: _visibleEvents,
       // initialCalendarFormat: CalendarFormat.month,
       // formatAnimation: FormatAnimation.slide,
@@ -171,6 +172,8 @@ class _CalendarState extends State<Calendar>
           borderRadius: BorderRadius.circular(16.0),
         ),
       ),
+      firstDay: DateTime.now(), focusedDay: DateTime.now(),
+      lastDay: DateTime.now(),
       // onDaySelected: _onDaySelected,
       // onVisibleDaysChanged: _onVisibleDaysChanged,
     );

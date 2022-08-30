@@ -3,7 +3,7 @@ import 'package:gfm_gems/model/gamification.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/drawer.dart';
-import 'package:intl/intl.dart';
+import 'package:month_year_picker/month_year_picker.dart';
 
 class LeaderboardView extends StatefulWidget {
   @override
@@ -17,8 +17,8 @@ class _LeaderboardViewState extends State<LeaderboardView>
   _Controller _controller;
 
   final now;
-  final int month;
-  final int year;
+  int month;
+  int year;
 
   String selectedIndividual = "Monthly";
   String selectedProjects = "Monthly";
@@ -32,8 +32,6 @@ class _LeaderboardViewState extends State<LeaderboardView>
       : this.now = DateTime.now(),
         this.month = DateTime.now().month,
         this.year = DateTime.now().year {
-    _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(() => refresh());
     _controller = _Controller(this.month, this.year);
     refresh();
   }
@@ -43,8 +41,8 @@ class _LeaderboardViewState extends State<LeaderboardView>
     _projects = await _controller.projects;
     _individualTiles = [];
     _projectsTiles = [];
-    _individualTiles.add(_header(0));
-    _projectsTiles.add(_header(1));
+    _individualTiles.add(_header(0, changeDate));
+    _projectsTiles.add(_header(1, changeDate));
 
     setState(() {
       _individualTiles.addAll(
@@ -58,8 +56,32 @@ class _LeaderboardViewState extends State<LeaderboardView>
     });
   }
 
+  void changeDate() async {
+    final currentDate = DateTime.now();
+    final lastDate = DateTime(currentDate.year, currentDate.month + 1);
+    final selected = await showMonthYearPicker(
+      context: context,
+      initialDate: DateTime(year, month + 1),
+      firstDate: DateTime(2022),
+      lastDate: lastDate,
+    );
+    if (selected != null) {
+      this.month = selected.month - 1;
+      this.year = selected.year;
+
+      _controller.month = selected.month - 1;
+      _controller.year = selected.year;
+      refresh();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_tabController == null) {
+      _tabController = TabController(length: 2, vsync: this);
+      _tabController.addListener(() => refresh());
+    }
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -94,6 +116,11 @@ class _LeaderboardViewState extends State<LeaderboardView>
             RefreshIndicator(
                 onRefresh: refresh, child: ListView(children: _projectsTiles)),
           ],
+        ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: null,
+          label: Text("Current Scoring Point : 37,555"),
+          backgroundColor: colorTheme1,
         ),
       ),
     );
@@ -159,7 +186,7 @@ class _LeaderboardViewState extends State<LeaderboardView>
     );
   }
 
-  Widget _header(int index) {
+  Widget _header(int index, Function onTap) {
     List<String> months = [
       'January',
       'February',
@@ -177,17 +204,17 @@ class _LeaderboardViewState extends State<LeaderboardView>
 
     return Column(
       children: [
-        Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(16),
-            child: Text(
-              "${months[month]} $year",
-              style: TextStyle(fontSize: 20, color: colorTheme2),
-            )
-            // index == 0
-            //     ? getDropdown(individual, selectedIndividual)
-            //     : getDropdown(project, selectedProjects),
-            ),
+        ListTile(
+          title: Text(
+            "${months[month]} $year",
+            style: TextStyle(fontSize: 20, color: colorTheme2),
+          ),
+          trailing: Icon(Icons.calendar_month, color: colorTheme2),
+          onTap: onTap,
+          // index == 0
+          //     ? getDropdown(individual, selectedIndividual)
+          //     : getDropdown(project, selectedProjects),
+        ),
         Container(
           width: double.infinity,
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -210,8 +237,8 @@ class _LeaderboardViewState extends State<LeaderboardView>
 }
 
 class _Controller {
-  final int month;
-  final int year;
+  int month;
+  int year;
 
   _Controller(this.month, this.year);
   Future<List<IndividualGamification>> get individuals =>

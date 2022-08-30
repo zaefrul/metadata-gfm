@@ -9,6 +9,7 @@ import 'package:gfm_gems/model/responseValue.dart';
 import 'package:gfm_gems/model/task.dart';
 import 'package:gfm_gems/model/workorder.dart';
 
+import 'attendance.dart';
 import 'complaint.dart';
 import 'complaintResponse.dart';
 import 'form.dart';
@@ -58,7 +59,8 @@ part 'serializers.g.dart';
   Meter,
   MaterialStorePart,
   ComplaintDStoreType,
-  Reading
+  Reading,
+  Attendance
 ])
 final Serializers serializers =
     (_$serializers.toBuilder()..addPlugin(StandardJsonPlugin())).build();

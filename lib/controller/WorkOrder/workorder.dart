@@ -23,7 +23,6 @@ class _WorkOrderState extends State<WorkOrderView>
   bool isSupervisor = false;
 
   _WorkOrderState() {
-    _tabController = TabController(vsync: this, length: 2);
     User.getPrefUser.then((value) => User.fromMap(value)).then((value) {
       isSupervisor =
           value.roles.where((element) => element.id == "17").length == 1;
@@ -32,6 +31,14 @@ class _WorkOrderState extends State<WorkOrderView>
           _tabController = TabController(vsync: this, length: 3);
         });
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (_tabController == null) {
+      _tabController = TabController(vsync: this, length: 2);
+    }
   }
 
   @override

@@ -137,7 +137,7 @@ class _$Task extends Task {
   final BuiltList<String> frequency;
 
   factory _$Task([void Function(TaskBuilder) updates]) =>
-      (new TaskBuilder()..update(updates)).build();
+      (new TaskBuilder()..update(updates))._build();
 
   _$Task._(
       {this.taskId,
@@ -151,18 +151,18 @@ class _$Task extends Task {
       this.technician,
       this.frequency})
       : super._() {
-    BuiltValueNullFieldError.checkNotNull(taskId, 'Task', 'taskId');
-    BuiltValueNullFieldError.checkNotNull(ppmTaskId, 'Task', 'ppmTaskId');
+    BuiltValueNullFieldError.checkNotNull(taskId, r'Task', 'taskId');
+    BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'Task', 'ppmTaskId');
     BuiltValueNullFieldError.checkNotNull(
-        transactionNo, 'Task', 'transactionNo');
-    BuiltValueNullFieldError.checkNotNull(assetNo, 'Task', 'assetNo');
-    BuiltValueNullFieldError.checkNotNull(siteName, 'Task', 'siteName');
+        transactionNo, r'Task', 'transactionNo');
+    BuiltValueNullFieldError.checkNotNull(assetNo, r'Task', 'assetNo');
+    BuiltValueNullFieldError.checkNotNull(siteName, r'Task', 'siteName');
     BuiltValueNullFieldError.checkNotNull(
-        assetTypeName, 'Task', 'assetTypeName');
-    BuiltValueNullFieldError.checkNotNull(statusDesc, 'Task', 'statusDesc');
-    BuiltValueNullFieldError.checkNotNull(taskDateDue, 'Task', 'taskDateDue');
-    BuiltValueNullFieldError.checkNotNull(technician, 'Task', 'technician');
-    BuiltValueNullFieldError.checkNotNull(frequency, 'Task', 'frequency');
+        assetTypeName, r'Task', 'assetTypeName');
+    BuiltValueNullFieldError.checkNotNull(statusDesc, r'Task', 'statusDesc');
+    BuiltValueNullFieldError.checkNotNull(taskDateDue, r'Task', 'taskDateDue');
+    BuiltValueNullFieldError.checkNotNull(technician, r'Task', 'technician');
+    BuiltValueNullFieldError.checkNotNull(frequency, r'Task', 'frequency');
   }
 
   @override
@@ -212,7 +212,7 @@ class _$Task extends Task {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('Task')
+    return (newBuiltValueToStringHelper(r'Task')
           ..add('taskId', taskId)
           ..add('ppmTaskId', ppmTaskId)
           ..add('transactionNo', transactionNo)
@@ -305,29 +305,31 @@ class TaskBuilder implements Builder<Task, TaskBuilder> {
   }
 
   @override
-  _$Task build() {
+  Task build() => _build();
+
+  _$Task _build() {
     _$Task _$result;
     try {
       _$result = _$v ??
           new _$Task._(
               taskId: BuiltValueNullFieldError.checkNotNull(
-                  taskId, 'Task', 'taskId'),
+                  taskId, r'Task', 'taskId'),
               ppmTaskId: BuiltValueNullFieldError.checkNotNull(
-                  ppmTaskId, 'Task', 'ppmTaskId'),
+                  ppmTaskId, r'Task', 'ppmTaskId'),
               transactionNo: BuiltValueNullFieldError.checkNotNull(
-                  transactionNo, 'Task', 'transactionNo'),
+                  transactionNo, r'Task', 'transactionNo'),
               assetNo: BuiltValueNullFieldError.checkNotNull(
-                  assetNo, 'Task', 'assetNo'),
+                  assetNo, r'Task', 'assetNo'),
               siteName: BuiltValueNullFieldError.checkNotNull(
-                  siteName, 'Task', 'siteName'),
+                  siteName, r'Task', 'siteName'),
               assetTypeName: BuiltValueNullFieldError.checkNotNull(
-                  assetTypeName, 'Task', 'assetTypeName'),
+                  assetTypeName, r'Task', 'assetTypeName'),
               statusDesc: BuiltValueNullFieldError.checkNotNull(
-                  statusDesc, 'Task', 'statusDesc'),
+                  statusDesc, r'Task', 'statusDesc'),
               taskDateDue: BuiltValueNullFieldError.checkNotNull(
-                  taskDateDue, 'Task', 'taskDateDue'),
+                  taskDateDue, r'Task', 'taskDateDue'),
               technician: BuiltValueNullFieldError.checkNotNull(
-                  technician, 'Task', 'technician'),
+                  technician, r'Task', 'technician'),
               frequency: frequency.build());
     } catch (_) {
       String _$failedField;
@@ -336,7 +338,7 @@ class TaskBuilder implements Builder<Task, TaskBuilder> {
         frequency.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
-            'Task', _$failedField, e.toString());
+            r'Task', _$failedField, e.toString());
       }
       rethrow;
     }
@@ -345,4 +347,4 @@ class TaskBuilder implements Builder<Task, TaskBuilder> {
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new
+// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,no_leading_underscores_for_local_identifiers,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new,unnecessary_lambdas

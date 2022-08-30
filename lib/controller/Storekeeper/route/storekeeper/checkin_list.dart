@@ -226,7 +226,7 @@ class _Material extends StatelessWidget {
               child: Text('Submit'),
               onPressed: () {
                 Navigator.of(context).pop();
-                Toast.show("Report Submitted", context);
+                Toast.show("Report Submitted");
               },
             ),
           ],

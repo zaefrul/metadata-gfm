@@ -57,7 +57,7 @@ class _$ResponseValue extends ResponseValue {
   final TechnicianAssign technicianAssign;
 
   factory _$ResponseValue([void Function(ResponseValueBuilder) updates]) =>
-      (new ResponseValueBuilder()..update(updates)).build();
+      (new ResponseValueBuilder()..update(updates))._build();
 
   _$ResponseValue._(
       {this.success,
@@ -85,9 +85,9 @@ class _$ResponseValue extends ResponseValue {
       this.technicianImages,
       this.technicianAssign})
       : super._() {
-    BuiltValueNullFieldError.checkNotNull(success, 'ResponseValue', 'success');
-    BuiltValueNullFieldError.checkNotNull(error, 'ResponseValue', 'error');
-    BuiltValueNullFieldError.checkNotNull(errmsg, 'ResponseValue', 'errmsg');
+    BuiltValueNullFieldError.checkNotNull(success, r'ResponseValue', 'success');
+    BuiltValueNullFieldError.checkNotNull(error, r'ResponseValue', 'error');
+    BuiltValueNullFieldError.checkNotNull(errmsg, r'ResponseValue', 'errmsg');
   }
 
   @override
@@ -171,7 +171,7 @@ class _$ResponseValue extends ResponseValue {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('ResponseValue')
+    return (newBuiltValueToStringHelper(r'ResponseValue')
           ..add('success', success)
           ..add('error', error)
           ..add('errmsg', errmsg)
@@ -382,17 +382,19 @@ class ResponseValueBuilder
   }
 
   @override
-  _$ResponseValue build() {
+  ResponseValue build() => _build();
+
+  _$ResponseValue _build() {
     _$ResponseValue _$result;
     try {
       _$result = _$v ??
           new _$ResponseValue._(
               success: BuiltValueNullFieldError.checkNotNull(
-                  success, 'ResponseValue', 'success'),
+                  success, r'ResponseValue', 'success'),
               error: BuiltValueNullFieldError.checkNotNull(
-                  error, 'ResponseValue', 'error'),
+                  error, r'ResponseValue', 'error'),
               errmsg: BuiltValueNullFieldError.checkNotNull(
-                  errmsg, 'ResponseValue', 'errmsg'),
+                  errmsg, r'ResponseValue', 'errmsg'),
               result: result,
               taskList: _taskList?.build(),
               workorderTask: _workorderTask?.build(),
@@ -459,7 +461,7 @@ class ResponseValueBuilder
         _technicianAssign?.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
-            'ResponseValue', _$failedField, e.toString());
+            r'ResponseValue', _$failedField, e.toString());
       }
       rethrow;
     }
@@ -468,4 +470,4 @@ class ResponseValueBuilder
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new
+// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,no_leading_underscores_for_local_identifiers,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new,unnecessary_lambdas

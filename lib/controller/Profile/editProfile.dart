@@ -166,7 +166,7 @@ class _EditState extends State<Edit> {
     }
 
     if (bodyProvider.length == 1) {
-      Toast.show("Nothing to update", context);
+      Toast.show("Nothing to update");
       setState(() => loading = false);
       return;
     }

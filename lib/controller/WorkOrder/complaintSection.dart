@@ -210,11 +210,10 @@ class _ComplaintSectionState extends State<ComplaintSection> {
                         context: context,
                         builder: (BuildContext context) => dialog);
                   })
-                  .catchError((err) => Toast.show(err, context))
+                  .catchError((err) => Toast.show(err))
                   .whenComplete(() => setState(() => loadingAssign = true));
             } else {
-              Toast.show(
-                  "All sections must be completed before submit", context,
+              Toast.show("All sections must be completed before submit",
                   duration: 1);
             }
           } else {
@@ -230,8 +229,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
                   ))
                   .then((value) => _fetch());
             } else {
-              Toast.show(
-                  "All sections must be completed before submit", context,
+              Toast.show("All sections must be completed before submit",
                   duration: 1);
             }
           }

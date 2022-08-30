@@ -3,6 +3,7 @@ import 'package:gfm_gems/model/complaint.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:toast/toast.dart';
+import 'package:custom_searchable_dropdown/custom_searchable_dropdown.dart';
 
 class ComplaintAdd extends StatefulWidget {
   final String id;
@@ -81,7 +82,7 @@ class _ComplaintAddState extends State<ComplaintAdd> {
           onPressed: () => widget._controller
               .upload(context)
               .then((value) => Navigator.pop(context))
-              .catchError((e) => Toast.show(e, context))),
+              .catchError((e) => Toast.show(e))),
     );
   }
 
@@ -93,11 +94,12 @@ class _ComplaintAddState extends State<ComplaintAdd> {
             stream: value,
             builder: (context, selected) {
               final List<DropdownMenuItem<T>> _items = [];
+
+              final list = [];
               String _hint = "";
               String _hintDisable = "";
               if (T.toString() == "ComplaintDGroup") {
                 _hint = "Select Group";
-                final list = [];
                 if (snapshot.data != null)
                   list.addAll(snapshot.data.map((e) => e as ComplaintDGroup));
                 if (list.length > 1)
@@ -113,7 +115,6 @@ class _ComplaintAddState extends State<ComplaintAdd> {
                 _hint = "Select Type";
                 _hintDisable = "Select Type";
 
-                final list = [];
                 if (snapshot.data != null)
                   list.addAll(snapshot.data.map((e) => e as ComplaintDType));
                 _items.addAll(list
@@ -127,7 +128,7 @@ class _ComplaintAddState extends State<ComplaintAdd> {
               } else if (T.toString() == "ComplaintDPart") {
                 _hint = "Select Part";
                 _hintDisable = "Select Part";
-                final list = [];
+
                 if (snapshot.data != null)
                   list.addAll(snapshot.data.map((e) => e as ComplaintDPart));
                 _items.addAll(list
@@ -140,14 +141,32 @@ class _ComplaintAddState extends State<ComplaintAdd> {
                     .toList());
               }
 
-              return DropdownButton<T>(
-                hint: Text(_hint),
-                disabledHint: Text(_hintDisable),
-                isExpanded: true,
-                items: _items,
-                value: selected.data,
+              return CustomSearchableDropDown(
+                items: list,
+                label: _hint,
+                decoration: BoxDecoration(
+                    border: Border(
+                  bottom: BorderSide(
+                    color: Colors.black,
+                    width: 0.4,
+                  ),
+                )),
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.all(0.0),
+                  child: Icon(Icons.search),
+                ),
+                dropDownMenuItems: list.map((e) => e.itemName).toList(),
                 onChanged: (item) => enable == false ? null : sink(item),
               );
+
+              // return DropdownButton<T>(
+              //   hint: Text(_hint),
+              //   disabledHint: Text(_hintDisable),
+              //   isExpanded: true,
+              //   items: _items,
+              //   value: selected.data,
+              //   onChanged: (item) => enable == false ? null : sink(item),
+              // );
             }));
 
     return listView;
@@ -293,11 +312,11 @@ class Controller {
   Future<void> upload(BuildContext context) {
     FocusScope.of(context).unfocus();
     if (_invalidQuantity.value == true) {
-      Toast.show(_invalidMessage.value, context, duration: 3);
+      Toast.show(_invalidMessage.value, duration: 3);
       throw "";
     } else {
       if (_invalidMessage.value != null)
-        Toast.show(_invalidMessage.value, context, duration: 3);
+        Toast.show(_invalidMessage.value, duration: 3);
       return _request.post(
         _valueThird.value.itemId,
         remark: remark.text,

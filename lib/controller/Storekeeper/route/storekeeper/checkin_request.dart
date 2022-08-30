@@ -30,7 +30,7 @@ class _CheckinRequestState extends State<CheckinRequest> {
         );
       else if (event == false) Navigator.pop(context);
     });
-    _controller.err$.listen((event) => Toast.show(event, context, duration: 4));
+    _controller.err$.listen((event) => Toast.show(event, duration: 4));
   }
 
   @override
@@ -95,9 +95,9 @@ class _CheckinRequestState extends State<CheckinRequest> {
       backgroundColor: colorTheme2,
       label: Text("Submit"),
       onPressed: () => _controller.submit(context).then((value) {
-            Toast.show("Checkin Successful", context);
+            Toast.show("Checkin Successful");
             Navigator.pop(context);
-          }).catchError((err) => Toast.show(err, context, duration: 4)));
+          }).catchError((err) => Toast.show(err, duration: 4)));
 
   Widget get _filter => StreamBuilder<ComplaintDStore>(
       stream: _controller.store$,
@@ -238,7 +238,7 @@ class _Material extends StatelessWidget {
               ),
               onPressed: () {
                 onDeleteItem();
-                Toast.show("Item Removed", context);
+                Toast.show("Item Removed");
               },
             )),
       ],

@@ -326,7 +326,7 @@ class _$Meter extends Meter {
   final String monthlyTotalRm;
 
   factory _$Meter([void Function(MeterBuilder) updates]) =>
-      (new MeterBuilder()..update(updates)).build();
+      (new MeterBuilder()..update(updates))._build();
 
   _$Meter._(
       {this.meterId,
@@ -340,13 +340,13 @@ class _$Meter extends Meter {
       this.dailyTotal,
       this.monthlyTotalRm})
       : super._() {
-    BuiltValueNullFieldError.checkNotNull(meterId, 'Meter', 'meterId');
+    BuiltValueNullFieldError.checkNotNull(meterId, r'Meter', 'meterId');
     BuiltValueNullFieldError.checkNotNull(
-        meterLocation, 'Meter', 'meterLocation');
-    BuiltValueNullFieldError.checkNotNull(meterName, 'Meter', 'meterName');
-    BuiltValueNullFieldError.checkNotNull(meterStatus, 'Meter', 'meterStatus');
-    BuiltValueNullFieldError.checkNotNull(meterType, 'Meter', 'meterType');
-    BuiltValueNullFieldError.checkNotNull(siteId, 'Meter', 'siteId');
+        meterLocation, r'Meter', 'meterLocation');
+    BuiltValueNullFieldError.checkNotNull(meterName, r'Meter', 'meterName');
+    BuiltValueNullFieldError.checkNotNull(meterStatus, r'Meter', 'meterStatus');
+    BuiltValueNullFieldError.checkNotNull(meterType, r'Meter', 'meterType');
+    BuiltValueNullFieldError.checkNotNull(siteId, r'Meter', 'siteId');
   }
 
   @override
@@ -396,7 +396,7 @@ class _$Meter extends Meter {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('Meter')
+    return (newBuiltValueToStringHelper(r'Meter')
           ..add('meterId', meterId)
           ..add('meterLocation', meterLocation)
           ..add('meterName', meterName)
@@ -490,21 +490,23 @@ class MeterBuilder implements Builder<Meter, MeterBuilder> {
   }
 
   @override
-  _$Meter build() {
+  Meter build() => _build();
+
+  _$Meter _build() {
     final _$result = _$v ??
         new _$Meter._(
             meterId: BuiltValueNullFieldError.checkNotNull(
-                meterId, 'Meter', 'meterId'),
+                meterId, r'Meter', 'meterId'),
             meterLocation: BuiltValueNullFieldError.checkNotNull(
-                meterLocation, 'Meter', 'meterLocation'),
+                meterLocation, r'Meter', 'meterLocation'),
             meterName: BuiltValueNullFieldError.checkNotNull(
-                meterName, 'Meter', 'meterName'),
+                meterName, r'Meter', 'meterName'),
             meterStatus: BuiltValueNullFieldError.checkNotNull(
-                meterStatus, 'Meter', 'meterStatus'),
+                meterStatus, r'Meter', 'meterStatus'),
             meterType: BuiltValueNullFieldError.checkNotNull(
-                meterType, 'Meter', 'meterType'),
+                meterType, r'Meter', 'meterType'),
             siteId: BuiltValueNullFieldError.checkNotNull(
-                siteId, 'Meter', 'siteId'),
+                siteId, r'Meter', 'siteId'),
             dailyLatestDate: dailyLatestDate,
             dailyLatestReading: dailyLatestReading,
             dailyTotal: dailyTotal,
@@ -543,7 +545,7 @@ class _$Reading extends Reading {
   final String utilityShift;
 
   factory _$Reading([void Function(ReadingBuilder) updates]) =>
-      (new ReadingBuilder()..update(updates)).build();
+      (new ReadingBuilder()..update(updates))._build();
 
   _$Reading._(
       {this.utilityId,
@@ -617,7 +619,7 @@ class _$Reading extends Reading {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('Reading')
+    return (newBuiltValueToStringHelper(r'Reading')
           ..add('utilityId', utilityId)
           ..add('utilityType', utilityType)
           ..add('utilityReadingType', utilityReadingType)
@@ -732,7 +734,9 @@ class ReadingBuilder implements Builder<Reading, ReadingBuilder> {
   }
 
   @override
-  _$Reading build() {
+  Reading build() => _build();
+
+  _$Reading _build() {
     final _$result = _$v ??
         new _$Reading._(
             utilityId: utilityId,
@@ -753,4 +757,4 @@ class ReadingBuilder implements Builder<Reading, ReadingBuilder> {
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new
+// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,no_leading_underscores_for_local_identifiers,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new,unnecessary_lambdas

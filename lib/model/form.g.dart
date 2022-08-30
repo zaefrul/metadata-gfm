@@ -801,7 +801,7 @@ class _$Form extends Form {
   final String checkAdditionalReport;
 
   factory _$Form([void Function(FormBuilder) updates]) =>
-      (new FormBuilder()..update(updates)).build();
+      (new FormBuilder()..update(updates))._build();
 
   _$Form._(
       {this.ppmTaskSectionId,
@@ -812,15 +812,15 @@ class _$Form extends Form {
       this.checkAdditionalReport})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskSectionId, 'Form', 'ppmTaskSectionId');
+        ppmTaskSectionId, r'Form', 'ppmTaskSectionId');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskSectionName, 'Form', 'ppmTaskSectionName');
-    BuiltValueNullFieldError.checkNotNull(ppmTaskId, 'Form', 'ppmTaskId');
+        ppmTaskSectionName, r'Form', 'ppmTaskSectionName');
+    BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'Form', 'ppmTaskId');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskSectionStatus, 'Form', 'ppmTaskSectionStatus');
-    BuiltValueNullFieldError.checkNotNull(checkParts, 'Form', 'checkParts');
+        ppmTaskSectionStatus, r'Form', 'ppmTaskSectionStatus');
+    BuiltValueNullFieldError.checkNotNull(checkParts, r'Form', 'checkParts');
     BuiltValueNullFieldError.checkNotNull(
-        checkAdditionalReport, 'Form', 'checkAdditionalReport');
+        checkAdditionalReport, r'Form', 'checkAdditionalReport');
   }
 
   @override
@@ -858,7 +858,7 @@ class _$Form extends Form {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('Form')
+    return (newBuiltValueToStringHelper(r'Form')
           ..add('ppmTaskSectionId', ppmTaskSectionId)
           ..add('ppmTaskSectionName', ppmTaskSectionName)
           ..add('ppmTaskId', ppmTaskId)
@@ -928,21 +928,23 @@ class FormBuilder implements Builder<Form, FormBuilder> {
   }
 
   @override
-  _$Form build() {
+  Form build() => _build();
+
+  _$Form _build() {
     final _$result = _$v ??
         new _$Form._(
             ppmTaskSectionId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskSectionId, 'Form', 'ppmTaskSectionId'),
+                ppmTaskSectionId, r'Form', 'ppmTaskSectionId'),
             ppmTaskSectionName: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskSectionName, 'Form', 'ppmTaskSectionName'),
+                ppmTaskSectionName, r'Form', 'ppmTaskSectionName'),
             ppmTaskId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskId, 'Form', 'ppmTaskId'),
+                ppmTaskId, r'Form', 'ppmTaskId'),
             ppmTaskSectionStatus: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskSectionStatus, 'Form', 'ppmTaskSectionStatus'),
+                ppmTaskSectionStatus, r'Form', 'ppmTaskSectionStatus'),
             checkParts: BuiltValueNullFieldError.checkNotNull(
-                checkParts, 'Form', 'checkParts'),
+                checkParts, r'Form', 'checkParts'),
             checkAdditionalReport: BuiltValueNullFieldError.checkNotNull(
-                checkAdditionalReport, 'Form', 'checkAdditionalReport'));
+                checkAdditionalReport, r'Form', 'checkAdditionalReport'));
     replace(_$result);
     return _$result;
   }
@@ -979,7 +981,7 @@ class _$FormAItem extends FormAItem {
   final String ppmTaskTimeServiced;
 
   factory _$FormAItem([void Function(FormAItemBuilder) updates]) =>
-      (new FormAItemBuilder()..update(updates)).build();
+      (new FormAItemBuilder()..update(updates))._build();
 
   _$FormAItem._(
       {this.ppmTaskId,
@@ -997,30 +999,30 @@ class _$FormAItem extends FormAItem {
       this.ppmTaskTimeStart,
       this.ppmTaskTimeServiced})
       : super._() {
-    BuiltValueNullFieldError.checkNotNull(ppmTaskId, 'FormAItem', 'ppmTaskId');
+    BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'FormAItem', 'ppmTaskId');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskScheduleDate, 'FormAItem', 'ppmTaskScheduleDate');
-    BuiltValueNullFieldError.checkNotNull(assetId, 'FormAItem', 'assetId');
+        ppmTaskScheduleDate, r'FormAItem', 'ppmTaskScheduleDate');
+    BuiltValueNullFieldError.checkNotNull(assetId, r'FormAItem', 'assetId');
     BuiltValueNullFieldError.checkNotNull(
-        assetGroupName, 'FormAItem', 'assetGroupName');
+        assetGroupName, r'FormAItem', 'assetGroupName');
     BuiltValueNullFieldError.checkNotNull(
-        assetCategoryName, 'FormAItem', 'assetCategoryName');
+        assetCategoryName, r'FormAItem', 'assetCategoryName');
     BuiltValueNullFieldError.checkNotNull(
-        assetTypeName, 'FormAItem', 'assetTypeName');
+        assetTypeName, r'FormAItem', 'assetTypeName');
     BuiltValueNullFieldError.checkNotNull(
-        assetBrandName, 'FormAItem', 'assetBrandName');
+        assetBrandName, r'FormAItem', 'assetBrandName');
     BuiltValueNullFieldError.checkNotNull(
-        assetModelName, 'FormAItem', 'assetModelName');
-    BuiltValueNullFieldError.checkNotNull(assetNo, 'FormAItem', 'assetNo');
-    BuiltValueNullFieldError.checkNotNull(assetName, 'FormAItem', 'assetName');
+        assetModelName, r'FormAItem', 'assetModelName');
+    BuiltValueNullFieldError.checkNotNull(assetNo, r'FormAItem', 'assetNo');
+    BuiltValueNullFieldError.checkNotNull(assetName, r'FormAItem', 'assetName');
     BuiltValueNullFieldError.checkNotNull(
-        locationCodeId, 'FormAItem', 'locationCodeId');
+        locationCodeId, r'FormAItem', 'locationCodeId');
     BuiltValueNullFieldError.checkNotNull(
-        assetCapacity, 'FormAItem', 'assetCapacity');
+        assetCapacity, r'FormAItem', 'assetCapacity');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskTimeStart, 'FormAItem', 'ppmTaskTimeStart');
+        ppmTaskTimeStart, r'FormAItem', 'ppmTaskTimeStart');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskTimeServiced, 'FormAItem', 'ppmTaskTimeServiced');
+        ppmTaskTimeServiced, r'FormAItem', 'ppmTaskTimeServiced');
   }
 
   @override
@@ -1085,7 +1087,7 @@ class _$FormAItem extends FormAItem {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('FormAItem')
+    return (newBuiltValueToStringHelper(r'FormAItem')
           ..add('ppmTaskId', ppmTaskId)
           ..add('ppmTaskScheduleDate', ppmTaskScheduleDate)
           ..add('assetId', assetId)
@@ -1209,31 +1211,33 @@ class FormAItemBuilder implements Builder<FormAItem, FormAItemBuilder> {
   }
 
   @override
-  _$FormAItem build() {
+  FormAItem build() => _build();
+
+  _$FormAItem _build() {
     final _$result = _$v ??
         new _$FormAItem._(
             ppmTaskId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskId, 'FormAItem', 'ppmTaskId'),
+                ppmTaskId, r'FormAItem', 'ppmTaskId'),
             ppmTaskScheduleDate: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskScheduleDate, 'FormAItem', 'ppmTaskScheduleDate'),
+                ppmTaskScheduleDate, r'FormAItem', 'ppmTaskScheduleDate'),
             assetId: BuiltValueNullFieldError.checkNotNull(
-                assetId, 'FormAItem', 'assetId'),
+                assetId, r'FormAItem', 'assetId'),
             assetGroupName: BuiltValueNullFieldError.checkNotNull(
-                assetGroupName, 'FormAItem', 'assetGroupName'),
+                assetGroupName, r'FormAItem', 'assetGroupName'),
             assetCategoryName: BuiltValueNullFieldError.checkNotNull(
-                assetCategoryName, 'FormAItem', 'assetCategoryName'),
+                assetCategoryName, r'FormAItem', 'assetCategoryName'),
             assetTypeName: BuiltValueNullFieldError.checkNotNull(
-                assetTypeName, 'FormAItem', 'assetTypeName'),
+                assetTypeName, r'FormAItem', 'assetTypeName'),
             assetBrandName: BuiltValueNullFieldError.checkNotNull(
-                assetBrandName, 'FormAItem', 'assetBrandName'),
+                assetBrandName, r'FormAItem', 'assetBrandName'),
             assetModelName: BuiltValueNullFieldError.checkNotNull(
-                assetModelName, 'FormAItem', 'assetModelName'),
-            assetNo: BuiltValueNullFieldError.checkNotNull(assetNo, 'FormAItem', 'assetNo'),
-            assetName: BuiltValueNullFieldError.checkNotNull(assetName, 'FormAItem', 'assetName'),
-            locationCodeId: BuiltValueNullFieldError.checkNotNull(locationCodeId, 'FormAItem', 'locationCodeId'),
-            assetCapacity: BuiltValueNullFieldError.checkNotNull(assetCapacity, 'FormAItem', 'assetCapacity'),
-            ppmTaskTimeStart: BuiltValueNullFieldError.checkNotNull(ppmTaskTimeStart, 'FormAItem', 'ppmTaskTimeStart'),
-            ppmTaskTimeServiced: BuiltValueNullFieldError.checkNotNull(ppmTaskTimeServiced, 'FormAItem', 'ppmTaskTimeServiced'));
+                assetModelName, r'FormAItem', 'assetModelName'),
+            assetNo: BuiltValueNullFieldError.checkNotNull(assetNo, r'FormAItem', 'assetNo'),
+            assetName: BuiltValueNullFieldError.checkNotNull(assetName, r'FormAItem', 'assetName'),
+            locationCodeId: BuiltValueNullFieldError.checkNotNull(locationCodeId, r'FormAItem', 'locationCodeId'),
+            assetCapacity: BuiltValueNullFieldError.checkNotNull(assetCapacity, r'FormAItem', 'assetCapacity'),
+            ppmTaskTimeStart: BuiltValueNullFieldError.checkNotNull(ppmTaskTimeStart, r'FormAItem', 'ppmTaskTimeStart'),
+            ppmTaskTimeServiced: BuiltValueNullFieldError.checkNotNull(ppmTaskTimeServiced, r'FormAItem', 'ppmTaskTimeServiced'));
     replace(_$result);
     return _$result;
   }
@@ -1246,12 +1250,12 @@ class _$FormBItem extends FormBItem {
   final String ppmTaskGuideline;
 
   factory _$FormBItem([void Function(FormBItemBuilder) updates]) =>
-      (new FormBItemBuilder()..update(updates)).build();
+      (new FormBItemBuilder()..update(updates))._build();
 
   _$FormBItem._({this.ppmTaskId, this.ppmTaskGuideline}) : super._() {
-    BuiltValueNullFieldError.checkNotNull(ppmTaskId, 'FormBItem', 'ppmTaskId');
+    BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'FormBItem', 'ppmTaskId');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskGuideline, 'FormBItem', 'ppmTaskGuideline');
+        ppmTaskGuideline, r'FormBItem', 'ppmTaskGuideline');
   }
 
   @override
@@ -1276,7 +1280,7 @@ class _$FormBItem extends FormBItem {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('FormBItem')
+    return (newBuiltValueToStringHelper(r'FormBItem')
           ..add('ppmTaskId', ppmTaskId)
           ..add('ppmTaskGuideline', ppmTaskGuideline))
         .toString();
@@ -1319,13 +1323,15 @@ class FormBItemBuilder implements Builder<FormBItem, FormBItemBuilder> {
   }
 
   @override
-  _$FormBItem build() {
+  FormBItem build() => _build();
+
+  _$FormBItem _build() {
     final _$result = _$v ??
         new _$FormBItem._(
             ppmTaskId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskId, 'FormBItem', 'ppmTaskId'),
+                ppmTaskId, r'FormBItem', 'ppmTaskId'),
             ppmTaskGuideline: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskGuideline, 'FormBItem', 'ppmTaskGuideline'));
+                ppmTaskGuideline, r'FormBItem', 'ppmTaskGuideline'));
     replace(_$result);
     return _$result;
   }
@@ -1350,7 +1356,7 @@ class _$FormCItem extends FormCItem {
   final String ppmTaskQualRemark;
 
   factory _$FormCItem([void Function(FormCItemBuilder) updates]) =>
-      (new FormCItemBuilder()..update(updates)).build();
+      (new FormCItemBuilder()..update(updates))._build();
 
   _$FormCItem._(
       {this.ppmTaskQualId,
@@ -1363,20 +1369,20 @@ class _$FormCItem extends FormCItem {
       this.ppmTaskQualRemark})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQualId, 'FormCItem', 'ppmTaskQualId');
-    BuiltValueNullFieldError.checkNotNull(ppmTaskId, 'FormCItem', 'ppmTaskId');
+        ppmTaskQualId, r'FormCItem', 'ppmTaskQualId');
+    BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'FormCItem', 'ppmTaskId');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQualNumb, 'FormCItem', 'ppmTaskQualNumb');
+        ppmTaskQualNumb, r'FormCItem', 'ppmTaskQualNumb');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQualDesc, 'FormCItem', 'ppmTaskQualDesc');
+        ppmTaskQualDesc, r'FormCItem', 'ppmTaskQualDesc');
     BuiltValueNullFieldError.checkNotNull(
-        frequencyId, 'FormCItem', 'frequencyId');
+        frequencyId, r'FormCItem', 'frequencyId');
     BuiltValueNullFieldError.checkNotNull(
-        frequencyName, 'FormCItem', 'frequencyName');
+        frequencyName, r'FormCItem', 'frequencyName');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQualResult, 'FormCItem', 'ppmTaskQualResult');
+        ppmTaskQualResult, r'FormCItem', 'ppmTaskQualResult');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQualRemark, 'FormCItem', 'ppmTaskQualRemark');
+        ppmTaskQualRemark, r'FormCItem', 'ppmTaskQualRemark');
   }
 
   @override
@@ -1420,7 +1426,7 @@ class _$FormCItem extends FormCItem {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('FormCItem')
+    return (newBuiltValueToStringHelper(r'FormCItem')
           ..add('ppmTaskQualId', ppmTaskQualId)
           ..add('ppmTaskId', ppmTaskId)
           ..add('ppmTaskQualNumb', ppmTaskQualNumb)
@@ -1504,25 +1510,27 @@ class FormCItemBuilder implements Builder<FormCItem, FormCItemBuilder> {
   }
 
   @override
-  _$FormCItem build() {
+  FormCItem build() => _build();
+
+  _$FormCItem _build() {
     final _$result = _$v ??
         new _$FormCItem._(
             ppmTaskQualId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskQualId, 'FormCItem', 'ppmTaskQualId'),
+                ppmTaskQualId, r'FormCItem', 'ppmTaskQualId'),
             ppmTaskId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskId, 'FormCItem', 'ppmTaskId'),
+                ppmTaskId, r'FormCItem', 'ppmTaskId'),
             ppmTaskQualNumb: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskQualNumb, 'FormCItem', 'ppmTaskQualNumb'),
+                ppmTaskQualNumb, r'FormCItem', 'ppmTaskQualNumb'),
             ppmTaskQualDesc: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskQualDesc, 'FormCItem', 'ppmTaskQualDesc'),
+                ppmTaskQualDesc, r'FormCItem', 'ppmTaskQualDesc'),
             frequencyId: BuiltValueNullFieldError.checkNotNull(
-                frequencyId, 'FormCItem', 'frequencyId'),
+                frequencyId, r'FormCItem', 'frequencyId'),
             frequencyName: BuiltValueNullFieldError.checkNotNull(
-                frequencyName, 'FormCItem', 'frequencyName'),
+                frequencyName, r'FormCItem', 'frequencyName'),
             ppmTaskQualResult: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskQualResult, 'FormCItem', 'ppmTaskQualResult'),
+                ppmTaskQualResult, r'FormCItem', 'ppmTaskQualResult'),
             ppmTaskQualRemark: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskQualRemark, 'FormCItem', 'ppmTaskQualRemark'));
+                ppmTaskQualRemark, r'FormCItem', 'ppmTaskQualRemark'));
     replace(_$result);
     return _$result;
   }
@@ -1555,7 +1563,7 @@ class _$FormDItem extends FormDItem {
   final String ppmTaskQuanRemark;
 
   factory _$FormDItem([void Function(FormDItemBuilder) updates]) =>
-      (new FormDItemBuilder()..update(updates)).build();
+      (new FormDItemBuilder()..update(updates))._build();
 
   _$FormDItem._(
       {this.ppmTaskQuanId,
@@ -1572,28 +1580,28 @@ class _$FormDItem extends FormDItem {
       this.ppmTaskQuanRemark})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQuanId, 'FormDItem', 'ppmTaskQuanId');
-    BuiltValueNullFieldError.checkNotNull(ppmTaskId, 'FormDItem', 'ppmTaskId');
+        ppmTaskQuanId, r'FormDItem', 'ppmTaskQuanId');
+    BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'FormDItem', 'ppmTaskId');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQuanNumb, 'FormDItem', 'ppmTaskQuanNumb');
+        ppmTaskQuanNumb, r'FormDItem', 'ppmTaskQuanNumb');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQuanDesc, 'FormDItem', 'ppmTaskQuanDesc');
+        ppmTaskQuanDesc, r'FormDItem', 'ppmTaskQuanDesc');
     BuiltValueNullFieldError.checkNotNull(
-        frequencyId, 'FormDItem', 'frequencyId');
+        frequencyId, r'FormDItem', 'frequencyId');
     BuiltValueNullFieldError.checkNotNull(
-        frequencyName, 'FormDItem', 'frequencyName');
+        frequencyName, r'FormDItem', 'frequencyName');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQuanUnit, 'FormDItem', 'ppmTaskQuanUnit');
+        ppmTaskQuanUnit, r'FormDItem', 'ppmTaskQuanUnit');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQuanSetValues, 'FormDItem', 'ppmTaskQuanSetValues');
+        ppmTaskQuanSetValues, r'FormDItem', 'ppmTaskQuanSetValues');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQuanMeasuredValues, 'FormDItem', 'ppmTaskQuanMeasuredValues');
+        ppmTaskQuanMeasuredValues, r'FormDItem', 'ppmTaskQuanMeasuredValues');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQuanLimit, 'FormDItem', 'ppmTaskQuanLimit');
+        ppmTaskQuanLimit, r'FormDItem', 'ppmTaskQuanLimit');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQuanResult, 'FormDItem', 'ppmTaskQuanResult');
+        ppmTaskQuanResult, r'FormDItem', 'ppmTaskQuanResult');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQuanRemark, 'FormDItem', 'ppmTaskQuanRemark');
+        ppmTaskQuanRemark, r'FormDItem', 'ppmTaskQuanRemark');
   }
 
   @override
@@ -1649,7 +1657,7 @@ class _$FormDItem extends FormDItem {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('FormDItem')
+    return (newBuiltValueToStringHelper(r'FormDItem')
           ..add('ppmTaskQuanId', ppmTaskQuanId)
           ..add('ppmTaskId', ppmTaskId)
           ..add('ppmTaskQuanNumb', ppmTaskQuanNumb)
@@ -1761,30 +1769,31 @@ class FormDItemBuilder implements Builder<FormDItem, FormDItemBuilder> {
   }
 
   @override
-  _$FormDItem build() {
+  FormDItem build() => _build();
+
+  _$FormDItem _build() {
     final _$result = _$v ??
         new _$FormDItem._(
             ppmTaskQuanId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskQuanId, 'FormDItem', 'ppmTaskQuanId'),
+                ppmTaskQuanId, r'FormDItem', 'ppmTaskQuanId'),
             ppmTaskId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskId, 'FormDItem', 'ppmTaskId'),
+                ppmTaskId, r'FormDItem', 'ppmTaskId'),
             ppmTaskQuanNumb: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskQuanNumb, 'FormDItem', 'ppmTaskQuanNumb'),
+                ppmTaskQuanNumb, r'FormDItem', 'ppmTaskQuanNumb'),
             ppmTaskQuanDesc: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskQuanDesc, 'FormDItem', 'ppmTaskQuanDesc'),
+                ppmTaskQuanDesc, r'FormDItem', 'ppmTaskQuanDesc'),
             frequencyId: BuiltValueNullFieldError.checkNotNull(
-                frequencyId, 'FormDItem', 'frequencyId'),
+                frequencyId, r'FormDItem', 'frequencyId'),
             frequencyName: BuiltValueNullFieldError.checkNotNull(
-                frequencyName, 'FormDItem', 'frequencyName'),
+                frequencyName, r'FormDItem', 'frequencyName'),
             ppmTaskQuanUnit: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskQuanUnit, 'FormDItem', 'ppmTaskQuanUnit'),
+                ppmTaskQuanUnit, r'FormDItem', 'ppmTaskQuanUnit'),
             ppmTaskQuanSetValues: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskQuanSetValues, 'FormDItem', 'ppmTaskQuanSetValues'),
-            ppmTaskQuanMeasuredValues:
-                BuiltValueNullFieldError.checkNotNull(ppmTaskQuanMeasuredValues, 'FormDItem', 'ppmTaskQuanMeasuredValues'),
-            ppmTaskQuanLimit: BuiltValueNullFieldError.checkNotNull(ppmTaskQuanLimit, 'FormDItem', 'ppmTaskQuanLimit'),
-            ppmTaskQuanResult: BuiltValueNullFieldError.checkNotNull(ppmTaskQuanResult, 'FormDItem', 'ppmTaskQuanResult'),
-            ppmTaskQuanRemark: BuiltValueNullFieldError.checkNotNull(ppmTaskQuanRemark, 'FormDItem', 'ppmTaskQuanRemark'));
+                ppmTaskQuanSetValues, r'FormDItem', 'ppmTaskQuanSetValues'),
+            ppmTaskQuanMeasuredValues: BuiltValueNullFieldError.checkNotNull(ppmTaskQuanMeasuredValues, r'FormDItem', 'ppmTaskQuanMeasuredValues'),
+            ppmTaskQuanLimit: BuiltValueNullFieldError.checkNotNull(ppmTaskQuanLimit, r'FormDItem', 'ppmTaskQuanLimit'),
+            ppmTaskQuanResult: BuiltValueNullFieldError.checkNotNull(ppmTaskQuanResult, r'FormDItem', 'ppmTaskQuanResult'),
+            ppmTaskQuanRemark: BuiltValueNullFieldError.checkNotNull(ppmTaskQuanRemark, r'FormDItem', 'ppmTaskQuanRemark'));
     replace(_$result);
     return _$result;
   }
@@ -1799,15 +1808,15 @@ class _$FormEItem extends FormEItem {
   final String ppmTaskPartsDesc;
 
   factory _$FormEItem([void Function(FormEItemBuilder) updates]) =>
-      (new FormEItemBuilder()..update(updates)).build();
+      (new FormEItemBuilder()..update(updates))._build();
 
   _$FormEItem._({this.ppmTaskPartsId, this.ppmTaskId, this.ppmTaskPartsDesc})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskPartsId, 'FormEItem', 'ppmTaskPartsId');
-    BuiltValueNullFieldError.checkNotNull(ppmTaskId, 'FormEItem', 'ppmTaskId');
+        ppmTaskPartsId, r'FormEItem', 'ppmTaskPartsId');
+    BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'FormEItem', 'ppmTaskId');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskPartsDesc, 'FormEItem', 'ppmTaskPartsDesc');
+        ppmTaskPartsDesc, r'FormEItem', 'ppmTaskPartsDesc');
   }
 
   @override
@@ -1834,7 +1843,7 @@ class _$FormEItem extends FormEItem {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('FormEItem')
+    return (newBuiltValueToStringHelper(r'FormEItem')
           ..add('ppmTaskPartsId', ppmTaskPartsId)
           ..add('ppmTaskId', ppmTaskId)
           ..add('ppmTaskPartsDesc', ppmTaskPartsDesc))
@@ -1884,15 +1893,17 @@ class FormEItemBuilder implements Builder<FormEItem, FormEItemBuilder> {
   }
 
   @override
-  _$FormEItem build() {
+  FormEItem build() => _build();
+
+  _$FormEItem _build() {
     final _$result = _$v ??
         new _$FormEItem._(
             ppmTaskPartsId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskPartsId, 'FormEItem', 'ppmTaskPartsId'),
+                ppmTaskPartsId, r'FormEItem', 'ppmTaskPartsId'),
             ppmTaskId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskId, 'FormEItem', 'ppmTaskId'),
+                ppmTaskId, r'FormEItem', 'ppmTaskId'),
             ppmTaskPartsDesc: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskPartsDesc, 'FormEItem', 'ppmTaskPartsDesc'));
+                ppmTaskPartsDesc, r'FormEItem', 'ppmTaskPartsDesc'));
     replace(_$result);
     return _$result;
   }
@@ -1917,7 +1928,7 @@ class _$FormFItem extends FormFItem {
   final String documentSrc;
 
   factory _$FormFItem([void Function(FormFItemBuilder) updates]) =>
-      (new FormFItemBuilder()..update(updates)).build();
+      (new FormFItemBuilder()..update(updates))._build();
 
   _$FormFItem._(
       {this.ppmTaskUploadId,
@@ -1930,19 +1941,19 @@ class _$FormFItem extends FormFItem {
       this.documentSrc})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskUploadId, 'FormFItem', 'ppmTaskUploadId');
+        ppmTaskUploadId, r'FormFItem', 'ppmTaskUploadId');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskUploadType, 'FormFItem', 'ppmTaskUploadType');
-    BuiltValueNullFieldError.checkNotNull(ppmTaskId, 'FormFItem', 'ppmTaskId');
-    BuiltValueNullFieldError.checkNotNull(uploadId, 'FormFItem', 'uploadId');
+        ppmTaskUploadType, r'FormFItem', 'ppmTaskUploadType');
+    BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'FormFItem', 'ppmTaskId');
+    BuiltValueNullFieldError.checkNotNull(uploadId, r'FormFItem', 'uploadId');
     BuiltValueNullFieldError.checkNotNull(
-        uploadName, 'FormFItem', 'uploadName');
+        uploadName, r'FormFItem', 'uploadName');
     BuiltValueNullFieldError.checkNotNull(
-        documentDesc, 'FormFItem', 'documentDesc');
+        documentDesc, r'FormFItem', 'documentDesc');
     BuiltValueNullFieldError.checkNotNull(
-        documentFilename, 'FormFItem', 'documentFilename');
+        documentFilename, r'FormFItem', 'documentFilename');
     BuiltValueNullFieldError.checkNotNull(
-        documentSrc, 'FormFItem', 'documentSrc');
+        documentSrc, r'FormFItem', 'documentSrc');
   }
 
   @override
@@ -1986,7 +1997,7 @@ class _$FormFItem extends FormFItem {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('FormFItem')
+    return (newBuiltValueToStringHelper(r'FormFItem')
           ..add('ppmTaskUploadId', ppmTaskUploadId)
           ..add('ppmTaskUploadType', ppmTaskUploadType)
           ..add('ppmTaskId', ppmTaskId)
@@ -2067,25 +2078,27 @@ class FormFItemBuilder implements Builder<FormFItem, FormFItemBuilder> {
   }
 
   @override
-  _$FormFItem build() {
+  FormFItem build() => _build();
+
+  _$FormFItem _build() {
     final _$result = _$v ??
         new _$FormFItem._(
             ppmTaskUploadId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskUploadId, 'FormFItem', 'ppmTaskUploadId'),
+                ppmTaskUploadId, r'FormFItem', 'ppmTaskUploadId'),
             ppmTaskUploadType: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskUploadType, 'FormFItem', 'ppmTaskUploadType'),
+                ppmTaskUploadType, r'FormFItem', 'ppmTaskUploadType'),
             ppmTaskId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskId, 'FormFItem', 'ppmTaskId'),
+                ppmTaskId, r'FormFItem', 'ppmTaskId'),
             uploadId: BuiltValueNullFieldError.checkNotNull(
-                uploadId, 'FormFItem', 'uploadId'),
+                uploadId, r'FormFItem', 'uploadId'),
             uploadName: BuiltValueNullFieldError.checkNotNull(
-                uploadName, 'FormFItem', 'uploadName'),
+                uploadName, r'FormFItem', 'uploadName'),
             documentDesc: BuiltValueNullFieldError.checkNotNull(
-                documentDesc, 'FormFItem', 'documentDesc'),
+                documentDesc, r'FormFItem', 'documentDesc'),
             documentFilename: BuiltValueNullFieldError.checkNotNull(
-                documentFilename, 'FormFItem', 'documentFilename'),
+                documentFilename, r'FormFItem', 'documentFilename'),
             documentSrc: BuiltValueNullFieldError.checkNotNull(
-                documentSrc, 'FormFItem', 'documentSrc'));
+                documentSrc, r'FormFItem', 'documentSrc'));
     replace(_$result);
     return _$result;
   }
@@ -2098,12 +2111,12 @@ class _$FormGItem extends FormGItem {
   final String ppmTaskRemark;
 
   factory _$FormGItem([void Function(FormGItemBuilder) updates]) =>
-      (new FormGItemBuilder()..update(updates)).build();
+      (new FormGItemBuilder()..update(updates))._build();
 
   _$FormGItem._({this.ppmTaskId, this.ppmTaskRemark}) : super._() {
-    BuiltValueNullFieldError.checkNotNull(ppmTaskId, 'FormGItem', 'ppmTaskId');
+    BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'FormGItem', 'ppmTaskId');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskRemark, 'FormGItem', 'ppmTaskRemark');
+        ppmTaskRemark, r'FormGItem', 'ppmTaskRemark');
   }
 
   @override
@@ -2128,7 +2141,7 @@ class _$FormGItem extends FormGItem {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('FormGItem')
+    return (newBuiltValueToStringHelper(r'FormGItem')
           ..add('ppmTaskId', ppmTaskId)
           ..add('ppmTaskRemark', ppmTaskRemark))
         .toString();
@@ -2171,13 +2184,15 @@ class FormGItemBuilder implements Builder<FormGItem, FormGItemBuilder> {
   }
 
   @override
-  _$FormGItem build() {
+  FormGItem build() => _build();
+
+  _$FormGItem _build() {
     final _$result = _$v ??
         new _$FormGItem._(
             ppmTaskId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskId, 'FormGItem', 'ppmTaskId'),
+                ppmTaskId, r'FormGItem', 'ppmTaskId'),
             ppmTaskRemark: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskRemark, 'FormGItem', 'ppmTaskRemark'));
+                ppmTaskRemark, r'FormGItem', 'ppmTaskRemark'));
     replace(_$result);
     return _$result;
   }
@@ -2210,7 +2225,7 @@ class _$FormHItem extends FormHItem {
   final String documentSrc;
 
   factory _$FormHItem([void Function(FormHItemBuilder) updates]) =>
-      (new FormHItemBuilder()..update(updates)).build();
+      (new FormHItemBuilder()..update(updates))._build();
 
   _$FormHItem._(
       {this.ppmTaskUploadId,
@@ -2227,26 +2242,26 @@ class _$FormHItem extends FormHItem {
       this.documentSrc})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskUploadId, 'FormHItem', 'ppmTaskUploadId');
+        ppmTaskUploadId, r'FormHItem', 'ppmTaskUploadId');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskUploadType, 'FormHItem', 'ppmTaskUploadType');
+        ppmTaskUploadType, r'FormHItem', 'ppmTaskUploadType');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskUploadLongitude, 'FormHItem', 'ppmTaskUploadLongitude');
+        ppmTaskUploadLongitude, r'FormHItem', 'ppmTaskUploadLongitude');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskUploadLatitude, 'FormHItem', 'ppmTaskUploadLatitude');
+        ppmTaskUploadLatitude, r'FormHItem', 'ppmTaskUploadLatitude');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskUploadTimestamp, 'FormHItem', 'ppmTaskUploadTimestamp');
+        ppmTaskUploadTimestamp, r'FormHItem', 'ppmTaskUploadTimestamp');
     BuiltValueNullFieldError.checkNotNull(
-        ppmTaskUploadDesc, 'FormHItem', 'ppmTaskUploadDesc');
-    BuiltValueNullFieldError.checkNotNull(ppmTaskId, 'FormHItem', 'ppmTaskId');
+        ppmTaskUploadDesc, r'FormHItem', 'ppmTaskUploadDesc');
+    BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'FormHItem', 'ppmTaskId');
     BuiltValueNullFieldError.checkNotNull(
-        uploadName, 'FormHItem', 'uploadName');
+        uploadName, r'FormHItem', 'uploadName');
     BuiltValueNullFieldError.checkNotNull(
-        documentDesc, 'FormHItem', 'documentDesc');
+        documentDesc, r'FormHItem', 'documentDesc');
     BuiltValueNullFieldError.checkNotNull(
-        documentFilename, 'FormHItem', 'documentFilename');
+        documentFilename, r'FormHItem', 'documentFilename');
     BuiltValueNullFieldError.checkNotNull(
-        documentSrc, 'FormHItem', 'documentSrc');
+        documentSrc, r'FormHItem', 'documentSrc');
   }
 
   @override
@@ -2304,7 +2319,7 @@ class _$FormHItem extends FormHItem {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('FormHItem')
+    return (newBuiltValueToStringHelper(r'FormHItem')
           ..add('ppmTaskUploadId', ppmTaskUploadId)
           ..add('ppmTaskUploadType', ppmTaskUploadType)
           ..add('ppmTaskUploadLongitude', ppmTaskUploadLongitude)
@@ -2413,31 +2428,33 @@ class FormHItemBuilder implements Builder<FormHItem, FormHItemBuilder> {
   }
 
   @override
-  _$FormHItem build() {
+  FormHItem build() => _build();
+
+  _$FormHItem _build() {
     final _$result = _$v ??
         new _$FormHItem._(
             ppmTaskUploadId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskUploadId, 'FormHItem', 'ppmTaskUploadId'),
+                ppmTaskUploadId, r'FormHItem', 'ppmTaskUploadId'),
             ppmTaskUploadType: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskUploadType, 'FormHItem', 'ppmTaskUploadType'),
+                ppmTaskUploadType, r'FormHItem', 'ppmTaskUploadType'),
             ppmTaskUploadLongitude: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskUploadLongitude, 'FormHItem', 'ppmTaskUploadLongitude'),
+                ppmTaskUploadLongitude, r'FormHItem', 'ppmTaskUploadLongitude'),
             ppmTaskUploadLatitude: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskUploadLatitude, 'FormHItem', 'ppmTaskUploadLatitude'),
+                ppmTaskUploadLatitude, r'FormHItem', 'ppmTaskUploadLatitude'),
             ppmTaskUploadTimestamp: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskUploadTimestamp, 'FormHItem', 'ppmTaskUploadTimestamp'),
+                ppmTaskUploadTimestamp, r'FormHItem', 'ppmTaskUploadTimestamp'),
             ppmTaskUploadDesc: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskUploadDesc, 'FormHItem', 'ppmTaskUploadDesc'),
+                ppmTaskUploadDesc, r'FormHItem', 'ppmTaskUploadDesc'),
             ppmTaskId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskId, 'FormHItem', 'ppmTaskId'),
+                ppmTaskId, r'FormHItem', 'ppmTaskId'),
             uploadId: uploadId,
-            uploadName: BuiltValueNullFieldError.checkNotNull(uploadName, 'FormHItem', 'uploadName'),
-            documentDesc: BuiltValueNullFieldError.checkNotNull(documentDesc, 'FormHItem', 'documentDesc'),
-            documentFilename: BuiltValueNullFieldError.checkNotNull(documentFilename, 'FormHItem', 'documentFilename'),
-            documentSrc: BuiltValueNullFieldError.checkNotNull(documentSrc, 'FormHItem', 'documentSrc'));
+            uploadName: BuiltValueNullFieldError.checkNotNull(uploadName, r'FormHItem', 'uploadName'),
+            documentDesc: BuiltValueNullFieldError.checkNotNull(documentDesc, r'FormHItem', 'documentDesc'),
+            documentFilename: BuiltValueNullFieldError.checkNotNull(documentFilename, r'FormHItem', 'documentFilename'),
+            documentSrc: BuiltValueNullFieldError.checkNotNull(documentSrc, r'FormHItem', 'documentSrc'));
     replace(_$result);
     return _$result;
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new
+// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,no_leading_underscores_for_local_identifiers,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new,unnecessary_lambdas

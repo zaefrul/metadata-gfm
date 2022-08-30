@@ -64,12 +64,13 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
         list = values;
       });
       if (dropdownValue.value == null) dropdownValue.sink.add(list.first);
-    }).catchError((err) => Toast.show(err, context));
+    }).catchError((err) => Toast.show(err));
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("Electric Bill : ${widget.isDaily ? 'Daily' : 'Monthly'}"),
@@ -92,7 +93,33 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
               ),
             ),
       floatingActionButton: FloatingActionButton.extended(
-          onPressed: submit, label: Text("Submit")),
+          onPressed: confirmation, label: Text("Submit")),
+    );
+  }
+
+  void confirmation() {
+    FocusScope.of(context).unfocus();
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("Confirmation"),
+        content: Text("Are you confirm to submit the bill?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              submit();
+            },
+            child: Text("OK"),
+          ),
+        ],
+      ),
     );
   }
 
@@ -106,7 +133,7 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
         null;
 
     if (checkEmpty) {
-      Toast.show("Please check all fields", context);
+      Toast.show("Please check all fields");
       return "Please check all fields";
     }
 
@@ -124,7 +151,7 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
       try {
         final _ = double.parse(ctrl.text);
       } catch (err) {
-        Toast.show("Please check all fields must be numerical", context);
+        Toast.show("Please check all fields must be numerical");
         return "Please check all fields must be numerical";
       }
     }
@@ -132,7 +159,7 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
     checkEmpty = listItem.length == 0;
 
     if (checkEmpty) {
-      Toast.show("Please insert image", context);
+      Toast.show("Please insert image");
       return "Please insert image";
     }
 
@@ -188,11 +215,11 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
         'readingImage[width]': width,
       };
       _provider.postUtilities(url: url, body: param).then((value) {
-        Toast.show("Submitted", context);
+        Toast.show("Submitted");
 
         Navigator.pop(context);
       }).catchError((err) {
-        Toast.show(err, context);
+        Toast.show(err);
       }).whenComplete(() {
         Navigator.pop(context);
       });
@@ -255,7 +282,7 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
 
   void _createUploadItem() async {
     if (listItem.length == 1) {
-      Toast.show("Only one picture is required", context);
+      Toast.show("Only one picture is required");
       return;
     }
 

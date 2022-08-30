@@ -140,7 +140,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
               ? null
               : () async {
                   if ((await keepLocationSession) == false) {
-                    Toast.show("Please Login with better GPS Area", context);
+                    Toast.show("Please Login with better GPS Area");
                     return;
                   }
 
@@ -152,10 +152,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
                   showErr(String err) {
                     setState(() => userlogIn = false);
-                    Toast.show(err, context,
-                        gravity: Toast.BOTTOM,
-                        duration: Toast.LENGTH_LONG,
-                        backgroundColor: colorTheme3);
+                    Toast.show(err, backgroundColor: colorTheme3);
                   }
 
                   homepage() =>

@@ -434,7 +434,7 @@ class _$MonitorTask extends MonitorTask {
   final String assignedTo;
 
   factory _$MonitorTask([void Function(MonitorTaskBuilder) updates]) =>
-      (new MonitorTaskBuilder()..update(updates)).build();
+      (new MonitorTaskBuilder()..update(updates))._build();
 
   _$MonitorTask._(
       {this.transactionId,
@@ -452,17 +452,17 @@ class _$MonitorTask extends MonitorTask {
       this.assignedTo})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
-        transactionId, 'MonitorTask', 'transactionId');
+        transactionId, r'MonitorTask', 'transactionId');
     BuiltValueNullFieldError.checkNotNull(
-        transactionNo, 'MonitorTask', 'transactionNo');
+        transactionNo, r'MonitorTask', 'transactionNo');
     BuiltValueNullFieldError.checkNotNull(
-        transactionTimeCreated, 'MonitorTask', 'transactionTimeCreated');
-    BuiltValueNullFieldError.checkNotNull(flowId, 'MonitorTask', 'flowId');
-    BuiltValueNullFieldError.checkNotNull(flowName, 'MonitorTask', 'flowName');
+        transactionTimeCreated, r'MonitorTask', 'transactionTimeCreated');
+    BuiltValueNullFieldError.checkNotNull(flowId, r'MonitorTask', 'flowId');
+    BuiltValueNullFieldError.checkNotNull(flowName, r'MonitorTask', 'flowName');
     BuiltValueNullFieldError.checkNotNull(
-        checkpointName, 'MonitorTask', 'checkpointName');
+        checkpointName, r'MonitorTask', 'checkpointName');
     BuiltValueNullFieldError.checkNotNull(
-        transactionStatus, 'MonitorTask', 'transactionStatus');
+        transactionStatus, r'MonitorTask', 'transactionStatus');
   }
 
   @override
@@ -524,7 +524,7 @@ class _$MonitorTask extends MonitorTask {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('MonitorTask')
+    return (newBuiltValueToStringHelper(r'MonitorTask')
           ..add('transactionId', transactionId)
           ..add('transactionNo', transactionNo)
           ..add('transactionTimeCreated', transactionTimeCreated)
@@ -639,25 +639,27 @@ class MonitorTaskBuilder implements Builder<MonitorTask, MonitorTaskBuilder> {
   }
 
   @override
-  _$MonitorTask build() {
+  MonitorTask build() => _build();
+
+  _$MonitorTask _build() {
     final _$result = _$v ??
         new _$MonitorTask._(
             transactionId: BuiltValueNullFieldError.checkNotNull(
-                transactionId, 'MonitorTask', 'transactionId'),
+                transactionId, r'MonitorTask', 'transactionId'),
             transactionNo: BuiltValueNullFieldError.checkNotNull(
-                transactionNo, 'MonitorTask', 'transactionNo'),
+                transactionNo, r'MonitorTask', 'transactionNo'),
             transactionTimeCreated: BuiltValueNullFieldError.checkNotNull(
                 transactionTimeCreated,
-                'MonitorTask',
+                r'MonitorTask',
                 'transactionTimeCreated'),
             flowId: BuiltValueNullFieldError.checkNotNull(
-                flowId, 'MonitorTask', 'flowId'),
+                flowId, r'MonitorTask', 'flowId'),
             flowName: BuiltValueNullFieldError.checkNotNull(
-                flowName, 'MonitorTask', 'flowName'),
+                flowName, r'MonitorTask', 'flowName'),
             checkpointName: BuiltValueNullFieldError.checkNotNull(
-                checkpointName, 'MonitorTask', 'checkpointName'),
+                checkpointName, r'MonitorTask', 'checkpointName'),
             transactionStatus: BuiltValueNullFieldError.checkNotNull(
-                transactionStatus, 'MonitorTask', 'transactionStatus'),
+                transactionStatus, r'MonitorTask', 'transactionStatus'),
             userFullName: userFullName,
             assetNo: assetNo,
             currentTaskOwner: currentTaskOwner,
@@ -702,7 +704,7 @@ class _$MonitorDetail extends MonitorDetail {
   final BuiltList<MonitorHistory> taskHistory;
 
   factory _$MonitorDetail([void Function(MonitorDetailBuilder) updates]) =>
-      (new MonitorDetailBuilder()..update(updates)).build();
+      (new MonitorDetailBuilder()..update(updates))._build();
 
   _$MonitorDetail._(
       {this.flowName,
@@ -722,29 +724,29 @@ class _$MonitorDetail extends MonitorDetail {
       this.taskHistory})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
-        flowName, 'MonitorDetail', 'flowName');
+        flowName, r'MonitorDetail', 'flowName');
     BuiltValueNullFieldError.checkNotNull(
-        transactionNo, 'MonitorDetail', 'transactionNo');
+        transactionNo, r'MonitorDetail', 'transactionNo');
     BuiltValueNullFieldError.checkNotNull(
-        initiateBy, 'MonitorDetail', 'initiateBy');
+        initiateBy, r'MonitorDetail', 'initiateBy');
     BuiltValueNullFieldError.checkNotNull(
-        initiateByGroup, 'MonitorDetail', 'initiateByGroup');
+        initiateByGroup, r'MonitorDetail', 'initiateByGroup');
     BuiltValueNullFieldError.checkNotNull(
-        initiateTimeCreated, 'MonitorDetail', 'initiateTimeCreated');
+        initiateTimeCreated, r'MonitorDetail', 'initiateTimeCreated');
     BuiltValueNullFieldError.checkNotNull(
-        taskStatus, 'MonitorDetail', 'taskStatus');
+        taskStatus, r'MonitorDetail', 'taskStatus');
     BuiltValueNullFieldError.checkNotNull(
-        currentUser, 'MonitorDetail', 'currentUser');
+        currentUser, r'MonitorDetail', 'currentUser');
     BuiltValueNullFieldError.checkNotNull(
-        receivedTime, 'MonitorDetail', 'receivedTime');
+        receivedTime, r'MonitorDetail', 'receivedTime');
     BuiltValueNullFieldError.checkNotNull(
-        flowStatus, 'MonitorDetail', 'flowStatus');
+        flowStatus, r'MonitorDetail', 'flowStatus');
     BuiltValueNullFieldError.checkNotNull(
-        flowDueDate, 'MonitorDetail', 'flowDueDate');
+        flowDueDate, r'MonitorDetail', 'flowDueDate');
     BuiltValueNullFieldError.checkNotNull(
-        checkpointId, 'MonitorDetail', 'checkpointId');
+        checkpointId, r'MonitorDetail', 'checkpointId');
     BuiltValueNullFieldError.checkNotNull(
-        taskHistory, 'MonitorDetail', 'taskHistory');
+        taskHistory, r'MonitorDetail', 'taskHistory');
   }
 
   @override
@@ -814,7 +816,7 @@ class _$MonitorDetail extends MonitorDetail {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('MonitorDetail')
+    return (newBuiltValueToStringHelper(r'MonitorDetail')
           ..add('flowName', flowName)
           ..add('transactionNo', transactionNo)
           ..add('initiateBy', initiateBy)
@@ -940,30 +942,32 @@ class MonitorDetailBuilder
   }
 
   @override
-  _$MonitorDetail build() {
+  MonitorDetail build() => _build();
+
+  _$MonitorDetail _build() {
     _$MonitorDetail _$result;
     try {
       _$result = _$v ??
           new _$MonitorDetail._(
               flowName: BuiltValueNullFieldError.checkNotNull(
-                  flowName, 'MonitorDetail', 'flowName'),
+                  flowName, r'MonitorDetail', 'flowName'),
               transactionNo: BuiltValueNullFieldError.checkNotNull(
-                  transactionNo, 'MonitorDetail', 'transactionNo'),
+                  transactionNo, r'MonitorDetail', 'transactionNo'),
               initiateBy: BuiltValueNullFieldError.checkNotNull(
-                  initiateBy, 'MonitorDetail', 'initiateBy'),
+                  initiateBy, r'MonitorDetail', 'initiateBy'),
               initiateByGroup: BuiltValueNullFieldError.checkNotNull(
-                  initiateByGroup, 'MonitorDetail', 'initiateByGroup'),
+                  initiateByGroup, r'MonitorDetail', 'initiateByGroup'),
               initiateTimeCreated: BuiltValueNullFieldError.checkNotNull(
-                  initiateTimeCreated, 'MonitorDetail', 'initiateTimeCreated'),
+                  initiateTimeCreated, r'MonitorDetail', 'initiateTimeCreated'),
               taskStatus: BuiltValueNullFieldError.checkNotNull(
-                  taskStatus, 'MonitorDetail', 'taskStatus'),
+                  taskStatus, r'MonitorDetail', 'taskStatus'),
               currentUser: BuiltValueNullFieldError.checkNotNull(
-                  currentUser, 'MonitorDetail', 'currentUser'),
-              receivedTime:
-                  BuiltValueNullFieldError.checkNotNull(receivedTime, 'MonitorDetail', 'receivedTime'),
-              flowStatus: BuiltValueNullFieldError.checkNotNull(flowStatus, 'MonitorDetail', 'flowStatus'),
-              flowDueDate: BuiltValueNullFieldError.checkNotNull(flowDueDate, 'MonitorDetail', 'flowDueDate'),
-              checkpointId: BuiltValueNullFieldError.checkNotNull(checkpointId, 'MonitorDetail', 'checkpointId'),
+                  currentUser, r'MonitorDetail', 'currentUser'),
+              receivedTime: BuiltValueNullFieldError.checkNotNull(
+                  receivedTime, r'MonitorDetail', 'receivedTime'),
+              flowStatus: BuiltValueNullFieldError.checkNotNull(flowStatus, r'MonitorDetail', 'flowStatus'),
+              flowDueDate: BuiltValueNullFieldError.checkNotNull(flowDueDate, r'MonitorDetail', 'flowDueDate'),
+              checkpointId: BuiltValueNullFieldError.checkNotNull(checkpointId, r'MonitorDetail', 'checkpointId'),
               woTaskId: woTaskId,
               ppmTaskId: ppmTaskId,
               siteName: siteName,
@@ -975,7 +979,7 @@ class MonitorDetailBuilder
         taskHistory.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
-            'MonitorDetail', _$failedField, e.toString());
+            r'MonitorDetail', _$failedField, e.toString());
       }
       rethrow;
     }
@@ -1003,7 +1007,7 @@ class _$MonitorHistory extends MonitorHistory {
   final String taskStatus;
 
   factory _$MonitorHistory([void Function(MonitorHistoryBuilder) updates]) =>
-      (new MonitorHistoryBuilder()..update(updates)).build();
+      (new MonitorHistoryBuilder()..update(updates))._build();
 
   _$MonitorHistory._(
       {this.checkpointId,
@@ -1016,20 +1020,20 @@ class _$MonitorHistory extends MonitorHistory {
       this.taskStatus})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
-        checkpointId, 'MonitorHistory', 'checkpointId');
-    BuiltValueNullFieldError.checkNotNull(roleId, 'MonitorHistory', 'roleId');
+        checkpointId, r'MonitorHistory', 'checkpointId');
+    BuiltValueNullFieldError.checkNotNull(roleId, r'MonitorHistory', 'roleId');
     BuiltValueNullFieldError.checkNotNull(
-        taskClaimedUser, 'MonitorHistory', 'taskClaimedUser');
+        taskClaimedUser, r'MonitorHistory', 'taskClaimedUser');
     BuiltValueNullFieldError.checkNotNull(
-        taskRemark, 'MonitorHistory', 'taskRemark');
+        taskRemark, r'MonitorHistory', 'taskRemark');
     BuiltValueNullFieldError.checkNotNull(
-        taskDateDue, 'MonitorHistory', 'taskDateDue');
+        taskDateDue, r'MonitorHistory', 'taskDateDue');
     BuiltValueNullFieldError.checkNotNull(
-        taskTimeCreated, 'MonitorHistory', 'taskTimeCreated');
+        taskTimeCreated, r'MonitorHistory', 'taskTimeCreated');
     BuiltValueNullFieldError.checkNotNull(
-        taskTimeSubmit, 'MonitorHistory', 'taskTimeSubmit');
+        taskTimeSubmit, r'MonitorHistory', 'taskTimeSubmit');
     BuiltValueNullFieldError.checkNotNull(
-        taskStatus, 'MonitorHistory', 'taskStatus');
+        taskStatus, r'MonitorHistory', 'taskStatus');
   }
 
   @override
@@ -1072,7 +1076,7 @@ class _$MonitorHistory extends MonitorHistory {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('MonitorHistory')
+    return (newBuiltValueToStringHelper(r'MonitorHistory')
           ..add('checkpointId', checkpointId)
           ..add('roleId', roleId)
           ..add('taskClaimedUser', taskClaimedUser)
@@ -1154,28 +1158,30 @@ class MonitorHistoryBuilder
   }
 
   @override
-  _$MonitorHistory build() {
+  MonitorHistory build() => _build();
+
+  _$MonitorHistory _build() {
     final _$result = _$v ??
         new _$MonitorHistory._(
             checkpointId: BuiltValueNullFieldError.checkNotNull(
-                checkpointId, 'MonitorHistory', 'checkpointId'),
+                checkpointId, r'MonitorHistory', 'checkpointId'),
             roleId: BuiltValueNullFieldError.checkNotNull(
-                roleId, 'MonitorHistory', 'roleId'),
+                roleId, r'MonitorHistory', 'roleId'),
             taskClaimedUser: BuiltValueNullFieldError.checkNotNull(
-                taskClaimedUser, 'MonitorHistory', 'taskClaimedUser'),
+                taskClaimedUser, r'MonitorHistory', 'taskClaimedUser'),
             taskRemark: BuiltValueNullFieldError.checkNotNull(
-                taskRemark, 'MonitorHistory', 'taskRemark'),
+                taskRemark, r'MonitorHistory', 'taskRemark'),
             taskDateDue: BuiltValueNullFieldError.checkNotNull(
-                taskDateDue, 'MonitorHistory', 'taskDateDue'),
+                taskDateDue, r'MonitorHistory', 'taskDateDue'),
             taskTimeCreated: BuiltValueNullFieldError.checkNotNull(
-                taskTimeCreated, 'MonitorHistory', 'taskTimeCreated'),
+                taskTimeCreated, r'MonitorHistory', 'taskTimeCreated'),
             taskTimeSubmit: BuiltValueNullFieldError.checkNotNull(
-                taskTimeSubmit, 'MonitorHistory', 'taskTimeSubmit'),
+                taskTimeSubmit, r'MonitorHistory', 'taskTimeSubmit'),
             taskStatus: BuiltValueNullFieldError.checkNotNull(
-                taskStatus, 'MonitorHistory', 'taskStatus'));
+                taskStatus, r'MonitorHistory', 'taskStatus'));
     replace(_$result);
     return _$result;
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new
+// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,no_leading_underscores_for_local_identifiers,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new,unnecessary_lambdas

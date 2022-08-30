@@ -73,12 +73,12 @@ class _$Dot extends Dot {
   final BuiltList<String> status;
 
   factory _$Dot([void Function(DotBuilder) updates]) =>
-      (new DotBuilder()..update(updates)).build();
+      (new DotBuilder()..update(updates))._build();
 
   _$Dot._({this.date, this.total, this.status}) : super._() {
-    BuiltValueNullFieldError.checkNotNull(date, 'Dot', 'date');
-    BuiltValueNullFieldError.checkNotNull(total, 'Dot', 'total');
-    BuiltValueNullFieldError.checkNotNull(status, 'Dot', 'status');
+    BuiltValueNullFieldError.checkNotNull(date, r'Dot', 'date');
+    BuiltValueNullFieldError.checkNotNull(total, r'Dot', 'total');
+    BuiltValueNullFieldError.checkNotNull(status, r'Dot', 'status');
   }
 
   @override
@@ -105,7 +105,7 @@ class _$Dot extends Dot {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('Dot')
+    return (newBuiltValueToStringHelper(r'Dot')
           ..add('date', date)
           ..add('total', total)
           ..add('status', status))
@@ -154,14 +154,16 @@ class DotBuilder implements Builder<Dot, DotBuilder> {
   }
 
   @override
-  _$Dot build() {
+  Dot build() => _build();
+
+  _$Dot _build() {
     _$Dot _$result;
     try {
       _$result = _$v ??
           new _$Dot._(
-              date: BuiltValueNullFieldError.checkNotNull(date, 'Dot', 'date'),
+              date: BuiltValueNullFieldError.checkNotNull(date, r'Dot', 'date'),
               total:
-                  BuiltValueNullFieldError.checkNotNull(total, 'Dot', 'total'),
+                  BuiltValueNullFieldError.checkNotNull(total, r'Dot', 'total'),
               status: status.build());
     } catch (_) {
       String _$failedField;
@@ -170,7 +172,7 @@ class DotBuilder implements Builder<Dot, DotBuilder> {
         status.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
-            'Dot', _$failedField, e.toString());
+            r'Dot', _$failedField, e.toString());
       }
       rethrow;
     }
@@ -179,4 +181,4 @@ class DotBuilder implements Builder<Dot, DotBuilder> {
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new
+// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,no_leading_underscores_for_local_identifiers,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new,unnecessary_lambdas

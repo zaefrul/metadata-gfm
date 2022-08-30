@@ -242,14 +242,11 @@ class CustomDialog extends StatelessWidget {
                             if (useDescription)
                               secondTapped();
                             else if (controller.text.length == 0)
-                              Toast.show(
-                                  "Please enter remark before submit.", context,
-                                  gravity: Toast.TOP);
+                              Toast.show("Please enter remark before submit.");
                             else if (controller.text.length <= 60)
                               secondTapped(controller.text);
                             else
-                              Toast.show("Maximum 60 character", context,
-                                  gravity: Toast.TOP);
+                              Toast.show("Maximum 60 character");
                           },
                           child: Text(
                             buttonText2,
@@ -265,14 +262,11 @@ class CustomDialog extends StatelessWidget {
                       if (useDescription)
                         remarkTapped("");
                       else if (controller.text.length == 0)
-                        Toast.show(
-                            "Please enter remark before submit.", context,
-                            gravity: Toast.TOP);
+                        Toast.show("Please enter remark before submit.");
                       else if (controller.text.length <= 60)
                         remarkTapped(controller.text);
                       else
-                        Toast.show("Maximum 60 character", context,
-                            gravity: Toast.TOP);
+                        Toast.show("Maximum 60 character");
                     },
                     color: colorTheme2,
                   ),

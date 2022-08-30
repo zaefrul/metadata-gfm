@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -10,7 +11,7 @@ import 'package:gfm_gems/utils/reference.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:toast/toast.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -59,12 +60,13 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
         list = values;
       });
       if (dropdownValue.value == null) dropdownValue.sink.add(list.first);
-    }).catchError((err) => Toast.show(err, context));
+    }).catchError((err) => Toast.show(err));
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("Water Bill : ${widget.isDaily ? 'Daily' : 'Monthly'}"),
@@ -91,12 +93,37 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
               ),
             ),
       floatingActionButton: FloatingActionButton.extended(
-          onPressed: submit, label: Text("Submit")),
+          onPressed: confirmation, label: Text("Submit")),
+    );
+  }
+
+  void confirmation() {
+    FocusScope.of(context).unfocus();
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("Confirmation"),
+        content: Text("Are you confirm to submit the bill?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              submit();
+            },
+            child: Text("OK"),
+          ),
+        ],
+      ),
     );
   }
 
   Future<void> submit() async {
-    FocusScope.of(context).unfocus();
     bool checkEmpty = false;
     List<TextEditingController> tempCtrl = [];
 
@@ -104,7 +131,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
             orElse: () => null) !=
         null;
     if (checkEmpty) {
-      Toast.show("Please check all fields", context);
+      Toast.show("Please check all fields");
       return "Please check all fields";
     }
 
@@ -120,7 +147,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
       try {
         final _ = double.parse(ctrl.text);
       } catch (err) {
-        Toast.show("Please check all fields must be numerical", context);
+        Toast.show("Please check all fields must be numerical");
         return "Please check all fields must be numerical";
       }
     }
@@ -128,7 +155,9 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
     checkEmpty = listItem.length == 0;
 
     if (checkEmpty) {
-      Toast.show("Please insert image", context);
+      Toast.show(
+        "Please insert image",
+      );
       return "Please insert image";
     }
 
@@ -182,11 +211,11 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
         'readingImage[width]': width,
       };
       _provider.postUtilities(url: url, body: param).then((value) {
-        Toast.show("Submitted", context);
+        Toast.show("Submitted");
 
         Navigator.pop(context);
       }).catchError((err) {
-        Toast.show(err, context);
+        Toast.show(err);
       }).whenComplete(() {
         Navigator.pop(context);
       });
@@ -249,7 +278,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
 
   void _createUploadItem() async {
     if (listItem.length == 1) {
-      Toast.show("Only one picture is required", context);
+      Toast.show("Only one picture is required");
       return;
     }
     final value = await ImagePicker.pickImage(source: ImageSource.camera);

@@ -895,7 +895,7 @@ class _$WorkOrderTask extends WorkOrderTask {
   final String woTaskSeverity;
 
   factory _$WorkOrderTask([void Function(WorkOrderTaskBuilder) updates]) =>
-      (new WorkOrderTaskBuilder()..update(updates)).build();
+      (new WorkOrderTaskBuilder()..update(updates))._build();
 
   _$WorkOrderTask._(
       {this.woTaskId,
@@ -908,21 +908,21 @@ class _$WorkOrderTask extends WorkOrderTask {
       this.woTaskSeverity})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
-        woTaskId, 'WorkOrderTask', 'woTaskId');
+        woTaskId, r'WorkOrderTask', 'woTaskId');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskNo, 'WorkOrderTask', 'woTaskNo');
+        woTaskNo, r'WorkOrderTask', 'woTaskNo');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskLocation, 'WorkOrderTask', 'woTaskLocation');
+        woTaskLocation, r'WorkOrderTask', 'woTaskLocation');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskType, 'WorkOrderTask', 'woTaskType');
+        woTaskType, r'WorkOrderTask', 'woTaskType');
     BuiltValueNullFieldError.checkNotNull(
-        reportedBy, 'WorkOrderTask', 'reportedBy');
+        reportedBy, r'WorkOrderTask', 'reportedBy');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskTimeCreated, 'WorkOrderTask', 'woTaskTimeCreated');
+        woTaskTimeCreated, r'WorkOrderTask', 'woTaskTimeCreated');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskStatus, 'WorkOrderTask', 'woTaskStatus');
+        woTaskStatus, r'WorkOrderTask', 'woTaskStatus');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskSeverity, 'WorkOrderTask', 'woTaskSeverity');
+        woTaskSeverity, r'WorkOrderTask', 'woTaskSeverity');
   }
 
   @override
@@ -964,7 +964,7 @@ class _$WorkOrderTask extends WorkOrderTask {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('WorkOrderTask')
+    return (newBuiltValueToStringHelper(r'WorkOrderTask')
           ..add('woTaskId', woTaskId)
           ..add('woTaskNo', woTaskNo)
           ..add('woTaskLocation', woTaskLocation)
@@ -1046,25 +1046,27 @@ class WorkOrderTaskBuilder
   }
 
   @override
-  _$WorkOrderTask build() {
+  WorkOrderTask build() => _build();
+
+  _$WorkOrderTask _build() {
     final _$result = _$v ??
         new _$WorkOrderTask._(
             woTaskId: BuiltValueNullFieldError.checkNotNull(
-                woTaskId, 'WorkOrderTask', 'woTaskId'),
+                woTaskId, r'WorkOrderTask', 'woTaskId'),
             woTaskNo: BuiltValueNullFieldError.checkNotNull(
-                woTaskNo, 'WorkOrderTask', 'woTaskNo'),
+                woTaskNo, r'WorkOrderTask', 'woTaskNo'),
             woTaskLocation: BuiltValueNullFieldError.checkNotNull(
-                woTaskLocation, 'WorkOrderTask', 'woTaskLocation'),
+                woTaskLocation, r'WorkOrderTask', 'woTaskLocation'),
             woTaskType: BuiltValueNullFieldError.checkNotNull(
-                woTaskType, 'WorkOrderTask', 'woTaskType'),
+                woTaskType, r'WorkOrderTask', 'woTaskType'),
             reportedBy: BuiltValueNullFieldError.checkNotNull(
-                reportedBy, 'WorkOrderTask', 'reportedBy'),
+                reportedBy, r'WorkOrderTask', 'reportedBy'),
             woTaskTimeCreated: BuiltValueNullFieldError.checkNotNull(
-                woTaskTimeCreated, 'WorkOrderTask', 'woTaskTimeCreated'),
+                woTaskTimeCreated, r'WorkOrderTask', 'woTaskTimeCreated'),
             woTaskStatus: BuiltValueNullFieldError.checkNotNull(
-                woTaskStatus, 'WorkOrderTask', 'woTaskStatus'),
+                woTaskStatus, r'WorkOrderTask', 'woTaskStatus'),
             woTaskSeverity: BuiltValueNullFieldError.checkNotNull(
-                woTaskSeverity, 'WorkOrderTask', 'woTaskSeverity'));
+                woTaskSeverity, r'WorkOrderTask', 'woTaskSeverity'));
     replace(_$result);
     return _$result;
   }
@@ -1099,7 +1101,7 @@ class _$WorkOrderStatus extends WorkOrderStatus {
   final String severityName;
 
   factory _$WorkOrderStatus([void Function(WorkOrderStatusBuilder) updates]) =>
-      (new WorkOrderStatusBuilder()..update(updates)).build();
+      (new WorkOrderStatusBuilder()..update(updates))._build();
 
   _$WorkOrderStatus._(
       {this.sectionName,
@@ -1176,7 +1178,7 @@ class _$WorkOrderStatus extends WorkOrderStatus {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('WorkOrderStatus')
+    return (newBuiltValueToStringHelper(r'WorkOrderStatus')
           ..add('sectionName', sectionName)
           ..add('sectionDesc', sectionDesc)
           ..add('sectionStatus', sectionStatus)
@@ -1289,7 +1291,9 @@ class WorkOrderStatusBuilder
   }
 
   @override
-  _$WorkOrderStatus build() {
+  WorkOrderStatus build() => _build();
+
+  _$WorkOrderStatus _build() {
     final _$result = _$v ??
         new _$WorkOrderStatus._(
             sectionName: sectionName,
@@ -1339,7 +1343,7 @@ class _$WorkOrderDetail extends WorkOrderDetail {
   final BuiltList<ComplaintImage> complaintImages;
 
   factory _$WorkOrderDetail([void Function(WorkOrderDetailBuilder) updates]) =>
-      (new WorkOrderDetailBuilder()..update(updates)).build();
+      (new WorkOrderDetailBuilder()..update(updates))._build();
 
   _$WorkOrderDetail._(
       {this.woTaskId,
@@ -1357,31 +1361,31 @@ class _$WorkOrderDetail extends WorkOrderDetail {
       this.complaintImages})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
-        woTaskId, 'WorkOrderDetail', 'woTaskId');
+        woTaskId, r'WorkOrderDetail', 'woTaskId');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskNo, 'WorkOrderDetail', 'woTaskNo');
+        woTaskNo, r'WorkOrderDetail', 'woTaskNo');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskRequestNo, 'WorkOrderDetail', 'woTaskRequestNo');
+        woTaskRequestNo, r'WorkOrderDetail', 'woTaskRequestNo');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskReportedBy, 'WorkOrderDetail', 'woTaskReportedBy');
+        woTaskReportedBy, r'WorkOrderDetail', 'woTaskReportedBy');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskTimeResponded, 'WorkOrderDetail', 'woTaskTimeResponded');
+        woTaskTimeResponded, r'WorkOrderDetail', 'woTaskTimeResponded');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskCategory, 'WorkOrderDetail', 'woTaskCategory');
+        woTaskCategory, r'WorkOrderDetail', 'woTaskCategory');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskClient, 'WorkOrderDetail', 'woTaskClient');
+        woTaskClient, r'WorkOrderDetail', 'woTaskClient');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskLocation, 'WorkOrderDetail', 'woTaskLocation');
+        woTaskLocation, r'WorkOrderDetail', 'woTaskLocation');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskComplaint, 'WorkOrderDetail', 'woTaskComplaint');
+        woTaskComplaint, r'WorkOrderDetail', 'woTaskComplaint');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskStatus, 'WorkOrderDetail', 'woTaskStatus');
+        woTaskStatus, r'WorkOrderDetail', 'woTaskStatus');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskPhoneNo, 'WorkOrderDetail', 'woTaskPhoneNo');
+        woTaskPhoneNo, r'WorkOrderDetail', 'woTaskPhoneNo');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskEmail, 'WorkOrderDetail', 'woTaskEmail');
+        woTaskEmail, r'WorkOrderDetail', 'woTaskEmail');
     BuiltValueNullFieldError.checkNotNull(
-        complaintImages, 'WorkOrderDetail', 'complaintImages');
+        complaintImages, r'WorkOrderDetail', 'complaintImages');
   }
 
   @override
@@ -1441,7 +1445,7 @@ class _$WorkOrderDetail extends WorkOrderDetail {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('WorkOrderDetail')
+    return (newBuiltValueToStringHelper(r'WorkOrderDetail')
           ..add('woTaskId', woTaskId)
           ..add('woTaskNo', woTaskNo)
           ..add('woTaskRequestNo', woTaskRequestNo)
@@ -1559,31 +1563,33 @@ class WorkOrderDetailBuilder
   }
 
   @override
-  _$WorkOrderDetail build() {
+  WorkOrderDetail build() => _build();
+
+  _$WorkOrderDetail _build() {
     _$WorkOrderDetail _$result;
     try {
       _$result = _$v ??
           new _$WorkOrderDetail._(
               woTaskId: BuiltValueNullFieldError.checkNotNull(
-                  woTaskId, 'WorkOrderDetail', 'woTaskId'),
+                  woTaskId, r'WorkOrderDetail', 'woTaskId'),
               woTaskNo: BuiltValueNullFieldError.checkNotNull(
-                  woTaskNo, 'WorkOrderDetail', 'woTaskNo'),
+                  woTaskNo, r'WorkOrderDetail', 'woTaskNo'),
               woTaskRequestNo: BuiltValueNullFieldError.checkNotNull(
-                  woTaskRequestNo, 'WorkOrderDetail', 'woTaskRequestNo'),
+                  woTaskRequestNo, r'WorkOrderDetail', 'woTaskRequestNo'),
               woTaskReportedBy: BuiltValueNullFieldError.checkNotNull(
-                  woTaskReportedBy, 'WorkOrderDetail', 'woTaskReportedBy'),
+                  woTaskReportedBy, r'WorkOrderDetail', 'woTaskReportedBy'),
               woTaskTimeResponded: BuiltValueNullFieldError.checkNotNull(
-                  woTaskTimeResponded, 'WorkOrderDetail', 'woTaskTimeResponded'),
+                  woTaskTimeResponded, r'WorkOrderDetail', 'woTaskTimeResponded'),
               woTaskCategory: BuiltValueNullFieldError.checkNotNull(
-                  woTaskCategory, 'WorkOrderDetail', 'woTaskCategory'),
+                  woTaskCategory, r'WorkOrderDetail', 'woTaskCategory'),
               woTaskClient: BuiltValueNullFieldError.checkNotNull(
-                  woTaskClient, 'WorkOrderDetail', 'woTaskClient'),
+                  woTaskClient, r'WorkOrderDetail', 'woTaskClient'),
               woTaskLocation: BuiltValueNullFieldError.checkNotNull(
-                  woTaskLocation, 'WorkOrderDetail', 'woTaskLocation'),
-              woTaskComplaint: BuiltValueNullFieldError.checkNotNull(woTaskComplaint, 'WorkOrderDetail', 'woTaskComplaint'),
-              woTaskStatus: BuiltValueNullFieldError.checkNotNull(woTaskStatus, 'WorkOrderDetail', 'woTaskStatus'),
-              woTaskPhoneNo: BuiltValueNullFieldError.checkNotNull(woTaskPhoneNo, 'WorkOrderDetail', 'woTaskPhoneNo'),
-              woTaskEmail: BuiltValueNullFieldError.checkNotNull(woTaskEmail, 'WorkOrderDetail', 'woTaskEmail'),
+                  woTaskLocation, r'WorkOrderDetail', 'woTaskLocation'),
+              woTaskComplaint: BuiltValueNullFieldError.checkNotNull(woTaskComplaint, r'WorkOrderDetail', 'woTaskComplaint'),
+              woTaskStatus: BuiltValueNullFieldError.checkNotNull(woTaskStatus, r'WorkOrderDetail', 'woTaskStatus'),
+              woTaskPhoneNo: BuiltValueNullFieldError.checkNotNull(woTaskPhoneNo, r'WorkOrderDetail', 'woTaskPhoneNo'),
+              woTaskEmail: BuiltValueNullFieldError.checkNotNull(woTaskEmail, r'WorkOrderDetail', 'woTaskEmail'),
               complaintImages: complaintImages.build());
     } catch (_) {
       String _$failedField;
@@ -1592,7 +1598,7 @@ class WorkOrderDetailBuilder
         complaintImages.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
-            'WorkOrderDetail', _$failedField, e.toString());
+            r'WorkOrderDetail', _$failedField, e.toString());
       }
       rethrow;
     }
@@ -1628,7 +1634,7 @@ class _$ComplaintImage extends ComplaintImage {
   final String documentSrc;
 
   factory _$ComplaintImage([void Function(ComplaintImageBuilder) updates]) =>
-      (new ComplaintImageBuilder()..update(updates)).build();
+      (new ComplaintImageBuilder()..update(updates))._build();
 
   _$ComplaintImage._(
       {this.woTaskUploadId,
@@ -1645,29 +1651,29 @@ class _$ComplaintImage extends ComplaintImage {
       this.documentSrc})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
-        woTaskUploadId, 'ComplaintImage', 'woTaskUploadId');
+        woTaskUploadId, r'ComplaintImage', 'woTaskUploadId');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskUploadType, 'ComplaintImage', 'woTaskUploadType');
+        woTaskUploadType, r'ComplaintImage', 'woTaskUploadType');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskId, 'ComplaintImage', 'woTaskId');
+        woTaskId, r'ComplaintImage', 'woTaskId');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskUploadLongitude, 'ComplaintImage', 'woTaskUploadLongitude');
+        woTaskUploadLongitude, r'ComplaintImage', 'woTaskUploadLongitude');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskUploadLatitude, 'ComplaintImage', 'woTaskUploadLatitude');
+        woTaskUploadLatitude, r'ComplaintImage', 'woTaskUploadLatitude');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskUploadTimestamp, 'ComplaintImage', 'woTaskUploadTimestamp');
+        woTaskUploadTimestamp, r'ComplaintImage', 'woTaskUploadTimestamp');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskUploadDesc, 'ComplaintImage', 'woTaskUploadDesc');
+        woTaskUploadDesc, r'ComplaintImage', 'woTaskUploadDesc');
     BuiltValueNullFieldError.checkNotNull(
-        uploadId, 'ComplaintImage', 'uploadId');
+        uploadId, r'ComplaintImage', 'uploadId');
     BuiltValueNullFieldError.checkNotNull(
-        uploadName, 'ComplaintImage', 'uploadName');
+        uploadName, r'ComplaintImage', 'uploadName');
     BuiltValueNullFieldError.checkNotNull(
-        documentDesc, 'ComplaintImage', 'documentDesc');
+        documentDesc, r'ComplaintImage', 'documentDesc');
     BuiltValueNullFieldError.checkNotNull(
-        documentFilename, 'ComplaintImage', 'documentFilename');
+        documentFilename, r'ComplaintImage', 'documentFilename');
     BuiltValueNullFieldError.checkNotNull(
-        documentSrc, 'ComplaintImage', 'documentSrc');
+        documentSrc, r'ComplaintImage', 'documentSrc');
   }
 
   @override
@@ -1724,7 +1730,7 @@ class _$ComplaintImage extends ComplaintImage {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('ComplaintImage')
+    return (newBuiltValueToStringHelper(r'ComplaintImage')
           ..add('woTaskUploadId', woTaskUploadId)
           ..add('woTaskUploadType', woTaskUploadType)
           ..add('woTaskId', woTaskId)
@@ -1834,29 +1840,31 @@ class ComplaintImageBuilder
   }
 
   @override
-  _$ComplaintImage build() {
+  ComplaintImage build() => _build();
+
+  _$ComplaintImage _build() {
     final _$result = _$v ??
         new _$ComplaintImage._(
             woTaskUploadId: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadId, 'ComplaintImage', 'woTaskUploadId'),
+                woTaskUploadId, r'ComplaintImage', 'woTaskUploadId'),
             woTaskUploadType: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadType, 'ComplaintImage', 'woTaskUploadType'),
+                woTaskUploadType, r'ComplaintImage', 'woTaskUploadType'),
             woTaskId: BuiltValueNullFieldError.checkNotNull(
-                woTaskId, 'ComplaintImage', 'woTaskId'),
+                woTaskId, r'ComplaintImage', 'woTaskId'),
             woTaskUploadLongitude: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadLongitude, 'ComplaintImage', 'woTaskUploadLongitude'),
+                woTaskUploadLongitude, r'ComplaintImage', 'woTaskUploadLongitude'),
             woTaskUploadLatitude: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadLatitude, 'ComplaintImage', 'woTaskUploadLatitude'),
+                woTaskUploadLatitude, r'ComplaintImage', 'woTaskUploadLatitude'),
             woTaskUploadTimestamp: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadTimestamp, 'ComplaintImage', 'woTaskUploadTimestamp'),
+                woTaskUploadTimestamp, r'ComplaintImage', 'woTaskUploadTimestamp'),
             woTaskUploadDesc: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadDesc, 'ComplaintImage', 'woTaskUploadDesc'),
+                woTaskUploadDesc, r'ComplaintImage', 'woTaskUploadDesc'),
             uploadId:
-                BuiltValueNullFieldError.checkNotNull(uploadId, 'ComplaintImage', 'uploadId'),
-            uploadName: BuiltValueNullFieldError.checkNotNull(uploadName, 'ComplaintImage', 'uploadName'),
-            documentDesc: BuiltValueNullFieldError.checkNotNull(documentDesc, 'ComplaintImage', 'documentDesc'),
-            documentFilename: BuiltValueNullFieldError.checkNotNull(documentFilename, 'ComplaintImage', 'documentFilename'),
-            documentSrc: BuiltValueNullFieldError.checkNotNull(documentSrc, 'ComplaintImage', 'documentSrc'));
+                BuiltValueNullFieldError.checkNotNull(uploadId, r'ComplaintImage', 'uploadId'),
+            uploadName: BuiltValueNullFieldError.checkNotNull(uploadName, r'ComplaintImage', 'uploadName'),
+            documentDesc: BuiltValueNullFieldError.checkNotNull(documentDesc, r'ComplaintImage', 'documentDesc'),
+            documentFilename: BuiltValueNullFieldError.checkNotNull(documentFilename, r'ComplaintImage', 'documentFilename'),
+            documentSrc: BuiltValueNullFieldError.checkNotNull(documentSrc, r'ComplaintImage', 'documentSrc'));
     replace(_$result);
     return _$result;
   }
@@ -1878,7 +1886,7 @@ class _$TechnicianDetails extends TechnicianDetails {
 
   factory _$TechnicianDetails(
           [void Function(TechnicianDetailsBuilder) updates]) =>
-      (new TechnicianDetailsBuilder()..update(updates)).build();
+      (new TechnicianDetailsBuilder()..update(updates))._build();
 
   _$TechnicianDetails._(
       {this.name,
@@ -1888,15 +1896,15 @@ class _$TechnicianDetails extends TechnicianDetails {
       this.totalCurrentTask,
       this.currentTask})
       : super._() {
-    BuiltValueNullFieldError.checkNotNull(name, 'TechnicianDetails', 'name');
+    BuiltValueNullFieldError.checkNotNull(name, r'TechnicianDetails', 'name');
     BuiltValueNullFieldError.checkNotNull(
-        phoneNo, 'TechnicianDetails', 'phoneNo');
-    BuiltValueNullFieldError.checkNotNull(email, 'TechnicianDetails', 'email');
-    BuiltValueNullFieldError.checkNotNull(group, 'TechnicianDetails', 'group');
+        phoneNo, r'TechnicianDetails', 'phoneNo');
+    BuiltValueNullFieldError.checkNotNull(email, r'TechnicianDetails', 'email');
+    BuiltValueNullFieldError.checkNotNull(group, r'TechnicianDetails', 'group');
     BuiltValueNullFieldError.checkNotNull(
-        totalCurrentTask, 'TechnicianDetails', 'totalCurrentTask');
+        totalCurrentTask, r'TechnicianDetails', 'totalCurrentTask');
     BuiltValueNullFieldError.checkNotNull(
-        currentTask, 'TechnicianDetails', 'currentTask');
+        currentTask, r'TechnicianDetails', 'currentTask');
   }
 
   @override
@@ -1933,7 +1941,7 @@ class _$TechnicianDetails extends TechnicianDetails {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('TechnicianDetails')
+    return (newBuiltValueToStringHelper(r'TechnicianDetails')
           ..add('name', name)
           ..add('phoneNo', phoneNo)
           ..add('email', email)
@@ -2003,21 +2011,23 @@ class TechnicianDetailsBuilder
   }
 
   @override
-  _$TechnicianDetails build() {
+  TechnicianDetails build() => _build();
+
+  _$TechnicianDetails _build() {
     _$TechnicianDetails _$result;
     try {
       _$result = _$v ??
           new _$TechnicianDetails._(
               name: BuiltValueNullFieldError.checkNotNull(
-                  name, 'TechnicianDetails', 'name'),
+                  name, r'TechnicianDetails', 'name'),
               phoneNo: BuiltValueNullFieldError.checkNotNull(
-                  phoneNo, 'TechnicianDetails', 'phoneNo'),
+                  phoneNo, r'TechnicianDetails', 'phoneNo'),
               email: BuiltValueNullFieldError.checkNotNull(
-                  email, 'TechnicianDetails', 'email'),
+                  email, r'TechnicianDetails', 'email'),
               group: BuiltValueNullFieldError.checkNotNull(
-                  group, 'TechnicianDetails', 'group'),
+                  group, r'TechnicianDetails', 'group'),
               totalCurrentTask: BuiltValueNullFieldError.checkNotNull(
-                  totalCurrentTask, 'TechnicianDetails', 'totalCurrentTask'),
+                  totalCurrentTask, r'TechnicianDetails', 'totalCurrentTask'),
               currentTask: currentTask.build());
     } catch (_) {
       String _$failedField;
@@ -2026,7 +2036,7 @@ class TechnicianDetailsBuilder
         currentTask.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
-            'TechnicianDetails', _$failedField, e.toString());
+            r'TechnicianDetails', _$failedField, e.toString());
       }
       rethrow;
     }
@@ -2042,13 +2052,13 @@ class _$TechnicianTask extends TechnicianTask {
   final String dateReceived;
 
   factory _$TechnicianTask([void Function(TechnicianTaskBuilder) updates]) =>
-      (new TechnicianTaskBuilder()..update(updates)).build();
+      (new TechnicianTaskBuilder()..update(updates))._build();
 
   _$TechnicianTask._({this.woTaskNo, this.dateReceived}) : super._() {
     BuiltValueNullFieldError.checkNotNull(
-        woTaskNo, 'TechnicianTask', 'woTaskNo');
+        woTaskNo, r'TechnicianTask', 'woTaskNo');
     BuiltValueNullFieldError.checkNotNull(
-        dateReceived, 'TechnicianTask', 'dateReceived');
+        dateReceived, r'TechnicianTask', 'dateReceived');
   }
 
   @override
@@ -2074,7 +2084,7 @@ class _$TechnicianTask extends TechnicianTask {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('TechnicianTask')
+    return (newBuiltValueToStringHelper(r'TechnicianTask')
           ..add('woTaskNo', woTaskNo)
           ..add('dateReceived', dateReceived))
         .toString();
@@ -2117,13 +2127,15 @@ class TechnicianTaskBuilder
   }
 
   @override
-  _$TechnicianTask build() {
+  TechnicianTask build() => _build();
+
+  _$TechnicianTask _build() {
     final _$result = _$v ??
         new _$TechnicianTask._(
             woTaskNo: BuiltValueNullFieldError.checkNotNull(
-                woTaskNo, 'TechnicianTask', 'woTaskNo'),
+                woTaskNo, r'TechnicianTask', 'woTaskNo'),
             dateReceived: BuiltValueNullFieldError.checkNotNull(
-                dateReceived, 'TechnicianTask', 'dateReceived'));
+                dateReceived, r'TechnicianTask', 'dateReceived'));
     replace(_$result);
     return _$result;
   }
@@ -2157,7 +2169,7 @@ class _$TechnicianImageRepair extends TechnicianImageRepair {
 
   factory _$TechnicianImageRepair(
           [void Function(TechnicianImageRepairBuilder) updates]) =>
-      (new TechnicianImageRepairBuilder()..update(updates)).build();
+      (new TechnicianImageRepairBuilder()..update(updates))._build();
 
   _$TechnicianImageRepair._(
       {this.woTaskUploadId,
@@ -2174,29 +2186,29 @@ class _$TechnicianImageRepair extends TechnicianImageRepair {
       this.documentSrc})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
-        woTaskUploadId, 'TechnicianImageRepair', 'woTaskUploadId');
+        woTaskUploadId, r'TechnicianImageRepair', 'woTaskUploadId');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskUploadType, 'TechnicianImageRepair', 'woTaskUploadType');
+        woTaskUploadType, r'TechnicianImageRepair', 'woTaskUploadType');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskId, 'TechnicianImageRepair', 'woTaskId');
+        woTaskId, r'TechnicianImageRepair', 'woTaskId');
     BuiltValueNullFieldError.checkNotNull(woTaskUploadLongitude,
-        'TechnicianImageRepair', 'woTaskUploadLongitude');
+        r'TechnicianImageRepair', 'woTaskUploadLongitude');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskUploadLatitude, 'TechnicianImageRepair', 'woTaskUploadLatitude');
+        woTaskUploadLatitude, r'TechnicianImageRepair', 'woTaskUploadLatitude');
     BuiltValueNullFieldError.checkNotNull(woTaskUploadTimestamp,
-        'TechnicianImageRepair', 'woTaskUploadTimestamp');
+        r'TechnicianImageRepair', 'woTaskUploadTimestamp');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskUploadDesc, 'TechnicianImageRepair', 'woTaskUploadDesc');
+        woTaskUploadDesc, r'TechnicianImageRepair', 'woTaskUploadDesc');
     BuiltValueNullFieldError.checkNotNull(
-        uploadId, 'TechnicianImageRepair', 'uploadId');
+        uploadId, r'TechnicianImageRepair', 'uploadId');
     BuiltValueNullFieldError.checkNotNull(
-        uploadName, 'TechnicianImageRepair', 'uploadName');
+        uploadName, r'TechnicianImageRepair', 'uploadName');
     BuiltValueNullFieldError.checkNotNull(
-        documentDesc, 'TechnicianImageRepair', 'documentDesc');
+        documentDesc, r'TechnicianImageRepair', 'documentDesc');
     BuiltValueNullFieldError.checkNotNull(
-        documentFilename, 'TechnicianImageRepair', 'documentFilename');
+        documentFilename, r'TechnicianImageRepair', 'documentFilename');
     BuiltValueNullFieldError.checkNotNull(
-        documentSrc, 'TechnicianImageRepair', 'documentSrc');
+        documentSrc, r'TechnicianImageRepair', 'documentSrc');
   }
 
   @override
@@ -2254,7 +2266,7 @@ class _$TechnicianImageRepair extends TechnicianImageRepair {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('TechnicianImageRepair')
+    return (newBuiltValueToStringHelper(r'TechnicianImageRepair')
           ..add('woTaskUploadId', woTaskUploadId)
           ..add('woTaskUploadType', woTaskUploadType)
           ..add('woTaskId', woTaskId)
@@ -2364,28 +2376,30 @@ class TechnicianImageRepairBuilder
   }
 
   @override
-  _$TechnicianImageRepair build() {
+  TechnicianImageRepair build() => _build();
+
+  _$TechnicianImageRepair _build() {
     final _$result = _$v ??
         new _$TechnicianImageRepair._(
             woTaskUploadId: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadId, 'TechnicianImageRepair', 'woTaskUploadId'),
+                woTaskUploadId, r'TechnicianImageRepair', 'woTaskUploadId'),
             woTaskUploadType: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadType, 'TechnicianImageRepair', 'woTaskUploadType'),
+                woTaskUploadType, r'TechnicianImageRepair', 'woTaskUploadType'),
             woTaskId: BuiltValueNullFieldError.checkNotNull(
-                woTaskId, 'TechnicianImageRepair', 'woTaskId'),
+                woTaskId, r'TechnicianImageRepair', 'woTaskId'),
             woTaskUploadLongitude: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadLongitude, 'TechnicianImageRepair', 'woTaskUploadLongitude'),
+                woTaskUploadLongitude, r'TechnicianImageRepair', 'woTaskUploadLongitude'),
             woTaskUploadLatitude: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadLatitude, 'TechnicianImageRepair', 'woTaskUploadLatitude'),
+                woTaskUploadLatitude, r'TechnicianImageRepair', 'woTaskUploadLatitude'),
             woTaskUploadTimestamp: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadTimestamp, 'TechnicianImageRepair', 'woTaskUploadTimestamp'),
+                woTaskUploadTimestamp, r'TechnicianImageRepair', 'woTaskUploadTimestamp'),
             woTaskUploadDesc: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadDesc, 'TechnicianImageRepair', 'woTaskUploadDesc'),
-            uploadId: BuiltValueNullFieldError.checkNotNull(uploadId, 'TechnicianImageRepair', 'uploadId'),
-            uploadName: BuiltValueNullFieldError.checkNotNull(uploadName, 'TechnicianImageRepair', 'uploadName'),
-            documentDesc: BuiltValueNullFieldError.checkNotNull(documentDesc, 'TechnicianImageRepair', 'documentDesc'),
-            documentFilename: BuiltValueNullFieldError.checkNotNull(documentFilename, 'TechnicianImageRepair', 'documentFilename'),
-            documentSrc: BuiltValueNullFieldError.checkNotNull(documentSrc, 'TechnicianImageRepair', 'documentSrc'));
+                woTaskUploadDesc, r'TechnicianImageRepair', 'woTaskUploadDesc'),
+            uploadId: BuiltValueNullFieldError.checkNotNull(uploadId, r'TechnicianImageRepair', 'uploadId'),
+            uploadName: BuiltValueNullFieldError.checkNotNull(uploadName, r'TechnicianImageRepair', 'uploadName'),
+            documentDesc: BuiltValueNullFieldError.checkNotNull(documentDesc, r'TechnicianImageRepair', 'documentDesc'),
+            documentFilename: BuiltValueNullFieldError.checkNotNull(documentFilename, r'TechnicianImageRepair', 'documentFilename'),
+            documentSrc: BuiltValueNullFieldError.checkNotNull(documentSrc, r'TechnicianImageRepair', 'documentSrc'));
     replace(_$result);
     return _$result;
   }
@@ -2409,7 +2423,7 @@ class _$TechnicianAssign extends TechnicianAssign {
 
   factory _$TechnicianAssign(
           [void Function(TechnicianAssignBuilder) updates]) =>
-      (new TechnicianAssignBuilder()..update(updates)).build();
+      (new TechnicianAssignBuilder()..update(updates))._build();
 
   _$TechnicianAssign._(
       {this.userId,
@@ -2420,19 +2434,20 @@ class _$TechnicianAssign extends TechnicianAssign {
       this.woTaskMaxAssistant,
       this.assistUserId})
       : super._() {
-    BuiltValueNullFieldError.checkNotNull(userId, 'TechnicianAssign', 'userId');
     BuiltValueNullFieldError.checkNotNull(
-        severity, 'TechnicianAssign', 'severity');
+        userId, r'TechnicianAssign', 'userId');
     BuiltValueNullFieldError.checkNotNull(
-        groupId, 'TechnicianAssign', 'groupId');
+        severity, r'TechnicianAssign', 'severity');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskCategory, 'TechnicianAssign', 'woTaskCategory');
+        groupId, r'TechnicianAssign', 'groupId');
     BuiltValueNullFieldError.checkNotNull(
-        userCategory, 'TechnicianAssign', 'userCategory');
+        woTaskCategory, r'TechnicianAssign', 'woTaskCategory');
     BuiltValueNullFieldError.checkNotNull(
-        woTaskMaxAssistant, 'TechnicianAssign', 'woTaskMaxAssistant');
+        userCategory, r'TechnicianAssign', 'userCategory');
     BuiltValueNullFieldError.checkNotNull(
-        assistUserId, 'TechnicianAssign', 'assistUserId');
+        woTaskMaxAssistant, r'TechnicianAssign', 'woTaskMaxAssistant');
+    BuiltValueNullFieldError.checkNotNull(
+        assistUserId, r'TechnicianAssign', 'assistUserId');
   }
 
   @override
@@ -2472,7 +2487,7 @@ class _$TechnicianAssign extends TechnicianAssign {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('TechnicianAssign')
+    return (newBuiltValueToStringHelper(r'TechnicianAssign')
           ..add('userId', userId)
           ..add('severity', severity)
           ..add('groupId', groupId)
@@ -2549,23 +2564,27 @@ class TechnicianAssignBuilder
   }
 
   @override
-  _$TechnicianAssign build() {
+  TechnicianAssign build() => _build();
+
+  _$TechnicianAssign _build() {
     _$TechnicianAssign _$result;
     try {
       _$result = _$v ??
           new _$TechnicianAssign._(
               userId: BuiltValueNullFieldError.checkNotNull(
-                  userId, 'TechnicianAssign', 'userId'),
+                  userId, r'TechnicianAssign', 'userId'),
               severity: BuiltValueNullFieldError.checkNotNull(
-                  severity, 'TechnicianAssign', 'severity'),
+                  severity, r'TechnicianAssign', 'severity'),
               groupId: BuiltValueNullFieldError.checkNotNull(
-                  groupId, 'TechnicianAssign', 'groupId'),
+                  groupId, r'TechnicianAssign', 'groupId'),
               woTaskCategory: BuiltValueNullFieldError.checkNotNull(
-                  woTaskCategory, 'TechnicianAssign', 'woTaskCategory'),
+                  woTaskCategory, r'TechnicianAssign', 'woTaskCategory'),
               userCategory: BuiltValueNullFieldError.checkNotNull(
-                  userCategory, 'TechnicianAssign', 'userCategory'),
+                  userCategory, r'TechnicianAssign', 'userCategory'),
               woTaskMaxAssistant: BuiltValueNullFieldError.checkNotNull(
-                  woTaskMaxAssistant, 'TechnicianAssign', 'woTaskMaxAssistant'),
+                  woTaskMaxAssistant,
+                  r'TechnicianAssign',
+                  'woTaskMaxAssistant'),
               assistUserId: assistUserId.build());
     } catch (_) {
       String _$failedField;
@@ -2574,7 +2593,7 @@ class TechnicianAssignBuilder
         assistUserId.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
-            'TechnicianAssign', _$failedField, e.toString());
+            r'TechnicianAssign', _$failedField, e.toString());
       }
       rethrow;
     }
@@ -2583,4 +2602,4 @@ class TechnicianAssignBuilder
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new
+// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,no_leading_underscores_for_local_identifiers,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new,unnecessary_lambdas

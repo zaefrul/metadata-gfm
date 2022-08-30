@@ -105,7 +105,7 @@ class _HomepageState extends State<Homepage> {
                         _role.contains("Administrator"))
                       Navigator.pushNamed(context, routeDashboard);
                     else
-                      Toast.show("You have no access rights", context);
+                      Toast.show("You have no access rights");
                   }, notAllowed: isStorekeeper),
                   gridView(
                     "Utilities", Colors.greenAccent, icon: "bpm.png",
@@ -134,6 +134,20 @@ class _HomepageState extends State<Homepage> {
                     route: routeLeaderboard,
                     // notAllowed: isUtilities,
                   ),
+                  gridView(
+                    "Attendance",
+                    Colors.black,
+                    image: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Image.asset(
+                        "assets/attandance.png",
+                        color: Colors.white,
+                      ),
+                    ),
+                    onTap: () {},
+                    route: routeAttendance,
+                    // notAllowed: isUtilities,
+                  ),
                 ]),
           ],
         ));
@@ -147,7 +161,7 @@ class _HomepageState extends State<Homepage> {
           bool notAllowed = true}) =>
       new GestureDetector(
           onTap: () => notAllowed == false
-              ? Toast.show("No Access Rights", context, duration: 3)
+              ? Toast.show("No Access Rights", duration: 3)
               : route == null
                   ? onTap()
                   : Navigator.pushNamed(context, route),

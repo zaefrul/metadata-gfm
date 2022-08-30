@@ -247,8 +247,8 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
                     .post(
                         url: "/wo_v2/save_assigned_technician/${widget.id}",
                         body: body)
-                    .then((value) => Toast.show("Assignation Saved", context))
-                    .catchError((err) => Toast.show(err, context))
+                    .then((value) => Toast.show("Assignation Saved"))
+                    .catchError((err) => Toast.show(err))
                     .whenComplete(() => setState(() => loading = false));
               },
             ),

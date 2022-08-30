@@ -1486,7 +1486,7 @@ class _$ComplaintD extends ComplaintD {
   final BuiltList<ComplaintDImage> images;
 
   factory _$ComplaintD([void Function(ComplaintDBuilder) updates]) =>
-      (new ComplaintDBuilder()..update(updates)).build();
+      (new ComplaintDBuilder()..update(updates))._build();
 
   _$ComplaintD._(
       {this.woTaskPartsId,
@@ -1552,7 +1552,7 @@ class _$ComplaintD extends ComplaintD {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('ComplaintD')
+    return (newBuiltValueToStringHelper(r'ComplaintD')
           ..add('woTaskPartsId', woTaskPartsId)
           ..add('woTaskRequestId', woTaskRequestId)
           ..add('partId', partId)
@@ -1656,7 +1656,9 @@ class ComplaintDBuilder implements Builder<ComplaintD, ComplaintDBuilder> {
   }
 
   @override
-  _$ComplaintD build() {
+  ComplaintD build() => _build();
+
+  _$ComplaintD _build() {
     _$ComplaintD _$result;
     try {
       _$result = _$v ??
@@ -1679,7 +1681,7 @@ class ComplaintDBuilder implements Builder<ComplaintD, ComplaintDBuilder> {
         _images?.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
-            'ComplaintD', _$failedField, e.toString());
+            r'ComplaintD', _$failedField, e.toString());
       }
       rethrow;
     }
@@ -1695,7 +1697,7 @@ class _$ComplaintDStore extends ComplaintDStore {
   final String itemName;
 
   factory _$ComplaintDStore([void Function(ComplaintDStoreBuilder) updates]) =>
-      (new ComplaintDStoreBuilder()..update(updates)).build();
+      (new ComplaintDStoreBuilder()..update(updates))._build();
 
   _$ComplaintDStore._({this.itemId, this.itemName}) : super._();
 
@@ -1722,7 +1724,7 @@ class _$ComplaintDStore extends ComplaintDStore {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('ComplaintDStore')
+    return (newBuiltValueToStringHelper(r'ComplaintDStore')
           ..add('itemId', itemId)
           ..add('itemName', itemName))
         .toString();
@@ -1765,7 +1767,9 @@ class ComplaintDStoreBuilder
   }
 
   @override
-  _$ComplaintDStore build() {
+  ComplaintDStore build() => _build();
+
+  _$ComplaintDStore _build() {
     final _$result =
         _$v ?? new _$ComplaintDStore._(itemId: itemId, itemName: itemName);
     replace(_$result);
@@ -1783,7 +1787,7 @@ class _$ComplaintDGroupStore extends ComplaintDGroupStore {
 
   factory _$ComplaintDGroupStore(
           [void Function(ComplaintDGroupStoreBuilder) updates]) =>
-      (new ComplaintDGroupStoreBuilder()..update(updates)).build();
+      (new ComplaintDGroupStoreBuilder()..update(updates))._build();
 
   _$ComplaintDGroupStore._({this.itemId, this.itemName, this.itemTypes})
       : super._();
@@ -1814,7 +1818,7 @@ class _$ComplaintDGroupStore extends ComplaintDGroupStore {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('ComplaintDGroupStore')
+    return (newBuiltValueToStringHelper(r'ComplaintDGroupStore')
           ..add('itemId', itemId)
           ..add('itemName', itemName)
           ..add('itemTypes', itemTypes))
@@ -1865,7 +1869,9 @@ class ComplaintDGroupStoreBuilder
   }
 
   @override
-  _$ComplaintDGroupStore build() {
+  ComplaintDGroupStore build() => _build();
+
+  _$ComplaintDGroupStore _build() {
     _$ComplaintDGroupStore _$result;
     try {
       _$result = _$v ??
@@ -1880,7 +1886,7 @@ class ComplaintDGroupStoreBuilder
         _itemTypes?.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
-            'ComplaintDGroupStore', _$failedField, e.toString());
+            r'ComplaintDGroupStore', _$failedField, e.toString());
       }
       rethrow;
     }
@@ -1900,7 +1906,7 @@ class _$ComplaintDGroup extends ComplaintDGroup {
   final String itemStatus;
 
   factory _$ComplaintDGroup([void Function(ComplaintDGroupBuilder) updates]) =>
-      (new ComplaintDGroupBuilder()..update(updates)).build();
+      (new ComplaintDGroupBuilder()..update(updates))._build();
 
   _$ComplaintDGroup._(
       {this.itemId, this.itemName, this.itemDesc, this.itemStatus})
@@ -1933,7 +1939,7 @@ class _$ComplaintDGroup extends ComplaintDGroup {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('ComplaintDGroup')
+    return (newBuiltValueToStringHelper(r'ComplaintDGroup')
           ..add('itemId', itemId)
           ..add('itemName', itemName)
           ..add('itemDesc', itemDesc)
@@ -1988,7 +1994,9 @@ class ComplaintDGroupBuilder
   }
 
   @override
-  _$ComplaintDGroup build() {
+  ComplaintDGroup build() => _build();
+
+  _$ComplaintDGroup _build() {
     final _$result = _$v ??
         new _$ComplaintDGroup._(
             itemId: itemId,
@@ -2015,7 +2023,7 @@ class _$ComplaintDType extends ComplaintDType {
   final BuiltList<ComplaintMaterial> parts;
 
   factory _$ComplaintDType([void Function(ComplaintDTypeBuilder) updates]) =>
-      (new ComplaintDTypeBuilder()..update(updates)).build();
+      (new ComplaintDTypeBuilder()..update(updates))._build();
 
   _$ComplaintDType._(
       {this.itemId,
@@ -2060,7 +2068,7 @@ class _$ComplaintDType extends ComplaintDType {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('ComplaintDType')
+    return (newBuiltValueToStringHelper(r'ComplaintDType')
           ..add('itemId', itemId)
           ..add('itemGroupId', itemGroupId)
           ..add('itemName', itemName)
@@ -2128,7 +2136,9 @@ class ComplaintDTypeBuilder
   }
 
   @override
-  _$ComplaintDType build() {
+  ComplaintDType build() => _build();
+
+  _$ComplaintDType _build() {
     _$ComplaintDType _$result;
     try {
       _$result = _$v ??
@@ -2146,7 +2156,7 @@ class ComplaintDTypeBuilder
         _parts?.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
-            'ComplaintDType', _$failedField, e.toString());
+            r'ComplaintDType', _$failedField, e.toString());
       }
       rethrow;
     }
@@ -2165,7 +2175,7 @@ class _$ComplaintDStoreType extends ComplaintDStoreType {
 
   factory _$ComplaintDStoreType(
           [void Function(ComplaintDStoreTypeBuilder) updates]) =>
-      (new ComplaintDStoreTypeBuilder()..update(updates)).build();
+      (new ComplaintDStoreTypeBuilder()..update(updates))._build();
 
   _$ComplaintDStoreType._({this.itemId, this.itemName, this.parts}) : super._();
 
@@ -2195,7 +2205,7 @@ class _$ComplaintDStoreType extends ComplaintDStoreType {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('ComplaintDStoreType')
+    return (newBuiltValueToStringHelper(r'ComplaintDStoreType')
           ..add('itemId', itemId)
           ..add('itemName', itemName)
           ..add('parts', parts))
@@ -2245,7 +2255,9 @@ class ComplaintDStoreTypeBuilder
   }
 
   @override
-  _$ComplaintDStoreType build() {
+  ComplaintDStoreType build() => _build();
+
+  _$ComplaintDStoreType _build() {
     _$ComplaintDStoreType _$result;
     try {
       _$result = _$v ??
@@ -2258,7 +2270,7 @@ class ComplaintDStoreTypeBuilder
         _parts?.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
-            'ComplaintDStoreType', _$failedField, e.toString());
+            r'ComplaintDStoreType', _$failedField, e.toString());
       }
       rethrow;
     }
@@ -2286,7 +2298,7 @@ class _$ComplaintDPart extends ComplaintDPart {
   final String partRemark;
 
   factory _$ComplaintDPart([void Function(ComplaintDPartBuilder) updates]) =>
-      (new ComplaintDPartBuilder()..update(updates)).build();
+      (new ComplaintDPartBuilder()..update(updates))._build();
 
   _$ComplaintDPart._(
       {this.itemId,
@@ -2339,7 +2351,7 @@ class _$ComplaintDPart extends ComplaintDPart {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('ComplaintDPart')
+    return (newBuiltValueToStringHelper(r'ComplaintDPart')
           ..add('itemId', itemId)
           ..add('itemName', itemName)
           ..add('itemQuantity', itemQuantity)
@@ -2418,7 +2430,9 @@ class ComplaintDPartBuilder
   }
 
   @override
-  _$ComplaintDPart build() {
+  ComplaintDPart build() => _build();
+
+  _$ComplaintDPart _build() {
     final _$result = _$v ??
         new _$ComplaintDPart._(
             itemId: itemId,
@@ -2454,7 +2468,7 @@ class _$MaterialStorePart extends MaterialStorePart {
 
   factory _$MaterialStorePart(
           [void Function(MaterialStorePartBuilder) updates]) =>
-      (new MaterialStorePartBuilder()..update(updates)).build();
+      (new MaterialStorePartBuilder()..update(updates))._build();
 
   _$MaterialStorePart._(
       {this.itemDescription,
@@ -2509,7 +2523,7 @@ class _$MaterialStorePart extends MaterialStorePart {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('MaterialStorePart')
+    return (newBuiltValueToStringHelper(r'MaterialStorePart')
           ..add('itemDescription', itemDescription)
           ..add('partAvailable', partAvailable)
           ..add('partCount', partCount)
@@ -2590,7 +2604,9 @@ class MaterialStorePartBuilder
   }
 
   @override
-  _$MaterialStorePart build() {
+  MaterialStorePart build() => _build();
+
+  _$MaterialStorePart _build() {
     final _$result = _$v ??
         new _$MaterialStorePart._(
             itemDescription: itemDescription,
@@ -2617,7 +2633,7 @@ class _$ComplaintDImage extends ComplaintDImage {
   final String height;
 
   factory _$ComplaintDImage([void Function(ComplaintDImageBuilder) updates]) =>
-      (new ComplaintDImageBuilder()..update(updates)).build();
+      (new ComplaintDImageBuilder()..update(updates))._build();
 
   _$ComplaintDImage._({this.file, this.title, this.width, this.height})
       : super._();
@@ -2649,7 +2665,7 @@ class _$ComplaintDImage extends ComplaintDImage {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('ComplaintDImage')
+    return (newBuiltValueToStringHelper(r'ComplaintDImage')
           ..add('file', file)
           ..add('title', title)
           ..add('width', width)
@@ -2704,7 +2720,9 @@ class ComplaintDImageBuilder
   }
 
   @override
-  _$ComplaintDImage build() {
+  ComplaintDImage build() => _build();
+
+  _$ComplaintDImage _build() {
     final _$result = _$v ??
         new _$ComplaintDImage._(
             file: file, title: title, width: width, height: height);
@@ -2742,7 +2760,7 @@ class _$RequestTask extends RequestTask {
   final String siteName;
 
   factory _$RequestTask([void Function(RequestTaskBuilder) updates]) =>
-      (new RequestTaskBuilder()..update(updates)).build();
+      (new RequestTaskBuilder()..update(updates))._build();
 
   _$RequestTask._(
       {this.requestBy,
@@ -2816,7 +2834,7 @@ class _$RequestTask extends RequestTask {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('RequestTask')
+    return (newBuiltValueToStringHelper(r'RequestTask')
           ..add('requestBy', requestBy)
           ..add('requestTime', requestTime)
           ..add('statusDesc', statusDesc)
@@ -2928,7 +2946,9 @@ class RequestTaskBuilder implements Builder<RequestTask, RequestTaskBuilder> {
   }
 
   @override
-  _$RequestTask build() {
+  RequestTask build() => _build();
+
+  _$RequestTask _build() {
     final _$result = _$v ??
         new _$RequestTask._(
             requestBy: requestBy,
@@ -2985,7 +3005,7 @@ class _$ComplaintMaterial extends ComplaintMaterial {
 
   factory _$ComplaintMaterial(
           [void Function(ComplaintMaterialBuilder) updates]) =>
-      (new ComplaintMaterialBuilder()..update(updates)).build();
+      (new ComplaintMaterialBuilder()..update(updates))._build();
 
   _$ComplaintMaterial._(
       {this.assetGroupId,
@@ -3078,7 +3098,7 @@ class _$ComplaintMaterial extends ComplaintMaterial {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('ComplaintMaterial')
+    return (newBuiltValueToStringHelper(r'ComplaintMaterial')
           ..add('assetGroupId', assetGroupId)
           ..add('assetGroupName', assetGroupName)
           ..add('itemDescription', itemDescription)
@@ -3213,7 +3233,9 @@ class ComplaintMaterialBuilder
   }
 
   @override
-  _$ComplaintMaterial build() {
+  ComplaintMaterial build() => _build();
+
+  _$ComplaintMaterial _build() {
     _$ComplaintMaterial _$result;
     try {
       _$result = _$v ??
@@ -3243,7 +3265,7 @@ class ComplaintMaterialBuilder
         _images?.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
-            'ComplaintMaterial', _$failedField, e.toString());
+            r'ComplaintMaterial', _$failedField, e.toString());
       }
       rethrow;
     }
@@ -3272,7 +3294,7 @@ class _$ComplaintMaterialGrouped extends ComplaintMaterialGrouped {
 
   factory _$ComplaintMaterialGrouped(
           [void Function(ComplaintMaterialGroupedBuilder) updates]) =>
-      (new ComplaintMaterialGroupedBuilder()..update(updates)).build();
+      (new ComplaintMaterialGroupedBuilder()..update(updates))._build();
 
   _$ComplaintMaterialGrouped._(
       {this.dateCheckIn,
@@ -3285,21 +3307,21 @@ class _$ComplaintMaterialGrouped extends ComplaintMaterialGrouped {
       this.total})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
-        dateCheckIn, 'ComplaintMaterialGrouped', 'dateCheckIn');
+        dateCheckIn, r'ComplaintMaterialGrouped', 'dateCheckIn');
     BuiltValueNullFieldError.checkNotNull(
-        doNo, 'ComplaintMaterialGrouped', 'doNo');
+        doNo, r'ComplaintMaterialGrouped', 'doNo');
     BuiltValueNullFieldError.checkNotNull(
-        partSubCost, 'ComplaintMaterialGrouped', 'partSubCost');
+        partSubCost, r'ComplaintMaterialGrouped', 'partSubCost');
     BuiltValueNullFieldError.checkNotNull(
-        partSubLocation, 'ComplaintMaterialGrouped', 'partSubLocation');
+        partSubLocation, r'ComplaintMaterialGrouped', 'partSubLocation');
     BuiltValueNullFieldError.checkNotNull(
-        partSubValidity, 'ComplaintMaterialGrouped', 'partSubValidity');
+        partSubValidity, r'ComplaintMaterialGrouped', 'partSubValidity');
     BuiltValueNullFieldError.checkNotNull(
-        partSubWarranty, 'ComplaintMaterialGrouped', 'partSubWarranty');
+        partSubWarranty, r'ComplaintMaterialGrouped', 'partSubWarranty');
     BuiltValueNullFieldError.checkNotNull(
-        supplierName, 'ComplaintMaterialGrouped', 'supplierName');
+        supplierName, r'ComplaintMaterialGrouped', 'supplierName');
     BuiltValueNullFieldError.checkNotNull(
-        total, 'ComplaintMaterialGrouped', 'total');
+        total, r'ComplaintMaterialGrouped', 'total');
   }
 
   @override
@@ -3343,7 +3365,7 @@ class _$ComplaintMaterialGrouped extends ComplaintMaterialGrouped {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('ComplaintMaterialGrouped')
+    return (newBuiltValueToStringHelper(r'ComplaintMaterialGrouped')
           ..add('dateCheckIn', dateCheckIn)
           ..add('doNo', doNo)
           ..add('partSubCost', partSubCost)
@@ -3426,25 +3448,27 @@ class ComplaintMaterialGroupedBuilder
   }
 
   @override
-  _$ComplaintMaterialGrouped build() {
+  ComplaintMaterialGrouped build() => _build();
+
+  _$ComplaintMaterialGrouped _build() {
     final _$result = _$v ??
         new _$ComplaintMaterialGrouped._(
             dateCheckIn: BuiltValueNullFieldError.checkNotNull(
-                dateCheckIn, 'ComplaintMaterialGrouped', 'dateCheckIn'),
+                dateCheckIn, r'ComplaintMaterialGrouped', 'dateCheckIn'),
             doNo: BuiltValueNullFieldError.checkNotNull(
-                doNo, 'ComplaintMaterialGrouped', 'doNo'),
+                doNo, r'ComplaintMaterialGrouped', 'doNo'),
             partSubCost: BuiltValueNullFieldError.checkNotNull(
-                partSubCost, 'ComplaintMaterialGrouped', 'partSubCost'),
+                partSubCost, r'ComplaintMaterialGrouped', 'partSubCost'),
             partSubLocation: BuiltValueNullFieldError.checkNotNull(
-                partSubLocation, 'ComplaintMaterialGrouped', 'partSubLocation'),
+                partSubLocation, r'ComplaintMaterialGrouped', 'partSubLocation'),
             partSubValidity: BuiltValueNullFieldError.checkNotNull(
-                partSubValidity, 'ComplaintMaterialGrouped', 'partSubValidity'),
+                partSubValidity, r'ComplaintMaterialGrouped', 'partSubValidity'),
             partSubWarranty: BuiltValueNullFieldError.checkNotNull(
-                partSubWarranty, 'ComplaintMaterialGrouped', 'partSubWarranty'),
+                partSubWarranty, r'ComplaintMaterialGrouped', 'partSubWarranty'),
             supplierName: BuiltValueNullFieldError.checkNotNull(
-                supplierName, 'ComplaintMaterialGrouped', 'supplierName'),
+                supplierName, r'ComplaintMaterialGrouped', 'supplierName'),
             total: BuiltValueNullFieldError.checkNotNull(
-                total, 'ComplaintMaterialGrouped', 'total'));
+                total, r'ComplaintMaterialGrouped', 'total'));
     replace(_$result);
     return _$result;
   }
@@ -3462,7 +3486,7 @@ class _$ComplaintMaterialImage extends ComplaintMaterialImage {
 
   factory _$ComplaintMaterialImage(
           [void Function(ComplaintMaterialImageBuilder) updates]) =>
-      (new ComplaintMaterialImageBuilder()..update(updates)).build();
+      (new ComplaintMaterialImageBuilder()..update(updates))._build();
 
   _$ComplaintMaterialImage._({this.file, this.height, this.width, this.title})
       : super._();
@@ -3495,7 +3519,7 @@ class _$ComplaintMaterialImage extends ComplaintMaterialImage {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('ComplaintMaterialImage')
+    return (newBuiltValueToStringHelper(r'ComplaintMaterialImage')
           ..add('file', file)
           ..add('height', height)
           ..add('width', width)
@@ -3550,7 +3574,9 @@ class ComplaintMaterialImageBuilder
   }
 
   @override
-  _$ComplaintMaterialImage build() {
+  ComplaintMaterialImage build() => _build();
+
+  _$ComplaintMaterialImage _build() {
     final _$result = _$v ??
         new _$ComplaintMaterialImage._(
             file: file, height: height, width: width, title: title);
@@ -3559,4 +3585,4 @@ class ComplaintMaterialImageBuilder
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new
+// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,no_leading_underscores_for_local_identifiers,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new,unnecessary_lambdas

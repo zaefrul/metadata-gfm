@@ -1,8 +1,12 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
+import 'package:month_year_picker/month_year_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc_technician.dart';
+import 'package:toast/toast.dart';
+import 'controller/Attendance/attendance.dart';
 import 'controller/Homepage/signature.dart';
 import 'controller/Leaderboard/leaderboard.dart';
 import 'controller/PPM/PMaintenance.dart';
@@ -118,6 +122,11 @@ class MyApp extends StatelessWidget {
           primaryColor: colorTheme3,
           primaryTextTheme:
               TextTheme(headline6: TextStyle(color: colorTheme3))),
+      localizationsDelegates: [
+        GlobalWidgetsLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        MonthYearPickerLocalizations.delegate,
+      ],
       title: "GEMS 2.0",
       initialRoute: "/",
       debugShowCheckedModeBanner: false,
@@ -246,6 +255,9 @@ class MyApp extends StatelessWidget {
       case routeLeaderboard:
         return MaterialPageRoute(
             builder: (_) => LeaderboardView(), settings: settings);
+      case routeAttendance:
+        return MaterialPageRoute(
+            builder: (_) => Dashboard(), settings: settings);
       default:
         return MaterialPageRoute(builder: (ctx) => ProcumentHomepage());
     }

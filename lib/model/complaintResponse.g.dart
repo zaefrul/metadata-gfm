@@ -139,7 +139,7 @@ class _$ComplaintResponse extends ComplaintResponse {
 
   factory _$ComplaintResponse(
           [void Function(ComplaintResponseBuilder) updates]) =>
-      (new ComplaintResponseBuilder()..update(updates)).build();
+      (new ComplaintResponseBuilder()..update(updates))._build();
 
   _$ComplaintResponse._(
       {this.success,
@@ -151,10 +151,10 @@ class _$ComplaintResponse extends ComplaintResponse {
       this.parts})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
-        success, 'ComplaintResponse', 'success');
-    BuiltValueNullFieldError.checkNotNull(error, 'ComplaintResponse', 'error');
+        success, r'ComplaintResponse', 'success');
+    BuiltValueNullFieldError.checkNotNull(error, r'ComplaintResponse', 'error');
     BuiltValueNullFieldError.checkNotNull(
-        errmsg, 'ComplaintResponse', 'errmsg');
+        errmsg, r'ComplaintResponse', 'errmsg');
   }
 
   @override
@@ -194,7 +194,7 @@ class _$ComplaintResponse extends ComplaintResponse {
 
   @override
   String toString() {
-    return (newBuiltValueToStringHelper('ComplaintResponse')
+    return (newBuiltValueToStringHelper(r'ComplaintResponse')
           ..add('success', success)
           ..add('error', error)
           ..add('errmsg', errmsg)
@@ -271,17 +271,19 @@ class ComplaintResponseBuilder
   }
 
   @override
-  _$ComplaintResponse build() {
+  ComplaintResponse build() => _build();
+
+  _$ComplaintResponse _build() {
     _$ComplaintResponse _$result;
     try {
       _$result = _$v ??
           new _$ComplaintResponse._(
               success: BuiltValueNullFieldError.checkNotNull(
-                  success, 'ComplaintResponse', 'success'),
+                  success, r'ComplaintResponse', 'success'),
               error: BuiltValueNullFieldError.checkNotNull(
-                  error, 'ComplaintResponse', 'error'),
+                  error, r'ComplaintResponse', 'error'),
               errmsg: BuiltValueNullFieldError.checkNotNull(
-                  errmsg, 'ComplaintResponse', 'errmsg'),
+                  errmsg, r'ComplaintResponse', 'errmsg'),
               items: _items?.build(),
               groups: _groups?.build(),
               types: _types?.build(),
@@ -299,7 +301,7 @@ class ComplaintResponseBuilder
         _parts?.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
-            'ComplaintResponse', _$failedField, e.toString());
+            r'ComplaintResponse', _$failedField, e.toString());
       }
       rethrow;
     }
@@ -308,4 +310,4 @@ class ComplaintResponseBuilder
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new
+// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,no_leading_underscores_for_local_identifiers,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new,unnecessary_lambdas

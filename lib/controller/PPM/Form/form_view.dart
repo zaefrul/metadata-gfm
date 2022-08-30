@@ -176,11 +176,9 @@ class _FormViewState extends State<FormView> {
                 if (!verified)
                   Toast.show(
                       "To get started, you need to scan the QR code of the asset from section A. Asset Details.",
-                      context,
                       duration: 3);
                 else
-                  Toast.show(
-                      "All sections must be completed before submit", context,
+                  Toast.show("All sections must be completed before submit",
                       duration: 1);
               },
       ),
@@ -238,7 +236,8 @@ class _FormViewState extends State<FormView> {
             else if (item == "B")
               object = new FormB(id);
             else if (item == "C")
-              object = new PPMAddTechnician(id, verified, refreshStatus, fieldDisable);
+              object = new PPMAddTechnician(
+                  id, verified, refreshStatus, fieldDisable);
             else if (item == "D")
               object = new FormC(id, verified, refreshStatus, fieldDisable);
             else if (item == "E")

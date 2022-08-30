@@ -135,11 +135,11 @@ class Controller {
   Future<void> update(BuildContext context) {
     FocusScope.of(context).unfocus();
     if (_invalidQuantity.value == true) {
-      Toast.show(_invalidMessage.value, context, duration: 3);
+      Toast.show(_invalidMessage.value, duration: 3);
       throw "";
     } else {
       if (_invalidMessage.value != null)
-        Toast.show(_invalidMessage.value, context, duration: 3);
+        Toast.show(_invalidMessage.value, duration: 3);
       return _request.post(remark: remark.text, quantity: _quantity.text);
     }
   }

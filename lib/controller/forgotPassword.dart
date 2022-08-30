@@ -30,10 +30,7 @@ class _ForgotState extends State<Forgot> {
       if (error == null)
         action(_email);
       else
-        Toast.show(error, context,
-            gravity: Toast.BOTTOM,
-            duration: Toast.LENGTH_LONG,
-            backgroundColor: colorTheme3);
+        Toast.show(error, backgroundColor: colorTheme3);
     }
 
     return Scaffold(

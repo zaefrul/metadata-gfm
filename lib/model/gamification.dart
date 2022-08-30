@@ -2,11 +2,17 @@ import 'package:intl/intl.dart';
 
 extension StringExtension on String {
   String capitalize() {
+    // return this;
     final list = this.split(" ");
     final newList = list.map((element) {
-      final first = element.substring(0, 1).toUpperCase();
-      final rest = element.substring(1, element.length).toLowerCase();
-      return "$first$rest";
+      if (element.length > 1) {
+        final first = element.substring(0, 1).toUpperCase();
+
+        final rest = element.substring(1, element.length).toLowerCase();
+        return "$first$rest";
+      } else {
+        return element;
+      }
     }).toList();
     return newList.join(" ");
   }

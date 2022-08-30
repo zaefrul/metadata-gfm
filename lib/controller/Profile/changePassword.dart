@@ -55,10 +55,7 @@ class _ChangeState extends State<Change> {
       else
         action;
 
-      Toast.show(text, context,
-          gravity: Toast.BOTTOM,
-          duration: Toast.LENGTH_SHORT,
-          backgroundColor: colorTheme3);
+      Toast.show(text, backgroundColor: colorTheme3);
     }
 
     var body = new Column(

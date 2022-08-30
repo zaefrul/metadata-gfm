@@ -21,11 +21,6 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
   TabController _controller;
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  _HomepageState() {
-    _controller = TabController(length: 2, vsync: this);
-    _controller.addListener(() => setState(() {}));
-  }
-
   @override
   void dispose() {
     _controller.dispose();
@@ -37,6 +32,15 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (bloc == null) bloc = BlocInventory(context);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (_controller == null) {
+      _controller = TabController(length: 2, vsync: this);
+      _controller.addListener(() => setState(() {}));
+    }
   }
 
   @override

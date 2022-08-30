@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:gfm_gems/model/form.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
-import 'package:barcode_scan2/barcode_scan2.dart';
+// import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/services.dart';
 
 import 'package:gfm_gems/model/responseValue.dart';
@@ -90,7 +90,7 @@ class _FormAState extends State<FormA> {
 
   Future scan() async {
     try {
-      ScanResult barcode = await BarcodeScanner.scan();
+      var barcode; //= await BarcodeScanner.scan();
       if (barcode.rawContent == assetNo) {
         startDate =
             new DateFormat("yyyy/MM/dd hh:mm:ss").format(DateTime.now());
@@ -110,17 +110,17 @@ class _FormAState extends State<FormA> {
       } else
         this.keyword = "Incorrect Asset No.";
     } on PlatformException catch (e) {
-      if (e.code == BarcodeScanner.cameraAccessDenied)
-        this.keyword = 'The user did not grant the camera permission!';
-      else
-        this.keyword = 'image scanning fail, please try again';
+      // if (e.code == BarcodeScanner.cameraAccessDenied)
+      //   this.keyword = 'The user did not grant the camera permission!';
+      // else
+      this.keyword = 'image scanning fail, please try again';
     } on FormatException {
       this.keyword = 'image scanning fail, please try again';
     } catch (e) {
       this.keyword = 'image scanning fail, please try again';
     }
 
-    Toast.show(this.keyword, context);
+    Toast.show(this.keyword);
   }
 
   Widget body(FormAItem object) {

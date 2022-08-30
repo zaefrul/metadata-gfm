@@ -142,7 +142,7 @@ class _MaterialState extends State<_Material> {
                 if (quantity > minQuantity)
                   quantity--;
                 else
-                  Toast.show("Cannot less than MIN order", context);
+                  Toast.show("Cannot less than MIN order");
               }),
             ),
             Padding(
@@ -158,7 +158,7 @@ class _MaterialState extends State<_Material> {
                 if (maxQuantity > quantity)
                   quantity++;
                 else
-                  Toast.show("Cannot more than MAX order", context);
+                  Toast.show("Cannot more than MAX order");
               }),
             ),
           ],

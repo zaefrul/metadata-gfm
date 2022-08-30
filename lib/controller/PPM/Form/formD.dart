@@ -64,7 +64,7 @@ class _FormDState extends State<FormD> {
             children.addAll(items
                 .map((x) => widget.disable ? getFormDisabled(x) : getForm(x))
                 .toList()
-                  ..add(SizedBox(height: 60)));
+              ..add(SizedBox(height: 60)));
 
           return snapshot.data == null
               ? Center(child: CircularProgressIndicator())
@@ -126,7 +126,7 @@ class _FormDState extends State<FormD> {
                       .catchError((err) => alert(err))
                       .whenComplete(() => setState(() => loading = false));
                 } else {
-                  Toast.show("Please verified this task.", context);
+                  Toast.show("Please verified this task.");
                 }
               },
             ),

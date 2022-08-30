@@ -177,10 +177,9 @@ class _FloatingButton extends StatelessWidget {
               label: Text("Submit"),
               backgroundColor: colorTheme3,
               onPressed: () => snapshot.data == null
-                  ? Toast.show("Please fill all dropdown", context, duration: 3)
+                  ? Toast.show("Please fill all dropdown", duration: 3)
                   : snapshot.data == false
-                      ? Toast.show("Please fill all dropdown", context,
-                          duration: 3)
+                      ? Toast.show("Please fill all dropdown", duration: 3)
                       : Navigator.pop(context, bloc.itemValue),
             ));
   }

@@ -142,7 +142,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
 
   post(BuildContext context) async {
     if (_signatureCanvas.isEmpty) {
-      Toast.show("Please sign first before submit", context);
+      Toast.show("Please sign first before submit");
       setState(() => loading = false);
       return;
     }
@@ -253,11 +253,8 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
                     withVerifierBody.addAll(body);
 
                     setState(() => loading = false);
-                    Toast.show(
-                      "Please Refill Signature field for verifier",
-                      context,
-                      duration: 2,
-                    );
+                    Toast.show("Please Refill Signature field for verifier",
+                        duration: 2);
                   },
                   secondTapped: (text) {
                     body["remark"] = text;

@@ -15,8 +15,10 @@ class _AwesomeFABState extends State<AwesomeFAB>
   Animation<Color> _opacity;
   Animation<double> _matrixY;
   Animation<double> _animateIcon;
+  
 
-  _AwesomeFABState() {
+  @override
+  void initState() {
     super.initState();
     _animationController = AnimationController(
         duration: const Duration(milliseconds: 300), vsync: this)

@@ -73,7 +73,8 @@ class _ComplaintSectionDMaterialState extends State<ComplaintSectionDMaterial> {
                               widget.enableSubmit);
                         },
                         separatorBuilder: (_, __) => Divider(),
-                        itemCount: snapshot.data.length,
+                        itemCount:
+                            snapshot.data == null ? 0 : snapshot.data.length,
                       ),
                     ],
                   ),
@@ -202,11 +203,11 @@ class Controller {
   Future<void> reset() => _request.reset().whenComplete(() => refresh());
   void submit(BuildContext context) => _request
           .submit()
-          .then((value) => Toast.show("Your Request has submitted", context))
+          .then((value) => Toast.show("Your Request has submitted"))
           .then((value) {
         Navigator.pop(context);
         Navigator.pop(context);
-      }).catchError((onError) => Toast.show(onError.toString(), context));
+      }).catchError((onError) => Toast.show(onError.toString()));
 }
 
 class Request {

@@ -94,11 +94,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
                           // if (value) showsheet();
                           // print(value);
                           if (listTechnicianSelected.length == max) {
-                            Toast.show(
-                              "Assistant allowed $max!",
-                              context,
-                              duration: 2,
-                            );
+                            Toast.show("Assistant allowed $max!", duration: 2);
                           }
                           if (value && listTechnicianSelected.length < max) {
                             if (listTechnicianSelected.contains(f) == false) {

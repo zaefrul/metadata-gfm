@@ -242,7 +242,7 @@ class BlocCheckin extends Bloc {
     if (value != null)
       file = value;
     else
-      Toast.show("Only one picture is required", context);
+      Toast.show("Only one picture is required");
   }
 
   void removeMaterial(Item value) {

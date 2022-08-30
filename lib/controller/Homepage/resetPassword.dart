@@ -54,10 +54,7 @@ class _ResetPasswordState extends State<ResetPassword> {
       else
         action(newPassword);
 
-      Toast.show(text, context,
-          gravity: Toast.BOTTOM,
-          duration: Toast.LENGTH_SHORT,
-          backgroundColor: colorTheme3);
+      Toast.show(text, backgroundColor: colorTheme3);
     }
 
     var body = new Column(

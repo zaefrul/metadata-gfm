@@ -34,7 +34,7 @@ class _MaterialRequestState extends State<MaterialRequest> {
         );
       else if (event == false) Navigator.pop(context);
     });
-    _bloc.err$.listen((event) => Toast.show(event, context, duration: 4));
+    _bloc.err$.listen((event) => Toast.show(event, duration: 4));
     super.didChangeDependencies();
   }
 
@@ -80,7 +80,7 @@ class _MaterialRequestState extends State<MaterialRequest> {
                           .reject(value)
                           .then((value) => Navigator.pop(context))
                           .catchError((e) => print(e)),
-                      (e) => Toast.show(e, context),
+                      (e) => Toast.show(e),
                     ),
                   if ((snapshot.data?.statusId ?? "-1") == "33")
                     SizedBox(width: 12),
@@ -278,7 +278,7 @@ class _Material extends StatelessWidget {
         // if (isApproval == false)
         //   TextButton(
         //       onPressed: () {
-        //         Toast.show("Item added to Request", context);
+        //         Toast.show("Item added to Request");
         //       },
         //       child: Text("Add To Request")),
       ],

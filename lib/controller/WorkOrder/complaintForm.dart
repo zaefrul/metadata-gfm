@@ -333,7 +333,7 @@ class _FormComplaintState extends State<FormComplaint> {
       String name = "${date()}.jpg";
 
       if (int.parse(size) > 5000000) {
-        Toast.show("File size more than 5mb, please try again.", context);
+        Toast.show("File size more than 5mb, please try again.");
         return;
       }
 
@@ -357,7 +357,7 @@ class _FormComplaintState extends State<FormComplaint> {
           .then((value) => createObject(value))
           .catchError((err) => print(err));
     } else
-      Toast.show("Please Relogin", context);
+      Toast.show("Please Relogin");
   }
 
   void _upload() async {
@@ -365,16 +365,11 @@ class _FormComplaintState extends State<FormComplaint> {
     var longitude;
 
     if (location.length == 0) {
-      Toast.show(
-        "Location at least 8 characters",
-        context,
-        gravity: Toast.CENTER,
-      );
+      Toast.show("Location at least 8 characters");
       return;
     }
     if (desc.length <= 8) {
-      Toast.show("Description at least 8 characters", context,
-          gravity: Toast.CENTER);
+      Toast.show("Description at least 8 characters");
       return;
     }
 
@@ -412,7 +407,7 @@ class _FormComplaintState extends State<FormComplaint> {
         alert(err: err);
       }).whenComplete(() => setState(() => loading = false));
     } else
-      Toast.show("Please Relogin", context);
+      Toast.show("Please Relogin");
   }
 
   void alert({String txt, String err}) {

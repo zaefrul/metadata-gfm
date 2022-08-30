@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:toast/toast.dart';
 import '../../utils/reference.dart';
 import 'task_view.dart';
-import 'package:barcode_scan2/barcode_scan2.dart';
+// import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/services.dart';
 
 class SearchArguments {
@@ -40,7 +40,7 @@ class _SearchState extends State<Search> {
 
   Future scan() async {
     try {
-      ScanResult barcode = await BarcodeScanner.scan();
+      var barcode; //= await BarcodeScanner.scan();
       keyword = "Success";
 
       if (index == 0)
@@ -49,18 +49,18 @@ class _SearchState extends State<Search> {
 
       setState(() => controller.text = this.searchText = barcode.rawContent);
     } on PlatformException catch (e) {
-      if (e.code == BarcodeScanner.cameraAccessDenied)
-        setState(() =>
-            this.keyword = 'The user did not grant the camera permission!');
-      else
-        setState(() => this.keyword = 'Unknown error: $e');
+      // if (e.code == BarcodeScanner.cameraAccessDenied)
+      setState(
+          () => this.keyword = 'The user did not grant the camera permission!');
+      // else
+      setState(() => this.keyword = 'Unknown error: $e');
     } on FormatException {
       setState(() => this.keyword = 'Cancel');
     } catch (e) {
       setState(() => this.keyword = 'Unknown error: $e');
     }
 
-    Toast.show(this.keyword, context);
+    Toast.show(this.keyword);
   }
 
   @override

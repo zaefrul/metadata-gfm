@@ -77,9 +77,7 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
                       })
                       .catchError((err) => alert(err));
                 } else {
-                  Toast.show(
-                      "You must enter at least total of 2 characters", context,
-                      gravity: Toast.CENTER);
+                  Toast.show("You must enter at least total of 2 characters");
                 }
               }),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

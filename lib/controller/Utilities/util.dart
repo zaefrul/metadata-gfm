@@ -18,8 +18,8 @@ class UtilsBill {
         description: 'Please select your type of utilities',
         title: "Add Utilities",
         secondButton: true,
-        okayTapped: () => showWater(context, isDaily: true),
-        secondTapped: () => showElectric(context, isDaily: true),
+        okayTapped: () => showElectric(context, isDaily: true),
+        secondTapped: () => showWater(context, isDaily: true),
         image: Image.asset("assets/icon_trans.png", height: 40),
       ),
     );
