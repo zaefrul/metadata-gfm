@@ -363,8 +363,8 @@ class _FormHState extends State<FormH> {
     var latitude;
     var longitude;
 
-    Future<File> getImage() async => await ImagePicker.pickImage(
-        source: ImageSource.camera, maxWidth: 480, maxHeight: 640);
+    Future<XFile> getImage() async => await ImagePicker()
+        .pickImage(source: ImageSource.camera, maxWidth: 480, maxHeight: 640);
 
     void openLocationSetting() async {
       final AndroidIntent intent = new AndroidIntent(
@@ -414,7 +414,7 @@ class _FormHState extends State<FormH> {
             if (value == null)
               setState(() => _loading = false);
             else
-              createObject(value);
+              createObject(File(value.path));
           }).catchError((err) {
             setState(() => _loading = false);
           });

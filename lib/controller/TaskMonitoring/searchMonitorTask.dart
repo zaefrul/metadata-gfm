@@ -1,4 +1,4 @@
-// import 'package:barcode_scan2/barcode_scan2.dart';
+import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/TaskMonitoring/task_detail.dart';
 import 'package:gfm_gems/model/monitor.dart';
@@ -32,19 +32,12 @@ class _SearchTaskMonitoringState extends State<SearchTaskMonitoring> {
     _provider =
         new Provider(fetchURL: "/api/m_ppm.php?flowId=$flowId&type=tnm_list");
 
-    controller
-      ..addListener(() {
-        if (controller.text != searchText) {
-          searchText = controller.text;
-          allTask(controller.text);
-        }
-      });
-
     tasks;
   }
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     _provider.context = context;
     return Scaffold(
         key: _scaffoldKey,
@@ -59,7 +52,15 @@ class _SearchTaskMonitoringState extends State<SearchTaskMonitoring> {
                   border: InputBorder.none,
                   hintText: "Search",
                   hintStyle: TextStyle(color: Color(0xcc022c41))),
-              onChanged: (text) => setState(() => keyword = text)),
+              onChanged: (text) => setState(() => keyword = text),
+              textInputAction: TextInputAction.search,
+              onSubmitted: (value) {
+                Toast.show("Loading", duration: 2);
+                if (controller.text != searchText) {
+                  searchText = controller.text;
+                  allTask(controller.text);
+                }
+              }),
           actions: <Widget>[
             new GestureDetector(
                 child: Icon(
@@ -178,17 +179,21 @@ class _SearchTaskMonitoringState extends State<SearchTaskMonitoring> {
 
   Future scan() async {
     try {
-      var barcode; //= await BarcodeScanner.scan();
+      var barcode = await BarcodeScanner.scan();
       keyword = "Success";
 
       controller.text = this.searchText = barcode.rawContent;
-      qrTask(barcode.rawContent);
+      // qrTask(barcode.rawContent);
+
+      allTask(controller.text);
+
+      Toast.show("Loading", duration: 2);
     } on PlatformException catch (e) {
-      // if (e.code == BarcodeScanner.cameraAccessDenied)
-      setState(
-          () => this.keyword = 'The user did not grant the camera permission!');
-      // else
-      setState(() => this.keyword = 'Unknown error: $e');
+      if (e.code == BarcodeScanner.cameraAccessDenied)
+        setState(() =>
+            this.keyword = 'The user did not grant the camera permission!');
+      else
+        setState(() => this.keyword = 'Unknown error: $e');
     } on FormatException {
       setState(() => this.keyword = 'Cancel');
     } catch (e) {

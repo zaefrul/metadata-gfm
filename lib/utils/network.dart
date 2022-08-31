@@ -28,7 +28,7 @@ Future<User> login(username, password) async {
     "deviceId": deviceId
   };
   try {
-    final response = await http.post(netDomain + netLogin,
+    final response = await http.post(Uri.parse(netDomain + netLogin),
         // headers: {"Content-Type": 'multipart/form-data'},
         headers: {
           HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded',
@@ -96,7 +96,8 @@ class Provider {
     print(fetchURL);
 
     var response = await http.get(
-      netDomain + fetchURL + (this.taskID == null ? "" : this.taskID),
+      Uri.parse(
+          netDomain + fetchURL + (this.taskID == null ? "" : this.taskID)),
       headers: {"Authorization": token, "Deviceid": deviceID},
     );
 
@@ -139,10 +140,10 @@ class Provider {
     print(additionalParam);
 
     var response = await http.get(
-      netDomain +
+      Uri.parse(netDomain +
           fetchURL +
           (this.taskID == null ? "" : this.taskID) +
-          (additionalParam == null ? "" : additionalParam),
+          (additionalParam == null ? "" : additionalParam)),
       headers: {"Authorization": token, "Deviceid": deviceID},
     );
 
@@ -199,7 +200,7 @@ class Provider {
     print(fetchURL);
 
     var response = await http.get(
-      netDomain + fetchURL + (id == null ? "" : "/$id"),
+      Uri.parse(netDomain + fetchURL + (id == null ? "" : "/$id")),
       headers: {"Authorization": token, "Deviceid": deviceID},
     );
 
@@ -240,7 +241,8 @@ class Provider {
     print(fetchURL);
 
     var response = await http.get(
-      netDomain + fetchURL + (this.taskID == null ? "" : this.taskID),
+      Uri.parse(
+          netDomain + fetchURL + (this.taskID == null ? "" : this.taskID)),
       headers: {"Authorization": token, "Deviceid": deviceID},
     );
 
@@ -268,7 +270,7 @@ class Provider {
     if (body != null) if (body["action"] != null) action = body["action"];
     if (includedHeader == true) await init();
 
-    final response = await http.post(netDomain + url,
+    final response = await http.post(Uri.parse(netDomain + url),
         headers: includedHeader == true
             ? {
                 HttpHeaders.contentTypeHeader:
@@ -312,7 +314,7 @@ class Provider {
   Future<dynamic> postUtilities({String url, dynamic body}) async {
     await init();
 
-    final response = await http.post(netDomain + url,
+    final response = await http.post(Uri.parse(netDomain + url),
         headers: {
           HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded',
           "authorization": token,
@@ -347,7 +349,8 @@ class Provider {
     if (includedHeader == true) await init();
 
     final response = await http.put(
-        netDomain + fetchURL + (this.taskID == null ? "" : this.taskID),
+        Uri.parse(
+            netDomain + fetchURL + (this.taskID == null ? "" : this.taskID)),
         headers: includedHeader == true
             ? {
                 HttpHeaders.contentTypeHeader:
@@ -391,7 +394,7 @@ class Provider {
   Future<String> delete({String url}) async {
     await init();
 
-    final response = await http.delete(netDomain + url, headers: {
+    final response = await http.delete(Uri.parse(netDomain + url), headers: {
       HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded',
       "Authorization": token,
       "Deviceid": deviceID

@@ -133,14 +133,14 @@ class _FormViewState extends State<FormView> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "Min Time Allocated : $max",
+                                      "Min Time Allocated : $min",
                                       style: TextStyle(
                                         color:
                                             exceed ? Colors.red : Colors.black,
                                       ),
                                     ),
                                     SizedBox(height: 12),
-                                    Text("Max Time Allocated : $min")
+                                    Text("Max Time Allocated : $max")
                                   ],
                                 ));
                           });

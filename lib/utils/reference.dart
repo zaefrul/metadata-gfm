@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 // Shared Preferences
 final String prefsLATITUDE = "latitude";
 final String prefsLONGITUDE = "longitude";
+const String kUsername = "USERNAME";
 
 final String app_name = "GEMS";
 final Color colorTheme1 = Color(0xff58c2c4);
@@ -17,11 +18,8 @@ abstract class Upload {
 
   Upload({this.action, this.ppmTaskId});
 
-  @required 
-  Map<String, dynamic> get body{
-    return {
-      "action" : action,
-      "ppmTaskId" : ppmTaskId
-    };
+  @required
+  Map<String, dynamic> get body {
+    return {"action": action, "ppmTaskId": ppmTaskId};
   }
 }

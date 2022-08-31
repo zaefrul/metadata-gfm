@@ -177,12 +177,12 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
     String max = "";
     String amount = '';
 
-    final bytes = await compressFile(file);
+    final bytes = await compressFile(File(file.path));
     String size = bytes.length.toString();
     String base64Image = base64Encode(bytes);
     String name =
         DateFormat('kk:mm:ss EEE d MMM').format(DateTime.now()) + ".jpg";
-    final Image image = Image.file(file);
+    final Image image = Image.file(File(file.path));
     image.image
         .resolve(new ImageConfiguration())
         .completer
@@ -286,9 +286,12 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
       return;
     }
 
-    final File value = await ImagePicker.pickImage(source: ImageSource.camera);
+    final value = await ImagePicker().pickImage(source: ImageSource.camera);
 
-    if (value != null) setState(() => listItem.add(value));
+    if (value != null) {
+      final file = File(value.path);
+      setState(() => listItem.add(file));
+    }
   }
 
   Widget _section(File item) {

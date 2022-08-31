@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/utils/reference.dart';
+import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
+import 'package:gfm_gems/model/user.dart';
+
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../utils/network.dart';
 
@@ -20,66 +23,72 @@ class Support extends StatelessWidget {
         centerTitle: true,
         backgroundColor: Colors.white,
       ),
-      body: Container(
-        padding: EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            getTitle("GFM Services Berhad 1033141-H"),
-            ListTile(
-              leading: locIcon,
-              title: new Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  new Text(address1),
-                  new Text(address2),
-                  new Text(address3),
-                  new Text(address4),
-                ],
+      body: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              getTitle("GFM Services Berhad 1033141-H"),
+              ListTile(
+                leading: locIcon,
+                title: new Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    new Text(address1),
+                    new Text(address2),
+                    new Text(address3),
+                    new Text(address4),
+                  ],
+                ),
               ),
-            ),
-            ListTile(
-              leading: phoneIcon,
-              title: new Text(
-                phone,
-                style: TextStyle(color: colorTheme2),
+              ListTile(
+                leading: phoneIcon,
+                title: new Text(
+                  phone,
+                  style: TextStyle(color: colorTheme2),
+                ),
+                onTap: () => openPhone(),
               ),
-              onTap: () => openPhone(),
-            ),
-            ListTile(
-              leading: mailIcon,
-              title: new Text(email),
-            ),
-            getTitle("User Manual"),
-            ListTile(
-              title: new Text("1. PPM - Executor"),
-              trailing: pdfIcon,
-              onTap: () => openExecutor(),
-            ),
-            ListTile(
-                title: new Text("2. PPM - Reviewer"),
+              ListTile(
+                leading: mailIcon,
+                title: new Text(
+                  email,
+                  style: TextStyle(color: colorTheme2),
+                ),
+                onTap: () => openEmail(),
+              ),
+              getTitle("User Manual"),
+              ListTile(
+                title: new Text("1. PPM - Executor"),
                 trailing: pdfIcon,
-                onTap: () => openReviewer()),
-            ListTile(
-                title: new Text("3. PPM - Verifier"),
+                onTap: () => openExecutor(),
+              ),
+              ListTile(
+                  title: new Text("2. PPM - Reviewer"),
+                  trailing: pdfIcon,
+                  onTap: () => openReviewer()),
+              ListTile(
+                  title: new Text("3. PPM - Verifier"),
+                  trailing: pdfIcon,
+                  onTap: () => openVerifier()),
+              ListTile(
+                title: new Text("4. WO - Assigner"),
                 trailing: pdfIcon,
-                onTap: () => openVerifier()),
-            ListTile(
-              title: new Text("4. WO - Assigner"),
-              trailing: pdfIcon,
-              onTap: () => openVerifier(),
-            ),
-            ListTile(
-                title: new Text("5. WO - Complainer"),
-                trailing: pdfIcon,
-                onTap: () => openReviewer()),
-            ListTile(
-                title: new Text("6. WO - Executor"),
-                trailing: pdfIcon,
-                onTap: () => openExecutor())
-          ],
+                onTap: () => openVerifier(),
+              ),
+              ListTile(
+                  title: new Text("5. WO - Complainer"),
+                  trailing: pdfIcon,
+                  onTap: () => openReviewer()),
+              ListTile(
+                  title: new Text("6. WO - Executor"),
+                  trailing: pdfIcon,
+                  onTap: () => openExecutor())
+            ],
+          ),
         ),
       ),
     );
@@ -112,6 +121,15 @@ class Support extends StatelessWidget {
       );
 
   void openPhone() => launch("tel://60341010555");
+
+  void openEmail() async {
+    final SharedPreferences pref = await SharedPreferences.getInstance();
+    final user = pref.getString(kUserPrefs);
+    final value = User.fromMap(user);
+    final url =
+        "mailto:$email?subject=Mobile App Support (From : ${value.username})&body=Complainer:${value.email}\nName:${value.firstName + ' ' + value.lastName} \nPhone Number : ${value.contactNo} \nYour Complaint: ";
+    launchUrl(Uri.parse(url));
+  }
 
   void openExecutor() => launch("$netDomain/api/pdf/user_manual_executor.pdf");
 

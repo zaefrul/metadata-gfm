@@ -1,4 +1,4 @@
-// import 'package:barcode_scan2/barcode_scan2.dart';
+import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/WorkOrder/complaintView.dart';
 import 'package:gfm_gems/utils/reference.dart';
@@ -27,28 +27,24 @@ class _SearchState extends State<SearchComplaint> {
   ComplaintView body;
   final TextEditingController controller;
 
-  _SearchState() : controller = TextEditingController() {
-    controller
-      ..addListener(() {
-        if (controller.text != searchText) {
-          searchText = controller.text;
-          _fetchQuery(controller.text, index);
-        }
-      });
-  }
+  _SearchState() : controller = TextEditingController();
 
   Future scan() async {
     try {
-      var barcode; //= await BarcodeScanner.scan();
+      var barcode = await BarcodeScanner.scan();
       keyword = "Success";
 
-      _fetchQR(barcode.rawContent);
+      // _fetchQR(barcode.rawContent);
+
+      Toast.show("Loading", duration: 2);
+
+      _fetchQuery(controller.text, index);
     } on PlatformException catch (e) {
-      // if (e.code == BarcodeScanner.cameraAccessDenied)
-      setState(
-          () => this.keyword = 'The user did not grant the camera permission!');
-      // else
-      setState(() => this.keyword = 'Unknown error: $e');
+      if (e.code == BarcodeScanner.cameraAccessDenied)
+        setState(() =>
+            this.keyword = 'The user did not grant the camera permission!');
+      else
+        setState(() => this.keyword = 'Unknown error: $e');
     } on FormatException {
       setState(() => this.keyword = 'Cancel');
     } catch (e) {
@@ -60,6 +56,7 @@ class _SearchState extends State<SearchComplaint> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     if (_url == null || body == null) {
       final SearchComplaintArguments args =
           ModalRoute.of(context).settings.arguments;
@@ -81,7 +78,15 @@ class _SearchState extends State<SearchComplaint> {
                 border: InputBorder.none,
                 hintText: "Search",
                 hintStyle: TextStyle(color: Color(0xcc022c41))),
-            onChanged: (text) => setState(() => keyword = text)),
+            onChanged: (text) => setState(() => keyword = text),
+            textInputAction: TextInputAction.search,
+            onSubmitted: (value) {
+              Toast.show("Loading", duration: 2);
+              if (controller.text != searchText) {
+                searchText = controller.text;
+                _fetchQuery(controller.text, index);
+              }
+            }),
         actions: <Widget>[
           new GestureDetector(
               child: Icon(

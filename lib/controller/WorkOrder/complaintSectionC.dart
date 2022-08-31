@@ -288,8 +288,14 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
     var longitude;
 
     Future<File> getImage() async {
-      var value = await ImagePicker.pickImage(source: ImageSource.camera);
-      return value;
+      var value = await ImagePicker().pickImage(source: ImageSource.camera);
+      if (value != null) {
+        final file = File(value.path);
+
+        return file;
+      }
+
+      return null;
     }
 
     Future<bool> openLocationSetting() async {
@@ -304,7 +310,7 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
     String date() => DateFormat('kk:mm:ss EEE d MMM').format(DateTime.now());
 
     void createObject(File file) async {
-      final bytes = await compressFile(file);
+      final bytes = await compressFile(File(file.path));
       String size = bytes.length.toString();
       String base64Image = base64Encode(bytes);
 

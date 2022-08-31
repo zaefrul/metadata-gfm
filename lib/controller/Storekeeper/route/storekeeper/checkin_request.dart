@@ -294,7 +294,7 @@ class ViewImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         child: PhotoView(
-      imageProvider: FileImage(file),
+      imageProvider: FileImage(File(file.path)),
     ));
   }
 }

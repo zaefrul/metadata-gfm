@@ -6,17 +6,12 @@ class Session {
   final String password;
   final String param;
 
-  var header = {"Content-Type":"application/json"};
+  var header = {"Content-Type": "application/json"};
 
-  Session({this.id,this.password})
-  : this.param = json.encode({
-    "user_id"  : id,
-    "password" : password
-  });
+  Session({this.id, this.password})
+      : this.param = json.encode({"user_id": id, "password": password});
 
-  Future<Map<String,dynamic>> get logIn async =>  
-    http
-    .post("",body: param, headers: this.header)
-    .then((value)=>json.decode(value.body));
-  
+  Future<Map<String, dynamic>> get logIn async => http
+      .post(Uri.parse(""), body: param, headers: this.header)
+      .then((value) => json.decode(value.body));
 }

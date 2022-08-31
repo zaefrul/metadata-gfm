@@ -206,7 +206,7 @@ class _EditState extends State<Edit> {
   Widget _bottomSheet() {
     Future<File> getImageCamera() async {
       if (Platform.isIOS) {
-        var value = await ImagePicker.pickImage(source: ImageSource.camera);
+        var value = await ImagePicker().pickImage(source: ImageSource.camera);
         var result = await FlutterImageCompress.compressWithFile(
           value.path,
           minWidth: 480,
@@ -215,15 +215,15 @@ class _EditState extends State<Edit> {
         return await File(value.path).writeAsBytes(result);
       }
 
-      var value = await ImagePicker.pickImage(
-          source: ImageSource.camera, maxWidth: 480, maxHeight: 640);
+      var value = await ImagePicker()
+          .pickImage(source: ImageSource.camera, maxWidth: 480, maxHeight: 640);
 
-      return value;
+      return File(value.path);
     }
 
     Future<File> getImageGallery() async {
       if (Platform.isIOS) {
-        var value = await ImagePicker.pickImage(source: ImageSource.camera);
+        var value = await ImagePicker().pickImage(source: ImageSource.camera);
         var result = await FlutterImageCompress.compressWithFile(
           value.path,
           minWidth: 480,
@@ -231,10 +231,10 @@ class _EditState extends State<Edit> {
         );
         return await File(value.path).writeAsBytes(result);
       }
-      var value = await ImagePicker.pickImage(
+      var value = await ImagePicker().pickImage(
           source: ImageSource.gallery, maxWidth: 480, maxHeight: 640);
 
-      return value;
+      return File(value.path);
     }
 
     void viewImage() {
@@ -250,7 +250,7 @@ class _EditState extends State<Edit> {
     void setImage(File file) async {
       Navigator.of(context).pop();
       setState(() => path = file.path);
-      bytes = await compressFile(file);
+      bytes = await compressFile(File(file.path));
       size = bytes.length.toString();
       base64Image = base64Encode(bytes);
       desc = "${file.path}.jpg";

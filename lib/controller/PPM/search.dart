@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:toast/toast.dart';
 import '../../utils/reference.dart';
 import 'task_view.dart';
-// import 'package:barcode_scan2/barcode_scan2.dart';
+import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/services.dart';
 
 class SearchArguments {
@@ -26,34 +26,30 @@ class _SearchState extends State<Search> {
   final TaskView allTaskView = TaskView(index: 0);
   int index = 0;
 
-  _SearchState() : controller = TextEditingController() {
-    controller
-      ..addListener(() {
-        if (controller.text != searchText) {
-          searchText = controller.text;
-          if (index == 0)
-            allTaskView.updateAll(controller.text);
-          else if (index == 1) taskView.update(controller.text);
-        }
-      });
-  }
+  _SearchState() : controller = TextEditingController();
 
   Future scan() async {
     try {
-      var barcode; //= await BarcodeScanner.scan();
+      var barcode = await BarcodeScanner.scan();
       keyword = "Success";
 
-      if (index == 0)
-        allTaskView.updateQRAll(controller.text);
-      else if (index == 1) taskView.updateQR(controller.text);
+      // if (index == 0)
+      //   allTaskView.updateQRAll(controller.text);
+      // else if (index == 1) taskView.updateQR(controller.text);
 
       setState(() => controller.text = this.searchText = barcode.rawContent);
+
+      Toast.show("Loading", duration: 2);
+
+      if (index == 0)
+        allTaskView.updateAll(controller.text);
+      else if (index == 1) taskView.update(controller.text);
     } on PlatformException catch (e) {
-      // if (e.code == BarcodeScanner.cameraAccessDenied)
-      setState(
-          () => this.keyword = 'The user did not grant the camera permission!');
-      // else
-      setState(() => this.keyword = 'Unknown error: $e');
+      if (e.code == BarcodeScanner.cameraAccessDenied)
+        setState(() =>
+            this.keyword = 'The user did not grant the camera permission!');
+      else
+        setState(() => this.keyword = 'Unknown error: $e');
     } on FormatException {
       setState(() => this.keyword = 'Cancel');
     } catch (e) {
@@ -65,6 +61,7 @@ class _SearchState extends State<Search> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     final SearchArguments args = ModalRoute.of(context).settings.arguments;
     index = args.index;
 
@@ -76,14 +73,25 @@ class _SearchState extends State<Search> {
         iconTheme: IconThemeData(color: colorTheme3),
         backgroundColor: Colors.white,
         title: new TextField(
-            controller: controller,
-            style: new TextStyle(fontFamily: 'Avenir', color: colorTheme3),
-            autofocus: true,
-            decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: "Search",
-                hintStyle: TextStyle(color: Color(0xcc022c41))),
-            onChanged: (text) => setState(() => keyword = text)),
+          controller: controller,
+          style: new TextStyle(fontFamily: 'Avenir', color: colorTheme3),
+          autofocus: true,
+          decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: "Search",
+              hintStyle: TextStyle(color: Color(0xcc022c41))),
+          onChanged: (text) => setState(() => keyword = text),
+          textInputAction: TextInputAction.search,
+          onSubmitted: (value) {
+            Toast.show("Loading", duration: 2);
+            if (controller.text != searchText) {
+              searchText = controller.text;
+              if (index == 0)
+                allTaskView.updateAll(controller.text);
+              else if (index == 1) taskView.update(controller.text);
+            }
+          },
+        ),
         actions: <Widget>[
           new GestureDetector(
               child: Icon(

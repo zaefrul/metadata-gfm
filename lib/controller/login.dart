@@ -161,18 +161,22 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                   if (_username == null || _password == null)
                     showErr("Please fill up all field");
                   else
-                    login(_username, _password).then((user) {
-                      if (user == null) return Future.error("No Result");
-                      setState(() => userlogIn = false);
-                      user.saveUser();
-                      homepage();
-                      showErr("Welcome ${user.username} !");
-                    }).catchError((err) {
-                      print(err);
-                      showErr(err);
-                    }).whenComplete(() {
-                      setState(() => userlogIn = false);
-                    });
+                    login(_username, _password)
+                        .then((user) async {
+                          if (user == null) return Future.error("No Result");
+                          setState(() => userlogIn = false);
+                          user.saveUser();
+                          homepage();
+                          showErr("Welcome ${user.username} !");
+                        })
+                        .catchError((err) {})
+                        .catchError((err) {
+                          print(err);
+                          showErr(err);
+                        })
+                        .whenComplete(() {
+                          setState(() => userlogIn = false);
+                        });
                 },
         ),
       );

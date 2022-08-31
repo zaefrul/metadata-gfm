@@ -25,6 +25,7 @@ class _LeaderboardViewState extends State<LeaderboardView>
 
   List<IndividualGamification> _individuals = [];
   List<ProjectGamification> _projects = [];
+  GamificationInfo _score;
   List<Widget> _individualTiles = [];
   List<Widget> _projectsTiles = [];
 
@@ -39,6 +40,7 @@ class _LeaderboardViewState extends State<LeaderboardView>
   Future<void> refresh() async {
     _individuals = await _controller.individuals;
     _projects = await _controller.projects;
+    _score = await _controller.score;
     _individualTiles = [];
     _projectsTiles = [];
     _individualTiles.add(_header(0, changeDate));
@@ -119,7 +121,7 @@ class _LeaderboardViewState extends State<LeaderboardView>
         ),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: null,
-          label: Text("Current Scoring Point : 37,555"),
+          label: Text("Current Scoring Point : ${_score?.gmiPointTotal ?? 0}"),
           backgroundColor: colorTheme1,
         ),
       ),
@@ -254,4 +256,11 @@ class _Controller {
       .then((value) => value
           .map<ProjectGamification>((v) => ProjectGamification.fromJson(v))
           .toList());
+  Future<GamificationInfo> get score =>
+      Provider(fetchURL: "/gamification/current_score")
+          .getJson()
+          .then((value) => GamificationInfo.fromJson(value))
+          .catchError((e) {
+        print(e);
+      });
 }

@@ -299,9 +299,15 @@ class _FormComplaintState extends State<FormComplaint> {
     var longitude;
 
     Future<File> getImage() async {
-      var value = await ImagePicker.pickImage(source: ImageSource.camera);
+      var value = await ImagePicker().pickImage(source: ImageSource.camera);
 
-      return value;
+      if (value != null) {
+        final file = File(value.path);
+
+        return file;
+      }
+
+      return null;
     }
 
     Future<List<int>> compressFile(File file) async {
@@ -327,7 +333,7 @@ class _FormComplaintState extends State<FormComplaint> {
     String date() => DateFormat('kk:mm:ss EEE d MMM').format(DateTime.now());
 
     void createObject(File file) async {
-      final bytes = await compressFile(file);
+      final bytes = await compressFile(File(file.path));
       String size = bytes.length.toString();
       String base64Image = base64Encode(bytes);
       String name = "${date()}.jpg";

@@ -1,4 +1,4 @@
-// import 'package:barcode_scan2/barcode_scan2.dart';
+import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
@@ -137,13 +137,13 @@ class _ComplaintSectionDState extends State<ComplaintSectionD> {
 
   Future scan() async {
     try {
-      var barcode; //= await BarcodeScanner.scan();
+      var barcode = await BarcodeScanner.scan();
       controller.text = barcode.rawContent;
     } on PlatformException catch (e) {
-      // if (e.code == BarcodeScanner.cameraAccessDenied)
-      this.keyword = 'The user did not grant the camera permission!';
-      // else
-      this.keyword = 'image scanning fail, please try again';
+      if (e.code == BarcodeScanner.cameraAccessDenied)
+        this.keyword = 'The user did not grant the camera permission!';
+      else
+        this.keyword = 'image scanning fail, please try again';
     } on FormatException {
       this.keyword = 'image scanning fail, please try again';
     } catch (e) {

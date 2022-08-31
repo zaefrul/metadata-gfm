@@ -39,8 +39,12 @@ class _FormHState extends State<FormH> {
   List<UploadItem> uploadItems = List<UploadItem>();
   Map<String, String> mapNotes = Map<String, String>();
 
-  Future<File> getImage() async => await ImagePicker.pickImage(
-      source: ImageSource.camera, maxWidth: 900, maxHeight: 1600);
+  Future<File> getImage() async {
+    final file = await ImagePicker()
+        .pickImage(source: ImageSource.camera, maxWidth: 900, maxHeight: 1600);
+
+    return File(file.path);
+  }
 
   @override
   void initState() {

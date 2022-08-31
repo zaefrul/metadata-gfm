@@ -12,7 +12,10 @@ import 'package:gfm_gems/model/workorder.dart';
 import 'attendance.dart';
 import 'complaint.dart';
 import 'complaintResponse.dart';
+import 'eventAtt.dart';
+import 'eventDetail.dart';
 import 'form.dart';
+import 'gamificationInfo.dart';
 import 'material.dart';
 import 'meter.dart';
 import 'monitor.dart';
@@ -60,7 +63,10 @@ part 'serializers.g.dart';
   MaterialStorePart,
   ComplaintDStoreType,
   Reading,
-  Attendance
+  Attendance,
+  GamificationInfo,
+  EventAtt,
+  EventDetail,
 ])
 final Serializers serializers =
     (_$serializers.toBuilder()..addPlugin(StandardJsonPlugin())).build();

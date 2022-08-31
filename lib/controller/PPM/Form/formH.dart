@@ -288,8 +288,8 @@ class _FormHState extends State<FormH> {
     var longitude;
 
     Future<File> getImage() async {
-      var value = await ImagePicker.pickImage(source: ImageSource.camera);
-      return value;
+      var value = await ImagePicker().pickImage(source: ImageSource.camera);
+      return File(value.path);
     }
 
     Future<bool> openLocationSetting() async {
@@ -304,7 +304,7 @@ class _FormHState extends State<FormH> {
     String date() => DateFormat('kk:mm:ss EEE d MMM').format(DateTime.now());
 
     void createObject(File file) async {
-      final bytes = await compressFile(file);
+      final bytes = await compressFile(File(file.path));
       String size = bytes.length.toString();
       String base64Image = base64Encode(bytes);
 

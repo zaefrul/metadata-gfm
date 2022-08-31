@@ -237,11 +237,11 @@ class BlocCheckin extends Bloc {
   }
 
   void createUploadItem(BuildContext context) async {
-    final value = await ImagePicker.pickImage(source: ImageSource.camera);
+    final value = await ImagePicker().pickImage(source: ImageSource.camera);
 
-    if (value != null)
-      file = value;
-    else
+    if (value != null) {
+      file = File(value.path);
+    } else
       Toast.show("Only one picture is required");
   }
 

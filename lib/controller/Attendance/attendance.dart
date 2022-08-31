@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/model/attendance.dart';
+import 'package:gfm_gems/model/eventAtt.dart';
 import 'dart:async';
 
+import '../../model/eventDetail.dart';
 import 'bloc/bloc_attendance.dart';
 
 import 'package:gfm_gems/utils/reference.dart';
@@ -22,7 +24,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   String _timeClockOut;
   String _duration;
   String _timeString = "";
-  Timer _timer;
 
   void duration() {
     final clockin = (_timeClockIn ?? "").substring(0, 8);
@@ -50,14 +51,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     super.initState();
     _bloc.tabController = TabController(length: 2, vsync: this);
     _timeString = f.format(DateTime.now());
-    _timer = Timer.periodic(const Duration(seconds: 1),
-        (Timer t) => setState(() => _timeString = f.format(DateTime.now())));
   }
 
   @override
   void dispose() {
     _bloc.dispose();
-    _timer?.cancel();
     super.dispose();
   }
 
@@ -87,8 +85,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               children: [_Calendar(_bloc), _Details(_bloc.event$)],
             ),
           ),
-          ProgressClock(_timeString, _timeClockIn, _timeClockOut, _duration,
-              _bloc.attendance$),
+          ProgressClock(_timeClockIn, _timeClockOut, _duration,
+              _bloc.attendance$, _bloc.clock$),
         ],
       ),
       floatingActionButton: _bloc.tabIndex
@@ -122,41 +120,47 @@ class _Calendar extends StatelessWidget {
   DateTime _kLastDay;
 
   _Calendar(this._bloc) {
-    _kFirstDay = DateTime(kToday.year, kToday.month - 3, kToday.day);
-    _kLastDay = DateTime(kToday.year, kToday.month + 3, kToday.day);
+    _kFirstDay = DateTime(kToday.year, 1, 1);
+    _kLastDay = kToday;
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<DateTime>(
-      stream: _bloc.calendarDate$,
-      builder: (context, snapshot) {
-        final selectedDay = snapshot.data ?? DateTime.now();
+    return StreamBuilder(
+        stream: _bloc.events$,
+        builder: (_, evnt) {
+          final rslt = evnt.data;
+          print(rslt);
+          return StreamBuilder<DateTime>(
+            stream: _bloc.calendarDate$,
+            builder: (context, snapshot) {
+              final selectedDay = snapshot.data ?? DateTime.now();
 
-        return TableCalendar(
-          firstDay: _kFirstDay,
-          lastDay: _kLastDay,
-          focusedDay: selectedDay,
-          selectedDayPredicate: (day) => isSameDay(selectedDay, day),
-          onDaySelected: (selectedDay, _) => _bloc.selected = selectedDay,
-          eventLoader: (day) {
-            return _bloc.getEventsForDay(day);
-          },
-          onFormatChanged: (_) => CalendarFormat.month,
-        );
-      },
-    );
+              return TableCalendar<EventAtt>(
+                firstDay: _kFirstDay,
+                lastDay: _kLastDay,
+                focusedDay: selectedDay,
+                selectedDayPredicate: (day) => isSameDay(selectedDay, day),
+                onDaySelected: (selectedDay, _) => _bloc.selected = selectedDay,
+                eventLoader: (day) {
+                  return _bloc.getEventsForDay(day);
+                },
+                onFormatChanged: (value) => value,
+              );
+            },
+          );
+        });
   }
 }
 
 class _Details extends StatelessWidget {
-  final Stream<Event> stream;
+  final Stream<EventDetail> stream;
 
   const _Details(this.stream);
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<Event>(
+    return StreamBuilder<EventDetail>(
         stream: stream,
         builder: (context, snapshot) {
           if (snapshot.data == null) {
@@ -187,93 +191,100 @@ class _Details extends StatelessWidget {
                 ),
               ),
             ]);
-          } else {
-            return Column(
-              children: [
-                const SizedBox(height: 20),
-                const Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Text(
-                    "Attendance Details",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+          }
+
+          return ItemDetail(snapshot.data);
+        });
+  }
+}
+
+class ItemDetail extends StatelessWidget {
+  final EventDetail event;
+  const ItemDetail(this.event, {Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: 20),
+        const Padding(
+          padding: EdgeInsets.all(12),
+          child: Text(
+            "Attendance Details",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        const Divider(
+          color: Colors.black87,
+          height: 2,
+          indent: 12,
+          endIndent: 12,
+        ),
+        Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Table(
+            columnWidths: const {
+              0: FractionColumnWidth(0.40),
+              1: FractionColumnWidth(0.60),
+            },
+            children: [
+              TableRow(children: [
+                TableCell(child: _TextCell("Attendance Status : ", bold: true)),
+                TableCell(child: _TextCell(event.status ?? "")),
+              ]),
+              TableRow(children: [
+                const TableCell(
+                    child: _TextCell("Date Attendance : ", bold: true)),
+                TableCell(child: _TextCell(event.date)),
+              ]),
+              TableRow(children: [
+                TableCell(child: _TextCell("Start Time : ", bold: true)),
+                TableCell(child: _TextCell(event.shiftStart ?? "")),
+              ]),
+              TableRow(children: [
+                TableCell(child: _TextCell("End Time : ", bold: true)),
+                TableCell(child: _TextCell(event.shiftEnd ?? "")),
+              ]),
+              const TableRow(children: [
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: Divider(
+                      color: Colors.black87,
+                      height: 2,
                     ),
                   ),
                 ),
-                const Divider(
-                  color: Colors.black87,
-                  height: 2,
-                  indent: 12,
-                  endIndent: 12,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Table(
-                    columnWidths: const {
-                      0: FractionColumnWidth(0.40),
-                      1: FractionColumnWidth(0.60),
-                    },
-                    children: [
-                      const TableRow(children: [
-                        TableCell(
-                            child:
-                                _TextCell("Attendance Status : ", bold: true)),
-                        TableCell(child: _TextCell("Completed")),
-                      ]),
-                      TableRow(children: [
-                        const TableCell(
-                            child: _TextCell("Date Attendance : ", bold: true)),
-                        TableCell(child: _TextCell(snapshot.data.title)),
-                      ]),
-                      const TableRow(children: [
-                        TableCell(
-                            child: _TextCell("Start Time : ", bold: true)),
-                        TableCell(child: _TextCell("9.00 AM")),
-                      ]),
-                      const TableRow(children: [
-                        TableCell(child: _TextCell("End Time : ", bold: true)),
-                        TableCell(child: _TextCell("4.00 PM")),
-                      ]),
-                      const TableRow(children: [
-                        TableCell(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8.0),
-                            child: Divider(
-                              color: Colors.black87,
-                              height: 2,
-                            ),
-                          ),
-                        ),
-                        TableCell(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8.0),
-                            child: Divider(
-                              color: Colors.black87,
-                              height: 2,
-                            ),
-                          ),
-                        ),
-                      ]),
-                      const TableRow(children: [
-                        TableCell(child: _TextCell("Clock In : ", bold: true)),
-                        TableCell(child: _TextCell("9.00 AM")),
-                      ]),
-                      const TableRow(children: [
-                        TableCell(child: _TextCell("Clock Out : ", bold: true)),
-                        TableCell(child: _TextCell("4.00 PM")),
-                      ]),
-                      const TableRow(children: [
-                        TableCell(child: _TextCell("Duration : ", bold: true)),
-                        TableCell(child: _TextCell("7 Hours")),
-                      ]),
-                    ],
+                TableCell(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: Divider(
+                      color: Colors.black87,
+                      height: 2,
+                    ),
                   ),
                 ),
-              ],
-            );
-          }
-        });
+              ]),
+              TableRow(children: [
+                TableCell(child: _TextCell("Clock In : ", bold: true)),
+                TableCell(child: _TextCell(event.timeClockIn ?? "")),
+              ]),
+              TableRow(children: [
+                TableCell(child: _TextCell("Clock Out : ", bold: true)),
+                TableCell(child: _TextCell(event.timeClockOut ?? "")),
+              ]),
+              TableRow(children: [
+                TableCell(child: _TextCell("Duration : ", bold: true)),
+                TableCell(child: _TextCell(event.duration ?? "")),
+              ]),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -289,7 +300,7 @@ class _TextCell extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
       child: Text(
-        value,
+        value ?? "0%",
         style: TextStyle(
             fontWeight: bold ? FontWeight.bold : null, fontSize: size),
       ),
@@ -301,12 +312,13 @@ class ProgressClock extends StatelessWidget {
   final String clockin;
   final String clockout;
   final String duration;
-  final String time;
+
   final Stream<Attendance> stream;
+  final Stream<String> clock;
 
   // ignore: use_key_in_widget_constructors
   const ProgressClock(
-      this.time, this.clockin, this.clockout, this.duration, this.stream);
+      this.clockin, this.clockout, this.duration, this.stream, this.clock);
 
   @override
   Widget build(BuildContext context) {
@@ -344,7 +356,15 @@ class ProgressClock extends StatelessWidget {
                         const TableCell(
                             child: _TextCell("Current Time : ",
                                 bold: true, size: 16)),
-                        TableCell(child: _TextCell(time, size: 16)),
+                        TableCell(
+                            child: StreamBuilder<String>(
+                                stream: clock,
+                                builder: (context, snapshot) {
+                                  final time = snapshot.data ??
+                                      DateFormat("hh:mm:ss")
+                                          .format(DateTime.now());
+                                  return _TextCell(time, size: 16);
+                                })),
                       ]),
                       TableRow(children: [
                         const TableCell(
@@ -388,9 +408,11 @@ class ProgressClock extends StatelessWidget {
                   CircularPercentIndicator(
                     radius: MediaQuery.of(context).size.width / 3,
                     lineWidth: 10.0,
-                    percent:
-                        double.parse(data.weeklyProgress.replaceAll("%", "")) /
-                            100,
+                    percent: double.parse((data.weeklyProgress == null
+                                ? "0"
+                                : data.weeklyProgress)
+                            .replaceAll("%", "")) /
+                        100,
                     footer: _TextCell(
                         "Total Work Duration : ${data.weeklyRequiredHours ?? 0}"),
                     header: const _TextCell("Weekly Completion",

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:gfm_gems/view/dialog.dart';
-import 'package:open_file/open_file.dart';
+
 // import 'package:path/path.dart';
 
 import 'package:flutter/material.dart';
@@ -274,9 +274,9 @@ class _FormFState extends State<FormF> {
   // }
 
   Future<dynamic> get uploadFile async {
-    var file = await ImagePicker.pickImage(source: ImageSource.camera);
+    var file = await ImagePicker().pickImage(source: ImageSource.camera);
 
-    final bytes = await compressFile(file);
+    final bytes = await compressFile(File(file.path));
     String size = bytes.length.toString();
     String base64Image = base64Encode(bytes);
 
