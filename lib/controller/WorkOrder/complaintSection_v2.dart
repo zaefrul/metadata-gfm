@@ -323,6 +323,7 @@ class _BuildStandardButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     return StreamBuilder<bool>(
         stream: bloc.enable$,
         builder: (context, snapshot) {

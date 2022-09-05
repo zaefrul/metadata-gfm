@@ -24,6 +24,7 @@ class _ForgotState extends State<Forgot> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     pressed() {
       var error = _validateEmail(_email);
 

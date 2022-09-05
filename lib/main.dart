@@ -52,6 +52,7 @@ void main() async {
   material(init) => MyApp();
 
   WidgetsFlutterBinding.ensureInitialized();
+  // if (Firebase.apps.length > 0) {
   await Firebase.initializeApp(
     options: const FirebaseOptions(
       apiKey: 'AIzaSyAHAsf51D0A407EklG1bs-5wA7EbyfNFg0',
@@ -60,6 +61,9 @@ void main() async {
       projectId: 'react-native-firebase-testing',
     ),
   );
+  // } else {
+  //   // Firebase.app();
+  // }
 
   // Set the background messaging handler early on, as a named top-level function
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -103,7 +107,7 @@ void main() async {
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
-  await Firebase.initializeApp(options: DefaultFirebaseConfig.platformOptions);
+  // await Firebase.initializeApp(options: DefaultFirebaseConfig.platformOptions);
   print('Handling a background message ${message.messageId}');
 }
 

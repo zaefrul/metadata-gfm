@@ -28,6 +28,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
   );
 
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     return Scaffold(
         backgroundColor: colorTheme3,
         appBar: AppBar(

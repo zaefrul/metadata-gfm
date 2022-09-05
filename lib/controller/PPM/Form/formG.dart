@@ -34,6 +34,7 @@ class _FormGState extends State<FormG> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     provider.context = context;
 
     return Scaffold(

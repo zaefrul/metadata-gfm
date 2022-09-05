@@ -24,6 +24,7 @@ class _ComplaintAddState extends State<ComplaintAdd> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("Add Material / Item"),

@@ -43,13 +43,13 @@ class _FormViewState extends State<FormView> {
     "A": "A. Asset Details",
     "B":
         "B. Safety Precaution / General Guidline prior to maintenance activity",
-    "C": "C. Executor",
-    "D": "D. Qualitative Task",
-    "E": "E. Quantitative Task",
-    "F": "F. Spare Parts / Material Used",
-    "G": "G. Additional Reports",
-    "H": "H. Comments / Remarks",
-    "I": "I. Maintenance Image",
+    "C": "C. Qualitative Task",
+    "D": "D. Quantitative Task",
+    "E": "E. Spare Parts / Material Used",
+    "F": "F. Additional Reports",
+    "G": "G. Comments / Remarks",
+    "H": "H. Maintenance Image",
+    "I": "I. Executor",
   };
 
   Provider provider;
@@ -90,6 +90,7 @@ class _FormViewState extends State<FormView> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     provider.context = context;
     return Scaffold(
       appBar: AppBar(
@@ -236,26 +237,28 @@ class _FormViewState extends State<FormView> {
             else if (item == "B")
               object = new FormB(id);
             else if (item == "C")
-              object = new PPMAddTechnician(
-                  id, verified, refreshStatus, fieldDisable);
-            else if (item == "D")
               object = new FormC(id, verified, refreshStatus, fieldDisable);
-            else if (item == "E")
+            else if (item == "D")
               object = new FormD(id, verified, refreshStatus, fieldDisable);
-            else if (item == "F")
+            else if (item == "E")
               object =
                   new FormE(id, verified, refreshStatus, fieldDisable, parts);
-            else if (item == "G")
+            else if (item == "F")
               object =
                   new FormF(id, verified, refreshStatus, fieldDisable, report);
-            else if (item == "H")
+            else if (item == "G")
               object = new FormG(id, verified, refreshStatus, fieldDisable);
-            else if (item == "I")
+            else if (item == "H")
               object = new FormH(id, verified, refreshStatus, fieldDisable);
+            else if (item == "I")
+              object = new PPMAddTechnician(
+                  id, verified, refreshStatus, fieldDisable);
 
-            Navigator.of(context).push(new MaterialPageRoute(
-              builder: (BuildContext context) => object,
-            ));
+            Navigator.of(context)
+                .push(new MaterialPageRoute(
+                  builder: (BuildContext context) => object,
+                ))
+                .whenComplete(() => refreshStatus);
           });
 
   bool get enableSubmit {

@@ -23,6 +23,7 @@ class _MaterialEditState extends State<MaterialEdit> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("Material / Item"),

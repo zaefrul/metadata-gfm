@@ -57,6 +57,7 @@ class _FormHState extends State<FormH> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     _provider.context = context;
     return Scaffold(
         appBar: AppBar(
@@ -64,7 +65,7 @@ class _FormHState extends State<FormH> {
           iconTheme: IconThemeData(
             color: colorTheme3,
           ),
-          title: _getTitle("H. Maintenance Image", bold: true),
+          title: _getTitle("C. Maintenance Image", bold: true),
         ),
         body: _loading
             ? Stack(

@@ -41,6 +41,7 @@ class _CheckinRequestState extends State<CheckinRequest> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,

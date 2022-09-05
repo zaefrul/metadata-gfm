@@ -169,6 +169,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,

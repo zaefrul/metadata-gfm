@@ -130,6 +130,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     var rejectButton = FloatingActionButton.extended(
         heroTag: "reject_button",
         label: new Text(widget.taskStatus == "Assign"

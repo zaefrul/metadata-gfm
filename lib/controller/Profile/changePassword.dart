@@ -27,6 +27,7 @@ class _ChangeState extends State<Change> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     pressed() {
       String p =
           "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})";

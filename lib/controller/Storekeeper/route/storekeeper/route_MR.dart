@@ -46,6 +46,7 @@ class _MaterialRequestState extends State<MaterialRequest> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     return Scaffold(
       appBar: AppBar(
         title: new Text("Material Requisition Form"),

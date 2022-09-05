@@ -28,6 +28,7 @@ class _FormComplaintState extends State<FormComplaint> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     var body = ListView(
       children: <Widget>[
         SizedBox(
@@ -410,7 +411,7 @@ class _FormComplaintState extends State<FormComplaint> {
         alert(txt: value);
       }).catchError((err) {
         print(err);
-        alert(err: err);
+        alert(err: err.toString());
       }).whenComplete(() => setState(() => loading = false));
     } else
       Toast.show("Please Relogin");

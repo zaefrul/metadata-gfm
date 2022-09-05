@@ -121,7 +121,7 @@ class _Calendar extends StatelessWidget {
 
   _Calendar(this._bloc) {
     _kFirstDay = DateTime(kToday.year, 1, 1);
-    _kLastDay = kToday;
+    _kLastDay = DateTime(kToday.year, kToday.month + 1, kToday.day);
   }
 
   @override
@@ -129,8 +129,6 @@ class _Calendar extends StatelessWidget {
     return StreamBuilder(
         stream: _bloc.events$,
         builder: (_, evnt) {
-          final rslt = evnt.data;
-          print(rslt);
           return StreamBuilder<DateTime>(
             stream: _bloc.calendarDate$,
             builder: (context, snapshot) {

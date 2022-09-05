@@ -170,6 +170,8 @@ class _FloatingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
+
     return StreamBuilder(
         stream: bloc.verifySubmittion,
         builder: (context, snapshot) => FloatingActionButton.extended(

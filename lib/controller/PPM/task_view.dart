@@ -187,7 +187,7 @@ class _TaskViewState extends State<TaskView>
           ))
               .then((onValue) {
             if (index == 1) fetch(null);
-          });
+          }).whenComplete(_refresh);
         },
       );
 

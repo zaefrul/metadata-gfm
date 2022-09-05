@@ -63,7 +63,7 @@ class _LeaderboardViewState extends State<LeaderboardView>
     final lastDate = DateTime(currentDate.year, currentDate.month + 1);
     final selected = await showMonthYearPicker(
       context: context,
-      initialDate: DateTime(year, month + 1),
+      initialDate: DateTime(year, month),
       firstDate: DateTime(2022),
       lastDate: lastDate,
     );
@@ -208,7 +208,7 @@ class _LeaderboardViewState extends State<LeaderboardView>
       children: [
         ListTile(
           title: Text(
-            "${months[month]} $year",
+            "${months[month - 1]} $year",
             style: TextStyle(fontSize: 20, color: colorTheme2),
           ),
           trailing: Icon(Icons.calendar_month, color: colorTheme2),

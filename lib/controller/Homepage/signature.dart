@@ -20,6 +20,8 @@ class SignatureViewState extends State<SignatureView> {
   var _signatureCanvas = Signature(height: 300, backgroundColor: Colors.white);
 
   Widget build(BuildContext context) {
+    ToastContext().init(context);
+
     return Scaffold(
       backgroundColor: colorTheme3,
       appBar: AppBar(

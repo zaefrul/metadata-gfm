@@ -25,6 +25,7 @@ class SignatureViewState extends State<SignatureView> {
   );
 
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     return Scaffold(
         backgroundColor: colorTheme3,
         appBar: AppBar(

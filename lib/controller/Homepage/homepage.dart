@@ -8,6 +8,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../view/bar.dart';
 import '../../view/drawer.dart';
@@ -23,6 +24,8 @@ class _HomepageState extends State<Homepage> {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   bool isStorekeeper = false;
   bool isUtilities = false;
+
+  final String email = "ict-support@globalfm.com.my";
 
   @override
   void initState() {
@@ -80,6 +83,7 @@ class _HomepageState extends State<Homepage> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     return Scaffold(
         key: _scaffoldKey,
         drawer: BuildDrawer(() => Navigator.pop(context), isHome: true),
@@ -144,8 +148,22 @@ class _HomepageState extends State<Homepage> {
                         color: Colors.white,
                       ),
                     ),
-                    onTap: () {},
+                    onTap: openEmail,
                     route: routeAttendance,
+                    // notAllowed: isUtilities,
+                  ),
+                  gridView(
+                    "Feedback",
+                    Color(0xFF99C24C),
+                    image: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Image.asset(
+                        "assets/feedback.png",
+                        // color: Colors.white,
+                      ),
+                    ),
+                    onTap: openEmail,
+                    route: null,
                     // notAllowed: isUtilities,
                   ),
                 ]),
@@ -196,6 +214,15 @@ class _HomepageState extends State<Homepage> {
         width: double.infinity,
         child: Image.asset("assets/bg.jpg", fit: BoxFit.fill),
       );
+
+  void openEmail() async {
+    final SharedPreferences pref = await SharedPreferences.getInstance();
+    final user = pref.getString(kUserPrefs);
+    final value = User.fromMap(user);
+    final url =
+        "mailto:$email?subject=Mobile App Support (From : ${value.username})&body=Complainer:${value.email}\nName:${value.firstName + ' ' + value.lastName} \nPhone Number : ${value.contactNo} \nYour Complaint: ";
+    launchUrl(Uri.parse(url));
+  }
 }
 
 class Request {

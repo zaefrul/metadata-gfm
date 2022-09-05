@@ -70,6 +70,7 @@ class _CheckinAddState extends State<CheckinAdd> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("Add Material / Item"),

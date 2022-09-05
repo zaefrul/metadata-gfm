@@ -8,6 +8,8 @@ class BuildDrawer extends StatelessWidget {
   final bool isHome;
   final Function backFunc;
 
+  final String email = "ict-support@globalfm.com.my";
+
   BuildDrawer(this.backFunc, {this.isHome = false});
 
   @override

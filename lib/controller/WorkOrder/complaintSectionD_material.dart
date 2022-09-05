@@ -34,6 +34,8 @@ class _ComplaintSectionDMaterialState extends State<ComplaintSectionDMaterial> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
+
     return Scaffold(
         appBar: AppBar(
           title: new Text("E. Spare Parts/ Material User"),

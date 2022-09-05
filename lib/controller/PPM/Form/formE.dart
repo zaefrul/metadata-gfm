@@ -30,7 +30,14 @@ class _FormEState extends State<FormE> {
   void initState() {
     super.initState();
 
-    groupValue = widget.status.length > 0 ? int.parse(widget.status) : null;
+    if (widget.status.length == 0) {
+      groupValue = null;
+    } else if (widget.status == "N/A") {
+      groupValue = null;
+    } else {
+      groupValue = int.parse(widget.status);
+    }
+
     enableButton = groupValue == 1;
 
     provider = Provider(
@@ -42,6 +49,7 @@ class _FormEState extends State<FormE> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     provider.context = context;
 
     var body = Container(

@@ -57,6 +57,7 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     _provider.context = context;
     return Scaffold(
         appBar: AppBar(

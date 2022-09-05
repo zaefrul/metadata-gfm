@@ -64,6 +64,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     return Scaffold(
       appBar: AppBar(
         title: new Text("Add Technician Assistant"),

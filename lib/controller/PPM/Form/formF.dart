@@ -40,6 +40,13 @@ class _FormFState extends State<FormF> {
   @override
   void initState() {
     super.initState();
+    if (widget.status.length == 0) {
+      groupValue = null;
+    } else if (widget.status == "N/A") {
+      groupValue = null;
+    } else {
+      groupValue = int.parse(widget.status);
+    }
 
     groupValue = widget.status.length > 0 ? int.parse(widget.status) : null;
     enableButton = groupValue == 1;
@@ -65,6 +72,7 @@ class _FormFState extends State<FormF> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     provider.context = context;
     void alert(String txt) {
       showDialog(

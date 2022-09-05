@@ -124,38 +124,43 @@ class BlocAttendance extends Bloc {
     final DateTime datetime = DateTime.now();
     final curentYear = datetime.year;
     final currentMonth = datetime.month;
-    int startedMonth = 8;
+
     final List<EventAtt> eventsDate = [];
 
-    while (currentMonth > startedMonth) {
-      final Provider _provider = Provider(
-          fetchURL:
-              "/att_transaction/mobile/calendar_dot/$curentYear/$startedMonth");
-
-      final Map<String, dynamic> result = await _provider.getJson();
-      final List<String> keys = result.keys.map((e) => e).toList();
-      List<EventAtt> values =
-          keys.map((e) => EventAtt.fromJson(result[e])).toList();
-
-      List<EventAtt> filteredValues =
-          values.where((e) => e.color != null).toList();
-      eventsDate.addAll(filteredValues);
-
-      for (EventAtt e in eventsDate) {
-        final String eventDate = e.date;
-        final DateTime key = DateTime.parse(eventDate);
-        _kEventSource.addAll({
-          key: [e]
-        });
-      }
-
-      _kEvents.sink.add(LinkedHashMap<DateTime, List<EventAtt>>(
-        equals: isSameDay,
-        hashCode: getHashCode,
-      )..addAll(_kEventSource));
-
-      startedMonth++;
+    for (int startedMonth = 1;
+        startedMonth < currentMonth && startedMonth != currentMonth;
+        startedMonth++) {
+      final list = await fillCalendar(curentYear, startedMonth);
+      eventsDate.addAll(list);
     }
+
+    final list = await fillCalendar(curentYear, currentMonth);
+    eventsDate.addAll(list);
+
+    for (EventAtt e in eventsDate) {
+      final String eventDate = e.date;
+      final DateTime key = DateTime.parse(eventDate);
+      _kEventSource.addAll({
+        key: [e]
+      });
+    }
+
+    _kEvents.sink.add(LinkedHashMap<DateTime, List<EventAtt>>(
+      equals: isSameDay,
+      hashCode: getHashCode,
+    )..addAll(_kEventSource));
+  }
+
+  Future<List<EventAtt>> fillCalendar(int year, int month) async {
+    final Provider _provider =
+        Provider(fetchURL: "/att_transaction/mobile/calendar_dot/$year/$month");
+
+    final Map<String, dynamic> result = await _provider.getJson();
+    final List<String> keys = result.keys.map((e) => e).toList();
+    List<EventAtt> values =
+        keys.map((e) => EventAtt.fromJson(result[e])).toList();
+
+    return values.where((e) => e.color != null).toList();
   }
 
   void clockedIn(BuildContext context) async {

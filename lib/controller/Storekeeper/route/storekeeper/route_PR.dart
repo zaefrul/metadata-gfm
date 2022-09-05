@@ -121,6 +121,7 @@ class _MaterialState extends State<_Material> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     return ExpansionTile(
       title: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),

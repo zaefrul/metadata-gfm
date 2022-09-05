@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gfm_gems/model/responseValue.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
+import 'package:toast/toast.dart';
 
 class PPMAddTechnician extends StatefulWidget {
   final String id;
@@ -55,6 +56,8 @@ class PPMAddTechnicianState extends State<PPMAddTechnician> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
+
     return WillPopScope(
       onWillPop: () async {
         widget.refreshStatus();
@@ -85,7 +88,9 @@ class PPMAddTechnicianState extends State<PPMAddTechnician> {
                       .map(
                         (f) => new CheckboxListTile(
                           title: new Text(f.userFullName),
-                          value: listTechnicianSelected.contains(f),
+                          value: listTechnicianSelected
+                                  .firstWhere((e) => e.userId == f.userId) !=
+                              null,
                           onChanged: (value) {
                             if (widget.disable) return;
                             // if (value) showsheet();
@@ -255,11 +260,14 @@ class _Controller {
 
     final body = {
       "ppmTaskId": id,
-      "assistant": model.assistantId,
+      "assistant": model.userId,
     };
 
     try {
-      final _ = await _provider.post(url: url, body: body);
+      final result = await _provider.post(url: url, body: body);
+      print(result);
+
+      Toast.show(result.toString());
       return;
     } catch (e) {
       return e;
@@ -270,7 +278,11 @@ class _Controller {
     final url = "/ppm_task_assist/${model.assistantId}";
     final Provider _provider = Provider(fetchURL: url, taskID: id);
     try {
-      final _ = await _provider.delete(url: url);
+      final result = await _provider.delete(url: url);
+
+      print(result);
+
+      Toast.show(result.toString());
 
       return;
     } catch (e) {
@@ -279,10 +291,12 @@ class _Controller {
   }
 
   Future<void> submit() async {
-    final url = "/ppm_v2/ppm_task_assist/$id";
+    final url = "/ppm_v2/save_assistant_list/$id";
     final Provider _provider = Provider();
     try {
-      final _ = await _provider.post(url: url);
+      final result = await _provider.post(url: url);
+
+      Toast.show(result.toString());
 
       return;
     } catch (e) {
@@ -296,6 +310,14 @@ class _Controller {
             "/api/m_wo.php?type=technician_details&groupId=${model.assistantId}&userId=",
         taskID: id);
     return provider.fetch();
+  }
+
+  _Model getModel(List<_Model> list, _Model value) {
+    if (list.length == 0) return null;
+    final item = list.firstWhere((element) => element.userId == value.userId,
+        orElse: () => null);
+
+    return item;
   }
 }
 

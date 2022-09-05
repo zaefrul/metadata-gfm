@@ -41,6 +41,7 @@ class _FormCState extends State<FormC> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     provider.context = context;
     return Scaffold(
       appBar: AppBar(

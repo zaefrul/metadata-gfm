@@ -54,6 +54,8 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
+
     if (userExist) return background;
 
     var keyboardOpen =
