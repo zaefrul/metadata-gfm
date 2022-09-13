@@ -62,53 +62,50 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          backgroundColor: Colors.white,
-          title: const Text(
-            "Attendance",
-            style: TextStyle(color: Colors.black),
-          ),
-          centerTitle: true,
-          bottom: TabBar(
-            controller: _bloc.tab,
-            labelColor: Colors.black,
-            physics: const NeverScrollableScrollPhysics(),
-            tabs: const [Tab(text: "Calendar"), Tab(text: "Weekly Progress")],
-          )),
-      body: TabBarView(
-        controller: _bloc.tab,
-        physics: const NeverScrollableScrollPhysics(),
-        children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 70),
-            child: Column(
-              children: [_Calendar(_bloc), _Details(_bloc.event$)],
+        appBar: AppBar(
+            backgroundColor: Colors.white,
+            title: const Text(
+              "Attendance",
+              style: TextStyle(color: Colors.black),
             ),
-          ),
-          ProgressClock(_timeClockIn, _timeClockOut, _duration,
-              _bloc.attendance$, _bloc.clock$),
-        ],
-      ),
-      floatingActionButton: _bloc.tabIndex
-          ? StreamBuilder<bool>(
-              stream: _bloc.buttonStatus$,
-              builder: (_, snapshot) {
-                if (snapshot.data == null) return Container();
-                final result = snapshot.data;
-                return FloatingActionButton.extended(
-                  backgroundColor: result ? colorTheme3 : colorTheme4,
-                  onPressed: () {
-                    if (result == false) {
-                      _bloc.clockedOut(context);
-                    } else {
-                      _bloc.clockedIn(context);
-                    }
-                  },
-                  label: _TextCell(result ? "Clock In" : "Clock Out"),
-                );
-              })
-          : null,
-    );
+            centerTitle: true,
+            bottom: TabBar(
+              controller: _bloc.tab,
+              labelColor: Colors.black,
+              physics: const NeverScrollableScrollPhysics(),
+              tabs: const [Tab(text: "Calendar"), Tab(text: "Weekly Progress")],
+            )),
+        body: TabBarView(
+          controller: _bloc.tab,
+          physics: const NeverScrollableScrollPhysics(),
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: 70),
+              child: Column(
+                children: [_Calendar(_bloc), _Details(_bloc.event$)],
+              ),
+            ),
+            ProgressClock(_timeClockIn, _timeClockOut, _duration,
+                _bloc.attendance$, _bloc.clock$),
+          ],
+        ),
+        floatingActionButton: StreamBuilder<bool>(
+            stream: _bloc.buttonStatus$,
+            builder: (_, snapshot) {
+              if (snapshot.data == null) return Container();
+              final result = snapshot.data;
+              return FloatingActionButton.extended(
+                backgroundColor: result ? colorTheme3 : colorTheme4,
+                onPressed: () {
+                  if (result == false) {
+                    _bloc.clockedOut(context);
+                  } else {
+                    _bloc.clockedIn(context);
+                  }
+                },
+                label: _TextCell(result ? "Check In" : "Check Out"),
+              );
+            }));
   }
 }
 

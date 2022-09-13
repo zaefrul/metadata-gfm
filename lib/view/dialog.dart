@@ -106,7 +106,7 @@ class CustomDialog extends StatelessWidget {
                 children: <Widget>[
                   cancel == false
                       ? Container()
-                      : FlatButton(
+                      : TextButton(
                           onPressed: () {
                             print("keluar");
                             Navigator.of(context).pop(); // To close the dialog
@@ -216,7 +216,7 @@ class CustomDialog extends StatelessWidget {
                 children: <Widget>[
                   cancel == false
                       ? Container()
-                      : FlatButton(
+                      : TextButton(
                           onPressed: () {
                             Navigator.of(context).pop(); // To close the dialog
                           },
@@ -230,7 +230,7 @@ class CustomDialog extends StatelessWidget {
                         ),
                   secondButton == false
                       ? Container()
-                      : FlatButton(
+                      : TextButton(
                           onPressed: () {
                             if (useDescription)
                               secondTapped();

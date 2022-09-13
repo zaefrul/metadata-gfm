@@ -25,7 +25,7 @@ class _HomepageState extends State<Homepage> {
   bool isStorekeeper = false;
   bool isUtilities = false;
 
-  final String email = "ict-support@globalfm.com.my";
+  final String email = "operationalexcellence@globalfm.com.my";
 
   @override
   void initState() {

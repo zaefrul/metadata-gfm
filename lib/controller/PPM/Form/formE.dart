@@ -172,7 +172,7 @@ class _FormEState extends State<FormE> {
                 color: colorTheme3)),
         trailing: widget.disable
             ? null
-            : new FlatButton(
+            : new TextButton(
                 child: new Icon(Icons.remove),
                 onPressed: () async {
                   setState(() => loading = true);

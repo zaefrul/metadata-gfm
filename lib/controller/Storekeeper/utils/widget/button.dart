@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import '../constant.dart';
 
 class Button extends StatelessWidget {
-
   final GestureTapCallback onPressed;
   final String text;
   final Color color;
@@ -13,17 +12,18 @@ class Button extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RaisedButton(
-      color: color == null ?colorTheme1 : color ,
-      splashColor: colorTheme2,
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color == null ? colorTheme1 : color,
+        shape: StadiumBorder(),
+      ),
       onPressed: this.onPressed,
       child: new Text(
-        text, 
+        text,
         style: TextStyle(
           color: Colors.white,
         ),
       ),
-      shape: StadiumBorder(),
     );
   }
 }

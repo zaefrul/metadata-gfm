@@ -88,9 +88,7 @@ class PPMAddTechnicianState extends State<PPMAddTechnician> {
                       .map(
                         (f) => new CheckboxListTile(
                           title: new Text(f.userFullName),
-                          value: listTechnicianSelected
-                                  .firstWhere((e) => e.userId == f.userId) !=
-                              null,
+                          value: checkSelected(f),
                           onChanged: (value) {
                             if (widget.disable) return;
                             // if (value) showsheet();
@@ -103,7 +101,8 @@ class PPMAddTechnicianState extends State<PPMAddTechnician> {
                             } else
                               setState(() {
                                 listTechnicianSelected.removeWhere(
-                                    (technician) => technician == f);
+                                    (technician) =>
+                                        technician.userId == f.userId);
                                 _provider.delete(f);
                               });
                           },
@@ -126,6 +125,22 @@ class PPMAddTechnicianState extends State<PPMAddTechnician> {
               ),
       ),
     );
+  }
+
+  bool checkSelected(_Model value) {
+    bool exist = false;
+
+    if (listTechnicianSelected.isEmpty) return exist;
+
+    for (_Model model in listTechnicianSelected) {
+      if (model.userId == value.userId) {
+        exist = true;
+
+        break;
+      }
+    }
+
+    return exist;
   }
 
   void showsheet() {
@@ -275,7 +290,7 @@ class _Controller {
   }
 
   Future<void> delete(_Model model) async {
-    final url = "/ppm_task_assist/${model.assistantId}";
+    final url = "/ppm_task_assist/${model.userId}";
     final Provider _provider = Provider(fetchURL: url, taskID: id);
     try {
       final result = await _provider.delete(url: url);

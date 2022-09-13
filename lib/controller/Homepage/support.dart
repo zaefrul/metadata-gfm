@@ -13,7 +13,7 @@ class Support extends StatelessWidget {
   final String address3 = "Taman Melawati,";
   final String address4 = "53100 Kuala Lumpur, Malaysia";
   final String phone = "+603-4101-0555";
-  final String email = "ict-support@globalfm.com.my";
+  final String email = "operationalexcellence@globalfm.com.my";
 
   @override
   Widget build(BuildContext context) {

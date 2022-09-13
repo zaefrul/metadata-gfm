@@ -77,7 +77,7 @@ class TileBuild extends StatelessWidget {
     return ListTile(
       title: Text("API $url"),
       onTap: onTap,
-      trailing: FlatButton(
+      trailing: TextButton(
         child: Text('TEST'),
         onPressed: onTap,
       ),

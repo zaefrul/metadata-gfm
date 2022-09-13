@@ -100,7 +100,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
                       snapshot.data[index - (showtime ? 1 : 0)],
                       () => _bloc.openScreen(
                         context,
-                        snapshot.data[index - 1],
+                        snapshot.data[index - (showtime ? 1 : 0)],
                         viewOnly: widget.viewer,
                       ),
                     );

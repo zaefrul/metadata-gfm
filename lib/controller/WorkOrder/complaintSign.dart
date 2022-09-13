@@ -285,7 +285,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
               true, // set to false if you want to force a rating
           builder: (context) {
             return RatingDialog(
-              icon: Material(
+              image: Material(
                 elevation: 6.0,
                 child: Padding(
                   padding: const EdgeInsets.all(Consts.padding),
@@ -297,12 +297,12 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
                 shape: CircleBorder(),
                 color: Colors.white,
               ), // set your own image/icon widget
-              title: "Rate It",
-              description: "Rate technician work your complaint.",
-              submitButton: "SUBMIT",
-              accentColor: Colors.red, // optional
-              onSubmitPressed: (int rating) {
-                body["rating"] = rating.toString();
+              title: Text("Rate It"),
+              message: Text("Rate technician work your complaint."),
+              submitButtonText: "SUBMIT",
+
+              onSubmitted: (response) {
+                body["rating"] = response.rating.toString();
                 upload();
               },
             );

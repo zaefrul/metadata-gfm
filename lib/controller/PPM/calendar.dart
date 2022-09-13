@@ -26,6 +26,10 @@ class _CalendarState extends State<Calendar>
   AnimationController _controller;
   bool typeViewCalendar = true;
   bool typeViewListAll = false;
+  DateTime currentDate = DateTime.now();
+  DateTime firstDate;
+  DateTime lastDate;
+
   final TaskView taskView = new TaskView();
 
   @override
@@ -36,6 +40,9 @@ class _CalendarState extends State<Calendar>
     super.initState();
     _selectedDay = DateTime.now();
     _currentMonth = DateTime.now();
+
+    firstDate = DateTime(_selectedDay.year, 1, 1);
+    lastDate = DateTime(_selectedDay.year, 12, 31);
     fetch(DateTime.now());
 
     _controller = AnimationController(
@@ -90,16 +97,17 @@ class _CalendarState extends State<Calendar>
 
   void _onDaySelected(DateTime day, List events) {
     setState(() {
+      _currentMonth = day;
       _selectedDay = day;
       _selectedEvents = events;
     });
   }
 
-  void _onVisibleDaysChanged(
-      DateTime first, DateTime last, CalendarFormat format) async {
+  void _onVisibleDaysChanged(DateTime first, DateTime last) async {
     bool checkDay(DateTime date) => date.day != 1;
 
     var date = first;
+    last = DateTime(date.year, date.month, 31);
 
     if (checkDay(date)) {
       if (date.month == 12)
@@ -108,9 +116,10 @@ class _CalendarState extends State<Calendar>
         date = new DateTime(date.year, date.month + 1, 1);
     }
     _checkAndFetch(date);
-    _currentMonth = date;
-
     setState(() {
+      _currentMonth = date;
+      _selectedDay = DateTime(date.year, date.month, _selectedDay.day);
+
       _visibleEvents = Map.fromEntries(
         _events.entries.where(
           (entry) =>
@@ -145,25 +154,23 @@ class _CalendarState extends State<Calendar>
 
   // Simple TableCalendar configuration (using Styles)
   Widget _buildTableCalendar() {
-    return TableCalendar(
+    return TableCalendar<String>(
       headerVisible: false,
       locale: 'en_US',
 
+      eventLoader: (day) => _visibleEvents[day],
       // events: _visibleEvents,
       // initialCalendarFormat: CalendarFormat.month,
       // formatAnimation: FormatAnimation.slide,
       startingDayOfWeek: StartingDayOfWeek.monday,
       availableGestures: AvailableGestures.all,
-      availableCalendarFormats: const {
-        CalendarFormat.month: 'Month',
-        CalendarFormat.twoWeeks: '2 weeks',
-        CalendarFormat.week: 'Week',
-      },
       calendarStyle: CalendarStyle(
-          // selectedColor: colorTheme3,
-          // todayColor: colorTheme2,
-          // markersColor: colorTheme1,
-          ),
+          selectedDecoration:
+              BoxDecoration(color: colorTheme2, shape: BoxShape.circle),
+          todayDecoration: BoxDecoration(
+              color: colorTheme2.withOpacity(0.5), shape: BoxShape.circle),
+          markerDecoration:
+              BoxDecoration(color: colorTheme1, shape: BoxShape.circle)),
       headerStyle: HeaderStyle(
         formatButtonTextStyle:
             TextStyle().copyWith(color: Colors.white, fontSize: 15.0),
@@ -172,10 +179,16 @@ class _CalendarState extends State<Calendar>
           borderRadius: BorderRadius.circular(16.0),
         ),
       ),
-      firstDay: DateTime.now(), focusedDay: DateTime.now(),
-      lastDay: DateTime.now(),
-      // onDaySelected: _onDaySelected,
-      // onVisibleDaysChanged: _onVisibleDaysChanged,
+      firstDay: firstDate ?? DateTime(currentDate.year, currentDate.month),
+      focusedDay: _selectedDay,
+      lastDay: lastDate ?? currentDate,
+      selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+      onDaySelected: (day, _) => _onDaySelected(day, _visibleEvents[day]),
+      onFormatChanged: (value) => value,
+      onPageChanged: (date) => _onVisibleDaysChanged(
+        date,
+        null,
+      ),
     );
   }
 
