@@ -12,6 +12,7 @@
         android:name="${applicationName}"
         android:label="GEMS"
         android:icon="@mipmap/ic_launcher">
+        
         <activity
             android:name="io.flutter.embedding.android.FlutterActivity"
             android:launchMode="singleTop"
@@ -36,6 +37,12 @@
               android:name="io.flutter.embedding.android.SplashScreenDrawable"
               android:resource="@drawable/launch_background"
               />
+            <meta-data
+               android:name="firebase_messaging_auto_init_enabled"
+               android:value="false" />
+               <meta-data
+               android:name="firebase_analytics_collection_enabled"
+               android:value="false" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

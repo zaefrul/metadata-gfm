@@ -68,10 +68,10 @@ class _LeaderboardViewState extends State<LeaderboardView>
       lastDate: lastDate,
     );
     if (selected != null) {
-      this.month = selected.month - 1;
+      this.month = selected.month;
       this.year = selected.year;
 
-      _controller.month = selected.month - 1;
+      _controller.month = selected.month;
       _controller.year = selected.year;
       refresh();
     }

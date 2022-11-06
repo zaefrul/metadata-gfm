@@ -102,22 +102,18 @@ class _FormDState extends State<FormD> {
                     "ppmTaskId": widget.id,
                   };
 
-                  int count_NA = 0;
+                  // int count_NA = 0;
 
                   items.forEach((f) {
-                    if (f.result == "N/A")
-                      count_NA++;
-                    else
-                      body.addAll(f.body);
+                    // if (f.result == "N/A") count_NA++;
+                    // else
+                    body.addAll(f.body);
                   });
 
-                  if (items.length == count_NA) {
-                    setState(() {
-                      loading = false;
-                    });
-                    Toast.show("Nothing to update.");
-                    return;
-                  }
+                  // if (items.length == count_NA){
+                  //   Toast.show("Nothing to update.", context);
+                  //   return;
+                  // }
 
                   provider
                       .post(url: "/api/m_ppm.php", body: body)

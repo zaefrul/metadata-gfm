@@ -33,6 +33,7 @@ class _HomepageState extends State<Homepage> {
 
     _firebaseMessaging.getToken().then((token) {
       if (token != null) {
+        print(token);
         var body = {"action": "save_token", "token": token};
 
         Provider provider = Provider();
@@ -220,7 +221,7 @@ class _HomepageState extends State<Homepage> {
     final user = pref.getString(kUserPrefs);
     final value = User.fromMap(user);
     final url =
-        "mailto:$email?subject=Mobile App Support (From : ${value.username})&body=Complainer:${value.email}\nName:${value.firstName + ' ' + value.lastName} \nPhone Number : ${value.contactNo} \nYour Complaint: ";
+        "mailto:$email?subject=General Feedback/Complaint (From : ${value.username})&body=Email:${value.email}\nName:${value.firstName + ' ' + value.lastName} \nPhone Number : ${value.contactNo} \nFeedback/Complaint: ";
     launchUrl(Uri.parse(url));
   }
 }

@@ -98,14 +98,66 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 backgroundColor: result ? colorTheme3 : colorTheme4,
                 onPressed: () {
                   if (result == false) {
-                    _bloc.clockedOut(context);
+                    confirmationCheckOut();
                   } else {
-                    _bloc.clockedIn(context);
+                    confirmationCheckIn();
                   }
                 },
                 label: _TextCell(result ? "Check In" : "Check Out"),
               );
             }));
+  }
+
+  void confirmationCheckIn() {
+    FocusScope.of(context).unfocus();
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("Confirmation"),
+        content: Text("Please confirm your Check In?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _bloc.clockedIn(context);
+            },
+            child: Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void confirmationCheckOut() {
+    FocusScope.of(context).unfocus();
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("Confirmation"),
+        content: Text("Please confirm your Check Out?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _bloc.clockedOut(context);
+            },
+            child: Text("OK"),
+          ),
+        ],
+      ),
+    );
   }
 }
 

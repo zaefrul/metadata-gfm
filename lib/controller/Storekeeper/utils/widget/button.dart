@@ -14,7 +14,7 @@ class Button extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: color == null ? colorTheme1 : color,
+        // backgroundColor: color == null ? colorTheme1 : color,
         shape: StadiumBorder(),
       ),
       onPressed: this.onPressed,
