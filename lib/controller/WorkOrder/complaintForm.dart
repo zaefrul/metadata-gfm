@@ -364,7 +364,7 @@ class _FormComplaintState extends State<FormComplaint> {
           .then((value) => createObject(value))
           .catchError((err) => print(err));
     } else
-      Toast.show("Please Relogin");
+      Toast.show("Please allow permission location for camera");
   }
 
   void _upload() async {
@@ -414,7 +414,7 @@ class _FormComplaintState extends State<FormComplaint> {
         alert(err: err.toString());
       }).whenComplete(() => setState(() => loading = false));
     } else
-      Toast.show("Please Relogin");
+      Toast.show("Please allow permission location for camera");
   }
 
   void alert({String txt, String err}) {

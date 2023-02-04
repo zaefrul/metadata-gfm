@@ -116,8 +116,8 @@ class Tile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Slidable(
-      actionPane: SlidableDrawerActionPane(),
-      actionExtentRatio: 0.25,
+      // actionPane: SlidableDrawerActionPane(),
+      // actionExtentRatio: 0.25,
       child: ListTile(
         title: Text(
           item.itemDescription,
@@ -149,22 +149,22 @@ class Tile extends StatelessWidget {
                 .whenComplete(() => controller.refresh())
             : null,
       ),
-      actions: [
-        IconSlideAction(
-          caption: 'Delete',
-          color: Colors.red,
-          icon: Icons.delete,
-          onTap: () => controller.delete(item.woTaskPartsId),
-        )
-      ],
-      secondaryActions: [
-        IconSlideAction(
-          caption: 'Delete',
-          color: Colors.red,
-          icon: Icons.delete,
-          onTap: () => controller.delete(item.woTaskPartsId),
-        )
-      ],
+      // actions: [
+      //   IconSlideAction(
+      //     caption: 'Delete',
+      //     color: Colors.red,
+      //     icon: Icons.delete,
+      //     onTap: () => controller.delete(item.woTaskPartsId),
+      //   )
+      // ],
+      // secondaryActions: [
+      //   IconSlideAction(
+      //     caption: 'Delete',
+      //     color: Colors.red,
+      //     icon: Icons.delete,
+      //     onTap: () => controller.delete(item.woTaskPartsId),
+      //   )
+      // ],
     );
   }
 }

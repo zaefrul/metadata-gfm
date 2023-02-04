@@ -17,7 +17,22 @@ class SignatureView extends StatefulWidget {
 
 class SignatureViewState extends State<SignatureView> {
   bool loading = false;
-  var _signatureCanvas = Signature(height: 300, backgroundColor: Colors.white);
+
+  final SignatureController _controller;
+  Signature _signatureCanvas;
+  SignatureViewState() : _controller = SignatureController() {
+    _signatureCanvas = Signature(
+      controller: _controller,
+      height: 300,
+      backgroundColor: Colors.white,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   Widget build(BuildContext context) {
     ToastContext().init(context);
@@ -32,7 +47,7 @@ class SignatureViewState extends State<SignatureView> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: GestureDetector(
-              onTap: _signatureCanvas.clear,
+              onTap: _controller.clear,
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: new BorderRadius.all(new Radius.circular(6.0)),
@@ -99,7 +114,7 @@ class SignatureViewState extends State<SignatureView> {
   }
 
   post(BuildContext context) async {
-    if (_signatureCanvas.isEmpty) {
+    if (_controller.isEmpty) {
       Toast.show("Please sign first before submit");
       setState(() => loading = false);
       return;
@@ -107,8 +122,7 @@ class SignatureViewState extends State<SignatureView> {
 
     setState(() => loading = true);
 
-    var data = await _signatureCanvas.exportBytes();
-    var pngBytes = data.buffer.asUint8List();
+    var pngBytes = await _controller.toPngBytes();
     String size = pngBytes.length.toString();
     String base64Image = base64Encode(pngBytes);
 

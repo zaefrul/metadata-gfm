@@ -106,9 +106,10 @@ void main() async {
 Future<void> showNotification(RemoteMessage payload) async {
   var initializationSettingsAndroid =
       new AndroidInitializationSettings('@mipmap/ic_launcher');
-  var initiallizationSettingsIOS = IOSInitializationSettings();
+  // var initiallizationSettingsIOS = IOSInitializationSettings();
   var initialSetting = new InitializationSettings(
-      android: initializationSettingsAndroid, iOS: initiallizationSettingsIOS);
+    android: initializationSettingsAndroid,
+  );
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   flutterLocalNotificationsPlugin.initialize(initialSetting);
@@ -121,9 +122,10 @@ Future<void> showNotification(RemoteMessage payload) async {
     ticker: 'ticker',
     icon: initializationSettingsAndroid.defaultIcon,
   );
-  const iOSDetails = IOSNotificationDetails();
-  NotificationDetails platformChannelSpecifics =
-      NotificationDetails(android: androidDetails, iOS: iOSDetails);
+  // const iOSDetails = IOSNotificationDetails();
+  NotificationDetails platformChannelSpecifics = NotificationDetails(
+    android: androidDetails,
+  );
 
   await flutterLocalNotificationsPlugin.show(
       alertCount,

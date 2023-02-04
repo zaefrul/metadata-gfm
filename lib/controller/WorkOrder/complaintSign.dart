@@ -22,10 +22,22 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
   bool loading = false;
   bool withVerifier = false;
   Map<String, dynamic> withVerifierBody = Map<String, dynamic>();
-  var _signatureCanvas = Signature(
-    height: 300,
-    backgroundColor: Colors.white,
-  );
+
+  final SignatureController _controller;
+  Signature _signatureCanvas;
+  ComplaintSignatureState() : _controller = SignatureController() {
+    _signatureCanvas = Signature(
+      controller: _controller,
+      height: 300,
+      backgroundColor: Colors.white,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   Widget build(BuildContext context) {
     ToastContext().init(context);
@@ -42,7 +54,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
               padding: const EdgeInsets.all(8.0),
               child: GestureDetector(
                 onTap: () {
-                  _signatureCanvas.clear();
+                  _controller.clear();
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -142,14 +154,13 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
           decoration: TextDecoration.underline));
 
   post(BuildContext context) async {
-    if (_signatureCanvas.isEmpty) {
+    if (_controller.isEmpty) {
       Toast.show("Please sign first before submit");
       setState(() => loading = false);
       return;
     }
 
-    var data = await _signatureCanvas.exportBytes();
-    var pngBytes = data.buffer.asUint8List();
+    var pngBytes = await _controller.toPngBytes();
     String size = pngBytes.length.toString();
     String base64Image = base64Encode(pngBytes);
 
@@ -248,7 +259,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
                   remarkTapped: (text) {
                     Navigator.pop(context);
                     withVerifier = true;
-                    _signatureCanvas.clear();
+                    _controller.clear();
                     body["remark"] = text;
                     body["isVerified"] = "1";
                     withVerifierBody.addAll(body);

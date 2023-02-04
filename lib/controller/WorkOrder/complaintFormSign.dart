@@ -18,10 +18,22 @@ class ComplaintFormSignature extends StatefulWidget {
 
 class ComplaintFormSignatureState extends State<ComplaintFormSignature> {
   bool loading = false;
-  var _signatureCanvas = Signature(
-    height: 300,
-    backgroundColor: Colors.white,
-  );
+
+  final SignatureController _controller;
+  Signature _signatureCanvas;
+  ComplaintFormSignatureState() : _controller = SignatureController() {
+    _signatureCanvas = Signature(
+      controller: _controller,
+      height: 300,
+      backgroundColor: Colors.white,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   Widget build(BuildContext context) {
     ToastContext().init(context);
@@ -38,7 +50,7 @@ class ComplaintFormSignatureState extends State<ComplaintFormSignature> {
               padding: const EdgeInsets.all(8.0),
               child: GestureDetector(
                 onTap: () {
-                  _signatureCanvas.clear();
+                  _controller.clear();
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -115,7 +127,7 @@ class ComplaintFormSignatureState extends State<ComplaintFormSignature> {
           decoration: TextDecoration.underline));
 
   post(BuildContext context) async {
-    if (_signatureCanvas.isEmpty) {
+    if (_controller.isEmpty) {
       Toast.show("Please sign first before submit");
       setState(() => loading = false);
       return;
@@ -123,8 +135,7 @@ class ComplaintFormSignatureState extends State<ComplaintFormSignature> {
 
     setState(() => loading = true);
 
-    var data = await _signatureCanvas.exportBytes();
-    var pngBytes = data.buffer.asUint8List();
+    var pngBytes = await _controller.toPngBytes();
     String size = pngBytes.length.toString();
     String base64Image = base64Encode(pngBytes);
 

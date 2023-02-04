@@ -217,11 +217,7 @@ class _HomepageState extends State<Homepage> {
       );
 
   void openEmail() async {
-    final SharedPreferences pref = await SharedPreferences.getInstance();
-    final user = pref.getString(kUserPrefs);
-    final value = User.fromMap(user);
-    final url =
-        "mailto:$email?subject=General Feedback/Complaint (From : ${value.username})&body=Email:${value.email}\nName:${value.firstName + ' ' + value.lastName} \nPhone Number : ${value.contactNo} \nFeedback/Complaint: ";
+    final url = "https://forms.office.com/r/CYvjipHJ4S";
     launchUrl(Uri.parse(url));
   }
 }
