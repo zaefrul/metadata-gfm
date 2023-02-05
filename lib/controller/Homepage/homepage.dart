@@ -154,7 +154,7 @@ class _HomepageState extends State<Homepage> {
                     // notAllowed: isUtilities,
                   ),
                   gridView(
-                    "Feedback",
+                    "Suggestion",
                     Color(0xFF99C24C),
                     image: Padding(
                       padding: EdgeInsets.all(8),
