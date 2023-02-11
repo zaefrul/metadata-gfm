@@ -392,7 +392,7 @@ class _FormComplaintState extends State<FormComplaint> {
     if (await openLocationSetting()) {
       var body = {
         "action": "submit_complain",
-        "woTaskLocation": location, // change to locationCodeId
+        "woTaskLocation": location, // add locationCodeId with autocomplete
         "woTaskComplaint": desc,
         "woTaskLongitude": longitude,
         "woTaskLatitude": latitude,
