@@ -34,6 +34,7 @@ const String routeSignature = "ROUTE_SIGNATURE";
 const String routeMaterialCheckinRequest = "ROUTE_CHECKIN_REQUEST";
 const String routeLeaderboard = "ROUTE_LEADERBOARD";
 const String routeAttendance = "ROUTE_ATTENDANCE";
+const String routeRoutineInspection = "ROUTE_ROUTINE_INSPECTION";
 
 // NETWORK - GET
 const String getDashboard = "";

@@ -9,7 +9,9 @@ import 'controller/Attendance/attendance.dart';
 import 'controller/Homepage/signature.dart';
 import 'controller/Leaderboard/leaderboard.dart';
 import 'controller/PPM/PMaintenance.dart';
+import 'controller/PPM/routine_inspection.dart';
 import 'controller/PPM/search.dart';
+import 'controller/PPM/ri_search.dart';
 import 'controller/Storekeeper/route/storekeeper/checkin_add_material.dart';
 import 'controller/Storekeeper/route/storekeeper/checkin_request.dart';
 import 'controller/Storekeeper/route/technician/route_technician_detail.dart';
@@ -30,7 +32,7 @@ import 'controller/Storekeeper/route/storekeeper/route_PR.dart';
 import 'controller/Storekeeper/route/storekeeper/route_material_info.dart';
 import 'controller/Storekeeper/route/storekeeper/route_register.dart';
 import 'controller/Storekeeper/route/technician/route_technician.dart';
-import 'controller/Storekeeper/utils/bloc/bloc_technician.dart';
+// import 'controller/Storekeeper/utils/bloc/bloc_technician.dart';
 import 'controller/Storekeeper/route/storekeeper/checkin_list.dart';
 import 'controller/Storekeeper/route/storekeeper/product_details.dart';
 import 'controller/Storekeeper/route/storekeeper/stockIn_list.dart';
@@ -248,6 +250,9 @@ class MyApp extends StatelessWidget {
       case "/ppm":
         return MaterialPageRoute(
             builder: (context) => PreventiveMaintenance(), settings: settings);
+      case routeRoutineInspection:
+        return MaterialPageRoute(
+            builder: (context) => RoutineInspection(), settings: settings);
       case "/workorder":
         return MaterialPageRoute(
             builder: (context) => WorkOrderView(), settings: settings);
@@ -260,6 +265,9 @@ class MyApp extends StatelessWidget {
       case Search.routeName:
         return MaterialPageRoute(
             builder: (context) => Search(), settings: settings);
+      case SearchRI.routeName:
+        return MaterialPageRoute(
+            builder: (context) => SearchRI(), settings: settings);
       case "/profile":
         return MaterialPageRoute(
             builder: (context) => Profile(), settings: settings);

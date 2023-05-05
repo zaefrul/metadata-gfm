@@ -100,6 +100,8 @@ class _HomepageState extends State<Homepage> {
                 children: <Widget>[
                   gridView("Preventive Maintenance", Colors.cyanAccent,
                       icon: "workorder.png", route: "/ppm"),
+                  gridView("Routine Inspection", Colors.cyanAccent,
+                      icon: "workorder.png", route: routeRoutineInspection),
                   gridView("Work Order", Colors.cyanAccent,
                       icon: "work_order.png", route: "/workorder"),
                   gridView("StoreKeeper", Colors.yellowAccent,
