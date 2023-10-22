@@ -260,8 +260,8 @@ class _Controller {
     final Provider _provider = Provider();
 
     final body = {
-      "ppmTaskId": id,
-      "assistant": model.assistantId,
+      "woTaskId": id,
+      "assistant": model.userId,
     };
 
     try {
