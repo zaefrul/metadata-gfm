@@ -57,14 +57,6 @@ class _SearchState extends State<SearchComplaint> {
   @override
   Widget build(BuildContext context) {
     ToastContext().init(context);
-    if (_url == null || body == null) {
-      final SearchComplaintArguments args =
-          ModalRoute.of(context).settings.arguments;
-      _url = args.url;
-      index = args.index;
-
-      body = ComplaintView(args.url, null, args.index);
-    }
 
     return new Scaffold(
       appBar: AppBar(
@@ -110,7 +102,7 @@ class _SearchState extends State<SearchComplaint> {
 
   _fetchQR(String text) {
     var url = _url;
-    if (text != null) url += "" + text;
+    url += "" + text;
 
     setState(() {
       controller.text = this.searchText = text;
@@ -120,7 +112,7 @@ class _SearchState extends State<SearchComplaint> {
 
   _fetchQuery(String text, int index) {
     var url = _url;
-    if (text != null) url += "&searchTxt=" + text;
+    url += "&searchTxt=" + text;
 
     setState(() => body = new ComplaintView(url, null, index));
   }

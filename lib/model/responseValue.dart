@@ -80,21 +80,17 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
       {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[];
 
-    if (object.taskList != null) {
+    result
+      ..add('values')
+      ..add(serializers.serialize(object.taskList,
+          specifiedType:
+              const FullType(BuiltList, const [const FullType(Task)])));
       result
-        ..add('values')
-        ..add(serializers.serialize(object.taskList,
-            specifiedType:
-                const FullType(BuiltList, const [const FullType(Task)])));
-    }
-    if (object.result != null) {
-      result
-        ..add('values')
-        ..add(serializers.serialize(object.result,
-            specifiedType:
-                const FullType(BuiltList, const [const FullType(String)])));
-    }
-
+      ..add('values')
+      ..add(serializers.serialize(object.result,
+          specifiedType:
+              const FullType(BuiltList, const [const FullType(String)])));
+  
     return result;
   }
 

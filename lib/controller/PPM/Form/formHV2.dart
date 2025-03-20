@@ -224,7 +224,7 @@ class _FormHState extends State<FormH> {
       List<FormHItem> during = List<FormHItem>();
       FormHItem after;
 
-      if (value != null && value.length > 0) {
+      if (value.length > 0) {
         value.forEach((f) => _notes[f.ppmTaskUploadId] = f.ppmTaskUploadDesc);
 
         value.forEach((f) {
@@ -253,27 +253,27 @@ class _FormHState extends State<FormH> {
 
   void _postImage() {
     var count = 0;
-    if (listItem != null) if (listItem.length > 0)
-      listItem.forEach((item) async {
-        try {
-          var value =
-              await _provider.post(url: "/api/m_ppm.php", body: item.body);
-          if (count == listItem.length) {
-            widget.refreshStatus();
-            _alert(value);
-            listItem = List<UploadItem>();
-            _fetch;
-          }
-        } catch (err) {
-          if (count == listItem.length) {
-            setState(() => _loading = false);
-            _alert(err);
-            listItem = List<UploadItem>();
-            _fetch;
-          }
+    if (listItem.length > 0)
+    listItem.forEach((item) async {
+      try {
+        var value =
+            await _provider.post(url: "/api/m_ppm.php", body: item.body);
+        if (count == listItem.length) {
+          widget.refreshStatus();
+          _alert(value);
+          listItem = List<UploadItem>();
+          _fetch;
         }
-        count++;
-      });
+      } catch (err) {
+        if (count == listItem.length) {
+          setState(() => _loading = false);
+          _alert(err);
+          listItem = List<UploadItem>();
+          _fetch;
+        }
+      }
+      count++;
+    });
   }
 
   void get _postNotes {
@@ -321,14 +321,14 @@ class _FormHState extends State<FormH> {
     var duringItems;
     var afterItem;
 
-    if (listItem != null) if (listItem.length > 0) {
-      beforeItem = listItem.firstWhere((item) => item.index == 0);
-      duringItems;
-      listItem.forEach((item) {
-        if (item.index == 1) duringItems.add(item);
-      });
-      afterItem = listItem.firstWhere((item) => item.index == 2);
-    }
+    if (listItem.length > 0) {
+    beforeItem = listItem.firstWhere((item) => item.index == 0);
+    duringItems;
+    listItem.forEach((item) {
+      if (item.index == 1) duringItems.add(item);
+    });
+    afterItem = listItem.firstWhere((item) => item.index == 2);
+  }
 
     for (var i = 0; i < 3; i++) {
       _children.add(new SizedBox(height: 20.0));
@@ -340,17 +340,10 @@ class _FormHState extends State<FormH> {
       } else if (item is List) {
         List<FormHItem> during = item;
         for (var j = 0; j < 3; j++)
-          if (during != null || duringItems != null) {
-            if (j < during.length && during[j] != null)
-              _children.add(_section(during[j]));
-            else if (duringItems != null) {
-              if (j < duringItems.length)
-                _children.add(_sectionUploadItem(duringItems[j]));
-            } else
-              _children.add(_emptySection(i));
-          } else
-            _children.add(_emptySection(i));
-      } else if (beforeItem != null && i == 0) {
+          if (j < during.length)
+            _children.add(_section(during[j]));
+          else _children.add(_emptySection(i));
+              } else if (beforeItem != null && i == 0) {
         _children.add(_sectionUploadItem(beforeItem));
       } else if (beforeItem != null && i == 2) {
         _children.add(_sectionUploadItem(afterItem));
@@ -410,17 +403,12 @@ class _FormHState extends State<FormH> {
           geolocationStatus == LocationPermission.always) {
         latitude = position.latitude.toString();
         longitude = position.longitude.toString();
-        if (position != null) {
-          getImage().then((value) {
-            if (value == null)
-              setState(() => _loading = false);
-            else
-              createObject(File(value.path));
-          }).catchError((err) {
-            setState(() => _loading = false);
-          });
-        }
-      }
+        getImage().then((value) {
+          createObject(File(value.path));
+        }).catchError((err) {
+          setState(() => _loading = false);
+        });
+            }
     } else {
       setState(() => _loading = true);
       openLocationSetting();

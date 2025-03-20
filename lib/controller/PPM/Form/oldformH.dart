@@ -11,7 +11,6 @@ import 'package:gfm_gems/view/field.dart';
 
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:android_intent/android_intent.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
@@ -88,8 +87,7 @@ class _FormHState extends State<FormH> {
   }
 
   Widget body(List<FormHItem> items) {
-    if (items != null)
-      items.forEach((f) => mapNotes[f.ppmTaskUploadId] = f.ppmTaskUploadDesc);
+    items.forEach((f) => mapNotes[f.ppmTaskUploadId] = f.ppmTaskUploadDesc);
 
     return new ListView(
       padding: EdgeInsets.all(16.0),
@@ -228,11 +226,7 @@ class _FormHState extends State<FormH> {
 
     var trailing;
 
-    if (uploadItem != null)
-      trailing = iconButton;
-    else if (item != null)
-      trailing = iconButton;
-    else if (widget.disable == false) trailing = iconButton;
+    trailing = iconButton;
 
     Column row(String firstText, String secondText) => new Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,10 +263,7 @@ class _FormHState extends State<FormH> {
             orElse: () => null);
 
     void note(String text) {
-      if (item == null)
-        mapNotes["$number"] = text;
-      else
-        mapNotes[item.ppmTaskUploadId] = text;
+      mapNotes[item.ppmTaskUploadId] = text;
     }
 
     return Column(children: <Widget>[

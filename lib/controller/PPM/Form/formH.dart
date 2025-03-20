@@ -12,7 +12,8 @@ import 'package:gfm_gems/view/dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
+// import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_native_image_v2/flutter_native_image_v2.dart';
 
 class FormH extends StatefulWidget {
   final String id;
@@ -181,7 +182,7 @@ class _FormHState extends State<FormH> {
       List<FormHItem> during = List<FormHItem>();
       FormHItem after;
 
-      if (value != null && value.length > 0) {
+      if (value.length > 0) {
         value.forEach((f) => _notes[f.ppmTaskUploadId] = f.ppmTaskUploadDesc);
 
         value.forEach((f) {
@@ -271,14 +272,11 @@ class _FormHState extends State<FormH> {
       } else if (item is List) {
         List<FormHItem> during = item;
         for (var j = 0; j < 3; j++)
-          if (during != null) {
-            if (j < during.length && during[j] != null)
-              _children.add(_section(during[j]));
-            else
-              _children.add(_emptySection(i));
-          } else
+          if (j < during.length)
+            _children.add(_section(during[j]));
+          else
             _children.add(_emptySection(i));
-      } else if (item == null) {
+              } else if (item == null) {
         _children.add(_emptySection(i));
       }
     }
@@ -335,10 +333,7 @@ class _FormHState extends State<FormH> {
 
     if (await openLocationSetting()) {
       getImage().then((value) {
-        if (value == null)
-          setState(() => _loading = false);
-        else
-          createObject(value);
+        createObject(value);
       }).catchError((err) {
         setState(() => _loading = false);
       });
@@ -349,15 +344,19 @@ class _FormHState extends State<FormH> {
   // MARK: FUNCTIONALITY - WIDGET
 
   Future<List<int>> compressFile(File file) async {
-    var result = await FlutterImageCompress.compressWithFile(
+    // Compress the image using flutter_native_image.
+    File compressedFile = await FlutterNativeImage.compressImage(
       file.absolute.path,
-      quality: Platform.isIOS ? 20 : 60,
-      minWidth: 480,
-      minHeight: 640,
+      quality: Platform.isIOS ? 60 : 100, // Adjust quality as needed
+      targetWidth: 540,
+      targetHeight: 720,
     );
-    print(file.lengthSync());
-    print(result.length);
-    return result;
+
+    // Read the bytes from the compressed file.
+    final bytes = await compressedFile.readAsBytes();
+    print("Original file size: ${file.lengthSync()}");
+    print("Compressed file size: ${bytes.length}");
+    return bytes;
   }
 
   Widget _bottomSheet({latitude, longitude, src}) {

@@ -28,9 +28,6 @@ class _PreventiveMaintenanceState extends State<PreventiveMaintenance>
   @override
   void initState() {
     super.initState();
-    if (_tabController == null) {
-      _tabController = TabController(vsync: this, length: 2);
-    }
   }
 
   @override

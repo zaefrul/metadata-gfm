@@ -20,27 +20,21 @@ class _$EventAttSerializer implements StructuredSerializer<EventAtt> {
     final result = <Object>[];
     Object value;
     value = object.date;
-    if (value != null) {
-      result
-        ..add('date')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.status;
-    if (value != null) {
-      result
-        ..add('status')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.color;
-    if (value != null) {
-      result
-        ..add('color')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    return result;
+    result
+      ..add('date')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.status;
+    result
+      ..add('status')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.color;
+    result
+      ..add('color')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      return result;
   }
 
   @override
@@ -137,13 +131,11 @@ class EventAttBuilder implements Builder<EventAtt, EventAttBuilder> {
 
   EventAttBuilder get _$this {
     final $v = _$v;
-    if ($v != null) {
-      _date = $v.date;
-      _status = $v.status;
-      _color = $v.color;
-      _$v = null;
-    }
-    return this;
+    _date = $v.date;
+    _status = $v.status;
+    _color = $v.color;
+    _$v = null;
+      return this;
   }
 
   @override
@@ -154,7 +146,7 @@ class EventAttBuilder implements Builder<EventAtt, EventAttBuilder> {
 
   @override
   void update(void Function(EventAttBuilder) updates) {
-    if (updates != null) updates(this);
+    updates(this);
   }
 
   @override

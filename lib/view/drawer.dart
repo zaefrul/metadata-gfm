@@ -94,18 +94,18 @@ class BuildDrawer extends StatelessWidget {
       );
 
   Widget get logo {
-    if (user.imageUrl != null) if (user.imageUrl.length > 0)
-      return Container(
-        height: 120.0,
-        width: 120.0,
-        decoration: new BoxDecoration(
-          image: DecorationImage(
-            image: new NetworkImage("http:" + user.imageUrl),
-            fit: BoxFit.fitWidth,
-          ),
-          shape: BoxShape.circle,
+    if (user.imageUrl.length > 0)
+    return Container(
+      height: 120.0,
+      width: 120.0,
+      decoration: new BoxDecoration(
+        image: DecorationImage(
+          image: new NetworkImage("http:" + user.imageUrl),
+          fit: BoxFit.fitWidth,
         ),
-      );
+        shape: BoxShape.circle,
+      ),
+    );
 
     return new Image.asset(
       'assets/profile_plain.png',

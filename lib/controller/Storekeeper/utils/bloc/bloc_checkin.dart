@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
+// Removed flutter_image_compress and replaced with flutter_native_image:
+import 'package:flutter_native_image_v2/flutter_native_image_v2.dart';
 import 'package:gfm_gems/model/complaint.dart';
 import 'package:gfm_gems/model/serializers.dart';
 import 'package:gfm_gems/utils/network.dart';
@@ -57,6 +58,7 @@ class BlocCheckin extends Bloc {
     _materials.sink.add(list);
   }
 
+  // Assuming a setter for file (adding a File to the DO list)
   set file(File value) {
     final list = _do.value;
     list.add(value);
@@ -156,8 +158,6 @@ class BlocCheckin extends Bloc {
 
     final result = await checker(_provider.getJson());
     final list = deserializeListOf<ComplaintDStore>(result).toList();
-
-    if (_store.value == null) _store.sink.add(list.first);
     return list;
   }
 
@@ -170,7 +170,6 @@ class BlocCheckin extends Bloc {
 
     if (valuesM.length == 0) throw "Please select material";
     if (valuesD.length == 0) throw "Please upload DO ";
-    if (fieldStore == null) throw "Please select Store";
     if (fieldDoNo.length == 0) throw "Please insert Do Number";
     if (fieldSupplier.length == 0) throw "Please insert Supplier Name";
     final Provider _provider = Provider();
@@ -228,21 +227,27 @@ class BlocCheckin extends Bloc {
     return value;
   }
 
+  /// Updated compressFile function using flutter_native_image.
   Future<List<int>> compressFile(File file) async {
-    var result = await FlutterImageCompress.compressWithFile(file.absolute.path,
-        quality: Platform.isIOS ? 20 : 60, minWidth: 480, minHeight: 640);
-    print(file.lengthSync());
-    print(result.length);
+    File compressedFile = await FlutterNativeImage.compressImage(
+      file.absolute.path,
+      quality: Platform.isIOS ? 20 : 60,
+      targetWidth: 480,
+      targetHeight: 640,
+    );
+    final result = await compressedFile.readAsBytes();
+    print("Original file size: ${file.lengthSync()}");
+    print("Compressed file size: ${result.length}");
     return result;
   }
 
   void createUploadItem(BuildContext context) async {
     final value = await ImagePicker().pickImage(source: ImageSource.camera);
-
     if (value != null) {
       file = File(value.path);
-    } else
+    } else {
       Toast.show("Only one picture is required");
+    }
   }
 
   void removeMaterial(Item value) {

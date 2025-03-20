@@ -65,8 +65,7 @@ class _PDFState extends State<PDF> {
   @override
   void dispose() {
     super.dispose();
-    if (dialog != null) if (dialog.controller != null)
-      dialog.controller.dispose();
+    dialog.controller.dispose();
   }
 
   @override

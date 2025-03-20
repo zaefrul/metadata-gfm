@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc_technician.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
 // import 'package:searchable_dropdown/searchable_dropdown.dart';
 
 class RegisterItem extends StatelessWidget {

@@ -210,7 +210,7 @@ class Controller {
       invalid = true;
       remark.text = "";
       quantity.text = "";
-      if (value != null) getSecond();
+      getSecond();
     });
 
     _valueSecond.listen((value) {
@@ -219,15 +219,14 @@ class Controller {
       invalid = true;
       remark.text = "";
       quantity.text = "";
-      if (value != null) getThird();
+      getThird();
     });
 
     _valueThird.listen((value) {
       // setfourth(null);
       remark.text = "";
       invalid = true;
-      if (value != null) quantity.text = value.itemQuantity;
-      if (value == null) quantity.text = "";
+      quantity.text = value.itemQuantity;
     });
 
     _quantity.addListener(() {
@@ -316,8 +315,7 @@ class Controller {
       Toast.show(_invalidMessage.value, duration: 3);
       throw "";
     } else {
-      if (_invalidMessage.value != null)
-        Toast.show(_invalidMessage.value, duration: 3);
+      Toast.show(_invalidMessage.value, duration: 3);
       return _request.post(
         _valueThird.value.itemId,
         remark: remark.text,

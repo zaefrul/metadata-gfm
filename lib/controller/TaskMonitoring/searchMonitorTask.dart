@@ -2,7 +2,6 @@ import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/TaskMonitoring/task_detail.dart';
 import 'package:gfm_gems/model/monitor.dart';
-import 'package:gfm_gems/model/task.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:toast/toast.dart';
@@ -205,7 +204,7 @@ class _SearchTaskMonitoringState extends State<SearchTaskMonitoring> {
 
   allTask(String text) {
     String _url = "/api/m_ppm.php?flowId=$flowId&type=tnm_list";
-    if (text != null) _url += "_search&searchTxt=$text";
+    _url += "_search&searchTxt=$text";
 
     _provider = new Provider(fetchURL: _url);
     _provider.context = context;
@@ -215,7 +214,7 @@ class _SearchTaskMonitoringState extends State<SearchTaskMonitoring> {
 
   qrTask(String text) {
     String _url = "/api/m_ppm.php?flowId=$flowId&type=tnm_list";
-    if (text != null) _url += "_scan_asset&assetNo=$text";
+    _url += "_scan_asset&assetNo=$text";
 
     _provider = new Provider(fetchURL: _url);
     _provider.context = context;

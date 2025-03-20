@@ -11,7 +11,8 @@ import 'package:image_picker/image_picker.dart';
 
 import 'package:gfm_gems/view/dialog.dart';
 
-import 'package:flutter_image_compress/flutter_image_compress.dart';
+// Removed flutter_image_compress import; using flutter_native_image instead:
+import 'package:flutter_native_image_v2/flutter_native_image_v2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -45,8 +46,7 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
     super.initState();
 
     _children = [
-      _getTitle(
-          "Requires at least one photo for each of the following image section below:")
+      _getTitle("Requires at least one photo for each of the following image section below:")
     ];
 
     _provider = Provider(
@@ -84,9 +84,9 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
   }
 
   // WIDGET
-  Widget _getTitle(String text, {bold = false}) => new Container(
+  Widget _getTitle(String text, {bool bold = false}) => Container(
       alignment: Alignment.centerLeft,
-      child: new Text(text,
+      child: Text(text,
           style: TextStyle(
               fontWeight: bold ? FontWeight.bold : FontWeight.normal,
               color: colorTheme3)));
@@ -95,7 +95,7 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
     return widget.disable
         ? null
         : FloatingActionButton.extended(
-            label: new Text("Save"),
+            label: Text("Save"),
             backgroundColor: colorTheme2,
             onPressed: () => _notes.length > 0 ? _postNotes : null,
           );
@@ -112,8 +112,8 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
     return Column(children: <Widget>[
       ListTile(
           contentPadding: EdgeInsets.only(top: 6.0),
-          leading: new Icon(Icons.camera_alt),
-          title: new Text("Tap to upload image"),
+          leading: Icon(Icons.camera_alt),
+          title: Text("Tap to upload image"),
           onTap: () async => widget.disable ? null : _createUploadItem(index)),
       TextField(
         enabled: false,
@@ -123,14 +123,10 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
   }
 
   Widget _section(TechnicianImageRepair item) {
-    var iconButton = new IconButton(
-      icon: new Icon(Icons.delete),
+    var iconButton = IconButton(
+      icon: Icon(Icons.delete),
       color: Colors.red,
-      onPressed: widget.disable
-          ? null
-          : () {
-              _delete(item.woTaskUploadId);
-            },
+      onPressed: widget.disable ? null : () { _delete(item.woTaskUploadId); },
     );
 
     var latitude = item.woTaskUploadLatitude;
@@ -140,13 +136,13 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
     return Column(children: <Widget>[
       ListTile(
           contentPadding: EdgeInsets.only(top: 6.0),
-          leading: new Image.network(src),
+          leading: Image.network(src),
           trailing: widget.disable ? null : iconButton,
-          title: new Column(
+          title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              new Text(item.woTaskUploadTimestamp),
-              new Text(latitude + ", " + longitude)
+              Text(item.woTaskUploadTimestamp),
+              Text(latitude + ", " + longitude)
             ],
           ),
           onTap: () async =>
@@ -167,7 +163,7 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
   // MARK: FUNCTIONALITY - API
 
   void get _fetch {
-    if (context != null) _provider.context = context;
+    _provider.context = context;
 
     _provider.fetch().then((response) {
       var value = response.technicianImages.toList();
@@ -177,7 +173,7 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
       List<TechnicianImageRepair> during = List<TechnicianImageRepair>();
       TechnicianImageRepair after;
 
-      if (value != null && value.length > 0) {
+      if (value.length > 0) {
         value.forEach((f) => _notes[f.woTaskUploadId] = f.woTaskUploadDesc);
 
         value.forEach((f) {
@@ -185,7 +181,8 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
             before = f;
           else if (f.woTaskUploadType == "During")
             during.add(f);
-          else if (f.woTaskUploadType == "After") after = f;
+          else if (f.woTaskUploadType == "After")
+            after = f;
         });
       }
 
@@ -195,21 +192,16 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
 
       setState(() => _loading = false);
     }).catchError((err) {
-      _generateChildren([
-        null,
-        [null, null, null],
-        null
-      ]);
+      _generateChildren([null, [null, null, null], null]);
       setState(() => _loading = false);
     });
   }
 
   void _postImage(UploadItem item) {
-    if (context != null) _provider.context = context;
+    _provider.context = context;
 
     _provider.post(url: "/api/m_wo.php", body: item.body).then((value) {
       _alert(value);
-
       return _fetch;
     }).catchError((err) {
       _alert(err);
@@ -219,17 +211,14 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
   void get _postNotes {
     setState(() => _loading = true);
 
-    var uploadDesc =
-        UploadDesc("save_wo_repair_image_desc", widget.id, notes: _notes);
+    var uploadDesc = UploadDesc("save_wo_repair_image_desc", widget.id, notes: _notes);
 
-    if (context != null) _provider.context = context;
+    _provider.context = context;
 
     _provider.post(url: "/api/m_wo.php", body: uploadDesc.body).then((value) {
       _notes = Map<String, String>();
-
       setState(() => _loading = false);
       _alert(value);
-
       return _fetch;
     }).catchError((err) {
       setState(() => _loading = false);
@@ -239,13 +228,8 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
 
   void _delete(String id) {
     setState(() => _loading = true);
-
-    if (context != null) _provider.context = context;
-
-    _provider
-        .delete(
-            url:
-                "/api/m_wo.php?action=delete_wo_repair_image&woTaskId=${widget.id}&woTaskUploadId=$id")
+    _provider.context = context;
+    _provider.delete(url: "/api/m_wo.php?action=delete_wo_repair_image&woTaskId=${widget.id}&woTaskUploadId=$id")
         .then((value) {
       return _fetch;
     }).catchError((err) {
@@ -257,12 +241,11 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
 
   void _generateChildren(List<dynamic> sectionItem) {
     _children = [
-      _getTitle(
-          "Requires at least one photo for each of the following image section below:")
+      _getTitle("Requires at least one photo for each of the following image section below:")
     ];
 
     for (var i = 0; i < 3; i++) {
-      _children.add(new SizedBox(height: 20.0));
+      _children.add(SizedBox(height: 20.0));
       _children.add(_getTitle(_sectionName[i], bold: true));
       var item = sectionItem[i];
 
@@ -271,12 +254,9 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
       } else if (item is List) {
         List<TechnicianImageRepair> during = item;
         for (var j = 0; j < 3; j++)
-          if (during != null) {
-            if (j < during.length && during[j] != null)
-              _children.add(_section(during[j]));
-            else
-              _children.add(_emptySection(i));
-          } else
+          if (j < during.length)
+            _children.add(_section(during[j]));
+          else
             _children.add(_emptySection(i));
       } else if (item == null) {
         _children.add(_emptySection(i));
@@ -292,10 +272,8 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
       var value = await ImagePicker().pickImage(source: ImageSource.camera);
       if (value != null) {
         final file = File(value.path);
-
         return file;
       }
-
       return null;
     }
 
@@ -311,6 +289,7 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
     String date() => DateFormat('kk:mm:ss EEE d MMM').format(DateTime.now());
 
     void createObject(File file) async {
+      // Updated compressFile function using flutter_native_image:
       final bytes = await compressFile(File(file.path));
       String size = bytes.length.toString();
       String base64Image = base64Encode(bytes);
@@ -337,10 +316,7 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
 
     if (await openLocationSetting()) {
       getImage().then((value) {
-        if (value == null)
-          setState(() => _loading = false);
-        else
-          createObject(value);
+        createObject(value);
       }).catchError((err) => setState(() => _loading = false));
     } else {
       Toast.show("Please Relogin");
@@ -350,11 +326,17 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
 
   // MARK: FUNCTIONALITY - WIDGET
 
+  /// Updated compressFile using flutter_native_image.
   Future<List<int>> compressFile(File file) async {
-    var result = await FlutterImageCompress.compressWithFile(file.absolute.path,
-        quality: Platform.isIOS ? 20 : 60, minWidth: 480, minHeight: 640);
-    print(file.lengthSync());
-    print(result.length);
+    File compressedFile = await FlutterNativeImage.compressImage(
+      file.absolute.path,
+      quality: Platform.isIOS ? 20 : 60,
+      targetWidth: 480,
+      targetHeight: 640,
+    );
+    final result = await compressedFile.readAsBytes();
+    print("Original file size: ${file.lengthSync()}");
+    print("Compressed file size: ${result.length}");
     return result;
   }
 
@@ -378,15 +360,15 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
     showModalBottomSheet(
         context: context,
         builder: (BuildContext bc) => Container(
-              child: new Wrap(
+              child: Wrap(
                 children: <Widget>[
-                  new ListTile(
-                      leading: new Icon(Icons.image),
-                      title: new Text('View Image'),
+                  ListTile(
+                      leading: Icon(Icons.image),
+                      title: Text('View Image'),
                       onTap: () => _openViewer()),
-                  new ListTile(
-                      leading: new Icon(Icons.map),
-                      title: new Text('Open Map'),
+                  ListTile(
+                      leading: Icon(Icons.map),
+                      title: Text('Open Map'),
                       onTap: () => _openMap()),
                 ],
               ),

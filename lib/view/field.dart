@@ -13,13 +13,11 @@ Widget field(String hint, Function(String) onChange,
   TextEditingController controller =
       value == null ? null : TextEditingController(text: value);
 
-  if (asset != null)
-    child = new Image.asset(
-      asset,
-      height: 15.0,
-      width: 15.0,
-    );
-  else if (leftIcon != null) child = Icon(leftIcon);
+  child = new Image.asset(
+    asset,
+    height: 15.0,
+    width: 15.0,
+  );
 
   return new Padding(
       padding: EdgeInsets.symmetric(horizontal: horizontal),

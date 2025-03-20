@@ -7,7 +7,7 @@ import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/view/dialog.dart';
 import 'package:toast/toast.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_native_image_v2/flutter_native_image_v2.dart';
 
 import '../../utils/reference.dart';
 import '../../view/button.dart';
@@ -29,8 +29,8 @@ class _EditState extends State<Edit> {
   String contact = "";
   String imageSrc;
   bool loading = false;
-  var path;
-  var bytes;
+  String path; // storing path as String for simplicity
+  List<int> bytes;
   String size;
   String base64Image;
   String desc;
@@ -38,7 +38,6 @@ class _EditState extends State<Edit> {
   @override
   void initState() {
     super.initState();
-
     name = widget.user.firstName;
     contact = widget.user.contactNo;
     imageSrc = widget.user.imageUrl;
@@ -48,7 +47,7 @@ class _EditState extends State<Edit> {
   Widget build(BuildContext context) {
     ToastContext().init(context);
 
-    Widget image = new Image.asset(
+    Widget image = Image.asset(
       "assets/profile.png",
       height: 100,
     );
@@ -57,9 +56,9 @@ class _EditState extends State<Edit> {
       image = Container(
         height: 120.0,
         width: 120.0,
-        decoration: new BoxDecoration(
+        decoration: BoxDecoration(
           image: DecorationImage(
-            image: new NetworkImage("http:" + imageSrc),
+            image: NetworkImage("http:" + imageSrc),
             fit: BoxFit.fitWidth,
           ),
           shape: BoxShape.circle,
@@ -70,29 +69,30 @@ class _EditState extends State<Edit> {
       image = Container(
         height: 120.0,
         width: 120.0,
-        decoration: new BoxDecoration(
+        decoration: BoxDecoration(
           image: DecorationImage(
-            image: new FileImage(File(path)),
+            image: FileImage(File(path)),
             fit: BoxFit.fitWidth,
           ),
           shape: BoxShape.circle,
         ),
       );
 
-    var body = new Column(
+    var bodyContent = Column(
       children: <Widget>[
         SizedBox(height: 40),
         GestureDetector(
-            child: image,
-            onTap: () {
-              _bottomSheet();
-            }),
+          child: image,
+          onTap: () {
+            _bottomSheet();
+          },
+        ),
         SizedBox(height: 12),
         GestureDetector(
           onTap: () {
             _bottomSheet();
           },
-          child: new Text(
+          child: Text(
             "Change Profile Picture",
             style: TextStyle(color: colorTheme1),
           ),
@@ -105,16 +105,17 @@ class _EditState extends State<Edit> {
           contact = text;
         }, secure: false, value: contact, phoneType: true),
         SizedBox(height: 80),
-        new Container(
-            width: 200,
-            height: 50,
-            child: Button(
-              text: "Done",
-              onPressed: () {
-                action;
-              },
-              color: colorTheme2,
-            ))
+        Container(
+          width: 200,
+          height: 50,
+          child: Button(
+            text: "Done",
+            onPressed: () {
+              action;
+            },
+            color: colorTheme2,
+          ),
+        )
       ],
     );
 
@@ -126,10 +127,10 @@ class _EditState extends State<Edit> {
           centerTitle: true,
           iconTheme: IconThemeData(color: colorTheme3)),
       body: loading
-          ? new Stack(
+          ? Stack(
               children: <Widget>[
-                body,
-                new Container(
+                bodyContent,
+                Container(
                   child: Center(
                     child: CircularProgressIndicator(),
                   ),
@@ -137,11 +138,11 @@ class _EditState extends State<Edit> {
                 )
               ],
             )
-          : body,
+          : bodyContent,
     );
   }
 
-  Widget title(text, {double size = 30.0}) => new Text(text,
+  Widget title(text, {double size = 30.0}) => Text(text,
       textAlign: TextAlign.center,
       style: TextStyle(
         color: colorTheme3,
@@ -205,91 +206,91 @@ class _EditState extends State<Edit> {
             height: 40,
           )));
 
+  /// A helper method to pick an image (from camera or gallery), compress it,
+  /// and return the compressed File.
+  Future<File> getCompressedImage(ImageSource source) async {
+    var picked = await ImagePicker().pickImage(
+        source: source, maxWidth: 480, maxHeight: 640);
+    if (picked == null) return null;
+    File originalFile = File(picked.path);
+    File compressedFile = await FlutterNativeImage.compressImage(
+      originalFile.path,
+      quality: 60,
+      targetWidth: 480,
+      targetHeight: 640,
+    );
+    return compressedFile;
+  }
+
+  // Now getImageCamera and getImageGallery simply call the helper:
+  Future<File> getImageCamera() async {
+    return getCompressedImage(ImageSource.camera);
+  }
+
+  Future<File> getImageGallery() async {
+    return getCompressedImage(ImageSource.gallery);
+  }
+
+  void viewImage() {
+    ImageViewer viewer;
+    if (path != null)
+      viewer = ImageViewer(
+        path: path,
+      );
+    else
+      viewer = ImageViewer(url: "http:" + imageSrc);
+    Navigator.push(context, MaterialPageRoute(builder: (context) => viewer));
+  }
+
+  void setImage(File file) async {
+    Navigator.of(context).pop();
+    if (file == null) return;
+    setState(() => path = file.path);
+    // Compress again if needed (or simply read the compressed file's bytes):
+    bytes = await compressFile(File(file.path));
+    size = bytes.length.toString();
+    base64Image = base64Encode(bytes);
+    desc = "${file.path}.jpg";
+  }
+
+  /// Updated compressFile to use flutter_native_image.
+  Future<List<int>> compressFile(File file) async {
+    File compressedFile = await FlutterNativeImage.compressImage(
+      file.absolute.path,
+      quality: 60,
+      targetWidth: 480,
+      targetHeight: 640,
+    );
+    final compressedBytes = await compressedFile.readAsBytes();
+    print("Original file size: ${file.lengthSync()}");
+    print("Compressed file size: ${compressedBytes.length}");
+    return compressedBytes;
+  }
+
   Widget _bottomSheet() {
-    Future<File> getImageCamera() async {
-      if (Platform.isIOS) {
-        var value = await ImagePicker().pickImage(source: ImageSource.camera);
-        var result = await FlutterImageCompress.compressWithFile(
-          value.path,
-          minWidth: 480,
-          minHeight: 640,
-        );
-        return await File(value.path).writeAsBytes(result);
-      }
-
-      var value = await ImagePicker()
-          .pickImage(source: ImageSource.camera, maxWidth: 480, maxHeight: 640);
-
-      return File(value.path);
-    }
-
-    Future<File> getImageGallery() async {
-      if (Platform.isIOS) {
-        var value = await ImagePicker().pickImage(source: ImageSource.camera);
-        var result = await FlutterImageCompress.compressWithFile(
-          value.path,
-          minWidth: 480,
-          minHeight: 640,
-        );
-        return await File(value.path).writeAsBytes(result);
-      }
-      var value = await ImagePicker().pickImage(
-          source: ImageSource.gallery, maxWidth: 480, maxHeight: 640);
-
-      return File(value.path);
-    }
-
-    void viewImage() {
-      ImageViewer viewer;
-      if (path != null)
-        viewer = ImageViewer(
-          path: path,
-        );
-      else if (imageSrc != null) viewer = ImageViewer(url: "http:" + imageSrc);
-      Navigator.push(context, MaterialPageRoute(builder: (context) => viewer));
-    }
-
-    void setImage(File file) async {
-      Navigator.of(context).pop();
-      setState(() => path = file.path);
-      bytes = await compressFile(File(file.path));
-      size = bytes.length.toString();
-      base64Image = base64Encode(bytes);
-      desc = "${file.path}.jpg";
-    }
-
     var children = <Widget>[
-      new ListTile(
-          leading: new Icon(Icons.camera),
-          title: new Text('Open Camera'),
+      ListTile(
+          leading: Icon(Icons.camera),
+          title: Text('Open Camera'),
           onTap: () => getImageCamera().then((value) => setImage(value))),
-      new ListTile(
-          leading: new Icon(Icons.image),
-          title: new Text('Open Gallery'),
+      ListTile(
+          leading: Icon(Icons.image),
+          title: Text('Open Gallery'),
           onTap: () => getImageGallery().then((value) => setImage(value))),
     ];
 
     if (imageSrc.length > 0 || path != null) {
-      children.add(new ListTile(
-          leading: new Icon(Icons.visibility),
-          title: new Text('View Image'),
+      children.add(ListTile(
+          leading: Icon(Icons.visibility),
+          title: Text('View Image'),
           onTap: () => viewImage()));
     }
 
     showModalBottomSheet(
         context: context,
         builder: (BuildContext bc) => Container(
-              child: new Wrap(children: children),
+              child: Wrap(children: children),
             ));
-  }
-
-  Future<List<int>> compressFile(File file) async {
-    var result = await FlutterImageCompress.compressWithFile(
-      file.absolute.path,
-      quality: 60,
-    );
-    print(file.lengthSync());
-    print(result.length);
-    return result;
+    return Container();
   }
 }

@@ -43,7 +43,7 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
     Provider provider = Provider(
         fetchURL: "/api/m_wo.php?type=preview_pdf&woTaskId=${widget.id}");
 
-    if (context != null) provider.context = context;
+    provider.context = context;
 
     provider
         .fetch()
@@ -69,8 +69,7 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
   @override
   void dispose() {
     super.dispose();
-    if (dialog != null) if (dialog.controller != null)
-      dialog.controller.dispose();
+    dialog.controller.dispose();
   }
 
   @override

@@ -191,9 +191,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void showFlutterNotification(RemoteMessage message) {
   RemoteNotification notification = message.notification;
   AndroidNotification android = message.notification?.android;
-  if (notification != null &&
-      android != null &&
-      (Platform.isIOS || Platform.isAndroid)) {
+  if ((Platform.isIOS || Platform.isAndroid)) {
     flutterLocalNotificationsPlugin.show(
       notification.hashCode,
       notification.title,
@@ -226,7 +224,7 @@ class MyApp extends StatelessWidget {
           ),
           primaryColor: colorTheme3,
           primaryTextTheme:
-              TextTheme(headline6: TextStyle(color: colorTheme3))),
+              TextTheme(titleLarge: TextStyle(color: colorTheme3))),
       localizationsDelegates: [
         GlobalWidgetsLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
 import 'package:gfm_gems/controller/Utilities/Bloc/bloc.dart';
 import 'package:gfm_gems/model/meter.dart';
-import 'package:photo_view/photo_view.dart';
 
 class ListReading extends StatelessWidget {
   final Bloc bloc;

@@ -67,7 +67,7 @@ class _CalendarState extends State<Calendar>
         fetchURL:
             "/api/m_ppm.php?type=calendar_dot&month=${time.month}&year=${time.year}");
 
-    if (context != null) provider.context = context;
+    provider.context = context;
 
     provider.fetch().then((value) {
       value.dotList.forEach((f) {

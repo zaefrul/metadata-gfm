@@ -4,7 +4,6 @@ import 'package:gfm_gems/model/complaint.dart';
 import 'package:gfm_gems/model/serializers.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:rxdart/subjects.dart';
-import 'package:toast/toast.dart';
 
 class ThresholdListView extends StatefulWidget {
   @override
@@ -22,8 +21,6 @@ class _ThresholdListViewState extends State<ThresholdListView> {
 
   @override
   Widget build(BuildContext context) {
-    if (_controller == null)
-      return Container(child: Center(child: CircularProgressIndicator()));
     return RefreshIndicator(
       onRefresh: () => _controller.getStore(context),
       child: SingleChildScrollView(

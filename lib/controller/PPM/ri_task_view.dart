@@ -36,8 +36,7 @@ class _TaskViewStateRI extends State<RITaskView>
 
   List<Widget> fetchGenerate(List<Task> _listTask) {
     List<Widget> values = List<Widget>();
-    if (_listTask != null)
-      values = List.generate(_listTask.length, (item) => tile(_listTask[item]));
+    values = List.generate(_listTask.length, (item) => tile(_listTask[item]));
 
     values.insert(0, filter);
 
@@ -46,32 +45,28 @@ class _TaskViewStateRI extends State<RITaskView>
 
   fetch(String text) {
     String _url = "/api/m_ppm.php?type=pending_task";
-    if (text == null) _url += "&isRoutine=true";
-    if (text != null) _url += "_search&isRoutine=true&assetNo=$text";
+    _url += "_search&isRoutine=true&assetNo=$text";
 
     _fetch(_url);
   }
 
   fetchQR(String text) {
     String _url = "/api/m_ppm.php?type=pending_task";
-    if (text == null) _url += "&isRoutine=true";
-    if (text != null) _url += "_scan_asset&isRoutine=true&assetNo=$text";
+    _url += "_scan_asset&isRoutine=true&assetNo=$text";
 
     _fetch(_url);
   }
 
   fetchQRAll(String text) {
     String _url = "/api/m_ppm.php?type=all_task";
-    if (text == null) _url += "&isRoutine=true";
-    if (text != null) _url += "_scan_asse&isRoutine=truet&assetNo=$text";
+    _url += "_scan_asse&isRoutine=truet&assetNo=$text";
 
     _fetch(_url);
   }
 
   fetchAll(String text) {
     String _url = "/api/m_ppm.php?type=all_task";
-    if (text == null) _url += "&isRoutine=true";
-    if (text != null) _url += "_search&isRoutine=true&searchTxt=$text";
+    _url += "_search&isRoutine=true&searchTxt=$text";
 
     _fetch(_url);
   }
@@ -107,7 +102,7 @@ class _TaskViewStateRI extends State<RITaskView>
 
   @override
   Widget build(BuildContext context) {
-    if (context != null) _provider.context = context;
+    _provider.context = context;
 
     builded = true;
     return children.length > 0

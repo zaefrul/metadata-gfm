@@ -31,16 +31,11 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (bloc == null) bloc = BlocInventory(context);
   }
 
   @override
   void initState() {
     super.initState();
-    if (_controller == null) {
-      _controller = TabController(length: 2, vsync: this);
-      _controller.addListener(() => setState(() {}));
-    }
   }
 
   @override

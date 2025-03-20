@@ -8,7 +8,7 @@ class WOProvider {
   final Provider _provider;
 
   WOProvider({BuildContext context}) : this._provider = Provider() {
-    if (context != null) _provider.context = context;
+    _provider.context = context;
   }
 
   Future<void> reject(String status, String id, String remark) {

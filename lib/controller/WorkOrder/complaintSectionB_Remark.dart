@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/model/responseValue.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/dialog.dart';
@@ -39,7 +38,7 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
   Widget build(BuildContext context) {
     ToastContext().init(context);
 
-    if (provider != null) provider.context = context;
+    provider.context = context;
 
     return Scaffold(
       appBar: AppBar(

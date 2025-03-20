@@ -24,7 +24,7 @@ class ComplaintSectionAState extends State<ComplaintSectionA> {
 
   Future<WorkOrderDetail> get _fetch async {
     try {
-      if (context != null) _provider.context = context;
+      _provider.context = context;
 
       var result = await _provider.fetch();
       return Future.value(result.woDetail);

@@ -49,9 +49,7 @@ class BlocAttendance extends Bloc {
   set tabController(TabController value) => _tabController.sink.add(value);
   get tab => _tabController.value;
   bool get tabIndex {
-    if (_tabController.value == null)
-      return false;
-    else if (_tabController.value.index == 0) return false;
+    if (_tabController.value.index == 0) return false;
     return true;
   }
 
@@ -78,12 +76,12 @@ class BlocAttendance extends Bloc {
     _buttonStatus.close();
     _clock.close();
 
-    _timer?.cancel();
+    _timer.cancel();
     super.dispose();
   }
 
   List<EventAtt> getEventsForDay(DateTime day) {
-    if (_kEvents.value != null) return _kEvents.value[day];
+    return _kEvents.value[day];
     return [];
   }
 
@@ -103,7 +101,6 @@ class BlocAttendance extends Bloc {
       attndId = value.attTransactionId.toString();
       if (value.button == "Check In") _buttonStatus.sink.add(true);
       if (value.button == "Check Out") _buttonStatus.sink.add(false);
-      if (value.button == null) _buttonStatus.sink.add(null);
     });
   }
 

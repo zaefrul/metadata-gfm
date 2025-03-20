@@ -106,7 +106,7 @@ class MyDashboard extends StatelessWidget {
 
   Future<void> refresh({BuildContext context}) {
     final Provider _provider = Provider(fetchURL: "/part/mobile_dashboard");
-    if (context != null) _provider.context = context;
+    _provider.context = context;
     return _provider.getJson().then((value) => _data.sink.add(value));
   }
 

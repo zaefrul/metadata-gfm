@@ -340,34 +340,32 @@ class ResponseValueBuilder
 
   ResponseValueBuilder get _$this {
     final $v = _$v;
-    if ($v != null) {
-      _success = $v.success;
-      _error = $v.error;
-      _errmsg = $v.errmsg;
-      _result = $v.result;
-      _taskList = $v.taskList?.toBuilder();
-      _workorderTask = $v.workorderTask?.toBuilder();
-      _woDetail = $v.woDetail?.toBuilder();
-      _monitorTaskList = $v.monitorTaskList?.toBuilder();
-      _monitorDetail = $v.monitorDetail?.toBuilder();
-      _dotList = $v.dotList?.toBuilder();
-      _wostatusList = $v.wostatusList?.toBuilder();
-      _statusList = $v.statusList?.toBuilder();
-      _sectionAList = $v.sectionAList?.toBuilder();
-      _sectionBList = $v.sectionBList?.toBuilder();
-      _sectionCList = $v.sectionCList?.toBuilder();
-      _sectionDList = $v.sectionDList?.toBuilder();
-      _sectionEList = $v.sectionEList?.toBuilder();
-      _sectionFList = $v.sectionFList?.toBuilder();
-      _sectionGList = $v.sectionGList?.toBuilder();
-      _sectionHList = $v.sectionHList?.toBuilder();
-      _technicianDetails = $v.technicianDetails?.toBuilder();
-      _technicianTask = $v.technicianTask?.toBuilder();
-      _technicianImages = $v.technicianImages?.toBuilder();
-      _technicianAssign = $v.technicianAssign?.toBuilder();
-      _$v = null;
-    }
-    return this;
+    _success = $v.success;
+    _error = $v.error;
+    _errmsg = $v.errmsg;
+    _result = $v.result;
+    _taskList = $v.taskList.toBuilder();
+    _workorderTask = $v.workorderTask.toBuilder();
+    _woDetail = $v.woDetail.toBuilder();
+    _monitorTaskList = $v.monitorTaskList.toBuilder();
+    _monitorDetail = $v.monitorDetail.toBuilder();
+    _dotList = $v.dotList.toBuilder();
+    _wostatusList = $v.wostatusList.toBuilder();
+    _statusList = $v.statusList.toBuilder();
+    _sectionAList = $v.sectionAList.toBuilder();
+    _sectionBList = $v.sectionBList.toBuilder();
+    _sectionCList = $v.sectionCList.toBuilder();
+    _sectionDList = $v.sectionDList.toBuilder();
+    _sectionEList = $v.sectionEList.toBuilder();
+    _sectionFList = $v.sectionFList.toBuilder();
+    _sectionGList = $v.sectionGList.toBuilder();
+    _sectionHList = $v.sectionHList.toBuilder();
+    _technicianDetails = $v.technicianDetails.toBuilder();
+    _technicianTask = $v.technicianTask.toBuilder();
+    _technicianImages = $v.technicianImages.toBuilder();
+    _technicianAssign = $v.technicianAssign.toBuilder();
+    _$v = null;
+      return this;
   }
 
   @override
@@ -378,7 +376,7 @@ class ResponseValueBuilder
 
   @override
   void update(void Function(ResponseValueBuilder) updates) {
-    if (updates != null) updates(this);
+    updates(this);
   }
 
   @override
@@ -396,69 +394,69 @@ class ResponseValueBuilder
               errmsg: BuiltValueNullFieldError.checkNotNull(
                   errmsg, r'ResponseValue', 'errmsg'),
               result: result,
-              taskList: _taskList?.build(),
-              workorderTask: _workorderTask?.build(),
-              woDetail: _woDetail?.build(),
-              monitorTaskList: _monitorTaskList?.build(),
-              monitorDetail: _monitorDetail?.build(),
-              dotList: _dotList?.build(),
-              wostatusList: _wostatusList?.build(),
-              statusList: _statusList?.build(),
-              sectionAList: _sectionAList?.build(),
-              sectionBList: _sectionBList?.build(),
-              sectionCList: _sectionCList?.build(),
-              sectionDList: _sectionDList?.build(),
-              sectionEList: _sectionEList?.build(),
-              sectionFList: _sectionFList?.build(),
-              sectionGList: _sectionGList?.build(),
-              sectionHList: _sectionHList?.build(),
-              technicianDetails: _technicianDetails?.build(),
-              technicianTask: _technicianTask?.build(),
-              technicianImages: _technicianImages?.build(),
-              technicianAssign: _technicianAssign?.build());
+              taskList: _taskList.build(),
+              workorderTask: _workorderTask.build(),
+              woDetail: _woDetail.build(),
+              monitorTaskList: _monitorTaskList.build(),
+              monitorDetail: _monitorDetail.build(),
+              dotList: _dotList.build(),
+              wostatusList: _wostatusList.build(),
+              statusList: _statusList.build(),
+              sectionAList: _sectionAList.build(),
+              sectionBList: _sectionBList.build(),
+              sectionCList: _sectionCList.build(),
+              sectionDList: _sectionDList.build(),
+              sectionEList: _sectionEList.build(),
+              sectionFList: _sectionFList.build(),
+              sectionGList: _sectionGList.build(),
+              sectionHList: _sectionHList.build(),
+              technicianDetails: _technicianDetails.build(),
+              technicianTask: _technicianTask.build(),
+              technicianImages: _technicianImages.build(),
+              technicianAssign: _technicianAssign.build());
     } catch (_) {
       String _$failedField;
       try {
         _$failedField = 'taskList';
-        _taskList?.build();
+        _taskList.build();
         _$failedField = 'workorderTask';
-        _workorderTask?.build();
+        _workorderTask.build();
         _$failedField = 'woDetail';
-        _woDetail?.build();
+        _woDetail.build();
         _$failedField = 'monitorTaskList';
-        _monitorTaskList?.build();
+        _monitorTaskList.build();
         _$failedField = 'monitorDetail';
-        _monitorDetail?.build();
+        _monitorDetail.build();
         _$failedField = 'dotList';
-        _dotList?.build();
+        _dotList.build();
         _$failedField = 'wostatusList';
-        _wostatusList?.build();
+        _wostatusList.build();
         _$failedField = 'statusList';
-        _statusList?.build();
+        _statusList.build();
         _$failedField = 'sectionAList';
-        _sectionAList?.build();
+        _sectionAList.build();
         _$failedField = 'sectionBList';
-        _sectionBList?.build();
+        _sectionBList.build();
         _$failedField = 'sectionCList';
-        _sectionCList?.build();
+        _sectionCList.build();
         _$failedField = 'sectionDList';
-        _sectionDList?.build();
+        _sectionDList.build();
         _$failedField = 'sectionEList';
-        _sectionEList?.build();
+        _sectionEList.build();
         _$failedField = 'sectionFList';
-        _sectionFList?.build();
+        _sectionFList.build();
         _$failedField = 'sectionGList';
-        _sectionGList?.build();
+        _sectionGList.build();
         _$failedField = 'sectionHList';
-        _sectionHList?.build();
+        _sectionHList.build();
         _$failedField = 'technicianDetails';
-        _technicianDetails?.build();
+        _technicianDetails.build();
         _$failedField = 'technicianTask';
-        _technicianTask?.build();
+        _technicianTask.build();
         _$failedField = 'technicianImages';
-        _technicianImages?.build();
+        _technicianImages.build();
         _$failedField = 'technicianAssign';
-        _technicianAssign?.build();
+        _technicianAssign.build();
       } catch (e) {
         throw new BuiltValueNestedFieldError(
             r'ResponseValue', _$failedField, e.toString());

@@ -151,7 +151,7 @@ class SignatureViewState extends State<SignatureView> {
 
     Provider provider = Provider();
 
-    if (context != null) provider.context = context;
+    provider.context = context;
 
     provider.post(url: "/api/m_ppm.php", body: body.body).then((value) {
       setState(() => loading = false);

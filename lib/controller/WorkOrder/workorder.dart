@@ -36,9 +36,6 @@ class _WorkOrderState extends State<WorkOrderView>
   @override
   void initState() {
     super.initState();
-    if (_tabController == null) {
-      _tabController = TabController(vsync: this, length: 2);
-    }
   }
 
   @override
@@ -78,7 +75,7 @@ class _WorkOrderState extends State<WorkOrderView>
   }
 
   Widget get _addComplaint {
-    Text _text(String word, {color = Colors.white}) => new Text(
+    Text _text(String word) => new Text(
           word,
           style: TextStyle(
               color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24),

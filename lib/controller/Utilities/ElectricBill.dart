@@ -11,7 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:toast/toast.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_native_image_v2/flutter_native_image_v2.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ElectricBillScreen extends StatefulWidget {
@@ -63,7 +63,6 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
       setState(() {
         list = values;
       });
-      if (dropdownValue.value == null) dropdownValue.sink.add(list.first);
     }).catchError((err) => Toast.show(err));
     super.didChangeDependencies();
   }
@@ -177,6 +176,7 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
     String max = "";
     String amount = '';
 
+    // Use the updated compressFile function:
     final bytes = await compressFile(File(file.path));
     String size = bytes.length.toString();
     String base64Image = base64Encode(bytes);
@@ -216,7 +216,6 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
       };
       _provider.postUtilities(url: url, body: param).then((value) {
         Toast.show("Submitted");
-
         Navigator.pop(context);
       }).catchError((err) {
         Toast.show(err);
@@ -226,11 +225,17 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
     }));
   }
 
+  /// Updated compressFile using flutter_native_image.
   Future<List<int>> compressFile(File file) async {
-    var result = await FlutterImageCompress.compressWithFile(file.absolute.path,
-        quality: Platform.isIOS ? 20 : 60, minWidth: 480, minHeight: 640);
-    print(file.lengthSync());
-    print(result.length);
+    File compressedFile = await FlutterNativeImage.compressImage(
+      file.absolute.path,
+      quality: Platform.isIOS ? 20 : 60,
+      targetWidth: 480,
+      targetHeight: 640,
+    );
+    final result = await compressedFile.readAsBytes();
+    print("Original file size: ${file.lengthSync()}");
+    print("Compressed file size: ${result.length}");
     return result;
   }
 
@@ -238,7 +243,7 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
       stream: dropdownValue.stream,
       builder: (context, snapshot) {
         return DropdownButton<Meter>(
-          underline: new Container(),
+          underline: Container(),
           value: snapshot.data,
           hint: Text("Select Location"),
           onChanged: (Meter newValue) => dropdownValue.sink.add(newValue),
@@ -252,15 +257,15 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
       });
 
   Widget get _addPhoto {
-    var title = new Padding(
+    var title = Padding(
         padding: EdgeInsets.symmetric(vertical: 6),
         child: Text(
           "Photo",
           style: TextStyle(fontWeight: FontWeight.bold),
         ));
-    var subtitle = new Text(
+    var subtitle = Text(
         "(Maximum of 1 Image only, Individual file should not larger than 5mb)");
-    var plustext = new Text(
+    var plustext = Text(
       "+",
       style: TextStyle(
           color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24),
@@ -295,45 +300,33 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
   }
 
   Widget _section(File item) {
-    var iconButton = new IconButton(
-      icon: new Icon(Icons.delete),
+    var iconButton = IconButton(
+      icon: Icon(Icons.delete),
       color: Colors.red,
       onPressed: () =>
           setState(() => listItem.removeWhere((value) => value == item)),
     );
 
-    var _latitude =
-        "0.0"; //prefs.getString(prefsLATITUDE) ?? "0.0"; //= item.latitude;
-    var _longitude =
-        "0.0"; //prefs.getString(prefsLONGITUDE) ?? "0.0"; //= item.longitude;
-
-    // var prefs = await SharedPreferences.getInstance();
-
-    var date = DateTime.now().toString(); //= item.date;
-    // var src = item.file;
+    var _latitude = "0.0";
+    var _longitude = "0.0";
+    var date = DateTime.now().toString();
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(children: <Widget>[
         ListTile(
             contentPadding: EdgeInsets.only(top: 6.0),
-            leading: new Image.file(item),
+            leading: Image.file(item),
             trailing: iconButton,
-            title: new Column(
+            title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                new Text(date),
-                new Text(_latitude + ", " + _longitude)
+                Text(date),
+                Text(_latitude + ", " + _longitude)
               ],
             ),
             onTap: () async => _bottomSheet(
                 latitude: _latitude, longitude: _longitude, src: item)),
-        // TextField(
-        //   decoration: InputDecoration(hintText: "Remark"),
-        //   onChanged: (text) {
-        //     item.desc = text;
-        //   },
-        // )
       ]),
     );
   }
@@ -358,16 +351,16 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext bc) => Container(
-        child: new Wrap(
+        child: Wrap(
           children: <Widget>[
-            new ListTile(
-              leading: new Icon(Icons.image),
-              title: new Text('View Image'),
+            ListTile(
+              leading: Icon(Icons.image),
+              title: Text('View Image'),
               onTap: () => _openViewer(),
             ),
-            new ListTile(
-              leading: new Icon(Icons.map),
-              title: new Text('Open Map'),
+            ListTile(
+              leading: Icon(Icons.map),
+              title: Text('Open Map'),
               onTap: () => _openMap(),
             ),
           ],

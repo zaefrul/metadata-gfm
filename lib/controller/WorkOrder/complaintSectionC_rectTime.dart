@@ -169,11 +169,10 @@ class _ComplaintSectionEState extends State<ComplaintSectionC_RectTime> {
         initialDatePickerMode: DatePickerMode.day,
         firstDate: DateTime(2015),
         lastDate: DateTime(2101));
-    if (picked != null)
-      setState(() {
-        selectedDate = picked;
-        _dateController.text = DateFormat.yMd().format(selectedDate);
-      });
+    setState(() {
+      selectedDate = picked;
+      _dateController.text = DateFormat.yMd().format(selectedDate);
+    });
   }
 
   Future<Null> _selectTime(BuildContext context) async {
@@ -181,17 +180,16 @@ class _ComplaintSectionEState extends State<ComplaintSectionC_RectTime> {
       context: context,
       initialTime: selectedTime,
     );
-    if (picked != null)
-      setState(() {
-        selectedTime = picked;
-        _hour = selectedTime.hour.toString();
-        _minute = selectedTime.minute.toString();
-        _time = _hour + ' : ' + _minute;
-        _timeController.text = _time;
-        _timeController.text = formatDate(
-            DateTime(2019, 08, 1, selectedTime.hour, selectedTime.minute),
-            [hh, ':', nn, " ", am]).toString();
-      });
+    setState(() {
+      selectedTime = picked;
+      _hour = selectedTime.hour.toString();
+      _minute = selectedTime.minute.toString();
+      _time = _hour + ' : ' + _minute;
+      _timeController.text = _time;
+      _timeController.text = formatDate(
+          DateTime(2019, 08, 1, selectedTime.hour, selectedTime.minute),
+          [hh, ':', nn, " ", am]).toString();
+    });
   }
 
   void alert(String txt) {

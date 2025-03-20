@@ -20,117 +20,85 @@ class _$AttendanceSerializer implements StructuredSerializer<Attendance> {
     final result = <Object>[];
     Object value;
     value = object.date;
-    if (value != null) {
-      result
-        ..add('date')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.attTransactionId;
-    if (value != null) {
-      result
-        ..add('attTransactionId')
-        ..add(serializers.serialize(value, specifiedType: const FullType(int)));
-    }
-    value = object.currentTime;
-    if (value != null) {
-      result
-        ..add('currentTime')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.currentShift;
-    if (value != null) {
-      result
-        ..add('currentShift')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.button;
-    if (value != null) {
-      result
-        ..add('button')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.status;
-    if (value != null) {
-      result
-        ..add('status')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.shiftStart;
-    if (value != null) {
-      result
-        ..add('shiftStart')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.shiftEnd;
-    if (value != null) {
-      result
-        ..add('shiftEnd')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.timeClockIn;
-    if (value != null) {
-      result
-        ..add('timeClockIn')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.timeClockOut;
-    if (value != null) {
-      result
-        ..add('timeClockOut')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.duration;
-    if (value != null) {
-      result
-        ..add('duration')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.weeklyRequiredHours;
-    if (value != null) {
-      result
-        ..add('weeklyRequiredHours')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.weeklyDuration;
-    if (value != null) {
-      result
-        ..add('weeklyDuration')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.weeklyProgress;
-    if (value != null) {
-      result
-        ..add('weeklyProgress')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.nextShiftStart;
-    if (value != null) {
-      result
-        ..add('nextShiftStart')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.remark;
-    if (value != null) {
-      result
-        ..add('remark')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    return result;
+    result
+      ..add('date')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.attTransactionId;
+    result
+      ..add('attTransactionId')
+      ..add(serializers.serialize(value, specifiedType: const FullType(int)));
+      value = object.currentTime;
+    result
+      ..add('currentTime')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.currentShift;
+    result
+      ..add('currentShift')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.button;
+    result
+      ..add('button')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.status;
+    result
+      ..add('status')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.shiftStart;
+    result
+      ..add('shiftStart')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.shiftEnd;
+    result
+      ..add('shiftEnd')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.timeClockIn;
+    result
+      ..add('timeClockIn')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.timeClockOut;
+    result
+      ..add('timeClockOut')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.duration;
+    result
+      ..add('duration')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.weeklyRequiredHours;
+    result
+      ..add('weeklyRequiredHours')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.weeklyDuration;
+    result
+      ..add('weeklyDuration')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.weeklyProgress;
+    result
+      ..add('weeklyProgress')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.nextShiftStart;
+    result
+      ..add('nextShiftStart')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.remark;
+    result
+      ..add('remark')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      return result;
   }
 
   @override
@@ -439,26 +407,24 @@ class AttendanceBuilder implements Builder<Attendance, AttendanceBuilder> {
 
   AttendanceBuilder get _$this {
     final $v = _$v;
-    if ($v != null) {
-      _date = $v.date;
-      _attTransactionId = $v.attTransactionId;
-      _currentTime = $v.currentTime;
-      _currentShift = $v.currentShift;
-      _button = $v.button;
-      _status = $v.status;
-      _shiftStart = $v.shiftStart;
-      _shiftEnd = $v.shiftEnd;
-      _timeClockIn = $v.timeClockIn;
-      _timeClockOut = $v.timeClockOut;
-      _duration = $v.duration;
-      _weeklyRequiredHours = $v.weeklyRequiredHours;
-      _weeklyDuration = $v.weeklyDuration;
-      _weeklyProgress = $v.weeklyProgress;
-      _nextShiftStart = $v.nextShiftStart;
-      _remark = $v.remark;
-      _$v = null;
-    }
-    return this;
+    _date = $v.date;
+    _attTransactionId = $v.attTransactionId;
+    _currentTime = $v.currentTime;
+    _currentShift = $v.currentShift;
+    _button = $v.button;
+    _status = $v.status;
+    _shiftStart = $v.shiftStart;
+    _shiftEnd = $v.shiftEnd;
+    _timeClockIn = $v.timeClockIn;
+    _timeClockOut = $v.timeClockOut;
+    _duration = $v.duration;
+    _weeklyRequiredHours = $v.weeklyRequiredHours;
+    _weeklyDuration = $v.weeklyDuration;
+    _weeklyProgress = $v.weeklyProgress;
+    _nextShiftStart = $v.nextShiftStart;
+    _remark = $v.remark;
+    _$v = null;
+      return this;
   }
 
   @override
@@ -469,7 +435,7 @@ class AttendanceBuilder implements Builder<Attendance, AttendanceBuilder> {
 
   @override
   void update(void Function(AttendanceBuilder) updates) {
-    if (updates != null) updates(this);
+    updates(this);
   }
 
   @override

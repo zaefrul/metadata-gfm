@@ -36,7 +36,7 @@ class CheckInList extends StatelessWidget {
 
   Future<void> refresh({BuildContext context}) {
     final Provider _provider = Provider(fetchURL: "/do/list_mobile_check_in");
-    if (context != null) _provider.context = context;
+    _provider.context = context;
 
     return _provider.getJson().then((value) {
       // final List values = value as List;

@@ -28,10 +28,7 @@ class _ForgotState extends State<Forgot> {
     pressed() {
       var error = _validateEmail(_email);
 
-      if (error == null)
-        action(_email);
-      else
-        Toast.show(error, backgroundColor: colorTheme3);
+      Toast.show(error, backgroundColor: colorTheme3);
     }
 
     return Scaffold(
@@ -103,9 +100,7 @@ class _ForgotState extends State<Forgot> {
       ]));
 
   String _validateEmail(String value) {
-    if (value == null)
-      return "Enter email address";
-    else if (value.isEmpty) return "Enter email address";
+    if (value.isEmpty) return "Enter email address";
 
     // This is just a regular expression for email addresses
     String p = "[a-zA-Z0-9\+\.\_\%\-\+]{1,256}" +

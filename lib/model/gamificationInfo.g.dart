@@ -22,223 +22,161 @@ class _$GamificationInfoSerializer
     final result = <Object>[];
     Object value;
     value = object.gmiId;
-    if (value != null) {
-      result
-        ..add('gmiId')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.userId;
-    if (value != null) {
-      result
-        ..add('userId')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.siteId;
-    if (value != null) {
-      result
-        ..add('siteId')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiYear;
-    if (value != null) {
-      result
-        ..add('gmiYear')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiMonth;
-    if (value != null) {
-      result
-        ..add('gmiMonth')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiPpmTierName;
-    if (value != null) {
-      result
-        ..add('gmiPpmTierName')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiPpmTierPoint;
-    if (value != null) {
-      result
-        ..add('gmiPpmTierPoint')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiPpmTotal;
-    if (value != null) {
-      result
-        ..add('gmiPpmTotal')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiPpmCompleted;
-    if (value != null) {
-      result
-        ..add('gmiPpmCompleted')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiPpmOnTime;
-    if (value != null) {
-      result
-        ..add('gmiPpmOnTime')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiPpmLate;
-    if (value != null) {
-      result
-        ..add('gmiPpmLate')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiPpmWithin;
-    if (value != null) {
-      result
-        ..add('gmiPpmWithin')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiPpmRework;
-    if (value != null) {
-      result
-        ..add('gmiPpmRework')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiPpmAssist;
-    if (value != null) {
-      result
-        ..add('gmiPpmAssist')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiWoTierName;
-    if (value != null) {
-      result
-        ..add('gmiWoTierName')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiWoTierPoint;
-    if (value != null) {
-      result
-        ..add('gmiWoTierPoint')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiWoTotal;
-    if (value != null) {
-      result
-        ..add('gmiWoTotal')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiWoCompleted;
-    if (value != null) {
-      result
-        ..add('gmiWoCompleted')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiWoOnTime;
-    if (value != null) {
-      result
-        ..add('gmiWoOnTime')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiWoLate;
-    if (value != null) {
-      result
-        ..add('gmiWoLate')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiWoRework;
-    if (value != null) {
-      result
-        ..add('gmiWoRework')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiWoSelfFinding;
-    if (value != null) {
-      result
-        ..add('gmiWoSelfFinding')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiWoAssist;
-    if (value != null) {
-      result
-        ..add('gmiWoAssist')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiMbv;
-    if (value != null) {
-      result
-        ..add('gmiMbv')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiTierPoint;
-    if (value != null) {
-      result
-        ..add('gmiTierPoint')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiPointCompleted;
-    if (value != null) {
-      result
-        ..add('gmiPointCompleted')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiPointOnTime;
-    if (value != null) {
-      result
-        ..add('gmiPointOnTime')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiPointLate;
-    if (value != null) {
-      result
-        ..add('gmiPointLate')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiPointRework;
-    if (value != null) {
-      result
-        ..add('gmiPointRework')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiPointSelfFinding;
-    if (value != null) {
-      result
-        ..add('gmiPointSelfFinding')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    value = object.gmiPointTotal;
-    if (value != null) {
-      result
-        ..add('gmiPointTotal')
-        ..add(serializers.serialize(value,
-            specifiedType: const FullType(String)));
-    }
-    return result;
+    result
+      ..add('gmiId')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.userId;
+    result
+      ..add('userId')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.siteId;
+    result
+      ..add('siteId')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiYear;
+    result
+      ..add('gmiYear')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiMonth;
+    result
+      ..add('gmiMonth')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiPpmTierName;
+    result
+      ..add('gmiPpmTierName')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiPpmTierPoint;
+    result
+      ..add('gmiPpmTierPoint')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiPpmTotal;
+    result
+      ..add('gmiPpmTotal')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiPpmCompleted;
+    result
+      ..add('gmiPpmCompleted')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiPpmOnTime;
+    result
+      ..add('gmiPpmOnTime')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiPpmLate;
+    result
+      ..add('gmiPpmLate')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiPpmWithin;
+    result
+      ..add('gmiPpmWithin')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiPpmRework;
+    result
+      ..add('gmiPpmRework')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiPpmAssist;
+    result
+      ..add('gmiPpmAssist')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiWoTierName;
+    result
+      ..add('gmiWoTierName')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiWoTierPoint;
+    result
+      ..add('gmiWoTierPoint')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiWoTotal;
+    result
+      ..add('gmiWoTotal')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiWoCompleted;
+    result
+      ..add('gmiWoCompleted')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiWoOnTime;
+    result
+      ..add('gmiWoOnTime')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiWoLate;
+    result
+      ..add('gmiWoLate')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiWoRework;
+    result
+      ..add('gmiWoRework')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiWoSelfFinding;
+    result
+      ..add('gmiWoSelfFinding')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiWoAssist;
+    result
+      ..add('gmiWoAssist')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiMbv;
+    result
+      ..add('gmiMbv')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiTierPoint;
+    result
+      ..add('gmiTierPoint')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiPointCompleted;
+    result
+      ..add('gmiPointCompleted')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiPointOnTime;
+    result
+      ..add('gmiPointOnTime')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiPointLate;
+    result
+      ..add('gmiPointLate')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiPointRework;
+    result
+      ..add('gmiPointRework')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiPointSelfFinding;
+    result
+      ..add('gmiPointSelfFinding')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      value = object.gmiPointTotal;
+    result
+      ..add('gmiPointTotal')
+      ..add(serializers.serialize(value,
+          specifiedType: const FullType(String)));
+      return result;
   }
 
   @override
@@ -755,41 +693,39 @@ class GamificationInfoBuilder
 
   GamificationInfoBuilder get _$this {
     final $v = _$v;
-    if ($v != null) {
-      _gmiId = $v.gmiId;
-      _userId = $v.userId;
-      _siteId = $v.siteId;
-      _gmiYear = $v.gmiYear;
-      _gmiMonth = $v.gmiMonth;
-      _gmiPpmTierName = $v.gmiPpmTierName;
-      _gmiPpmTierPoint = $v.gmiPpmTierPoint;
-      _gmiPpmTotal = $v.gmiPpmTotal;
-      _gmiPpmCompleted = $v.gmiPpmCompleted;
-      _gmiPpmOnTime = $v.gmiPpmOnTime;
-      _gmiPpmLate = $v.gmiPpmLate;
-      _gmiPpmWithin = $v.gmiPpmWithin;
-      _gmiPpmRework = $v.gmiPpmRework;
-      _gmiPpmAssist = $v.gmiPpmAssist;
-      _gmiWoTierName = $v.gmiWoTierName;
-      _gmiWoTierPoint = $v.gmiWoTierPoint;
-      _gmiWoTotal = $v.gmiWoTotal;
-      _gmiWoCompleted = $v.gmiWoCompleted;
-      _gmiWoOnTime = $v.gmiWoOnTime;
-      _gmiWoLate = $v.gmiWoLate;
-      _gmiWoRework = $v.gmiWoRework;
-      _gmiWoSelfFinding = $v.gmiWoSelfFinding;
-      _gmiWoAssist = $v.gmiWoAssist;
-      _gmiMbv = $v.gmiMbv;
-      _gmiTierPoint = $v.gmiTierPoint;
-      _gmiPointCompleted = $v.gmiPointCompleted;
-      _gmiPointOnTime = $v.gmiPointOnTime;
-      _gmiPointLate = $v.gmiPointLate;
-      _gmiPointRework = $v.gmiPointRework;
-      _gmiPointSelfFinding = $v.gmiPointSelfFinding;
-      _gmiPointTotal = $v.gmiPointTotal;
-      _$v = null;
-    }
-    return this;
+    _gmiId = $v.gmiId;
+    _userId = $v.userId;
+    _siteId = $v.siteId;
+    _gmiYear = $v.gmiYear;
+    _gmiMonth = $v.gmiMonth;
+    _gmiPpmTierName = $v.gmiPpmTierName;
+    _gmiPpmTierPoint = $v.gmiPpmTierPoint;
+    _gmiPpmTotal = $v.gmiPpmTotal;
+    _gmiPpmCompleted = $v.gmiPpmCompleted;
+    _gmiPpmOnTime = $v.gmiPpmOnTime;
+    _gmiPpmLate = $v.gmiPpmLate;
+    _gmiPpmWithin = $v.gmiPpmWithin;
+    _gmiPpmRework = $v.gmiPpmRework;
+    _gmiPpmAssist = $v.gmiPpmAssist;
+    _gmiWoTierName = $v.gmiWoTierName;
+    _gmiWoTierPoint = $v.gmiWoTierPoint;
+    _gmiWoTotal = $v.gmiWoTotal;
+    _gmiWoCompleted = $v.gmiWoCompleted;
+    _gmiWoOnTime = $v.gmiWoOnTime;
+    _gmiWoLate = $v.gmiWoLate;
+    _gmiWoRework = $v.gmiWoRework;
+    _gmiWoSelfFinding = $v.gmiWoSelfFinding;
+    _gmiWoAssist = $v.gmiWoAssist;
+    _gmiMbv = $v.gmiMbv;
+    _gmiTierPoint = $v.gmiTierPoint;
+    _gmiPointCompleted = $v.gmiPointCompleted;
+    _gmiPointOnTime = $v.gmiPointOnTime;
+    _gmiPointLate = $v.gmiPointLate;
+    _gmiPointRework = $v.gmiPointRework;
+    _gmiPointSelfFinding = $v.gmiPointSelfFinding;
+    _gmiPointTotal = $v.gmiPointTotal;
+    _$v = null;
+      return this;
   }
 
   @override
@@ -800,7 +736,7 @@ class GamificationInfoBuilder
 
   @override
   void update(void Function(GamificationInfoBuilder) updates) {
-    if (updates != null) updates(this);
+    updates(this);
   }
 
   @override

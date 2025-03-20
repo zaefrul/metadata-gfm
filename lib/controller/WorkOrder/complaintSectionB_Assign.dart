@@ -113,13 +113,10 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
 
           typeCategory = data.userCategory;
 
-          if (data.assistUserId != null)
-            assistUserId = data.assistUserId.toList();
+          assistUserId = data.assistUserId.toList();
 
-          if (data.woTaskMaxAssistant != null) {
-            dropdownAssist = data.woTaskMaxAssistant;
-          }
-
+          dropdownAssist = data.woTaskMaxAssistant;
+        
           if (data.userId != "" && data.groupId != "" && data.severity != "") {
             dropdownId1 = data.groupId;
             dropdownValue1 = _fetchId(groupList, dropdownId1).groupName;
@@ -144,7 +141,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
           dropdownValue2 = _fetchuserId(executorList, dropdownId2).userName;
           _controller.text = dropdownValue2;
 
-          if (executorList.length > 0 && dropdownId2 != null) {
+          if (executorList.length > 0) {
             assistantList.addAll(executorList);
             assistantList.removeWhere((test) => test.userId == dropdownId2);
           }
@@ -152,7 +149,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
           if (assistUserId.length > 0)
             assistUserId.forEach((id) {
               var value = executorList.firstWhere((test) => test.userId == id);
-              if (value != null) selectedassistantList.add(value);
+              selectedassistantList.add(value);
             });
 
           return _fetchTechnician;
@@ -228,7 +225,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
                 setState(() => loading = true);
                 Provider provider = Provider();
 
-                if (context != null) provider.context = context;
+                provider.context = context;
 
                 var body = {
                   "action": "save_assigned_technician",

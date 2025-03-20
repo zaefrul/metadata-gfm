@@ -122,16 +122,11 @@ class CustomDialog extends StatelessWidget {
                   Button(
                     text: buttonText,
                     onPressed: () {
-                      if (okayTapped != null) {
-                        return okayTapped();
-                      }
-                      if (rootPage == null)
-                        Navigator.of(context).pop();
-                      else
-                        Navigator.popUntil(
-                            context,
-                            ModalRoute.withName(
-                                rootPage)); // To close the dialog
+                      return okayTapped();
+                                          Navigator.popUntil(
+                          context,
+                          ModalRoute.withName(
+                              rootPage)); // To close the dialog
                     },
                     color: colorTheme2,
                   ),
@@ -194,7 +189,7 @@ class CustomDialog extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min, // To make the card compact
             children: <Widget>[
-              title == null || useDescription
+              useDescription
                   ? Container()
                   : Text(
                       title,

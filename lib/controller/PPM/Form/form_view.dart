@@ -263,12 +263,9 @@ class _FormViewState extends State<FormView> {
 
   bool get enableSubmit {
     bool check = true;
-    if (statusList != null)
-      for (String f in statusList) {
-        if (f != "Info") if (f != "Completed") return false;
-      }
-    else
-      check = false;
+    for (String f in statusList) {
+      if (f != "Info") if (f != "Completed") return false;
+    }
 
     return check;
   }

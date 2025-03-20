@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
+// Removed flutter_image_compress; using flutter_native_image instead:
+import 'package:flutter_native_image_v2/flutter_native_image_v2.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:gfm_gems/controller/PPM/Form/openImage.dart';
@@ -31,38 +32,22 @@ class _FormComplaintState extends State<FormComplaint> {
     ToastContext().init(context);
     var body = ListView(
       children: <Widget>[
-        SizedBox(
-          height: 12,
-        ),
+        SizedBox(height: 12),
         _locationCode,
-        // Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6),
-        //   child: new Text(
-        //     "Location*",
-        //     style: TextStyle(fontWeight: FontWeight.bold),
-        //   ),
-        // ),
         // _locationDropdown,
-        // Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6),
-        //   child: new Text(
-        //     "Location Code*",
-        //     style: TextStyle(fontWeight: FontWeight.bold),
-        //   ),
-        // ),
         // _areaDropdown,
         _descComplaint,
         _addPhoto,
-        listItem.length >= 1 ? _section(listItem[0]) : new Container(),
-        listItem.length >= 2 ? _section(listItem[1]) : new Container(),
-        listItem.length >= 3 ? _section(listItem[2]) : new Container(),
+        listItem.length >= 1 ? _section(listItem[0]) : Container(),
+        listItem.length >= 2 ? _section(listItem[1]) : Container(),
+        listItem.length >= 3 ? _section(listItem[2]) : Container(),
       ],
     );
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: new Text(
+          title: Text(
             "Add Complaint",
             style: TextStyle(color: colorTheme3),
           ),
@@ -82,8 +67,8 @@ class _FormComplaintState extends State<FormComplaint> {
                 ],
               )
             : body,
-        floatingActionButton: new FloatingActionButton.extended(
-            label: new Text("Submit"),
+        floatingActionButton: FloatingActionButton.extended(
+            label: Text("Submit"),
             backgroundColor: colorTheme2,
             onPressed: () {
               showDialog(
@@ -122,11 +107,9 @@ class _FormComplaintState extends State<FormComplaint> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: DropdownButton<String>(
         value: dropdownLocation,
-        // icon: Icon(Icons.arrow_downward),
         iconSize: 24,
         elevation: 16,
         hint: Text("Location"),
-        // style: TextStyle(color: Colors.black),
         underline: Container(
           height: 1,
           color: Colors.grey,
@@ -153,11 +136,9 @@ class _FormComplaintState extends State<FormComplaint> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: DropdownButton<String>(
         value: dropdownArea,
-        // icon: Icon(Icons.arrow_downward),
         iconSize: 24,
         elevation: 16,
         hint: Text("Location Code"),
-        // style: TextStyle(color: Colors.deepPurple),
         underline: Container(
           height: 1,
           color: Colors.grey,
@@ -183,7 +164,8 @@ class _FormComplaintState extends State<FormComplaint> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: TextField(
-        decoration: InputDecoration(labelText: "* Description of Complaint"),
+        decoration:
+            InputDecoration(labelText: "* Description of Complaint"),
         keyboardType: TextInputType.multiline,
         maxLength: 1000,
         maxLines: null,
@@ -193,15 +175,15 @@ class _FormComplaintState extends State<FormComplaint> {
   }
 
   Widget get _addPhoto {
-    var title = new Padding(
+    var title = Padding(
         padding: EdgeInsets.symmetric(vertical: 6),
         child: Text(
           "Photo",
           style: TextStyle(fontWeight: FontWeight.bold),
         ));
-    var subtitle = new Text(
+    var subtitle = Text(
         "(Maximum of 3 images, Individual file should not larger than 5mb)");
-    var plustext = new Text(
+    var plustext = Text(
       "+",
       style: TextStyle(
           color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24),
@@ -210,7 +192,9 @@ class _FormComplaintState extends State<FormComplaint> {
       shape: CircleBorder(),
       height: 25,
       child: plustext,
-      color: listItem.length == 3 ? colorTheme2.withOpacity(0.5) : colorTheme2,
+      color: listItem.length == 3
+          ? colorTheme2.withOpacity(0.5)
+          : colorTheme2,
       onPressed: listItem.length == 3 ? null : () => _createUploadItem(),
     );
 
@@ -222,8 +206,8 @@ class _FormComplaintState extends State<FormComplaint> {
   }
 
   Widget _section(UploadItem item) {
-    var iconButton = new IconButton(
-      icon: new Icon(Icons.delete),
+    var iconButton = IconButton(
+      icon: Icon(Icons.delete),
       color: Colors.red,
       onPressed: () =>
           setState(() => listItem.removeWhere((value) => value == item)),
@@ -239,13 +223,13 @@ class _FormComplaintState extends State<FormComplaint> {
       child: Column(children: <Widget>[
         ListTile(
             contentPadding: EdgeInsets.only(top: 6.0),
-            leading: new Image.file(src),
+            leading: Image.file(src),
             trailing: iconButton,
-            title: new Column(
+            title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                new Text(date),
-                new Text(_latitude + ", " + _longitude)
+                Text(date),
+                Text(_latitude + ", " + _longitude)
               ],
             ),
             onTap: () async => _bottomSheet(
@@ -280,15 +264,15 @@ class _FormComplaintState extends State<FormComplaint> {
     showModalBottomSheet(
         context: context,
         builder: (BuildContext bc) => Container(
-              child: new Wrap(
+              child: Wrap(
                 children: <Widget>[
-                  new ListTile(
-                      leading: new Icon(Icons.image),
-                      title: new Text('View Image'),
+                  ListTile(
+                      leading: Icon(Icons.image),
+                      title: Text('View Image'),
                       onTap: () => _openViewer()),
-                  new ListTile(
-                      leading: new Icon(Icons.map),
-                      title: new Text('Open Map'),
+                  ListTile(
+                      leading: Icon(Icons.map),
+                      title: Text('Open Map'),
                       onTap: () => _openMap()),
                 ],
               ),
@@ -304,21 +288,22 @@ class _FormComplaintState extends State<FormComplaint> {
 
       if (value != null) {
         final file = File(value.path);
-
         return file;
       }
-
       return null;
     }
 
+    // Updated compressFile function using flutter_native_image.
     Future<List<int>> compressFile(File file) async {
-      var result = await FlutterImageCompress.compressWithFile(
-          file.absolute.path,
-          quality: Platform.isIOS ? 20 : 60,
-          minWidth: 480,
-          minHeight: 640);
-      print(file.lengthSync());
-      print(result.length);
+      File compressedFile = await FlutterNativeImage.compressImage(
+        file.absolute.path,
+        quality: Platform.isIOS ? 20 : 60,
+        targetWidth: 480,
+        targetHeight: 640,
+      );
+      final result = await compressedFile.readAsBytes();
+      print("Original file size: ${file.lengthSync()}");
+      print("Compressed file size: ${result.length}");
       return result;
     }
 
@@ -334,7 +319,7 @@ class _FormComplaintState extends State<FormComplaint> {
     String date() => DateFormat('kk:mm:ss EEE d MMM').format(DateTime.now());
 
     void createObject(File file) async {
-      final bytes = await compressFile(File(file.path));
+      final bytes = await compressFile(file);
       String size = bytes.length.toString();
       String base64Image = base64Encode(bytes);
       String name = "${date()}.jpg";
@@ -392,7 +377,7 @@ class _FormComplaintState extends State<FormComplaint> {
     if (await openLocationSetting()) {
       var body = {
         "action": "submit_complain",
-        "woTaskLocation": location, // add locationCodeId with autocomplete
+        "woTaskLocation": location,
         "woTaskComplaint": desc,
         "woTaskLongitude": longitude,
         "woTaskLatitude": latitude,
@@ -403,8 +388,7 @@ class _FormComplaintState extends State<FormComplaint> {
       setState(() => loading = true);
 
       Provider provider = Provider();
-
-      if (context != null) provider.context = context;
+      provider.context = context;
 
       provider.post(url: "/api/m_wo.php", body: body).then((value) {
         setState(() => loading = false);
@@ -438,7 +422,7 @@ class UploadItem {
   String name;
   final String filename;
   final String size;
-  final String type = "data:image/jpeg;base64";
+  final String type = "data:image/jpeg:base64";
   final String data;
   final String date;
   String desc;

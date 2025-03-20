@@ -139,8 +139,7 @@ class Controller {
       Toast.show(_invalidMessage.value, duration: 3);
       throw "";
     } else {
-      if (_invalidMessage.value != null)
-        Toast.show(_invalidMessage.value, duration: 3);
+      Toast.show(_invalidMessage.value, duration: 3);
       return _request.post(remark: remark.text, quantity: _quantity.text);
     }
   }

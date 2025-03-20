@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:rxdart/subjects.dart';
 
 enum ScreenType {
   forTechnician,

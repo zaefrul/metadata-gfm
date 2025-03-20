@@ -382,7 +382,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
 
     Provider provider = Provider();
 
-    if (context != null) provider.context = context;
+    provider.context = context;
 
     provider
         .post(url: "/api/m_wo.php", body: body.body)
@@ -407,13 +407,10 @@ class _ComplaintSectionState extends State<ComplaintSection> {
     // var statusList = responseValue.statusList;
     // var list = statusList.map((f)=> f.ppmTaskSectionStatus).toList();
     bool check = true;
-    if (listStatus != null)
-      for (String f in listStatus) {
-        if (f != "Info" && f != "Invalid" && f != "Valid" && f != "Completed")
-          return false;
-      }
-    else
-      check = false;
+    for (String f in listStatus) {
+      if (f != "Info" && f != "Invalid" && f != "Valid" && f != "Completed")
+        return false;
+    }
 
     return check;
   }

@@ -97,28 +97,27 @@ class _ProfileState extends State<Profile> {
       );
 
   Widget get logo {
-    if (_imageSrc != null) if (_imageSrc.length > 0)
-      return GestureDetector(
-        child: Container(
-          height: 120.0,
-          width: 120.0,
-          decoration: new BoxDecoration(
-            image: DecorationImage(
-              image: new NetworkImage("http:" + _imageSrc),
-              fit: BoxFit.fitWidth,
-            ),
-            shape: BoxShape.circle,
+    if (_imageSrc.length > 0)
+    return GestureDetector(
+      child: Container(
+        height: 120.0,
+        width: 120.0,
+        decoration: new BoxDecoration(
+          image: DecorationImage(
+            image: new NetworkImage("http:" + _imageSrc),
+            fit: BoxFit.fitWidth,
           ),
+          shape: BoxShape.circle,
         ),
-        onTap: () {
-          if (_imageSrc != null)
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        ImageViewer(url: "http:" + _imageSrc)));
-        },
-      );
+      ),
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    ImageViewer(url: "http:" + _imageSrc)));
+      },
+    );
 
     return new Image.asset(
       'assets/profile_plain.png',

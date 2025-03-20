@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc.dart';
 import 'package:gfm_gems/model/complaint.dart';
 import 'package:gfm_gems/model/user.dart';
@@ -25,7 +24,6 @@ class _CheckinAddState extends State<CheckinAdd> {
   @override
   void didChangeDependencies() {
     widget._controller.loadingState$.listen((event) {
-      if (event == null) return;
       if (event == true)
         showDialog(
           context: context,
@@ -152,10 +150,7 @@ class _CheckinAddState extends State<CheckinAdd> {
           child: Icon(Icons.done),
           onPressed: () {
             final item = widget._controller.value(context);
-            if (item != null)
-              Navigator.pop(context, item);
-            else
-              Navigator.pop(context);
+            Navigator.pop(context, item);
           }),
     );
   }
@@ -297,7 +292,7 @@ class Controller extends Bloc {
       invalid = true;
       remark.text = "";
       quantity.text = "";
-      if (value != null) getFirst();
+      getFirst();
     });
     _valueFirst.listen((value) {
       setsecond(null);
@@ -306,7 +301,7 @@ class Controller extends Bloc {
       invalid = true;
       remark.text = "";
       quantity.text = "";
-      if (value != null) getSecond();
+      getSecond();
     });
 
     _valueSecond.listen((value) {
@@ -315,14 +310,13 @@ class Controller extends Bloc {
       invalid = true;
       remark.text = "";
       quantity.text = "";
-      if (value != null) getThird();
+      getThird();
     });
 
     _valueThird.listen((value) {
       remark.text = "";
       invalid = true;
-      if (value != null) quantity.text = value.partCount;
-      if (value == null) quantity.text = "";
+      quantity.text = value.partCount;
     });
 
     _quantity.addListener(() {
@@ -426,8 +420,7 @@ class Controller extends Bloc {
       Toast.show(_invalidMessage.value, duration: 3);
       throw "";
     } else {
-      if (_invalidMessage.value != null)
-        Toast.show(_invalidMessage.value, duration: 3);
+      Toast.show(_invalidMessage.value, duration: 3);
       return _request.post(
         _valueThird.value.partId,
         remark: remark.text,
@@ -499,8 +492,7 @@ class Controller extends Bloc {
       Toast.show(_invalidMessage.value, duration: 3);
       throw "";
     } else {
-      if (_invalidMessage.value != null)
-        Toast.show(_invalidMessage.value, duration: 3);
+      Toast.show(_invalidMessage.value, duration: 3);
       return Item(
         _valueFirst.value.itemName,
         _valueSecond.value.itemName,

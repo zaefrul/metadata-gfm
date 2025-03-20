@@ -205,7 +205,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
       setState(() => loading = true);
       Provider provider = Provider();
 
-      if (context != null) provider.context = context;
+      provider.context = context;
 
       provider.post(url: "/api/m_wo.php", body: body).then((value) {
         setState(() => loading = false);

@@ -37,7 +37,7 @@ class CheckOutList extends StatelessWidget {
   Future<void> refresh({BuildContext context}) {
     final Provider _provider =
         Provider(fetchURL: "/wo_request/list_mobile_check_out");
-    if (context != null) _provider.context = context;
+    _provider.context = context;
     return _provider.getJson().then((value) {
       // final List values = value as List;
       // values.sort((a, b) => b["checkOutTime"].compareTo(a["checkOutTime"]));

@@ -130,7 +130,7 @@ class SignatureViewState extends State<SignatureView> {
 
     Provider provider = Provider();
 
-    if (context != null) provider.context = context;
+    provider.context = context;
 
     provider
         .post(url: "/user_signature/${widget.id}", body: body.body)

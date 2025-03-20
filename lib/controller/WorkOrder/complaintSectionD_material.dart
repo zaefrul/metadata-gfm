@@ -200,7 +200,7 @@ class Controller {
   void delete(String itemId) =>
       _request.delete(itemId).whenComplete(() => refresh());
   Future<void> refresh() => _request.response.then((value) {
-        if (value != null) items = value;
+        items = value;
       });
   Future<void> reset() => _request.reset().whenComplete(() => refresh());
   void submit(BuildContext context) => _request

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
+// import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_native_image_v2/flutter_native_image_v2.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:gfm_gems/view/dialog.dart';
 
@@ -12,7 +13,6 @@ import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 // import 'package:file_picker/file_picker.dart';
 import 'package:toast/toast.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'openImage.dart';
 
@@ -336,15 +336,19 @@ class _FormFState extends State<FormF> {
           builder: (context) => ImageViewer(path: path, url: src)));
 
   Future<List<int>> compressFile(File file) async {
-    var result = await FlutterImageCompress.compressWithFile(
+    // Compress the image using flutter_native_image.
+    File compressedFile = await FlutterNativeImage.compressImage(
       file.absolute.path,
-      quality: Platform.isIOS ? 60 : 100,
-      minWidth: 540,
-      minHeight: 720,
+      quality: Platform.isIOS ? 60 : 100, // Adjust quality as needed
+      targetWidth: 540,
+      targetHeight: 720,
     );
-    print(file.lengthSync());
-    print(result.length);
-    return result;
+
+    // Read the bytes from the compressed file.
+    final bytes = await compressedFile.readAsBytes();
+    print("Original file size: ${file.lengthSync()}");
+    print("Compressed file size: ${bytes.length}");
+    return bytes;
   }
 }
 

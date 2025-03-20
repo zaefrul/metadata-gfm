@@ -79,11 +79,6 @@ class _LeaderboardViewState extends State<LeaderboardView>
 
   @override
   Widget build(BuildContext context) {
-    if (_tabController == null) {
-      _tabController = TabController(length: 2, vsync: this);
-      _tabController.addListener(() => refresh());
-    }
-
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -121,7 +116,7 @@ class _LeaderboardViewState extends State<LeaderboardView>
         ),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: null,
-          label: Text("Current Scoring Point : ${_score?.gmiPointTotal ?? 0}"),
+          label: Text("Current Scoring Point : ${_score.gmiPointTotal ?? 0}"),
           backgroundColor: colorTheme1,
         ),
       ),

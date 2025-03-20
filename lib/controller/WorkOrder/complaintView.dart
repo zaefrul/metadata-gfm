@@ -35,7 +35,7 @@ class _ComplaintViewState extends State<ComplaintView> {
                   ? "WR"
                   : "");
       Provider provider = Provider(fetchURL: widget.url + filter);
-      if (context != null) provider.context = context;
+      provider.context = context;
 
       var value = await provider.fetch();
 
