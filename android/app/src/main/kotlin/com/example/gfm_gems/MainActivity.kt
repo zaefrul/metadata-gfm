@@ -1,4 +1,4 @@
-package com.example.gfm_gems
+package com.GFM.GEMS
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -18,7 +18,7 @@ import '../PPM/Form/openImage.dart';
 class Edit extends StatefulWidget {
   final User user;
 
-  Edit(this.user);
+  const Edit(this.user, {Key? key}) : super(key: key);
 
   @override
   _EditState createState() => _EditState();
@@ -27,13 +27,13 @@ class Edit extends StatefulWidget {
 class _EditState extends State<Edit> {
   String name = "";
   String contact = "";
-  String imageSrc;
+  String imageSrc = "";
   bool loading = false;
-  String path; // storing path as String for simplicity
-  List<int> bytes;
-  String size;
-  String base64Image;
-  String desc;
+  String? path; // storing path as String for simplicity
+  List<int>? bytes;
+  String? size;
+  String? base64Image;
+  String? desc;
 
   @override
   void initState() {
@@ -52,7 +52,7 @@ class _EditState extends State<Edit> {
       height: 100,
     );
 
-    if (imageSrc.length > 0)
+    if (imageSrc.isNotEmpty) {
       image = Container(
         height: 120.0,
         width: 120.0,
@@ -64,55 +64,51 @@ class _EditState extends State<Edit> {
           shape: BoxShape.circle,
         ),
       );
+    }
 
-    if (path != null)
+    if (path != null) {
       image = Container(
         height: 120.0,
         width: 120.0,
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: FileImage(File(path)),
+            image: FileImage(File(path!)),
             fit: BoxFit.fitWidth,
           ),
           shape: BoxShape.circle,
         ),
       );
+    }
 
-    var bodyContent = Column(
+    final bodyContent = Column(
       children: <Widget>[
-        SizedBox(height: 40),
+        const SizedBox(height: 40),
         GestureDetector(
           child: image,
-          onTap: () {
-            _bottomSheet();
-          },
+          onTap: _bottomSheet,
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         GestureDetector(
-          onTap: () {
-            _bottomSheet();
-          },
+          onTap: _bottomSheet,
           child: Text(
             "Change Profile Picture",
             style: TextStyle(color: colorTheme1),
           ),
         ),
-        SizedBox(height: 30),
+        const SizedBox(height: 30),
         field("Name", (text) {
           name = text;
         }, secure: false, value: name),
         field("Contact No", (text) {
           contact = text;
         }, secure: false, value: contact, phoneType: true),
-        SizedBox(height: 80),
+        const SizedBox(height: 80),
         Container(
           width: 200,
           height: 50,
           child: Button(
             text: "Done",
-            onPressed: () {
-              action;
-            },
+            onPressed: _action,
             color: colorTheme2,
           ),
         )
@@ -122,19 +118,20 @@ class _EditState extends State<Edit> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-          title: title("Edit Profile"),
-          backgroundColor: Colors.white,
-          centerTitle: true,
-          iconTheme: IconThemeData(color: colorTheme3)),
+        title: title("Edit Profile"),
+        backgroundColor: Colors.white,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: colorTheme3),
+      ),
       body: loading
           ? Stack(
               children: <Widget>[
                 bodyContent,
                 Container(
-                  child: Center(
+                  color: Colors.black.withOpacity(0.5),
+                  child: const Center(
                     child: CircularProgressIndicator(),
                   ),
-                  color: Colors.black.withOpacity(0.5),
                 )
               ],
             )
@@ -142,16 +139,18 @@ class _EditState extends State<Edit> {
     );
   }
 
-  Widget title(text, {double size = 30.0}) => Text(text,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        color: colorTheme3,
-        fontFamily: 'Avenir',
-        fontSize: size,
-        fontWeight: FontWeight.bold,
-      ));
+  Widget title(String text, {double size = 30.0}) => Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: colorTheme3,
+          fontFamily: 'Avenir',
+          fontSize: size,
+          fontWeight: FontWeight.bold,
+        ),
+      );
 
-  get action async {
+  Future<void> _action() async {
     setState(() => loading = true);
 
     var bodyProvider = {
@@ -162,10 +161,10 @@ class _EditState extends State<Edit> {
     if (contact != widget.user.contactNo) bodyProvider["phoneNo"] = contact;
     if (path != null) {
       bodyProvider["fileUpload[name]"] = name;
-      bodyProvider["fileUpload[filename]"] = desc;
-      bodyProvider["fileUpload[size]"] = size;
+      bodyProvider["fileUpload[filename]"] = desc ?? "";
+      bodyProvider["fileUpload[size]"] = size ?? "";
       bodyProvider["fileUpload[type]"] = "data:image/jpeg;base64";
-      bodyProvider["fileUpload[data]"] = base64Image;
+      bodyProvider["fileUpload[data]"] = base64Image ?? "";
     }
 
     if (bodyProvider.length == 1) {
@@ -174,43 +173,40 @@ class _EditState extends State<Edit> {
       return;
     }
 
-    Provider provider = Provider();
+    Provider provider = Provider(fetchURL: "/api/m_ppm.php");
 
     provider
         .post(url: "/api/m_ppm.php", body: bodyProvider)
-        .then((value) => setState(() async {
-              ResponseValue response = value as ResponseValue;
-              String src = response.result;
-              widget.user.updateProfile(
-                  name,
-                  contact,
-                  src == null
-                      ? imageSrc
-                      : src.length == 0
-                          ? imageSrc
-                          : src);
-              alert(response.errmsg);
-            }))
-        .catchError((err) => alert(err, success: false))
-        .whenComplete(() => setState(() => loading = false));
+        .then((value) async {
+      ResponseValue response = value as ResponseValue;
+      String src = response.result ?? "";
+      widget.user.updateProfile(
+          name,
+          contact,
+          (src == null || src.isEmpty) ? imageSrc : src);
+      alert(response.errmsg);
+    }).catchError((err) {
+      alert(err.toString(), success: false);
+    }).whenComplete(() => setState(() => loading = false));
   }
 
-  void alert(String txt, {bool success = true}) => showDialog(
+  void alert(String txt, {bool success = true}) {
+    showDialog(
       context: context,
       builder: (BuildContext context) => CustomDialog(
-          rootPage: success ? "/profile" : null,
-          description: txt,
-          buttonText: "Okay",
-          image: Image.asset(
-            "assets/icon_trans.png",
-            height: 40,
-          )));
+        rootPage: success ? "/profile" : "",
+        description: txt,
+        buttonText: "Okay",
+        image: Image.asset(
+          "assets/icon_trans.png",
+          height: 40,
+        ),
+      ),
+    );
+  }
 
-  /// A helper method to pick an image (from camera or gallery), compress it,
-  /// and return the compressed File.
-  Future<File> getCompressedImage(ImageSource source) async {
-    var picked = await ImagePicker().pickImage(
-        source: source, maxWidth: 480, maxHeight: 640);
+  Future<File?> getCompressedImage(ImageSource source) async {
+    final picked = await ImagePicker().pickImage(source: source, maxWidth: 480, maxHeight: 640);
     if (picked == null) return null;
     File originalFile = File(picked.path);
     File compressedFile = await FlutterNativeImage.compressImage(
@@ -222,38 +218,65 @@ class _EditState extends State<Edit> {
     return compressedFile;
   }
 
-  // Now getImageCamera and getImageGallery simply call the helper:
-  Future<File> getImageCamera() async {
+  Future<File?> getImageCamera() async {
     return getCompressedImage(ImageSource.camera);
   }
 
-  Future<File> getImageGallery() async {
+  Future<File?> getImageGallery() async {
     return getCompressedImage(ImageSource.gallery);
   }
 
   void viewImage() {
     ImageViewer viewer;
-    if (path != null)
-      viewer = ImageViewer(
-        path: path,
-      );
-    else
+    if (path != null) {
+      viewer = ImageViewer(path: path);
+    } else {
       viewer = ImageViewer(url: "http:" + imageSrc);
+    }
     Navigator.push(context, MaterialPageRoute(builder: (context) => viewer));
+  }
+
+  void _bottomSheet() {
+    List<Widget> children = [
+      ListTile(
+          leading: const Icon(Icons.camera),
+          title: const Text('Open Camera'),
+          onTap: () => getImageCamera().then((value) {
+                if (value != null) setImage(value);
+              })),
+      ListTile(
+          leading: const Icon(Icons.image),
+          title: const Text('Open Gallery'),
+          onTap: () => getImageGallery().then((value) {
+                if (value != null) setImage(value);
+              })),
+    ];
+
+    if (imageSrc.isNotEmpty || path != null) {
+      children.add(ListTile(
+          leading: const Icon(Icons.visibility),
+          title: const Text('View Image'),
+          onTap: viewImage));
+    }
+
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext bc) => Container(
+              child: Wrap(children: children),
+            ));
   }
 
   void setImage(File file) async {
     Navigator.of(context).pop();
-    if (file == null) return;
-    setState(() => path = file.path);
-    // Compress again if needed (or simply read the compressed file's bytes):
+    setState(() {
+      path = file.path;
+    });
     bytes = await compressFile(File(file.path));
-    size = bytes.length.toString();
-    base64Image = base64Encode(bytes);
+    size = bytes!.length.toString();
+    base64Image = base64Encode(bytes!);
     desc = "${file.path}.jpg";
   }
 
-  /// Updated compressFile to use flutter_native_image.
   Future<List<int>> compressFile(File file) async {
     File compressedFile = await FlutterNativeImage.compressImage(
       file.absolute.path,
@@ -265,32 +288,5 @@ class _EditState extends State<Edit> {
     print("Original file size: ${file.lengthSync()}");
     print("Compressed file size: ${compressedBytes.length}");
     return compressedBytes;
-  }
-
-  Widget _bottomSheet() {
-    var children = <Widget>[
-      ListTile(
-          leading: Icon(Icons.camera),
-          title: Text('Open Camera'),
-          onTap: () => getImageCamera().then((value) => setImage(value))),
-      ListTile(
-          leading: Icon(Icons.image),
-          title: Text('Open Gallery'),
-          onTap: () => getImageGallery().then((value) => setImage(value))),
-    ];
-
-    if (imageSrc.length > 0 || path != null) {
-      children.add(ListTile(
-          leading: Icon(Icons.visibility),
-          title: Text('View Image'),
-          onTap: () => viewImage()));
-    }
-
-    showModalBottomSheet(
-        context: context,
-        builder: (BuildContext bc) => Container(
-              child: Wrap(children: children),
-            ));
-    return Container();
   }
 }

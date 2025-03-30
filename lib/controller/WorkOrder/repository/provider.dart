@@ -7,7 +7,7 @@ import 'package:gfm_gems/utils/reference.dart';
 class WOProvider {
   final Provider _provider;
 
-  WOProvider({BuildContext context}) : this._provider = Provider() {
+  WOProvider({required BuildContext context}) : this._provider = Provider(fetchURL: "") {
     _provider.context = context;
   }
 
@@ -22,13 +22,13 @@ class WOProvider {
       remark: remark,
     );
 
-    Provider provider = Provider();
+    Provider provider = Provider(fetchURL: "/api/m_wo.php");
 
     return provider.post(url: "/api/m_wo.php", body: body.body);
   }
 
   Future<void> submit(String id) {
-    Provider provider = Provider();
+    Provider provider = Provider(fetchURL: "/api/m_wo.php");
     return provider.post(
       url: "/api/m_wo.php",
       body: {"action": "submit_assign", "woTaskId": id},
@@ -41,7 +41,7 @@ class WOProvider {
       final ResponseValue responseValue = await provider.fetch();
       final result = responseValue.wostatusList;
 
-      return result.toList();
+      return result?.toList() ?? [];
     } catch (err) {
       throw err;
     }
@@ -51,7 +51,7 @@ class WOProvider {
     Provider _provider =
         Provider(fetchURL: "/wo_v2/execution_info/", taskID: id);
 
-    final result = await _provider.getJson();
+    final result = await _provider.getJson(url: "/wo_v2/execution_info/");
     return result as Map<String, dynamic>;
   }
 }
@@ -60,9 +60,9 @@ class UploadItem extends Upload {
   final String remark;
 
   UploadItem({
-    String id,
-    String action,
-    this.remark,
+    required String id,
+    required String action,
+    required this.remark,
   }) : super(ppmTaskId: id, action: action);
 
   @override

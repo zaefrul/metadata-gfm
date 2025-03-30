@@ -1,16 +1,14 @@
-
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc.dart';
 import 'package:gfm_gems/model/serializers.dart';
 import 'package:gfm_gems/utils/network.dart';
-import 'package:rxdart/subjects.dart';
 import 'package:gfm_gems/model/complaint.dart';
-
 import '../constant.dart';
 
 const List<String> statuses = [
   'All Status',
-  "Request Parts	",
+  "Request Parts",
   "Request Approval",
   "Stock Request",
   "Ready For Collection",
@@ -28,14 +26,16 @@ class BlocInventory extends Bloc {
       BehaviorSubject<List<RequestTask>>.seeded([]);
   final Request _request;
   final BehaviorSubject<List<ComplaintDStore>> _stores =
-      BehaviorSubject.seeded([]);
+      BehaviorSubject<List<ComplaintDStore>>.seeded([]);
   final BehaviorSubject<List<ComplaintDGroupStore>> _materials =
-      BehaviorSubject.seeded([]);
-  final BehaviorSubject<ComplaintDStore> _store = BehaviorSubject();
+      BehaviorSubject<List<ComplaintDGroupStore>>.seeded([]);
+  final BehaviorSubject<ComplaintDStore> _store =
+      BehaviorSubject<ComplaintDStore>();
+
   List<RequestTask> _tasksOriginal = [];
 
   final Map<String, String> _statuses = {
-    "32": "Request Parts	",
+    "32": "Request Parts",
     "33": "Request Approval",
     "34": "Stock Request",
     "38": "Ready For Collection",
@@ -51,43 +51,45 @@ class BlocInventory extends Bloc {
     "38": colorTheme5,
     "36": colorTheme1,
     "47": colorTheme4,
-    "48": colorTheme4
+    "48": colorTheme4,
   };
 
-  Stream get selected$ => _selectedFilter.stream;
-  Stream get material$ => _requestCart.stream;
-  Stream get view$ => _myView.stream;
-  Stream get stock$ => _myStock.stream;
-  Stream get task$ => _tasks.stream;
+  Stream<String> get selected$ => _selectedFilter.stream;
+  Stream<Material> get material$ => _requestCart.stream;
+  Stream<String> get view$ => _myView.stream;
+  Stream<List<Stock>> get stock$ => _myStock.stream;
+  Stream<List<RequestTask>> get task$ => _tasks.stream;
 
-  Function get setSelected => _selectedFilter.sink.add;
-  Function get setView => _myView.sink.add;
+  Function(String) get setSelected => _selectedFilter.sink.add;
+  Function(String) get setView => _myView.sink.add;
 
   set store(ComplaintDStore value) => _store.sink.add(value);
-  set stores(List values) => _stores.sink.add(values);
-  set materials(List values) => _materials.sink.add(values);
-  get stores$ => _stores.stream;
-  get materials$ => _materials.stream;
-  get store$ => _store.stream;
+  set stores(List<ComplaintDStore> values) => _stores.sink.add(values);
+  set materials(List<ComplaintDGroupStore> values) => _materials.sink.add(values);
+  Stream<List<ComplaintDStore>> get stores$ => _stores.stream;
+  Stream<List<ComplaintDGroupStore>> get materials$ => _materials.stream;
+  Stream<ComplaintDStore> get store$ => _store.stream;
 
-  BlocInventory(BuildContext context) : this._request = Request() {
+  BlocInventory(BuildContext context) : _request = Request() {
     _request.refresh.then((value) {
       _tasks.sink.add(value);
       _tasksOriginal = value;
     });
 
-    _myStock
-        .add(['A', 'B', 'C'].map((f) => Stock(group: "Category $f")).toList());
+    _myStock.add(
+        ['A', 'B', 'C'].map((f) => Stock(group: "Category $f")).toList());
 
     getStore(context);
     _store.listen((event) {
-      getStock(context, event.itemId);
+      if (event.itemId != null) {
+        getStock(context, event.itemId!);
+      }
     });
 
     _selectedFilter.listen((event) {
-      if (event == statuses.first)
+      if (event == statuses.first) {
         _tasks.sink.add(_tasksOriginal);
-      else {
+      } else {
         final List<RequestTask> filtered = _tasksOriginal
             .where((element) => element.statusDesc == event)
             .toList();
@@ -96,34 +98,38 @@ class BlocInventory extends Bloc {
     });
   }
 
-  Future<void> refresh() => _request.refresh.then((value) {
-        // value.sort((a, b) => a.requestTime.compareTo(b.requestTime));
-        _tasks.sink.add(value);
-        _tasksOriginal = value;
-        setSelected(_selectedFilter.value);
-      });
-  String status(String id) => _statuses[id];
-  Color color(String id) => _statusesColor[id];
+  Future<void> refresh() async {
+    final value = await _request.refresh;
+    _tasks.sink.add(value);
+    _tasksOriginal = value;
+    setSelected(_selectedFilter.value);
+  }
+
+  String status(String id) => _statuses[id] ?? "";
+  Color color(String id) => _statusesColor[id] ?? Colors.grey;
 
   Future<void> getStore(BuildContext context) async {
     final Provider _provider =
         Provider(fetchURL: "/store/purchase_option_store");
     _provider.context = context;
 
-    final result = await _provider.getJson();
+    final result = await _provider.getJson(url: "/store/purchase_option_store");
     final values = deserializeListOf<ComplaintDStore>(result).toList();
 
     stores = values;
-    store = values.first;
+    if (values.isNotEmpty) {
+      store = values.first;
+    }
   }
 
-  void getStock(BuildContext context, String id) async {
+  Future<void> getStock(BuildContext context, String id) async {
     final Provider _provider =
         Provider(fetchURL: "/part/part_tree_category/", taskID: id);
     _provider.context = context;
 
-    final result = await _provider.getJson() as List<dynamic>;
-    final values = deserializeListOf<ComplaintDGroupStore>(result).toList();
+    final result = await _provider.getJson(url: "/part/part_tree_category/") as List<dynamic>;
+    final values =
+        deserializeListOf<ComplaintDGroupStore>(result).toList();
     materials = values;
   }
 
@@ -136,39 +142,32 @@ class BlocInventory extends Bloc {
     _myStock.close();
     _stores.close();
     _materials.close();
+    _store.close();
     super.dispose();
   }
 }
 
-enum RequestStatus {
-  Processing,
-  Requested,
-  Reserved,
-}
+enum RequestStatus { Processing, Requested, Reserved }
 
 class Material extends Bloc {
-  final _controllerThreshold = BehaviorSubject<int>.seeded(10);
+  final BehaviorSubject<int> _controllerThreshold =
+      BehaviorSubject<int>.seeded(10);
   final String issuedBy;
   final String group;
   final String subgroup;
   final String name;
-  final String desc;
+  final String? desc;
   double price;
   int quantity;
 
-  void get addThreshold =>
-      _controllerThreshold.sink.add(_controllerThreshold.value + 1);
-  void get minusThreshold =>
-      _controllerThreshold.sink.add(_controllerThreshold.value - 1);
-
   Material({
-    @required this.issuedBy,
-    @required this.group,
-    @required this.subgroup,
-    @required this.name,
-    @required this.desc,
-    @required this.quantity,
-    this.price,
+    required this.issuedBy,
+    required this.group,
+    required this.subgroup,
+    required this.name,
+    this.desc,
+    required this.quantity,
+    this.price = 0.0,
   });
 
   void addQuantity() {
@@ -191,8 +190,8 @@ class Stock {
   final String group;
   final List<Group> subgroups;
 
-  Stock({@required this.group, subgroups})
-      : this.subgroups = subgroups ??
+  Stock({required this.group, List<Group>? subgroups})
+      : subgroups = subgroups ??
             ['A', 'B', 'C']
                 .map((f) => Group(subgroup: "Type $f", group: group))
                 .toList();
@@ -204,8 +203,8 @@ class Group {
   final String subgroup;
   final List<Material> materials;
 
-  Group({@required this.subgroup, @required group, materials})
-      : this.materials = materials ??
+  Group({required this.subgroup, required String group, List<Material>? materials})
+      : materials = materials ??
             ['A', 'B', 'C']
                 .map((f) => Material(
                       issuedBy: "Muhammad Nabil",
@@ -227,8 +226,7 @@ class Request {
 
   Future<List<RequestTask>> get refresh async {
     try {
-      final result = await _providerGET.getJson();
-
+      final result = await _providerGET.getJson(url: "/wo_request/pending_task");
       return deserializeListOf<RequestTask>(result).toList();
     } catch (err) {
       throw err;

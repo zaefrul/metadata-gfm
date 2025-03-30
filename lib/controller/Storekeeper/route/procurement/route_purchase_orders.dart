@@ -124,7 +124,7 @@ class _Tile extends StatelessWidget {
     );
   }
 
-  Widget text({@required String value, double top = 3.0}) {
+  Widget text({required String value, double top = 3.0}) {
     return Padding(
       padding: EdgeInsets.only(top: top),
       child: Text(

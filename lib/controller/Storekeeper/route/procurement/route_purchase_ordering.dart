@@ -10,13 +10,13 @@ class PurchaseOrderList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<String>(
-      stream: bloc.selected$,
+      stream: bloc.selected$.cast<String>(),
       builder: (ctx, snapshot) => ListView.separated(
         shrinkWrap: true,
         physics: NeverScrollableScrollPhysics(),
         padding: EdgeInsets.only(top: 12, bottom: 12),
         itemBuilder: (ctx, index) => _Tile(
-            snapshot.data != "All Status" ? snapshot.data : statuses[index + 1],
+            snapshot.data != "All Status" ? (snapshot.data ?? "Default Status") : statuses[index + 1],
             index),
         itemCount: snapshot.data != "All Status" ? 1 : statuses.length - 1,
         separatorBuilder: (ctx, index) => Divider(),
@@ -47,7 +47,7 @@ class _Tile extends StatelessWidget {
     );
   }
 
-  Widget text({@required String value, double top = 3.0}) {
+  Widget text({required String value, double top = 3.0}) {
     return Padding(
       padding: EdgeInsets.only(top: top),
       child: Text(

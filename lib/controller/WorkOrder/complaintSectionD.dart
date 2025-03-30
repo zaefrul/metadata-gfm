@@ -13,8 +13,8 @@ class ComplaintSectionD extends StatefulWidget {
 
   ComplaintSectionD({
     this.name = "D",
-    this.id,
-    this.viewer,
+    required this.id,
+    required this.viewer,
   });
 
   @override
@@ -24,8 +24,8 @@ class ComplaintSectionD extends StatefulWidget {
 class _ComplaintSectionDState extends State<ComplaintSectionD> {
   bool loading = false;
   String remark = "";
-  Provider provider;
-  String keyword;
+  late Provider provider;
+  late String keyword;
   TextEditingController controller = TextEditingController();
 
   _ComplaintSectionDState(String id) {

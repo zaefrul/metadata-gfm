@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-// Removed flutter_image_compress; using flutter_native_image instead:
 import 'package:flutter_native_image_v2/flutter_native_image_v2.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -23,9 +22,9 @@ class _FormComplaintState extends State<FormComplaint> {
   String location = "abcdef";
   String desc = "";
   bool loading = false;
-  List<UploadItem> listItem = List<UploadItem>();
-  String dropdownLocation;
-  String dropdownArea;
+  List<UploadItem> listItem = [];
+  String? dropdownLocation;
+  String? dropdownArea;
 
   @override
   Widget build(BuildContext context) {
@@ -59,10 +58,10 @@ class _FormComplaintState extends State<FormComplaint> {
                 children: <Widget>[
                   body,
                   Container(
-                    child: Center(child: CircularProgressIndicator()),
                     height: double.infinity,
                     width: double.infinity,
                     color: Colors.black.withOpacity(0.4),
+                    child: Center(child: CircularProgressIndicator()),
                   )
                 ],
               )
@@ -115,7 +114,7 @@ class _FormComplaintState extends State<FormComplaint> {
           color: Colors.grey,
         ),
         isExpanded: true,
-        onChanged: (String newValue) {
+        onChanged: (String? newValue) {
           setState(() {
             dropdownLocation = newValue;
           });
@@ -144,7 +143,7 @@ class _FormComplaintState extends State<FormComplaint> {
           color: Colors.grey,
         ),
         isExpanded: true,
-        onChanged: (String newValue) {
+        onChanged: (String? newValue) {
           setState(() {
             dropdownArea = newValue;
           });
@@ -244,8 +243,8 @@ class _FormComplaintState extends State<FormComplaint> {
     );
   }
 
-  void _bottomSheet({latitude, longitude, src}) {
-    _openMap() async {
+  void _bottomSheet({required String latitude, required String longitude, required File src}) {
+    Future<void> _openMap() async {
       String googleUrl =
           'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
       String appleUrl = 'https://maps.apple.com/?sll=$latitude,$longitude';
@@ -258,8 +257,12 @@ class _FormComplaintState extends State<FormComplaint> {
         throw 'Could not launch url';
     }
 
-    _openViewer() => Navigator.push(context,
-        MaterialPageRoute(builder: (context) => ImageViewer(file: src)));
+    void _openViewer() {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ImageViewer(file: src)));
+    }
 
     showModalBottomSheet(
         context: context,
@@ -269,23 +272,22 @@ class _FormComplaintState extends State<FormComplaint> {
                   ListTile(
                       leading: Icon(Icons.image),
                       title: Text('View Image'),
-                      onTap: () => _openViewer()),
+                      onTap: _openViewer),
                   ListTile(
                       leading: Icon(Icons.map),
                       title: Text('Open Map'),
-                      onTap: () => _openMap()),
+                      onTap: _openMap),
                 ],
               ),
             ));
   }
 
   void _createUploadItem() async {
-    var latitude;
-    var longitude;
+    String? latitude;
+    String? longitude;
 
-    Future<File> getImage() async {
+    Future<File?> getImage() async {
       var value = await ImagePicker().pickImage(source: ImageSource.camera);
-
       if (value != null) {
         final file = File(value.path);
         return file;
@@ -293,7 +295,7 @@ class _FormComplaintState extends State<FormComplaint> {
       return null;
     }
 
-    // Updated compressFile function using flutter_native_image.
+    // Updated compressFile using flutter_native_image.
     Future<List<int>> compressFile(File file) async {
       File compressedFile = await FlutterNativeImage.compressImage(
         file.absolute.path,
@@ -308,7 +310,7 @@ class _FormComplaintState extends State<FormComplaint> {
     }
 
     Future<bool> openLocationSetting() async {
-      var prefs = await SharedPreferences.getInstance();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
       latitude = prefs.getString(prefsLATITUDE) ?? "0.0";
       longitude = prefs.getString(prefsLONGITUDE) ?? "0.0";
 
@@ -332,31 +334,33 @@ class _FormComplaintState extends State<FormComplaint> {
       UploadItem uploadItem = UploadItem(
           file: file,
           date: date(),
-          desc: "",
-          longitude: longitude,
-          latitude: latitude,
+          longitude: latitude!,
+          latitude: longitude!,
           name: name,
           filename: name,
           size: size,
           data: base64Image,
+          desc: "",
           i: listItem.length);
 
       setState(() => listItem.add(uploadItem));
     }
 
     if (await openLocationSetting()) {
-      getImage()
-          .then((value) => createObject(value))
-          .catchError((err) => print(err));
-    } else
+      File? imageFile = await getImage();
+      if (imageFile != null) {
+        createObject(imageFile);
+      }
+    } else {
       Toast.show("Please allow permission location for camera");
+    }
   }
 
   void _upload() async {
-    var latitude;
-    var longitude;
+    String? latitude;
+    String? longitude;
 
-    if (location.length == 0) {
+    if (location.isEmpty) {
       Toast.show("Location at least 8 characters");
       return;
     }
@@ -366,7 +370,7 @@ class _FormComplaintState extends State<FormComplaint> {
     }
 
     Future<bool> openLocationSetting() async {
-      var prefs = await SharedPreferences.getInstance();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
       latitude = prefs.getString(prefsLATITUDE) ?? "0.0";
       longitude = prefs.getString(prefsLONGITUDE) ?? "0.0";
 
@@ -375,7 +379,7 @@ class _FormComplaintState extends State<FormComplaint> {
     }
 
     if (await openLocationSetting()) {
-      var body = {
+      Map<String, dynamic> body = {
         "action": "submit_complain",
         "woTaskLocation": location,
         "woTaskComplaint": desc,
@@ -383,11 +387,13 @@ class _FormComplaintState extends State<FormComplaint> {
         "woTaskLatitude": latitude,
       };
 
-      listItem.forEach((f) => body.addAll(f.body));
+      for (var f in listItem) {
+        body.addAll(f.body);
+      }
 
       setState(() => loading = true);
 
-      Provider provider = Provider();
+      Provider provider = Provider(fetchURL: "/api/m_wo.php");
       provider.context = context;
 
       provider.post(url: "/api/m_wo.php", body: body).then((value) {
@@ -397,16 +403,17 @@ class _FormComplaintState extends State<FormComplaint> {
         print(err);
         alert(err: err.toString());
       }).whenComplete(() => setState(() => loading = false));
-    } else
+    } else {
       Toast.show("Please allow permission location for camera");
+    }
   }
 
-  void alert({String txt, String err}) {
+  void alert({String? txt, String? err}) {
     showDialog(
         context: context,
         builder: (BuildContext context) => CustomDialog(
-            rootPage: err != null ? null : "/workorder",
-            description: err != null ? err : txt,
+            rootPage: err != null ? "" : "/workorder",
+            description: err != null ? err : txt!,
             buttonText: "Okay",
             image: Image.asset(
               "assets/icon_trans.png",
@@ -428,17 +435,18 @@ class UploadItem {
   String desc;
   int i;
 
-  UploadItem(
-      {this.file,
-      this.date,
-      this.longitude,
-      this.latitude,
-      this.name,
-      this.filename,
-      this.desc,
-      this.size,
-      this.data,
-      this.i});
+  UploadItem({
+    required this.file,
+    required this.date,
+    required this.longitude,
+    required this.latitude,
+    required this.name,
+    required this.filename,
+    required this.desc,
+    required this.size,
+    required this.data,
+    required this.i,
+  });
 
   Map<String, String> get body => {
         "complaintImages[$i][longitude]": longitude,

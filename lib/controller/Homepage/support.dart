@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
 import 'package:gfm_gems/model/user.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../utils/network.dart';
@@ -19,7 +18,7 @@ class Support extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: new Text("Support"),
+        title: Text("Support"),
         centerTitle: true,
         backgroundColor: Colors.white,
       ),
@@ -28,25 +27,23 @@ class Support extends StatelessWidget {
           padding: EdgeInsets.all(12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               getTitle("GFM Services Berhad 1033141-H"),
               ListTile(
                 leading: locIcon,
-                title: new Column(
+                title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
-                    new Text(address1),
-                    new Text(address2),
-                    new Text(address3),
-                    new Text(address4),
+                    Text(address1),
+                    Text(address2),
+                    Text(address3),
+                    Text(address4),
                   ],
                 ),
               ),
               ListTile(
                 leading: phoneIcon,
-                title: new Text(
+                title: Text(
                   phone,
                   style: TextStyle(color: colorTheme2),
                 ),
@@ -54,7 +51,7 @@ class Support extends StatelessWidget {
               ),
               ListTile(
                 leading: mailIcon,
-                title: new Text(
+                title: Text(
                   email,
                   style: TextStyle(color: colorTheme2),
                 ),
@@ -62,31 +59,35 @@ class Support extends StatelessWidget {
               ),
               getTitle("User Manual"),
               ListTile(
-                title: new Text("1. PPM - Executor"),
+                title: Text("1. PPM - Executor"),
                 trailing: pdfIcon,
                 onTap: () => openExecutor(),
               ),
               ListTile(
-                  title: new Text("2. PPM - Reviewer"),
-                  trailing: pdfIcon,
-                  onTap: () => openReviewer()),
+                title: Text("2. PPM - Reviewer"),
+                trailing: pdfIcon,
+                onTap: () => openReviewer(),
+              ),
               ListTile(
-                  title: new Text("3. PPM - Verifier"),
-                  trailing: pdfIcon,
-                  onTap: () => openVerifier()),
-              ListTile(
-                title: new Text("4. WO - Assigner"),
+                title: Text("3. PPM - Verifier"),
                 trailing: pdfIcon,
                 onTap: () => openVerifier(),
               ),
               ListTile(
-                  title: new Text("5. WO - Complainer"),
-                  trailing: pdfIcon,
-                  onTap: () => openReviewer()),
+                title: Text("4. WO - Assigner"),
+                trailing: pdfIcon,
+                onTap: () => openVerifier(),
+              ),
               ListTile(
-                  title: new Text("6. WO - Executor"),
-                  trailing: pdfIcon,
-                  onTap: () => openExecutor())
+                title: Text("5. WO - Complainer"),
+                trailing: pdfIcon,
+                onTap: () => openReviewer(),
+              ),
+              ListTile(
+                title: Text("6. WO - Executor"),
+                trailing: pdfIcon,
+                onTap: () => openExecutor(),
+              ),
             ],
           ),
         ),
@@ -96,7 +97,7 @@ class Support extends StatelessWidget {
 
   Widget getTitle(String text) => Container(
         padding: EdgeInsets.all(12.0),
-        child: new Text(
+        child: Text(
           text,
           style: TextStyle(
               fontSize: 18.0, color: colorTheme3, fontWeight: FontWeight.bold),
@@ -120,29 +121,67 @@ class Support extends StatelessWidget {
         color: colorTheme2,
       );
 
-  void openPhone() => launch("tel://60341010555");
-
-  void openEmail() async {
-    final SharedPreferences pref = await SharedPreferences.getInstance();
-    final user = pref.getString(kUserPrefs);
-    final value = User.fromMap(user);
-    final url =
-        "mailto:$email?subject=Mobile App Support (From : ${value.username})&body=Complainer:${value.email}\nName:${value.firstName + ' ' + value.lastName} \nPhone Number : ${value.contactNo} \nYour Complaint: ";
-    launchUrl(Uri.parse(url));
+  Future<void> openPhone() async {
+    final Uri phoneUri = Uri(scheme: 'tel', path: '60341010555');
+    if (!await launchUrl(phoneUri)) {
+      throw 'Could not launch $phoneUri';
+    }
   }
 
-  void openExecutor() => launch("$netDomain/api/pdf/user_manual_executor.pdf");
+  Future<void> openEmail() async {
+    final SharedPreferences pref = await SharedPreferences.getInstance();
+    final String? userJson = pref.getString(kUserPrefs);
+    if (userJson == null) return;
+    final value = User.fromMap(userJson);
+    final String url =
+        "mailto:$email?subject=Mobile App Support (From : ${value.username})&body=Complainer:${value.email}\nName:${value.firstName} ${value.lastName} \nPhone Number : ${value.contactNo} \nYour Complaint: ";
+    final Uri emailUri = Uri.parse(url);
+    if (!await launchUrl(emailUri)) {
+      throw 'Could not launch $emailUri';
+    }
+  }
 
-  void openReviewer() => launch("$netDomain/api/pdf/user_manual_reviewer.pdf");
+  Future<void> openExecutor() async {
+    final Uri uri = Uri.parse("$netDomain/api/pdf/user_manual_executor.pdf");
+    if (!await launchUrl(uri)) {
+      throw 'Could not launch $uri';
+    }
+  }
 
-  void openVerifier() => launch("$netDomain/api/pdf/user_manual_verifier.pdf");
+  Future<void> openReviewer() async {
+    final Uri uri = Uri.parse("$netDomain/api/pdf/user_manual_reviewer.pdf");
+    if (!await launchUrl(uri)) {
+      throw 'Could not launch $uri';
+    }
+  }
 
-  void openWOExecutor() =>
-      launch("$netDomain/api/pdf/user_manual_wo_executor.pdf");
+  Future<void> openVerifier() async {
+    final Uri uri = Uri.parse("$netDomain/api/pdf/user_manual_verifier.pdf");
+    if (!await launchUrl(uri)) {
+      throw 'Could not launch $uri';
+    }
+  }
 
-  void openWOReviewer() =>
-      launch("$netDomain/api/pdf/user_manual_wo_complainer.pdf");
+  Future<void> openWOExecutor() async {
+    final Uri uri = Uri.parse("$netDomain/api/pdf/user_manual_wo_executor.pdf");
+    if (!await launchUrl(uri)) {
+      throw 'Could not launch $uri';
+    }
+  }
 
-  void openWOVerifier() =>
-      launch("$netDomain/api/pdf/user_manual_wo_assigner.pdf");
+  Future<void> openWOReviewer() async {
+    final Uri uri =
+        Uri.parse("$netDomain/api/pdf/user_manual_wo_complainer.pdf");
+    if (!await launchUrl(uri)) {
+      throw 'Could not launch $uri';
+    }
+  }
+
+  Future<void> openWOVerifier() async {
+    final Uri uri =
+        Uri.parse("$netDomain/api/pdf/user_manual_wo_assigner.pdf");
+    if (!await launchUrl(uri)) {
+      throw 'Could not launch $uri';
+    }
+  }
 }

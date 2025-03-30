@@ -22,15 +22,22 @@ class _RoutineInspectionState extends State<RoutineInspection>
       key: _scaffoldKey,
       body: RITaskView(index: 1),
       drawer: BuildDrawer(() => Navigator.pop(context)),
-      appBar: bar(
-        _scaffoldKey,
-        text: "Routine Inspection",
-        search: true,
-        onTap: () => Navigator.pushNamed(
-          context,
-          SearchRI.routeName,
-          arguments: SearchRIArguments(index: 1),
+      appBar: AppBar(
+        title: Text("Routine Inspection"),
+        leading: IconButton(
+          icon: Icon(Icons.menu),
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () => Navigator.pushNamed(
+              context,
+              SearchRI.routeName,
+              arguments: SearchRIArguments(index: 1),
+            ),
+          ),
+        ],
       ),
     );
   }

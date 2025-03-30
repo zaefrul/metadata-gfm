@@ -3,21 +3,26 @@ import 'package:flutter/material.dart';
 class Button extends StatelessWidget {
   final GestureTapCallback onPressed;
   final String text;
-  final Color color;
+  final Color? color;
 
-  Button({@required this.onPressed, this.text, this.color});
+  const Button({
+    Key? key,
+    required this.onPressed,
+    required this.text,
+    this.color,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        // backgroundColor: color == null ? colorTheme1 : color,
-        shape: StadiumBorder(),
+        backgroundColor: color ?? Theme.of(context).primaryColor,
+        shape: const StadiumBorder(),
       ),
-      onPressed: this.onPressed,
-      child: new Text(
+      onPressed: onPressed,
+      child: Text(
         text,
-        style: TextStyle(
+        style: const TextStyle(
           color: Colors.white,
         ),
       ),

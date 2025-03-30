@@ -16,33 +16,50 @@ class ComplaintSection extends StatefulWidget {
   final bool isComplaintProgress;
   final bool isAssign;
 
-  ComplaintSection({
-    this.id,
-    this.taskNo,
-    this.siteName,
-    this.taskStatus,
-    this.viewer,
+  const ComplaintSection({
+    Key? key,
+    required this.id,
+    required this.taskNo,
+    required this.siteName,
+    required this.taskStatus,
+    required this.viewer,
     this.isAssign = false,
     this.isComplaintProgress = false,
-  });
+  }) : super(key: key);
 
   @override
   _ComplaintSectionState createState() =>
-      _ComplaintSectionState(id, taskStatus, taskNo);
+      _ComplaintSectionState();
 }
 
 class _ComplaintSectionState extends State<ComplaintSection> {
-  final MainBloc _bloc;
+  late final MainBloc _bloc;
   bool showtime = false;
+  bool _blocInitialized = false;
 
-  _ComplaintSectionState(String id, String status, String taskNo)
-      : this._bloc = MainBloc(id: id, status: status, taskNo: taskNo) {
-    User.getPrefUser.then((value) {
-      final User user = User.fromMap(value);
-
-      final List<String> role = user.roles.map((role) => role.desc).toList();
-      if (role.contains("WO Executor")) setState(() => showtime = true);
-    });
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Initialize the bloc once, now that context is available.
+    if (!_blocInitialized) {
+      _bloc = MainBloc(
+        id: widget.id,
+        status: widget.taskStatus,
+        taskNo: widget.taskNo,
+        context: context,
+      );
+      _blocInitialized = true;
+      // Now do your user preference check.
+      User.getPrefUser.then((value) {
+        final User user = User.fromMap(value);
+        final List<String> roles = user.roles.map((role) => role.desc).toList();
+        if (roles.contains("WO Executor") && mounted) {
+          setState(() {
+            showtime = true;
+          });
+        }
+      });
+    }
   }
 
   @override
@@ -64,53 +81,58 @@ class _ComplaintSectionState extends State<ComplaintSection> {
     );
 
     return Scaffold(
-        appBar: AppBar(
-          iconTheme: IconThemeData(color: colorTheme3),
-          backgroundColor: Colors.white,
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.siteName,
-                style: TextStyle(color: colorTheme3),
-              ),
-              Text(widget.taskNo,
-                  style: TextStyle(fontSize: 16, color: colorTheme3)),
-            ],
-          ),
+      appBar: AppBar(
+        iconTheme: IconThemeData(color: colorTheme3),
+        backgroundColor: Colors.white,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.siteName,
+              style: TextStyle(color: colorTheme3),
+            ),
+            Text(
+              widget.taskNo,
+              style: TextStyle(fontSize: 16, color: colorTheme3),
+            ),
+          ],
         ),
-        body: StreamBuilder<List<WorkOrderStatus>>(
-          stream: _bloc.sections$,
-          builder: (context, snapshot) {
-            if (snapshot.data == null) {
-              return Center(child: CircularProgressIndicator());
-            }
+      ),
+      body: StreamBuilder<List<WorkOrderStatus>>(
+        stream: _bloc.sections$,
+        builder: (context, snapshot) {
+          if (snapshot.data == null) {
+            return Center(child: CircularProgressIndicator());
+          }
 
-            return RefreshIndicator(
-              onRefresh: _bloc.refresh,
-              child: ListView.separated(
-                  // physics: NeverScrollableScrollPhysics(),
-                  padding: EdgeInsets.only(top: 12, bottom: 120),
-                  itemCount: snapshot.data.length + (showtime ? 1 : 0),
-                  separatorBuilder: (_, __) => Divider(),
-                  itemBuilder: (_, index) {
-                    if (index == 0 && showtime)
-                      return _TimeDuration(stream: _bloc.execution$);
-                    return _buildTile(
-                      snapshot.data[index - (showtime ? 1 : 0)],
-                      () => _bloc.openScreen(
-                        context,
-                        snapshot.data[index - (showtime ? 1 : 0)],
-                        viewOnly: widget.viewer,
-                      ),
-                    );
-                  }),
-            );
-          },
-        ),
-        floatingActionButton: widget.viewer == false && _bloc.checkpoint != 1
-            ? viewButton
-            : button);
+          return RefreshIndicator(
+            onRefresh: _bloc.refresh,
+            child: ListView.separated(
+              padding: EdgeInsets.only(top: 12, bottom: 120),
+              itemCount: snapshot.data!.length + (showtime ? 1 : 0),
+              separatorBuilder: (_, __) => Divider(),
+              itemBuilder: (_, index) {
+                if (index == 0 && showtime) {
+                  return _TimeDuration(stream: _bloc.execution$);
+                }
+                final int dataIndex = index - (showtime ? 1 : 0);
+                return _buildTile(
+                  snapshot.data![dataIndex],
+                  () => _bloc.openScreen(
+                    context,
+                    snapshot.data![dataIndex],
+                    viewOnly: widget.viewer,
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      ),
+      floatingActionButton: (!widget.viewer && _bloc.checkpoint != 1)
+          ? viewButton
+          : button,
+    );
   }
 
   void alert(String txt) {
@@ -147,15 +169,20 @@ class _buildTile extends StatelessWidget {
     else
       color = colorTheme3;
 
+    final String materialStatus = object.sectionStatusMaterial ?? "";
+    final String displayStatus = (status == "Pending"
+        ? (materialStatus.isEmpty ? status : materialStatus)
+        : status) as String;
+
     return ListTile(
       title: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
         Text(
-          object.sectionName + ". ",
+          object.sectionName ?? '' + ". ",
           style: TextStyle(fontWeight: FontWeight.normal, color: colorTheme3),
         ),
         Expanded(
           child: Text(
-            object.sectionDesc,
+            object.sectionDesc ?? '',
             style: TextStyle(fontWeight: FontWeight.normal, color: colorTheme3),
             overflow: TextOverflow.ellipsis,
           ),
@@ -169,18 +196,14 @@ class _buildTile extends StatelessWidget {
             borderRadius: new BorderRadius.circular(20.0),
           ),
           child: Text(
-            status == "Pending"
-                ? (object.sectionStatusMaterial ?? "") == ""
-                    ? status
-                    : object.sectionStatusMaterial
-                : status,
+            displayStatus,
             style: TextStyle(color: Colors.white, fontFamily: 'Avenir'),
             overflow: TextOverflow.clip,
           ),
         ),
       ]),
       trailing: Icon(Icons.arrow_right),
-      onTap: openScreen,
+      onTap: openScreen as void Function()?,
     );
   }
 }
@@ -225,7 +248,7 @@ class _buildTempTile extends StatelessWidget {
         ),
       ]),
       trailing: Icon(Icons.arrow_right),
-      onTap: openScreen,
+      onTap: openScreen as void Function()?,
     );
   }
 }
@@ -308,7 +331,7 @@ class _BuildRejectButton extends StatelessWidget {
       image: Image.asset("assets/icon_trans.png", height: 40),
       remarkTapped: (text) {
         Navigator.pop(context);
-        reject(text).then(alert).catchError(alert);
+        reject(text).then((_) => alert("Operation successful")).catchError(alert);
       },
     );
   }
@@ -344,7 +367,7 @@ class _BuildStandardButton extends StatelessWidget {
                 } else if (mainStatus == "Assign" ||
                     mainStatus == "Revisit" ||
                     mainStatus == "WR Reassign") {
-                  if (snapshot.data) {
+                  if (snapshot.data != null && snapshot.data!) {
                     bloc.submit().then((_) {
                       showDialog(context: context, builder: _buildDialog);
                     }).catchError((err) => Toast.show(err));
@@ -353,7 +376,7 @@ class _BuildStandardButton extends StatelessWidget {
                         duration: 1);
                   }
                 } else {
-                  if (snapshot.data) {
+                  if (snapshot.data != null && snapshot.data!) {
                     bloc.openComplaint(context, viewOnly: viewOnly);
                   } else {
                     Toast.show("All sections must be completed before submit",
@@ -380,7 +403,7 @@ class _BuildStandardButton extends StatelessWidget {
 
 class _TimeDuration extends StatelessWidget {
   final Stream<ExecutionModel> stream;
-  _TimeDuration({@required Stream<ExecutionModel> stream})
+  _TimeDuration({required Stream<ExecutionModel> stream})
       : this.stream = stream;
 
   @override

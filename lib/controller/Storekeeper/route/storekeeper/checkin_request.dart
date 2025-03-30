@@ -89,7 +89,7 @@ class _CheckinRequestState extends State<CheckinRequest> {
       child: Icon(Icons.add),
       onPressed: () =>
           Navigator.pushNamed(context, routeAddStockIn).then((value) {
-            if (value != null) _controller.material = value;
+            if (value != null) _controller.material = value as Item;
           }));
 
   Widget _submitButton(BuildContext context) => FloatingActionButton.extended(
@@ -115,13 +115,16 @@ class _CheckinRequestState extends State<CheckinRequest> {
                 underline: new Container(),
                 value: snapshot.data,
                 hint: Text("Select Store"),
-                onChanged: (ComplaintDStore newValue) =>
-                    _controller.store = newValue,
+                onChanged: (ComplaintDStore? newValue) {
+                  if (newValue != null) {
+                    _controller.store = newValue;
+                  }
+                },
                 items: stores.map<DropdownMenuItem<ComplaintDStore>>(
                     (ComplaintDStore value) {
                   return DropdownMenuItem<ComplaintDStore>(
                     value: value,
-                    child: Text(value.itemName),
+                    child: Text(value.itemName ?? 'Unknown'),
                   );
                 }).toList(),
               ),
@@ -174,8 +177,13 @@ class _ListView extends StatelessWidget {
             scrollDirection: Axis.vertical,
             children: List.generate(
               (snapshot.data ?? []).length,
-              (index) => _Material(index + 1, snapshot.data[index],
-                  () => controller.removeMaterial(snapshot.data[index])),
+              (index) => _Material(index + 1, snapshot.data![index],
+                  () {
+                    final item = snapshot.data?[index];
+                    if (item != null) {
+                      controller.removeMaterial(item);
+                    }
+                  }),
             ),
           );
         });
@@ -246,7 +254,7 @@ class _Material extends StatelessWidget {
     );
   }
 
-  Widget text({@required String value, double top = 3.0, Color color}) {
+  Widget text({required String value, double top = 3.0, Color? color}) {
     return Padding(
       padding: EdgeInsets.only(top: top),
       child: Text(
@@ -276,10 +284,12 @@ class AttachmentsDO extends StatelessWidget {
                       onPressed: () => Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (_) =>
-                                  ViewImage(file: snapshot.data[index]),
+                                  snapshot.data != null
+                                      ? ViewImage(key: UniqueKey(), file: snapshot.data![index])
+                                      : SizedBox.shrink(),
                             ),
                           ),
-                      child: Text("$index. ${snapshot.data[index].path}")),
+                      child: Text("$index. ${snapshot.data?[index].path ?? 'Unknown Path'}")),
                 ));
           }),
     );
@@ -289,7 +299,7 @@ class AttachmentsDO extends StatelessWidget {
 class ViewImage extends StatelessWidget {
   final File file;
 
-  const ViewImage({Key key, this.file}) : super(key: key);
+  const ViewImage({required Key key, required this.file}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

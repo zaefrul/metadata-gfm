@@ -18,86 +18,66 @@ abstract class ResponseValue
   String get error;
   String get errmsg;
 
-  @nullable
-  String get result;
-  @nullable
-  BuiltList<Task> get taskList;
-  @nullable
-  BuiltList<WorkOrderTask> get workorderTask;
-  @nullable
-  WorkOrderDetail get woDetail;
-  @nullable
-  BuiltList<MonitorTask> get monitorTaskList;
-  @nullable
-  MonitorDetail get monitorDetail;
-  @nullable
-  BuiltList<Dot> get dotList;
-  @nullable
-  BuiltList<WorkOrderStatus> get wostatusList;
-  @nullable
-  BuiltList<Form> get statusList;
-  @nullable
-  FormAItem get sectionAList;
-  @nullable
-  FormBItem get sectionBList;
-  @nullable
-  BuiltList<FormCItem> get sectionCList;
-  @nullable
-  BuiltList<FormDItem> get sectionDList;
-  @nullable
-  BuiltList<FormEItem> get sectionEList;
-  @nullable
-  BuiltList<FormFItem> get sectionFList;
-  @nullable
-  FormGItem get sectionGList;
-  @nullable
-  BuiltList<FormHItem> get sectionHList;
-  @nullable
-  TechnicianDetails get technicianDetails;
-  @nullable
-  TechnicianTask get technicianTask;
-  @nullable
-  BuiltList<TechnicianImageRepair> get technicianImages;
-  @nullable
-  TechnicianAssign get technicianAssign;
+  String? get result;
+  BuiltList<Task>? get taskList;
+  BuiltList<WorkOrderTask>? get workorderTask;
+  WorkOrderDetail? get woDetail;
+  BuiltList<MonitorTask>? get monitorTaskList;
+  MonitorDetail? get monitorDetail;
+  BuiltList<Dot>? get dotList;
+  BuiltList<WorkOrderStatus>? get wostatusList;
+  BuiltList<Form>? get statusList;
+  FormAItem? get sectionAList;
+  FormBItem? get sectionBList;
+  BuiltList<FormCItem>? get sectionCList;
+  BuiltList<FormDItem>? get sectionDList;
+  BuiltList<FormEItem>? get sectionEList;
+  BuiltList<FormFItem>? get sectionFList;
+  FormGItem? get sectionGList;
+  BuiltList<FormHItem>? get sectionHList;
+  TechnicianDetails? get technicianDetails;
+  TechnicianTask? get technicianTask;
+  BuiltList<TechnicianImageRepair>? get technicianImages;
+  TechnicianAssign? get technicianAssign;
 
   @BuiltValueSerializer(custom: true)
   static Serializer<ResponseValue> get serializer => ResponseSerializer();
 
   ResponseValue._();
+  factory ResponseValue([void Function(ResponseValueBuilder) updates]) =
+      _$ResponseValue;
 
-  factory ResponseValue([updates(ResponseValueBuilder b)]) = _$ResponseValue;
+  static void _defaultUpdates(ResponseValueBuilder builder) {}
 }
 
 class ResponseSerializer implements StructuredSerializer<ResponseValue> {
-  Iterable<Type> get types => [ResponseValue, _$ResponseValue];
-
+  @override
+  final Iterable<Type> types = const [ResponseValue, _$ResponseValue];
   @override
   final String wireName = "ResponseValue";
 
   @override
-  Iterable serialize(Serializers serializers, ResponseValue object,
+  Iterable<Object?> serialize(Serializers serializers, ResponseValue object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[];
+    final result = <Object?>[];
 
     result
       ..add('values')
       ..add(serializers.serialize(object.taskList,
           specifiedType:
               const FullType(BuiltList, const [const FullType(Task)])));
-      result
+    result
       ..add('values')
       ..add(serializers.serialize(object.result,
           specifiedType:
               const FullType(BuiltList, const [const FullType(String)])));
-  
     return result;
   }
 
   @override
-  ResponseValue deserialize(Serializers serializers, Iterable serialized,
+  ResponseValue deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new ResponseValueBuilder();
+    final result = ResponseValueBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -109,113 +89,102 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
           result.success = serializers.deserialize(value,
               specifiedType: const FullType(bool)) as bool;
           break;
-
         case 'error':
           result.error = serializers.deserialize(value.toString(),
               specifiedType: const FullType(String)) as String;
           break;
-
         case 'errmsg':
           result.errmsg = serializers.deserialize(value.toString(),
               specifiedType: const FullType(String)) as String;
           break;
-
         case 'result':
           if (value is Map<String, dynamic>) {
-            if (trySectionA(serializers, value))
+            if (trySectionA(serializers, value)) {
               result.sectionAList.replace(serializers.deserialize(value,
-                  specifiedType: FullType(FormAItem)) as FormAItem);
-            else if (tryWODetail(serializers, value))
+                      specifiedType: const FullType(FormAItem)) as FormAItem);
+            } else if (tryWODetail(serializers, value)) {
               result.woDetail.replace(serializers.deserialize(value,
-                  specifiedType: FullType(WorkOrderDetail)) as WorkOrderDetail);
-            else if (tryMonitorDetail(serializers, value))
+                      specifiedType: const FullType(WorkOrderDetail)) as WorkOrderDetail);
+            } else if (tryMonitorDetail(serializers, value)) {
               result.monitorDetail.replace(serializers.deserialize(value,
-                  specifiedType: FullType(MonitorDetail)) as MonitorDetail);
-            else if (trySectionB(serializers, value))
+                      specifiedType: const FullType(MonitorDetail)) as MonitorDetail);
+            } else if (trySectionB(serializers, value)) {
               result.sectionBList.replace(serializers.deserialize(value,
-                  specifiedType: FullType(FormBItem)) as FormBItem);
-            else if (trySectionG(serializers, value))
+                      specifiedType: const FullType(FormBItem)) as FormBItem);
+            } else if (trySectionG(serializers, value)) {
               result.sectionGList.replace(serializers.deserialize(value,
-                  specifiedType: const FullType(FormGItem)) as FormGItem);
-            else if (tryTechnicianDetails(serializers, value))
+                      specifiedType: const FullType(FormGItem)) as FormGItem);
+            } else if (tryTechnicianDetails(serializers, value)) {
               result.technicianDetails.replace(serializers.deserialize(value,
                       specifiedType: const FullType(TechnicianDetails))
                   as TechnicianDetails);
-            else if (tryTechnicianTask(serializers, value))
+            } else if (tryTechnicianTask(serializers, value)) {
               result.technicianTask.replace(serializers.deserialize(value,
                       specifiedType: const FullType(TechnicianTask))
                   as TechnicianTask);
-            else if (tryTechnicianAssign(serializers, value))
+            } else if (tryTechnicianAssign(serializers, value)) {
               result.technicianAssign.replace(serializers.deserialize(value,
                       specifiedType: const FullType(TechnicianAssign))
                   as TechnicianAssign);
+            }
           } else if (value is List<dynamic>) {
-            if (tryTask(serializers, value))
+            if (tryTask(serializers, value)) {
               result.taskList.replace(serializers.deserialize(value,
-                  specifiedType: const FullType(
-                      BuiltList, const [const FullType(Task)])) as BuiltList);
-            else if (tryMonitorTask(serializers, value))
+                      specifiedType: const FullType(
+                          BuiltList, const [const FullType(Task)])) as BuiltList<Task>);
+            } else if (tryMonitorTask(serializers, value)) {
               result.monitorTaskList.replace(serializers.deserialize(value,
                       specifiedType: const FullType(
-                          BuiltList, const [const FullType(MonitorTask)]))
-                  as BuiltList);
-            else if (tryWorkOrderTask(serializers, value))
+                          BuiltList, const [const FullType(MonitorTask)])) as BuiltList<MonitorTask>);
+            } else if (tryWorkOrderTask(serializers, value)) {
               result.workorderTask.replace(serializers.deserialize(value,
                       specifiedType: const FullType(
-                          BuiltList, const [const FullType(WorkOrderTask)]))
-                  as BuiltList);
-            else if (tryDot(serializers, value))
+                          BuiltList, const [const FullType(WorkOrderTask)])) as BuiltList<WorkOrderTask>);
+            } else if (tryDot(serializers, value)) {
               result.dotList.replace(serializers.deserialize(value,
-                  specifiedType: const FullType(
-                      BuiltList, const [const FullType(Dot)])) as BuiltList);
-            else if (tryForm(serializers, value))
+                      specifiedType: const FullType(
+                          BuiltList, const [const FullType(Dot)])) as BuiltList<Dot>);
+            } else if (tryForm(serializers, value)) {
               result.statusList.replace(serializers.deserialize(value,
-                  specifiedType: const FullType(
-                      BuiltList, const [const FullType(Form)])) as BuiltList);
-            else if (trySectionC(serializers, value))
+                      specifiedType: const FullType(
+                          BuiltList, const [const FullType(Form)])) as BuiltList<Form>);
+            } else if (trySectionC(serializers, value)) {
               result.sectionCList.replace(serializers.deserialize(value,
                       specifiedType: const FullType(
-                          BuiltList, const [const FullType(FormCItem)]))
-                  as BuiltList);
-            else if (trySectionD(serializers, value))
+                          BuiltList, const [const FullType(FormCItem)])) as BuiltList<FormCItem>);
+            } else if (trySectionD(serializers, value)) {
               result.sectionDList.replace(serializers.deserialize(value,
                       specifiedType: const FullType(
-                          BuiltList, const [const FullType(FormDItem)]))
-                  as BuiltList);
-            else if (trySectionE(serializers, value))
+                          BuiltList, const [const FullType(FormDItem)])) as BuiltList<FormDItem>);
+            } else if (trySectionE(serializers, value)) {
               result.sectionEList.replace(serializers.deserialize(value,
                       specifiedType: const FullType(
-                          BuiltList, const [const FullType(FormEItem)]))
-                  as BuiltList);
-            else if (trySectionH(serializers, value))
+                          BuiltList, const [const FullType(FormEItem)])) as BuiltList<FormEItem>);
+            } else if (trySectionH(serializers, value)) {
               result.sectionHList.replace(serializers.deserialize(value,
                       specifiedType: const FullType(
-                          BuiltList, const [const FullType(FormHItem)]))
-                  as BuiltList);
-            else if (trySectionF(serializers, value))
+                          BuiltList, const [const FullType(FormHItem)])) as BuiltList<FormHItem>);
+            } else if (trySectionF(serializers, value)) {
               result.sectionFList.replace(serializers.deserialize(value,
                       specifiedType: const FullType(
-                          BuiltList, const [const FullType(FormFItem)]))
-                  as BuiltList);
-            else if (tryTechnicianImage(serializers, value))
+                          BuiltList, const [const FullType(FormFItem)])) as BuiltList<FormFItem>);
+            } else if (tryTechnicianImage(serializers, value)) {
               result.technicianImages.replace(serializers.deserialize(value,
-                  specifiedType: const FullType(BuiltList, const [
-                    const FullType(TechnicianImageRepair)
-                  ])) as BuiltList);
-            else if (tryWoStatus(serializers, value))
+                      specifiedType: const FullType(BuiltList, const [
+                        const FullType(TechnicianImageRepair)
+                      ])) as BuiltList<TechnicianImageRepair>);
+            } else if (tryWoStatus(serializers, value)) {
               result.wostatusList.replace(serializers.deserialize(value,
                       specifiedType: const FullType(
-                          BuiltList, const [const FullType(WorkOrderStatus)]))
-                  as BuiltList);
+                          BuiltList, const [const FullType(WorkOrderStatus)])) as BuiltList<WorkOrderStatus>);
+            }
           } else {
             result.result = serializers.deserialize(value.toString(),
                 specifiedType: const FullType(String)) as String;
           }
-
           break;
       }
     }
-
     return result.build();
   }
 
@@ -224,7 +193,6 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
       var singleMap = value[0];
       var _ = serializers.deserialize(singleMap,
           specifiedType: const FullType(Task)) as Task;
-
       return true;
     } catch (_) {
       return false;
@@ -236,7 +204,6 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
       var singleMap = value[0];
       var _ = serializers.deserialize(singleMap,
           specifiedType: const FullType(MonitorTask)) as MonitorTask;
-
       return true;
     } catch (_) {
       return false;
@@ -248,7 +215,6 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
       var singleMap = value[0];
       var _ = serializers.deserialize(singleMap,
           specifiedType: const FullType(WorkOrderTask)) as WorkOrderTask;
-
       return true;
     } catch (_) {
       return false;
@@ -259,7 +225,6 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
     try {
       var _ = serializers.deserialize(value,
           specifiedType: const FullType(WorkOrderDetail)) as WorkOrderDetail;
-
       return true;
     } catch (_) {
       return false;
@@ -270,7 +235,6 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
     try {
       var _ = serializers.deserialize(value,
           specifiedType: const FullType(MonitorDetail)) as MonitorDetail;
-
       return true;
     } catch (_) {
       return false;
@@ -282,7 +246,6 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
       var singleMap = value[0];
       var _ = serializers.deserialize(singleMap,
           specifiedType: const FullType(Dot)) as Dot;
-
       return true;
     } catch (_) {
       return false;
@@ -294,7 +257,6 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
       var singleMap = value[0];
       var _ = serializers.deserialize(singleMap,
           specifiedType: const FullType(WorkOrderStatus)) as WorkOrderStatus;
-
       return true;
     } catch (_) {
       return false;
@@ -306,7 +268,6 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
       var singleMap = value[0];
       var _ = serializers.deserialize(singleMap,
           specifiedType: const FullType(Form)) as Form;
-
       return true;
     } catch (_) {
       return false;
@@ -317,7 +278,6 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
     try {
       var _ = serializers.deserialize(value,
           specifiedType: const FullType(FormAItem)) as FormAItem;
-
       return true;
     } catch (_) {
       return false;
@@ -328,7 +288,6 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
     try {
       var _ = serializers.deserialize(value,
           specifiedType: const FullType(FormBItem)) as FormBItem;
-
       return true;
     } catch (_) {
       return false;
@@ -340,32 +299,6 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
       var singleMap = value[0];
       var _ = serializers.deserialize(singleMap,
           specifiedType: const FullType(FormCItem)) as FormCItem;
-
-      return true;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  bool trySectionF(Serializers serializers, List<dynamic> value) {
-    try {
-      var singleMap = value[0];
-      var _ = serializers.deserialize(singleMap,
-          specifiedType: const FullType(FormFItem)) as FormFItem;
-
-      return true;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  bool tryTechnicianImage(Serializers serializers, List<dynamic> value) {
-    try {
-      var singleMap = value[0];
-      var _ = serializers.deserialize(singleMap,
-              specifiedType: const FullType(TechnicianImageRepair))
-          as TechnicianImageRepair;
-
       return true;
     } catch (_) {
       return false;
@@ -377,7 +310,6 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
       var singleMap = value[0];
       var _ = serializers.deserialize(singleMap,
           specifiedType: const FullType(FormDItem)) as FormDItem;
-
       return true;
     } catch (_) {
       return false;
@@ -389,7 +321,17 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
       var singleMap = value[0];
       var _ = serializers.deserialize(singleMap,
           specifiedType: const FullType(FormEItem)) as FormEItem;
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 
+  bool trySectionF(Serializers serializers, List<dynamic> value) {
+    try {
+      var singleMap = value[0];
+      var _ = serializers.deserialize(singleMap,
+          specifiedType: const FullType(FormFItem)) as FormFItem;
       return true;
     } catch (_) {
       return false;
@@ -400,20 +342,17 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
     try {
       var _ = serializers.deserialize(value,
           specifiedType: const FullType(FormGItem)) as FormGItem;
-
       return true;
     } catch (_) {
       return false;
     }
   }
 
-  bool tryTechnicianDetails(
-      Serializers serializers, Map<String, dynamic> value) {
+  bool tryTechnicianDetails(Serializers serializers, Map<String, dynamic> value) {
     try {
       var _ = serializers.deserialize(value,
               specifiedType: const FullType(TechnicianDetails))
           as TechnicianDetails;
-
       return true;
     } catch (_) {
       return false;
@@ -424,19 +363,16 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
     try {
       var _ = serializers.deserialize(value,
           specifiedType: const FullType(TechnicianTask)) as TechnicianTask;
-
       return true;
     } catch (_) {
       return false;
     }
   }
 
-  bool tryTechnicianAssign(
-      Serializers serializers, Map<String, dynamic> value) {
+  bool tryTechnicianAssign(Serializers serializers, Map<String, dynamic> value) {
     try {
       var _ = serializers.deserialize(value,
           specifiedType: const FullType(TechnicianAssign)) as TechnicianAssign;
-
       return true;
     } catch (_) {
       return false;
@@ -448,7 +384,17 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
       var singleMap = value[0];
       var _ = serializers.deserialize(singleMap,
           specifiedType: const FullType(FormHItem)) as FormHItem;
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 
+  bool tryTechnicianImage(Serializers serializers, List<dynamic> value) {
+    try {
+      var singleMap = value[0];
+      var _ = serializers.deserialize(singleMap,
+          specifiedType: const FullType(TechnicianImageRepair)) as TechnicianImageRepair;
       return true;
     } catch (_) {
       return false;

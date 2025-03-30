@@ -21,17 +21,15 @@ abstract class WorkOrderTask
   String get woTaskSeverity;
 
   WorkOrderTask._();
-
-  factory WorkOrderTask([updates(WorkOrderTaskBuilder b)]) = _$WorkOrderTask;
+  factory WorkOrderTask([void Function(WorkOrderTaskBuilder) updates]) = _$WorkOrderTask;
 
   String toJson() {
-    return json
-        .encode(serializers.serializeWith(WorkOrderTask.serializer, this));
+    return json.encode(serializers.serializeWith(WorkOrderTask.serializer, this));
   }
 
   static WorkOrderTask fromJson(String jsonString) {
     return serializers.deserializeWith(
-        WorkOrderTask.serializer, json.decode(jsonString));
+        WorkOrderTask.serializer, json.decode(jsonString))!;
   }
 
   static Serializer<WorkOrderTask> get serializer => _$workOrderTaskSerializer;
@@ -39,50 +37,33 @@ abstract class WorkOrderTask
 
 abstract class WorkOrderStatus
     implements Built<WorkOrderStatus, WorkOrderStatusBuilder> {
-  @nullable
-  String get sectionName;
-  @nullable
-  String get sectionDesc;
-  @nullable
-  String get sectionStatus;
-  @nullable
-  String get sectionStatusMaterial;
-  @nullable
-  String get sectionStatusMaterialId;
-  @nullable
-  String get sectionComment;
-  @nullable
-  String get groupId;
-  @nullable
-  String get groupName;
-  @nullable
-  String get userId;
-  @nullable
-  String get userName;
-  @nullable
-  String get comment;
-  @nullable
-  String get severityId;
-  @nullable
-  String get severityName;
+  String? get sectionName;
+  String? get sectionDesc;
+  String? get sectionStatus;
+  String? get sectionStatusMaterial;
+  String? get sectionStatusMaterialId;
+  String? get sectionComment;
+  String? get groupId;
+  String? get groupName;
+  String? get userId;
+  String? get userName;
+  String? get comment;
+  String? get severityId;
+  String? get severityName;
 
   WorkOrderStatus._();
-
-  factory WorkOrderStatus([updates(WorkOrderStatusBuilder b)]) =
-      _$WorkOrderStatus;
+  factory WorkOrderStatus([void Function(WorkOrderStatusBuilder) updates]) = _$WorkOrderStatus;
 
   String toJson() {
-    return json
-        .encode(serializers.serializeWith(WorkOrderStatus.serializer, this));
+    return json.encode(serializers.serializeWith(WorkOrderStatus.serializer, this));
   }
 
   static WorkOrderStatus fromJson(String jsonString) {
     return serializers.deserializeWith(
-        WorkOrderStatus.serializer, json.decode(jsonString));
+        WorkOrderStatus.serializer, json.decode(jsonString))!;
   }
 
-  static Serializer<WorkOrderStatus> get serializer =>
-      _$workOrderStatusSerializer;
+  static Serializer<WorkOrderStatus> get serializer => _$workOrderStatusSerializer;
 }
 
 abstract class WorkOrderDetail
@@ -102,22 +83,18 @@ abstract class WorkOrderDetail
   BuiltList<ComplaintImage> get complaintImages;
 
   WorkOrderDetail._();
-
-  factory WorkOrderDetail([updates(WorkOrderDetailBuilder b)]) =
-      _$WorkOrderDetail;
+  factory WorkOrderDetail([void Function(WorkOrderDetailBuilder) updates]) = _$WorkOrderDetail;
 
   String toJson() {
-    return json
-        .encode(serializers.serializeWith(WorkOrderDetail.serializer, this));
+    return json.encode(serializers.serializeWith(WorkOrderDetail.serializer, this));
   }
 
   static WorkOrderDetail fromJson(String jsonString) {
     return serializers.deserializeWith(
-        WorkOrderDetail.serializer, json.decode(jsonString));
+        WorkOrderDetail.serializer, json.decode(jsonString))!;
   }
 
-  static Serializer<WorkOrderDetail> get serializer =>
-      _$workOrderDetailSerializer;
+  static Serializer<WorkOrderDetail> get serializer => _$workOrderDetailSerializer;
 }
 
 abstract class ComplaintImage
@@ -136,21 +113,18 @@ abstract class ComplaintImage
   String get documentSrc;
 
   ComplaintImage._();
-
-  factory ComplaintImage([updates(ComplaintImageBuilder b)]) = _$ComplaintImage;
+  factory ComplaintImage([void Function(ComplaintImageBuilder) updates]) = _$ComplaintImage;
 
   String toJson() {
-    return json
-        .encode(serializers.serializeWith(ComplaintImage.serializer, this));
+    return json.encode(serializers.serializeWith(ComplaintImage.serializer, this));
   }
 
   static ComplaintImage fromJson(String jsonString) {
     return serializers.deserializeWith(
-        ComplaintImage.serializer, json.decode(jsonString));
+        ComplaintImage.serializer, json.decode(jsonString))!;
   }
 
-  static Serializer<ComplaintImage> get serializer =>
-      _$complaintImageSerializer;
+  static Serializer<ComplaintImage> get serializer => _$complaintImageSerializer;
 }
 
 abstract class TechnicianDetails
@@ -163,22 +137,18 @@ abstract class TechnicianDetails
   BuiltList<TechnicianTask> get currentTask;
 
   TechnicianDetails._();
-
-  factory TechnicianDetails([updates(TechnicianDetailsBuilder b)]) =
-      _$TechnicianDetails;
+  factory TechnicianDetails([void Function(TechnicianDetailsBuilder) updates]) = _$TechnicianDetails;
 
   String toJson() {
-    return json
-        .encode(serializers.serializeWith(TechnicianDetails.serializer, this));
+    return json.encode(serializers.serializeWith(TechnicianDetails.serializer, this));
   }
 
   static TechnicianDetails fromJson(String jsonString) {
     return serializers.deserializeWith(
-        TechnicianDetails.serializer, json.decode(jsonString));
+        TechnicianDetails.serializer, json.decode(jsonString))!;
   }
 
-  static Serializer<TechnicianDetails> get serializer =>
-      _$technicianDetailsSerializer;
+  static Serializer<TechnicianDetails> get serializer => _$technicianDetailsSerializer;
 }
 
 abstract class TechnicianTask
@@ -187,21 +157,18 @@ abstract class TechnicianTask
   String get dateReceived;
 
   TechnicianTask._();
-
-  factory TechnicianTask([updates(TechnicianTaskBuilder b)]) = _$TechnicianTask;
+  factory TechnicianTask([void Function(TechnicianTaskBuilder) updates]) = _$TechnicianTask;
 
   String toJson() {
-    return json
-        .encode(serializers.serializeWith(TechnicianTask.serializer, this));
+    return json.encode(serializers.serializeWith(TechnicianTask.serializer, this));
   }
 
   static TechnicianTask fromJson(String jsonString) {
     return serializers.deserializeWith(
-        TechnicianTask.serializer, json.decode(jsonString));
+        TechnicianTask.serializer, json.decode(jsonString))!;
   }
 
-  static Serializer<TechnicianTask> get serializer =>
-      _$technicianTaskSerializer;
+  static Serializer<TechnicianTask> get serializer => _$technicianTaskSerializer;
 }
 
 abstract class TechnicianImageRepair
@@ -220,22 +187,18 @@ abstract class TechnicianImageRepair
   String get documentSrc;
 
   TechnicianImageRepair._();
-
-  factory TechnicianImageRepair([updates(TechnicianImageRepairBuilder b)]) =
-      _$TechnicianImageRepair;
+  factory TechnicianImageRepair([void Function(TechnicianImageRepairBuilder) updates]) = _$TechnicianImageRepair;
 
   String toJson() {
-    return json.encode(
-        serializers.serializeWith(TechnicianImageRepair.serializer, this));
+    return json.encode(serializers.serializeWith(TechnicianImageRepair.serializer, this));
   }
 
   static TechnicianImageRepair fromJson(String jsonString) {
     return serializers.deserializeWith(
-        TechnicianImageRepair.serializer, json.decode(jsonString));
+        TechnicianImageRepair.serializer, json.decode(jsonString))!;
   }
 
-  static Serializer<TechnicianImageRepair> get serializer =>
-      _$technicianImageRepairSerializer;
+  static Serializer<TechnicianImageRepair> get serializer => _$technicianImageRepairSerializer;
 }
 
 abstract class TechnicianAssign
@@ -249,20 +212,16 @@ abstract class TechnicianAssign
   BuiltList<String> get assistUserId;
 
   TechnicianAssign._();
-
-  factory TechnicianAssign([updates(TechnicianAssignBuilder b)]) =
-      _$TechnicianAssign;
+  factory TechnicianAssign([void Function(TechnicianAssignBuilder) updates]) = _$TechnicianAssign;
 
   String toJson() {
-    return json
-        .encode(serializers.serializeWith(TechnicianAssign.serializer, this));
+    return json.encode(serializers.serializeWith(TechnicianAssign.serializer, this));
   }
 
   static TechnicianAssign fromJson(String jsonString) {
     return serializers.deserializeWith(
-        TechnicianAssign.serializer, json.decode(jsonString));
+        TechnicianAssign.serializer, json.decode(jsonString))!;
   }
 
-  static Serializer<TechnicianAssign> get serializer =>
-      _$technicianAssignSerializer;
+  static Serializer<TechnicianAssign> get serializer => _$technicianAssignSerializer;
 }

@@ -7,40 +7,23 @@ import 'complaint.dart';
 part 'material.g.dart';
 
 abstract class Material implements Built<Material, MaterialBuilder> {
-  @nullable
-  String get assetGroupName;
-  @nullable
-  String get itemDescription;
-  @nullable
-  String get itemId;
-  @nullable
-  String get itemTypeDesc;
-  @nullable
-  String get partAvailable;
-  @nullable
-  String get partCount;
-  @nullable
-  String get partId;
-  @nullable
-  String get partLocked;
-  @nullable
-  String get partThreshold;
-  @nullable
-  String get statusDesc;
-  @nullable
-  String get statusStorekeeper;
-  @nullable
-  String get woTaskPartsId;
-  @nullable
-  String get woTaskPartsQuantity;
-  @nullable
-  String get woTaskPartsRemark;
-  @nullable
-  String get woTaskPartStatus;
-  @nullable
-  String get woTaskRequestId;
-  @nullable
-  BuiltList<ComplaintDImage> get images;
+  String? get assetGroupName;
+  String? get itemDescription;
+  String? get itemId;
+  String? get itemTypeDesc;
+  String? get partAvailable;
+  String? get partCount;
+  String? get partId;
+  String? get partLocked;
+  String? get partThreshold;
+  String? get statusDesc;
+  String? get statusStorekeeper;
+  String? get woTaskPartsId;
+  String? get woTaskPartsQuantity;
+  String? get woTaskPartsRemark;
+  String? get woTaskPartStatus;
+  String? get woTaskRequestId;
+  BuiltList<ComplaintDImage>? get images;
 
   Material._();
   factory Material([void Function(MaterialBuilder) updates]) = _$Material;

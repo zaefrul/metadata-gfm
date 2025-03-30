@@ -8,10 +8,10 @@ import '../view/button.dart';
 import '../view/field.dart';
 import '../utils/reference.dart';
 import '../utils/network.dart';
-
 import 'forgotPassword.dart';
 
 class Login extends StatefulWidget {
+  const Login({Key? key}) : super(key: key);
   @override
   _LoginState createState() => _LoginState();
 }
@@ -19,11 +19,11 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   final double pad = 20.0;
 
-  String _username;
-  String _password;
+  String? _username;
+  String? _password;
   bool userExist = true;
   bool userlogIn = false;
-  AnimationController _animationController;
+  late AnimationController _animationController;
   bool secure = true;
   bool requestedLocation = false;
 
@@ -40,17 +40,18 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     });
 
     _animationController = AnimationController(
-        value: 0.0,
-        lowerBound: 0.0,
-        upperBound: 0.15,
-        duration: Duration(milliseconds: 100),
-        vsync: this);
+      value: 0.0,
+      lowerBound: 0.0,
+      upperBound: 0.15,
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+    );
   }
 
   @override
   void dispose() {
-    super.dispose();
     _animationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -59,88 +60,98 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
     if (userExist) return background;
 
-    var keyboardOpen =
-        MediaQuery.of(context).viewInsets.bottom > 0.0 ? true : false;
-    if (keyboardOpen == true)
+    bool keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0.0;
+    if (keyboardOpen) {
       _animationController.animateTo(0.15, curve: Curves.easeInOut);
-    if (keyboardOpen == false) _animationController.reverse();
+    } else {
+      _animationController.reverse();
+    }
 
-    return new Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: new AnimatedBuilder(
-            animation: _animationController,
-            builder: (context, controller) => new Stack(
-                  children: <Widget>[
-                    background,
-                    new Align(
-                      alignment:
-                          Alignment(0, -0.7 - _animationController.value),
-                      child: logo,
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      body: AnimatedBuilder(
+        animation: _animationController,
+        builder: (context, child) => Stack(
+          children: <Widget>[
+            background,
+            Align(
+              alignment: Alignment(0, -0.7 - _animationController.value),
+              child: logo,
+            ),
+            Align(
+              alignment: Alignment(0, 0 - _animationController.value),
+              child: field("User ID", (text) {
+                _username = text;
+              }),
+            ),
+            Align(
+              alignment: Alignment(0, 0.20 - _animationController.value),
+              child: field(
+                "Password",
+                (text) => _password = text,
+                secure: secure,
+                rightIcon: GestureDetector(
+                  child: Icon(
+                      secure ? Icons.visibility : Icons.visibility_off),
+                  onTap: () {
+                    setState(() {
+                      secure = !secure;
+                    });
+                  },
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment(0, 0.45),
+              child: button,
+            ),
+            Align(
+              alignment: Alignment(0, 0.8),
+              child: GestureDetector(
+                child: Hero(
+                  tag: "ForgotPassword",
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Text(
+                      "Forgot Password",
+                      style: TextStyle(
+                        color: colorTheme2,
+                        decoration: TextDecoration.underline,
+                      ),
                     ),
-                    new Align(
-                      alignment: Alignment(0, 0 - _animationController.value),
-                      child: field("User ID", (text) {
-                        _username = text;
-                      }),
-                    ),
-                    new Align(
-                        alignment:
-                            Alignment(0, 0.20 - _animationController.value),
-                        child: field("Password", (text) => _password = text,
-                            secure: secure,
-                            rightIcon: GestureDetector(
-                              child: secure
-                                  ? Icon(Icons.visibility)
-                                  : Icon(Icons.visibility_off),
-                              onTap: () {
-                                setState(() {
-                                  secure = !secure;
-                                });
-                              },
-                            ))),
-                    new Align(alignment: Alignment(0, 0.45), child: button),
-                    new Align(
-                        alignment: Alignment(0, 0.8),
-                        child: new GestureDetector(
-                          child: Hero(
-                              tag: "ForgotPassword",
-                              child: Material(
-                                color: Colors.transparent,
-                                child: new Text("Forgot Password",
-                                    style: TextStyle(
-                                        // fontFamily: "Avenir",
-                                        // fontSize: 16,
-                                        color: colorTheme2,
-                                        decoration: TextDecoration.underline)),
-                              )),
-                          onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Forgot())),
-                        ))
-                  ],
-                )));
+                  ),
+                ),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Forgot()),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  get background => new Container(
+  Widget get background => Container(
         height: double.infinity,
         width: double.infinity,
         child: Image.asset("assets/bg.jpg", fit: BoxFit.fill),
       );
 
-  get logo => new Padding(
-        padding: EdgeInsets.all(50.0),
-        child: new Image.asset("assets/logo.png"),
+  Widget get logo => Padding(
+        padding: const EdgeInsets.all(50.0),
+        child: Image.asset("assets/logo.png"),
       );
 
-  get button => Container(
+  Widget get button => Container(
         color: Colors.transparent,
         width: 200,
         height: 50,
         child: Button(
           text: userlogIn ? "Loading" : "Login",
           onPressed: userlogIn
-              ? null
+              ? () {}
               : () async {
                   if ((await keepLocationSession) == false) {
                     Toast.show("Please Login with better GPS Area");
@@ -153,25 +164,30 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
                   setState(() => userlogIn = true);
 
-                  showErr(String err) {
+                  void showErr(String err) {
                     setState(() => userlogIn = false);
                     Toast.show(err, backgroundColor: colorTheme3);
                   }
 
-                  homepage() =>
+                  void homepage() =>
                       Navigator.pushReplacementNamed(context, "/homepage");
 
-                  login(_username, _password).then((user) async {
-                    setState(() => userlogIn = false);
-                    user.saveUser();
-                    homepage();
-                    showErr("Welcome ${user.username} !");
-                  }).catchError((err) {
-                    print(err);
-                    showErr(err);
-                  }).whenComplete(() {
-                    setState(() => userlogIn = false);
-                  });
+                  if (_username == null || _password == null) {
+                    showErr("Please fill up all field");
+                  } else {
+                    login(_username!, _password!).then((user) async {
+                      if (user == null) return Future.error("No Result");
+                      setState(() => userlogIn = false);
+                      user.saveUser();
+                      homepage();
+                      showErr("Welcome ${user.username} !");
+                    }).catchError((err) {
+                      print(err);
+                      showErr(err.toString());
+                    }).whenComplete(() {
+                      setState(() => userlogIn = false);
+                    });
+                  }
                 },
         ),
       );
@@ -182,7 +198,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       bool value = permission == LocationPermission.always ||
           permission == LocationPermission.whileInUse;
 
-      while (value == false) {
+      while (!value) {
         final result = await Geolocator.requestPermission();
         permission = result;
         value = permission == LocationPermission.always ||
@@ -190,9 +206,10 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       }
       var position = await Geolocator.getLastKnownPosition(
           forceAndroidLocationManager: true);
-      if (position == null)
+      if (position == null) {
         position = await Geolocator.getCurrentPosition(
             forceAndroidLocationManager: true);
+      }
 
       var prefs = await SharedPreferences.getInstance();
 

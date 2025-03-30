@@ -22,10 +22,10 @@ class TaskView extends StatefulWidget {
 class _TaskViewState extends State<TaskView>
     with AutomaticKeepAliveClientMixin<TaskView> {
   String dropdownValue = "All";
-  List<Widget> children = List<Widget>();
-  List<Task> _listTask = List<Task>();
-  List<Widget> tiles = List<Widget>();
-  Provider _provider;
+  List<Widget> children = List<Widget>.empty(growable: true);
+  List<Task> _listTask = List<Task>.empty(growable: true);
+  List<Widget> tiles = List<Widget>.empty(growable: true);
+  late Provider _provider;
   bool builded = false;
   final int index;
   bool viewer = true;
@@ -35,7 +35,7 @@ class _TaskViewState extends State<TaskView>
   }
 
   List<Widget> fetchGenerate(List<Task> _listTask) {
-    List<Widget> values = List<Widget>();
+    List<Widget> values = List<Widget>.empty(growable: true);
     values = List.generate(_listTask.length, (item) => tile(_listTask[item]));
 
     values.insert(0, filter);
@@ -75,12 +75,12 @@ class _TaskViewState extends State<TaskView>
     _provider = Provider(fetchURL: url);
 
     _provider.fetch().then((value) {
-      _listTask = value.taskList.toList();
+      _listTask = (value.taskList?.toList() as List<Task>?) ?? [];
       tiles = fetchGenerate(_listTask);
       children = tiles;
       if (builded) setState(() {});
     }).catchError((err) {
-      tiles = fetchGenerate(null);
+      tiles = fetchGenerate([]);
       children = tiles;
       if (builded) setState(() {});
     });
@@ -88,9 +88,9 @@ class _TaskViewState extends State<TaskView>
 
   Future<void> _refresh() {
     if (index == 0)
-      fetchAll(null);
+      fetchAll("");
     else if (index == 1) {
-      fetch(null);
+      fetch("");
       viewer = false;
     }
 
@@ -172,12 +172,12 @@ class _TaskViewState extends State<TaskView>
           ],
         ),
         onTap: () {
-          Object page = new FormView(
+          Widget page = new FormView(
             id: task.ppmTaskId,
             siteName: task.siteName,
             taskNo: task.transactionNo,
             taskStatus: task.statusDesc,
-            refresh: fetch,
+            refresh: () => fetch(""),
             viewer: this.viewer,
           );
           Navigator.of(context)
@@ -185,7 +185,7 @@ class _TaskViewState extends State<TaskView>
             builder: (BuildContext context) => page,
           ))
               .then((onValue) {
-            if (index == 1) fetch(null);
+            if (index == 1) fetch("");
           }).whenComplete(_refresh);
         },
       );
@@ -193,14 +193,14 @@ class _TaskViewState extends State<TaskView>
   DropdownButton get filter => DropdownButton<String>(
         underline: new Container(),
         value: dropdownValue,
-        onChanged: (String newValue) {
+        onChanged: (String? newValue) {
           setState(() {
-            dropdownValue = newValue;
+            dropdownValue = newValue!;
             if (newValue != "All") {
               var tempList = _listTask
                   .where((test) => test.statusDesc == newValue)
                   .toList();
-              children = List<Widget>();
+              children = List<Widget>.empty(growable: true);
               children.addAll(ListTile.divideTiles(
                       context: context,
                       tiles: List.generate(

@@ -10,26 +10,28 @@ import 'package:toast/toast.dart';
 class FormD extends StatefulWidget {
   final String id;
   final bool verified;
-  final Function refreshStatus;
+  final VoidCallback refreshStatus;
   final bool disable;
 
-  FormD(this.id, this.verified, this.refreshStatus, this.disable);
+  const FormD(this.id, this.verified, this.refreshStatus, this.disable, {Key? key})
+      : super(key: key);
 
   @override
   _FormDState createState() => _FormDState();
 }
 
 class _FormDState extends State<FormD> {
-  Provider provider;
+  late Provider provider;
   bool loading = false;
-  List<UploadItem> items = List<UploadItem>();
+  List<UploadItem> items = [];
 
   @override
   void initState() {
     super.initState();
     provider = Provider(
-        taskID: widget.id,
-        fetchURL: "/api/m_ppm.php?type=ppm_section_d&ppmTaskId=");
+      taskID: widget.id,
+      fetchURL: "/api/m_ppm.php?type=ppm_section_d&ppmTaskId=",
+    );
   }
 
   @override
@@ -44,52 +46,59 @@ class _FormDState extends State<FormD> {
         ),
         title: getTitle("D. Quantitative Task", bold: true),
       ),
-      body: FutureBuilder(
+      body: FutureBuilder<ResponseValue>(
         future: provider.fetch(),
         builder: (context, AsyncSnapshot<ResponseValue> snapshot) {
-          List<Widget> children = List<Widget>();
+          List<Widget> children = [];
           if (snapshot.error != null) {
-            return new Center(
-              child: new Text("No Task for Quantitative."),
+            return Center(
+              child: Text("No Task for Quantitative."),
             );
           }
-          if (snapshot.data != null && items.length == 0)
-            snapshot.data.sectionDList.forEach((f) {
-              var updateItem =
-                  UploadItem.from(index: items.length.toString(), item: f);
-
+          if (snapshot.hasData && items.isEmpty) {
+            snapshot.data!.sectionDList?.forEach((f) {
+              var updateItem = UploadItem.from(
+                  index: items.length.toString(), item: f);
               items.add(updateItem);
             });
+          }
 
-          if (items.length > 0)
-            children.addAll(items
-                .map((x) => widget.disable ? getFormDisabled(x) : getForm(x))
-                .toList()
-              ..add(SizedBox(height: 60)));
+          if (items.isNotEmpty) {
+            children.addAll(
+              items
+                  .map((x) => widget.disable ? getFormDisabled(x) : getForm(x))
+                  .toList()
+                ..add(SizedBox(height: 60)),
+            );
+          }
 
-          return snapshot.data == null
+          return !snapshot.hasData
               ? Center(child: CircularProgressIndicator())
               : (loading
-                  ? Stack(children: [
-                      Container(
+                  ? Stack(
+                      children: [
+                        Container(
                           padding: EdgeInsets.all(16.0),
-                          child: ListView(children: children)),
-                      Container(
-                        color: Colors.black.withOpacity(0.5),
-                        child: Center(
-                          child: CircularProgressIndicator(),
+                          child: ListView(children: children),
                         ),
-                      ),
-                    ])
+                        Container(
+                          color: Colors.black.withOpacity(0.5),
+                          child: Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                      ],
+                    )
                   : Container(
                       padding: EdgeInsets.all(16.0),
-                      child: ListView(children: children)));
+                      child: ListView(children: children),
+                    ));
         },
       ),
       floatingActionButton: widget.disable
           ? null
           : FloatingActionButton.extended(
-              label: new Text("Save"),
+              label: Text("Save"),
               backgroundColor: colorTheme2,
               onPressed: () {
                 if (widget.verified) {
@@ -102,27 +111,21 @@ class _FormDState extends State<FormD> {
                     "ppmTaskId": widget.id,
                   };
 
-                  // int count_NA = 0;
-
+                  // Add each UploadItem's data to the request body.
                   items.forEach((f) {
-                    // if (f.result == "N/A") count_NA++;
-                    // else
                     body.addAll(f.body);
                   });
-
-                  // if (items.length == count_NA){
-                  //   Toast.show("Nothing to update.", context);
-                  //   return;
-                  // }
 
                   provider
                       .post(url: "/api/m_ppm.php", body: body)
                       .then((value) {
-                        widget.refreshStatus();
-                        alert(value);
-                      })
-                      .catchError((err) => alert(err))
-                      .whenComplete(() => setState(() => loading = false));
+                    widget.refreshStatus();
+                    alert(value);
+                  }).catchError((err) {
+                    alert(err);
+                  }).whenComplete(() {
+                    setState(() => loading = false);
+                  });
                 } else {
                   Toast.show("Please verified this task.");
                 }
@@ -131,124 +134,114 @@ class _FormDState extends State<FormD> {
     );
   }
 
-  Widget getTitle(String text, {bold = false}) => new Container(
-        alignment: Alignment.centerLeft,
-        child: new Text(text,
-            style: TextStyle(
-                fontWeight: bold ? FontWeight.bold : FontWeight.normal,
-                color: colorTheme3)),
-      );
+  Widget getTitle(String text, {bool bold = false}) {
+    return Container(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        text,
+        style: TextStyle(
+          fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+          color: colorTheme3,
+        ),
+      ),
+    );
+  }
 
   Widget getForm(UploadItem item) {
-    return new Container(
+    return Container(
       padding: EdgeInsets.only(top: 20),
       child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            getTitle(item.number + ". " + item.desc),
-            new Row(
-              children: <Widget>[
-                Flexible(
-                  child: field("Units", (text) => null,
-                      horizontal: 0.0, value: item.unit, enable: false),
-                ),
-                new SizedBox(
-                  width: 16,
-                ),
-                Flexible(
-                  child: field("Set Values", (text) => item.setValues = text,
-                      horizontal: 0.0, value: item.setValues, enable: false),
-                ),
-              ],
-            ),
-            new Row(
-              children: <Widget>[
-                Flexible(
-                  child: field(
-                    "Measured Values", (text) => item.measuredValues = text,
-                    horizontal: 0.0,
-                    value: item.measuredValues,
-                    // enable: item.result != "N/A"
-                  ),
-                ),
-                new SizedBox(
-                  width: 16,
-                ),
-                Flexible(
-                  child: field(
-                    "Limit/ Tolerance", (text) => item.limit = text,
-                    horizontal: 0.0,
-                    value: item.limit,
-                    // enable: item.result != "N/A"
-                  ),
-                ),
-              ],
-            ),
-            // item.result != "N/A" ?
-            filter(item),
-            // : field("Status", (_) => null,
-            //     value: "N/A", horizontal: 0.0, enable: false),
-            field("Remarks", (text) => item.remark = text,
-                horizontal: 0.0,
-                value: item.remark,
-                enable: item.result != "N/A")
-          ]),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          getTitle("${item.number}. ${item.desc}"),
+          Row(
+            children: <Widget>[
+              Flexible(
+                child: field("Units", (text) => null,
+                    horizontal: 0.0, value: item.unit, enable: false),
+              ),
+              SizedBox(width: 16),
+              Flexible(
+                child: field("Set Values", (text) => item.setValues = text,
+                    horizontal: 0.0, value: item.setValues, enable: false),
+              ),
+            ],
+          ),
+          Row(
+            children: <Widget>[
+              Flexible(
+                child: field("Measured Values", (text) => item.measuredValues = text,
+                    horizontal: 0.0, value: item.measuredValues),
+              ),
+              SizedBox(width: 16),
+              Flexible(
+                child: field("Limit/ Tolerance", (text) => item.limit = text,
+                    horizontal: 0.0, value: item.limit),
+              ),
+            ],
+          ),
+          filter(item),
+          field("Remarks", (text) => item.remark = text,
+              horizontal: 0.0, value: item.remark, enable: item.result != "N/A"),
+        ],
+      ),
     );
   }
 
   Widget getFormDisabled(UploadItem item) {
-    return new Container(
+    return Container(
       padding: EdgeInsets.only(top: 20),
       child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            getTitle(item.number + ". " + item.desc),
-            field("Units", (text) => null,
-                horizontal: 0.0, value: item.unit, enable: false),
-            field("Set Values", (text) => item.setValues = text,
-                horizontal: 0.0, value: item.setValues, enable: false),
-            field("Measured Values", (text) => item.measuredValues = text,
-                horizontal: 0.0, value: item.measuredValues, enable: false),
-            field("Limit/ Tolerance", (text) => item.limit = text,
-                horizontal: 0.0, value: item.limit, enable: false),
-            field("Status", (_) => null,
-                value: item.result, horizontal: 0.0, enable: false),
-            field("Remarks", (text) => item.remark = text,
-                horizontal: 0.0, value: item.remark, enable: false)
-          ]),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          getTitle("${item.number}. ${item.desc}"),
+          field("Units", (text) => null,
+              horizontal: 0.0, value: item.unit, enable: false),
+          field("Set Values", (text) => item.setValues = text,
+              horizontal: 0.0, value: item.setValues, enable: false),
+          field("Measured Values", (text) => item.measuredValues = text,
+              horizontal: 0.0, value: item.measuredValues, enable: false),
+          field("Limit/ Tolerance", (text) => item.limit = text,
+              horizontal: 0.0, value: item.limit, enable: false),
+          field("Status", (_) => null,
+              horizontal: 0.0, value: item.result, enable: false),
+          field("Remarks", (text) => item.remark = text,
+              horizontal: 0.0, value: item.remark, enable: false),
+        ],
+      ),
     );
   }
 
-  DropdownButton filter(UploadItem item) {
+  DropdownButton<String> filter(UploadItem item) {
     return DropdownButton<String>(
-        hint: new Text("Status"),
-        isExpanded: true,
-        style: TextStyle(fontFamily: "Avenir", color: colorTheme3),
-        value: item.dropDownValue,
-        onChanged: (String newValue) {
-          print(newValue);
-          var value = items.firstWhere((test) {
-            return test.id == item.id;
-          }, orElse: () => item);
-          setState(() => value.result = newValue);
-        },
-        items: [
-          DropdownMenuItem(value: "Pass", child: new Text("Pass")),
-          DropdownMenuItem(value: "Fail", child: new Text("Fail")),
-          DropdownMenuItem(value: "N/A", child: new Text("N/A")),
-        ]);
+      hint: Text("Status"),
+      isExpanded: true,
+      style: TextStyle(fontFamily: "Avenir", color: colorTheme3),
+      value: item.dropDownValue,
+      onChanged: (String? newValue) {
+        print(newValue);
+        var value = items.firstWhere((test) => test.id == item.id, orElse: () => item);
+        setState(() {
+          value.result = newValue ?? "";
+        });
+      },
+      items: [
+        DropdownMenuItem(value: "Pass", child: Text("Pass")),
+        DropdownMenuItem(value: "Fail", child: Text("Fail")),
+        DropdownMenuItem(value: "N/A", child: Text("N/A")),
+      ],
+    );
   }
 
   void alert(String txt) {
     showDialog(
-        context: context,
-        builder: (BuildContext context) => CustomDialog(
-            description: txt,
-            buttonText: "Okay",
-            image: Image.asset(
-              "assets/icon_trans.png",
-              height: 40,
-            )));
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        description: txt,
+        buttonText: "Okay",
+        image: Image.asset("assets/icon_trans.png", height: 40),
+      ),
+    );
   }
 }
 
@@ -264,19 +257,20 @@ class UploadItem {
   String result;
   String remark;
 
-  UploadItem(
-      {this.index,
-      this.id,
-      this.unit,
-      this.number,
-      this.desc,
-      this.setValues,
-      this.measuredValues,
-      this.limit,
-      this.result,
-      this.remark});
+  UploadItem({
+    required this.index,
+    required this.id,
+    required this.unit,
+    required this.number,
+    required this.desc,
+    this.setValues = "",
+    this.measuredValues = "",
+    this.limit = "",
+    this.result = "",
+    this.remark = "",
+  });
 
-  String get dropDownValue {
+  String? get dropDownValue {
     switch (result) {
       case "Pass":
         return "Pass";
@@ -289,31 +283,31 @@ class UploadItem {
     }
   }
 
-  factory UploadItem.from({String index, FormDItem item}) {
+  factory UploadItem.from({required String index, required FormDItem item}) {
     return UploadItem(
-        index: index,
-        id: item.ppmTaskQuanId,
-        unit: item.ppmTaskQuanUnit,
-        number: item.ppmTaskQuanNumb,
-        desc: item.ppmTaskQuanDesc,
-        setValues: item.ppmTaskQuanSetValues,
-        measuredValues: item.ppmTaskQuanMeasuredValues,
-        limit: item.ppmTaskQuanLimit,
-        result: item.ppmTaskQuanResult,
-        remark: item.ppmTaskQuanRemark);
+      index: index,
+      id: item.ppmTaskQuanId,
+      unit: item.ppmTaskQuanUnit,
+      number: item.ppmTaskQuanNumb,
+      desc: item.ppmTaskQuanDesc,
+      setValues: item.ppmTaskQuanSetValues,
+      measuredValues: item.ppmTaskQuanMeasuredValues,
+      limit: item.ppmTaskQuanLimit,
+      result: item.ppmTaskQuanResult,
+      remark: item.ppmTaskQuanRemark,
+    );
   }
 
   String get statusCheck {
-    if (result == "Pass")
+    if (result == "Pass") {
       return "1";
-    else if (result == "Fail")
+    } else if (result == "Fail") {
       return "0";
-    else if (result == "N/A")
+    } else if (result == "N/A" || result.isEmpty) {
       return "2";
-    else if (result == "")
-      return "2";
-    else
+    } else {
       return "N/A";
+    }
   }
 
   @override

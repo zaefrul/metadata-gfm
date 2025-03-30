@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
-
 import 'package:month_year_picker/month_year_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc_technician.dart';
@@ -19,7 +18,7 @@ import 'controller/Storekeeper/utils/constant.dart';
 import 'controller/TaskMonitoring/taskMonitoring.dart';
 import 'controller/Homepage/homepage.dart' as mainHome;
 import 'controller/Homepage/support.dart';
-import 'controller/Utilities/Homepage.dart';
+import 'controller/Utilities/Homepage.dart' as utilitiesHome;
 import 'controller/WorkOrder/complaintMaterial.dart';
 import 'controller/WorkOrder/complaintSearch.dart';
 import 'controller/WorkOrder/workorder.dart';
@@ -44,47 +43,42 @@ import 'controller/Homepage/resetPassword.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:gfm_gems/model/complaint.dart';
 
-// import 'firebase_config.dart';
-
-FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-AndroidNotificationChannel channel;
+late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+late AndroidNotificationChannel channel;
 bool isFlutterLocalNotificationsInitialized = false;
 int alertCount = 0;
 
-FirebaseMessaging _messaging;
+late FirebaseMessaging _messaging;
 
 class MyHttpOverrides extends HttpOverrides {
   @override
-  HttpClient createHttpClient(SecurityContext context) {
+  HttpClient createHttpClient(SecurityContext? context) {
     return super.createHttpClient(context)
       ..badCertificateCallback =
           (X509Certificate cert, String host, int port) => true;
   }
 }
 
-void main() async {
-  material(init) => MyApp();
+Future<void> main() async {
+  // Helper function to instantiate MyApp
+  MyApp material(String init) => const MyApp();
 
   HttpOverrides.global = MyHttpOverrides();
 
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    // if (Platform.isIOS) {
     await Firebase.initializeApp();
-    // } else if (Platform.isAndroid) {
-    //   await Firebase.initializeApp(
-    //       options: DefaultFirebaseConfig.platformOptions);
-    // }
   } catch (e) {
     debugPrint(e.toString());
   }
 
-  // 2. Instantiate Firebase Messaging
+  // Instantiate Firebase Messaging.
   _messaging = FirebaseMessaging.instance;
 
-  // 3. On iOS, this helps to take the user permissions
+  // Request permission on iOS.
   NotificationSettings settings = await _messaging.requestPermission(
     alert: true,
     badge: true,
@@ -99,7 +93,6 @@ void main() async {
 
   if (settings.authorizationStatus == AuthorizationStatus.authorized) {
     print('User granted permission');
-    // TODO: handle the received notifications
   } else {
     print('User declined or has not accepted permission');
   }
@@ -113,19 +106,18 @@ void main() async {
     await setupFlutterNotifications();
   }
 
-  return runApp(material("/"));
+  runApp(material("/"));
 }
 
 Future<void> showNotification(RemoteMessage payload) async {
   var initializationSettingsAndroid =
-      new AndroidInitializationSettings('@mipmap/ic_launcher');
-  // var initiallizationSettingsIOS = IOSInitializationSettings();
-  var initialSetting = new InitializationSettings(
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+  var initialSetting = InitializationSettings(
     android: initializationSettingsAndroid,
   );
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  final FlutterLocalNotificationsPlugin plugin =
       FlutterLocalNotificationsPlugin();
-  flutterLocalNotificationsPlugin.initialize(initialSetting);
+  await plugin.initialize(initialSetting);
 
   AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
     'default_notification_channel_id',
@@ -135,15 +127,13 @@ Future<void> showNotification(RemoteMessage payload) async {
     ticker: 'ticker',
     icon: initializationSettingsAndroid.defaultIcon,
   );
-  // const iOSDetails = IOSNotificationDetails();
-  NotificationDetails platformChannelSpecifics = NotificationDetails(
-    android: androidDetails,
-  );
+  NotificationDetails platformChannelSpecifics =
+      NotificationDetails(android: androidDetails);
 
-  await flutterLocalNotificationsPlugin.show(
+  await plugin.show(
       alertCount,
-      payload.notification.title,
-      payload.notification.body,
+      payload.notification?.title ?? '',
+      payload.notification?.body ?? '',
       platformChannelSpecifics);
 
   alertCount++;
@@ -163,17 +153,11 @@ Future<void> setupFlutterNotifications() async {
 
   flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-  /// Create an Android Notification Channel.
-  ///
-  /// We use this channel in the `AndroidManifest.xml` file to override the
-  /// default FCM channel to enable heads up notifications.
   await flutterLocalNotificationsPlugin
       .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(channel);
 
-  /// Update the iOS foreground notification presentation options to allow
-  /// heads up notifications.
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
     alert: true,
     badge: true,
@@ -183,15 +167,13 @@ Future<void> setupFlutterNotifications() async {
 }
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // If you're going to use other Firebase services in the background, such as Firestore,
-  // make sure you call `initializeApp` before using other Firebase services.
+  // Make sure to initialize Firebase before using it in the background.
   print('Handling a background message ${message.messageId}');
 }
 
 void showFlutterNotification(RemoteMessage message) {
-  RemoteNotification notification = message.notification;
-  AndroidNotification android = message.notification?.android;
-  if ((Platform.isIOS || Platform.isAndroid)) {
+  RemoteNotification? notification = message.notification;
+  if ((Platform.isIOS || Platform.isAndroid) && notification != null) {
     flutterLocalNotificationsPlugin.show(
       notification.hashCode,
       notification.title,
@@ -201,8 +183,6 @@ void showFlutterNotification(RemoteMessage message) {
           channel.id,
           channel.name,
           channelDescription: channel.description,
-          // TODO add a proper drawable resource to android, for now using
-          //      one that already exists in example app.
           icon: 'launch_background',
         ),
       ),
@@ -211,21 +191,21 @@ void showFlutterNotification(RemoteMessage message) {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp();
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
           fontFamily: "Avenir",
-          appBarTheme: AppBarTheme(
+          appBarTheme: const AppBarTheme(
             backgroundColor: Colors.white,
-            foregroundColor: colorTheme3,
+            foregroundColor: Colors.black, // Replace with a constant color
           ),
           primaryColor: colorTheme3,
           primaryTextTheme:
               TextTheme(titleLarge: TextStyle(color: colorTheme3))),
-      localizationsDelegates: [
+      localizationsDelegates: const [
         GlobalWidgetsLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         MonthYearPickerLocalizations.delegate,
@@ -280,22 +260,24 @@ class MyApp extends StatelessWidget {
         return MaterialPageRoute(
             builder: (context) => MaterialEdit(value), settings: settings);
       case routeTechnician:
-        if (settings.arguments != null)
+        if (settings.arguments != null) {
           return MaterialPageRoute(
-              builder: (ctx) => RouteTechnician(value: settings.arguments));
+              builder: (ctx) =>
+                  RouteTechnician(value: settings.arguments as BlocTechnician), settings: settings);
+        }
         return MaterialPageRoute(
-            builder: (ctx) => RouteTechnician(), settings: settings);
+            builder: (ctx) => RouteTechnician(value: settings.arguments as BlocTechnician), settings: settings);
       case routeTechnicianDetail:
         return MaterialPageRoute(
-            builder: (ctx) => RouteTechnicianDetail(item: settings.arguments),
-            settings: settings);
+            builder: (ctx) =>
+                RouteTechnicianDetail(item: settings.arguments as Item), settings: settings);
       case routeEngineer:
-        final value = BlocTechnician.from(settings.arguments);
+        final value = BlocTechnician.from(settings.arguments as BlocTechnician);
         return MaterialPageRoute(
             builder: (ctx) => RouteEngineer(value: value), settings: settings);
       case routeInventory:
         return MaterialPageRoute(
-            builder: (ctx) => Homepage(), settings: settings);
+            builder: (ctx) => utilitiesHome.Homepage(), settings: settings);
       case routeCheckIn:
         return MaterialPageRoute(
             builder: (ctx) => Homepage(), settings: settings);
@@ -304,8 +286,7 @@ class MyApp extends StatelessWidget {
             builder: (ctx) => Homepage(), settings: settings);
       case routeMaterialInfo:
         return MaterialPageRoute(
-            builder: (ctx) => MaterialInfo(value: settings.arguments),
-            settings: settings);
+            builder: (ctx) => MaterialInfo(value: settings.arguments as ComplaintDType), settings: settings);
       case routeMaterialCheckinRequest:
         return MaterialPageRoute(
             builder: (ctx) => CheckinRequest(), settings: settings);
@@ -321,32 +302,29 @@ class MyApp extends StatelessWidget {
       case routeMateralRequest:
         return MaterialPageRoute(
             builder: (ctx) => MaterialRequest(
-                  value: settings.arguments,
+                  value: settings.arguments as dynamic, // Replace 'dynamic' with the correct type if known
                   isApproval: true,
                 ),
             settings: settings);
       case routeMaterialRequestView:
         return MaterialPageRoute(
             builder: (ctx) => MaterialRequest(
-                  value: settings.arguments,
+                  value: settings.arguments as dynamic,
                   isCheckout: true,
                 ),
             settings: settings);
       case routeStockRequest:
         return MaterialPageRoute(
-            builder: (ctx) => MaterialRequest(value: settings.arguments),
-            settings: settings);
+            builder: (ctx) => MaterialRequest(value: settings.arguments as dynamic), settings: settings);
       case routeDashboard:
         return MaterialPageRoute(
             builder: (ctx) => Homepage(), settings: settings);
       case routeDetails:
         return MaterialPageRoute(
-            builder: (ctx) => MaterialDetails(settings.arguments),
-            settings: settings);
+            builder: (ctx) => MaterialDetails(id: settings.arguments as String), settings: settings);
       case routeCheckInInfo:
         return MaterialPageRoute(
-            builder: (ctx) => CheckinDetails(id: settings.arguments),
-            settings: settings);
+            builder: (ctx) => CheckinDetails(key: UniqueKey(), id: settings.arguments as dynamic), settings: settings);
       case routeStockIn:
         return MaterialPageRoute(
             builder: (ctx) => StockInList(), settings: settings);
@@ -355,10 +333,14 @@ class MyApp extends StatelessWidget {
             builder: (ctx) => CheckinAdd(), settings: settings);
       case routeUtilities:
         return MaterialPageRoute(
-            builder: (_) => UtilitiesHome(), settings: settings);
+            builder: (_) => utilitiesHome.Homepage(), settings: settings);
       case routeSignature:
         return MaterialPageRoute(
-          builder: (_) => SignatureView(id: settings.arguments),
+          builder: (_) => SignatureView(
+              id: settings.arguments as String, 
+              // result: "", 
+              // checkpoint: ""
+              ),
           settings: settings,
         );
       case routeLeaderboard:
@@ -366,7 +348,7 @@ class MyApp extends StatelessWidget {
             builder: (_) => LeaderboardView(), settings: settings);
       case routeAttendance:
         return MaterialPageRoute(
-            builder: (_) => Dashboard(), settings: settings);
+            builder: (_) => Placeholder(), settings: settings); // Replace Placeholder with the correct widget if known
       default:
         return MaterialPageRoute(builder: (ctx) => ProcumentHomepage());
     }

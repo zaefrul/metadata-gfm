@@ -12,14 +12,22 @@ import 'dashboard.dart';
 import 'list_checkout.dart';
 
 class Homepage extends StatefulWidget {
+  const Homepage({Key? key}) : super(key: key);
   @override
   _HomepageState createState() => _HomepageState();
 }
 
 class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
-  BlocInventory bloc;
-  TabController _controller;
-  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  late final BlocInventory bloc;
+  late final TabController _controller;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    bloc = BlocInventory(context); // Pass the required argument
+    _controller = TabController(length: 2, vsync: this);
+  }
 
   @override
   void dispose() {
@@ -29,88 +37,72 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return bloc == null
         ? Scaffold(
             appBar: AppBar(
               backgroundColor: Colors.white,
-              title: Text("Inventory"),
+              title: const Text("Inventory"),
               centerTitle: true,
             ),
-            body: Container(child: Center(child: CircularProgressIndicator())),
+            body: Container(child: const Center(child: CircularProgressIndicator())),
           )
         : Scaffold(
             key: _scaffoldKey,
-            appBar: _AppBar(bloc, _scaffoldKey),
+            appBar: PreferredSize(
+              preferredSize: const Size.fromHeight(60),
+              child: _AppBar(bloc, _scaffoldKey),
+            ),
             drawer: BuildDrawer(() => Navigator.pop(context)),
             body: _Body(bloc),
-            floatingActionButton:
-                _controller.index == 0 ? _FloatingButton(bloc) : null,
+            floatingActionButton: _controller.index == 0 ? _FloatingButton(bloc) : null,
           );
   }
 }
 
-class _AppBar extends StatelessWidget with PreferredSizeWidget {
+class _AppBar extends StatelessWidget implements PreferredSizeWidget {
   final BlocInventory _bloc;
   final GlobalKey<ScaffoldState> _key;
 
-  _AppBar(this._bloc, this._key);
+  const _AppBar(this._bloc, this._key, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: StreamBuilder<Object>(
-        stream: _bloc.view$,
+      title: StreamBuilder<String>(
+        stream: _bloc.view$.cast<String>(),
         builder: (ctx, snapshot) =>
-            Tab(text: "Inventory - " + (snapshot.data ?? "")),
+            Tab(text: "Inventory - " + (snapshot.data?.toString() ?? "")),
       ),
       backgroundColor: Colors.white,
       centerTitle: true,
       leading: leading(_key),
-      // actions: <Widget>[_SearchButton(), SizedBox(width: 6)],
     );
   }
 
   Widget leading(GlobalKey<ScaffoldState> key) {
     return IconButton(
       icon: Image.asset("assets/icon_trans.png", height: 30, width: 30),
-      padding: EdgeInsets.all(14),
-      onPressed: () => key.currentState.openDrawer(),
-    );
-  }
-
-  get specialTab {
-    return StreamBuilder<String>(
-      stream: _bloc.view$,
-      builder: (ctx, snapshot) => Tab(text: snapshot.data ?? "My Stock"),
+      padding: const EdgeInsets.all(14),
+      onPressed: () => key.currentState?.openDrawer(),
     );
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(60);
+  Size get preferredSize => const Size.fromHeight(60);
 }
 
 class _Body extends StatelessWidget {
   final BlocInventory _bloc;
 
-  _Body(this._bloc);
+  const _Body(this._bloc, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return firstTab;
   }
 
-  get secondTab {
+  Widget get secondTab {
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
@@ -126,9 +118,9 @@ class _Body extends StatelessWidget {
     );
   }
 
-  get firstTab {
+  Widget get firstTab {
     return StreamBuilder<String>(
-        stream: _bloc.view$,
+        stream: _bloc.view$.cast<String>(),
         builder: (ctx, snapshot) {
           switch (snapshot.data) {
             case "My Stock":
@@ -152,7 +144,7 @@ class _Body extends StatelessWidget {
 
 class _Header extends StatelessWidget {
   final BlocInventory bloc;
-  _Header(this.bloc);
+  const _Header(this.bloc, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -161,23 +153,8 @@ class _Header extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           _DropdownFilter(bloc),
-          // RaisedButton(
-          //   onPressed: () => Navigator.pushNamed(context, routePurchaseRequest),
-          //   child: Row(
-          //     children: <Widget>[
-          //       Icon(Icons.send, color: Colors.white),
-          //       SizedBox(width: 6),
-          //       Text("10", style: TextStyle(color: Colors.white, fontSize: 16)),
-          //     ],
-          //   ),
-          //   color: colorTheme2,
-          //   shape: RoundedRectangleBorder(
-          //     borderRadius: new BorderRadius.circular(18.0),
-          //   ),
-          // )
         ],
       ),
     );
@@ -187,33 +164,24 @@ class _Header extends StatelessWidget {
 class _DropdownFilter extends StatelessWidget {
   final BlocInventory bloc;
 
-  _DropdownFilter(this.bloc);
+  const _DropdownFilter(this.bloc, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<String>(
-      stream: bloc.selected$,
+      stream: bloc.selected$.cast<String>(),
       builder: (ctx, snapshot) => DropdownButton<String>(
         underline: Container(),
         value: snapshot.data,
         items: statuses
             .map((f) => DropdownMenuItem(child: Text(f), value: f))
             .toList(),
-        onChanged: bloc.setSelected,
+        onChanged: (value) {
+          if (value != null) {
+            bloc.setSelected(value);
+          }
+        },
       ),
-    );
-  }
-}
-
-class _SearchButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      icon: Icon(
-        Icons.search,
-        size: 30,
-      ),
-      onPressed: () {},
     );
   }
 }
@@ -221,35 +189,26 @@ class _SearchButton extends StatelessWidget {
 class _FloatingButton extends StatelessWidget {
   final BlocInventory bloc;
 
-  _FloatingButton(this.bloc);
+  const _FloatingButton(this.bloc, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<String>(
-      stream: bloc.view$,
+      stream: bloc.view$.cast<String>(),
       builder: (ctx, snapshot) => Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
           if (snapshot.data == "My Check In")
             FloatingActionButton(
               heroTag: "Submit",
-              child: Icon(Icons.add),
+              child: const Icon(Icons.add),
               onPressed: () =>
                   Navigator.pushNamed(context, routeMaterialCheckinRequest),
             ),
-          if (snapshot.data == "My Check In") SizedBox(width: 12),
-          // if (snapshot.data == "My Stock")
-          //   FloatingActionButton(
-          //     heroTag: "Submit",
-          //     child: Icon(Icons.add),
-          //     onPressed: () {
-          //       Navigator.pushNamed(context, routeRegisterItem);
-          //     },
-          //   ),
-          // SizedBox(width: 12),
+          if (snapshot.data == "My Check In") const SizedBox(width: 12),
           FloatingActionButton(
             heroTag: "FAB",
-            child: new Icon(Icons.menu),
+            child: const Icon(Icons.menu),
             backgroundColor: colorTheme1,
             onPressed: () {
               Navigator.push(
@@ -258,7 +217,9 @@ class _FloatingButton extends StatelessWidget {
                   opaque: false,
                   pageBuilder: (ctx, _, __) => AwesomeFAB(),
                 ),
-              ).then((value) => value == null ? null : bloc.setView(value));
+              ).then((value) {
+                if (value != null) bloc.setView(value);
+              });
             },
           ),
         ],

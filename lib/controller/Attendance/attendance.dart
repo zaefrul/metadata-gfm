@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/model/attendance.dart';
 import 'package:gfm_gems/model/eventAtt.dart';
+import 'package:gfm_gems/model/eventDetail.dart';
 import 'dart:async';
 
-import '../../model/eventDetail.dart';
 import 'bloc/bloc_attendance.dart';
 
 import 'package:gfm_gems/utils/reference.dart';
@@ -12,6 +12,7 @@ import 'package:percent_indicator/percent_indicator.dart';
 import 'package:intl/intl.dart';
 
 class Dashboard extends StatefulWidget {
+  const Dashboard({Key? key}) : super(key: key);
   @override
   _DashboardState createState() => _DashboardState();
 }
@@ -19,23 +20,30 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   final BlocAttendance _bloc = BlocAttendance();
 
-  final f = DateFormat('hh:mm:ss a');
-  String _timeClockIn;
-  String _timeClockOut;
-  String _duration;
+  final DateFormat f = DateFormat('hh:mm:ss a');
+  String? _timeClockIn;
+  String? _timeClockOut;
+  String? _duration;
   String _timeString = "";
 
   void duration() {
+    // Ensure there is a valid clock in/clock out string.
     final clockin = (_timeClockIn ?? "").substring(0, 8);
     final clockout = (_timeClockOut ?? "").substring(0, 8);
-    final t1 = DateTime.parse("2021-09-09 " + clockin);
-    final t2 = DateTime.parse("2021-09-09 " + clockout);
-
-    final d = t2.difference(t1);
-    String sDuration =
-        "${d.inHours} Hours ${d.inMinutes.remainder(60)} Minutes ${(d.inSeconds.remainder(60))} Seconds";
-
-    _duration = sDuration;
+    try {
+      final t1 = DateTime.parse("2021-09-09 " + clockin);
+      final t2 = DateTime.parse("2021-09-09 " + clockout);
+      final d = t2.difference(t1);
+      String sDuration =
+          "${d.inHours} Hours ${d.inMinutes.remainder(60)} Minutes ${d.inSeconds.remainder(60)} Seconds";
+      setState(() {
+        _duration = sDuration;
+      });
+    } catch (e) {
+      setState(() {
+        _duration = "0 Hours 0 Minutes 0 Seconds";
+      });
+    }
   }
 
   void clear() {
@@ -47,7 +55,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   }
 
   @override
-  initState() {
+  void initState() {
     super.initState();
     _bloc.tabController = TabController(length: 2, vsync: this);
     _timeString = f.format(DateTime.now());
@@ -63,18 +71,19 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            backgroundColor: Colors.white,
-            title: const Text(
-              "Attendance",
-              style: TextStyle(color: Colors.black),
-            ),
-            centerTitle: true,
-            bottom: TabBar(
-              controller: _bloc.tab,
-              labelColor: Colors.black,
-              physics: const NeverScrollableScrollPhysics(),
-              tabs: const [Tab(text: "Calendar"), Tab(text: "Weekly Progress")],
-            )),
+          backgroundColor: Colors.white,
+          title: const Text(
+            "Attendance",
+            style: TextStyle(color: Colors.black),
+          ),
+          centerTitle: true,
+          bottom: TabBar(
+            controller: _bloc.tab,
+            labelColor: Colors.black,
+            physics: const NeverScrollableScrollPhysics(),
+            tabs: const [Tab(text: "Calendar"), Tab(text: "Weekly Progress")],
+          ),
+        ),
         body: TabBarView(
           controller: _bloc.tab,
           physics: const NeverScrollableScrollPhysics(),
@@ -85,19 +94,18 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 children: [_Calendar(_bloc), _Details(_bloc.event$)],
               ),
             ),
-            ProgressClock(_timeClockIn, _timeClockOut, _duration,
-                _bloc.attendance$, _bloc.clock$),
+            ProgressClock(_timeClockIn, _timeClockOut, _duration, _bloc.attendance$, _bloc.clock$),
           ],
         ),
         floatingActionButton: StreamBuilder<bool>(
             stream: _bloc.buttonStatus$,
             builder: (_, snapshot) {
               if (snapshot.data == null) return Container();
-              final result = snapshot.data;
+              final result = snapshot.data!;
               return FloatingActionButton.extended(
                 backgroundColor: result ? colorTheme3 : colorTheme4,
                 onPressed: () {
-                  if (result == false) {
+                  if (!result) {
                     confirmationCheckOut();
                   } else {
                     confirmationCheckIn();
@@ -113,21 +121,21 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("Confirmation"),
-        content: Text("Please confirm your Check In?"),
+        title: const Text("Confirmation"),
+        content: const Text("Please confirm your Check In?"),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            child: Text("Cancel"),
+            child: const Text("Cancel"),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _bloc.clockedIn(context);
             },
-            child: Text("OK"),
+            child: const Text("OK"),
           ),
         ],
       ),
@@ -139,21 +147,21 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text("Confirmation"),
-        content: Text("Please confirm your Check Out?"),
+        title: const Text("Confirmation"),
+        content: const Text("Please confirm your Check Out?"),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            child: Text("Cancel"),
+            child: const Text("Cancel"),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _bloc.clockedOut(context);
             },
-            child: Text("OK"),
+            child: const Text("OK"),
           ),
         ],
       ),
@@ -161,14 +169,13 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   }
 }
 
-// ignore: must_be_immutable
 class _Calendar extends StatelessWidget {
   final BlocAttendance _bloc;
   final DateTime kToday = DateTime.now();
-  DateTime _kFirstDay;
-  DateTime _kLastDay;
+  late final DateTime _kFirstDay;
+  late final DateTime _kLastDay;
 
-  _Calendar(this._bloc) {
+  _Calendar(this._bloc, {Key? key}) : super(key: key) {
     _kFirstDay = DateTime(kToday.year, 1, 1);
     _kLastDay = DateTime(kToday.year, kToday.month + 1, kToday.day);
   }
@@ -182,7 +189,6 @@ class _Calendar extends StatelessWidget {
             stream: _bloc.calendarDate$,
             builder: (context, snapshot) {
               final selectedDay = snapshot.data ?? DateTime.now();
-
               return TableCalendar<EventAtt>(
                 firstDay: _kFirstDay,
                 lastDay: _kLastDay,
@@ -202,15 +208,14 @@ class _Calendar extends StatelessWidget {
 
 class _Details extends StatelessWidget {
   final Stream<EventDetail> stream;
-
-  const _Details(this.stream);
+  const _Details(this.stream, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<EventDetail>(
         stream: stream,
         builder: (context, snapshot) {
-          if (snapshot.data == null) {
+          if (!snapshot.hasData) {
             return Column(children: const [
               SizedBox(height: 20),
               Padding(
@@ -239,15 +244,14 @@ class _Details extends StatelessWidget {
               ),
             ]);
           }
-
-          return ItemDetail(snapshot.data);
+          return ItemDetail(snapshot.data!);
         });
   }
 }
 
 class ItemDetail extends StatelessWidget {
   final EventDetail event;
-  const ItemDetail(this.event, {Key key}) : super(key: key);
+  const ItemDetail(this.event, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -283,8 +287,7 @@ class ItemDetail extends StatelessWidget {
                 TableCell(child: _TextCell(event.status ?? "")),
               ]),
               TableRow(children: [
-                const TableCell(
-                    child: _TextCell("Date Attendance : ", bold: true)),
+                const TableCell(child: _TextCell("Date Attendance : ", bold: true)),
                 TableCell(child: _TextCell(event.date)),
               ]),
               TableRow(children: [
@@ -336,11 +339,10 @@ class ItemDetail extends StatelessWidget {
 }
 
 class _TextCell extends StatelessWidget {
-  final String value;
+  final String? value;
   final bool bold;
   final double size;
-
-  const _TextCell(this.value, {this.bold = false, this.size = 14});
+  const _TextCell(this.value, {this.bold = false, this.size = 14, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -348,42 +350,33 @@ class _TextCell extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
       child: Text(
         value ?? "0%",
-        style: TextStyle(
-            fontWeight: bold ? FontWeight.bold : null, fontSize: size),
+        style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal, fontSize: size),
       ),
     );
   }
 }
 
 class ProgressClock extends StatelessWidget {
-  final String clockin;
-  final String clockout;
-  final String duration;
+  final String? clockin;
+  final String? clockout;
+  final String? duration;
 
   final Stream<Attendance> stream;
   final Stream<String> clock;
 
-  // ignore: use_key_in_widget_constructors
-  const ProgressClock(
-      this.clockin, this.clockout, this.duration, this.stream, this.clock);
+  const ProgressClock(this.clockin, this.clockout, this.duration, this.stream, this.clock, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<Attendance>(
         stream: stream,
         builder: (context, snapshot) {
-          if (snapshot.data == null) {
-            return Center(
+          if (!snapshot.hasData) {
+            return const Center(
               child: CircularProgressIndicator(),
             );
           }
-
-          // if (snapshot.data != null) {
-          //   print(snapshot.data);
-          // }
-
-          final data = snapshot.data;
-
+          final data = snapshot.data!;
           return Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: SingleChildScrollView(
@@ -400,47 +393,30 @@ class ProgressClock extends StatelessWidget {
                     },
                     children: [
                       TableRow(children: [
-                        const TableCell(
-                            child: _TextCell("Current Time : ",
-                                bold: true, size: 16)),
+                        const TableCell(child: _TextCell("Current Time : ", bold: true, size: 16)),
                         TableCell(
                             child: StreamBuilder<String>(
                                 stream: clock,
                                 builder: (context, snapshot) {
-                                  final time = snapshot.data ??
-                                      DateFormat("hh:mm:ss")
-                                          .format(DateTime.now());
+                                  final time = snapshot.data ?? DateFormat("hh:mm:ss").format(DateTime.now());
                                   return _TextCell(time, size: 16);
                                 })),
                       ]),
                       TableRow(children: [
-                        const TableCell(
-                            child:
-                                _TextCell("Clock In : ", bold: true, size: 16)),
-                        TableCell(
-                            child: _TextCell(data.timeClockIn ?? "", size: 16)),
+                        const TableCell(child: _TextCell("Clock In : ", bold: true, size: 16)),
+                        TableCell(child: _TextCell(data.timeClockIn ?? "", size: 16)),
                       ]),
                       TableRow(children: [
-                        const TableCell(
-                            child: _TextCell("Clock Out : ",
-                                bold: true, size: 16)),
-                        TableCell(
-                            child:
-                                _TextCell(data.timeClockOut ?? "", size: 16)),
+                        const TableCell(child: _TextCell("Clock Out : ", bold: true, size: 16)),
+                        TableCell(child: _TextCell(data.timeClockOut ?? "", size: 16)),
                       ]),
                       TableRow(children: [
-                        const TableCell(
-                            child:
-                                _TextCell("Duration : ", bold: true, size: 16)),
-                        TableCell(
-                            child: _TextCell(data.duration ?? "", size: 16)),
+                        const TableCell(child: _TextCell("Duration : ", bold: true, size: 16)),
+                        TableCell(child: _TextCell(data.duration ?? "", size: 16)),
                       ]),
                       TableRow(children: [
-                        const TableCell(
-                            child:
-                                _TextCell("Remark : ", bold: true, size: 16)),
-                        TableCell(
-                            child: _TextCell(data.remark ?? "", size: 16)),
+                        const TableCell(child: _TextCell("Remark : ", bold: true, size: 16)),
+                        TableCell(child: _TextCell(data.remark ?? "", size: 16)),
                       ]),
                     ],
                   ),
@@ -455,15 +431,11 @@ class ProgressClock extends StatelessWidget {
                   CircularPercentIndicator(
                     radius: MediaQuery.of(context).size.width / 3,
                     lineWidth: 10.0,
-                    percent: double.parse((data.weeklyProgress == null
-                                ? "0"
-                                : data.weeklyProgress)
-                            .replaceAll("%", "")) /
+                    percent: double.tryParse(
+                              (data.weeklyProgress ?? "0").replaceAll("%", ""))! /
                         100,
-                    footer: _TextCell(
-                        "Total Work Duration : ${data.weeklyRequiredHours ?? 0}"),
-                    header: const _TextCell("Weekly Completion",
-                        bold: true, size: 24),
+                    footer: _TextCell("Total Work Duration : ${data.weeklyRequiredHours ?? 0}"),
+                    header: const _TextCell("Weekly Completion", bold: true, size: 24),
                     center: _TextCell(data.weeklyProgress, size: 20),
                     progressColor: Colors.green,
                   ),

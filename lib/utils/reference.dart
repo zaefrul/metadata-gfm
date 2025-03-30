@@ -16,9 +16,8 @@ abstract class Upload {
   final String action;
   final String ppmTaskId;
 
-  Upload({this.action, this.ppmTaskId});
+  Upload({required this.action, required this.ppmTaskId});
 
-  @required
   Map<String, dynamic> get body {
     return {"action": action, "ppmTaskId": ppmTaskId};
   }

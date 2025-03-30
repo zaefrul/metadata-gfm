@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of form;
+part of 'form.dart';
 
 // **************************************************************************
 // BuiltValueGenerator
@@ -23,9 +23,9 @@ class _$FormSerializer implements StructuredSerializer<Form> {
   final String wireName = 'Form';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, Form object,
+  Iterable<Object?> serialize(Serializers serializers, Form object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'ppmTaskSectionId',
       serializers.serialize(object.ppmTaskSectionId,
           specifiedType: const FullType(String)),
@@ -50,39 +50,39 @@ class _$FormSerializer implements StructuredSerializer<Form> {
   }
 
   @override
-  Form deserialize(Serializers serializers, Iterable<Object> serialized,
+  Form deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new FormBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'ppmTaskSectionId':
           result.ppmTaskSectionId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskSectionName':
           result.ppmTaskSectionName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskId':
           result.ppmTaskId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskSectionStatus':
           result.ppmTaskSectionStatus = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'checkParts':
           result.checkParts = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'checkAdditionalReport':
           result.checkAdditionalReport = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
       }
     }
@@ -98,9 +98,9 @@ class _$FormAItemSerializer implements StructuredSerializer<FormAItem> {
   final String wireName = 'FormAItem';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, FormAItem object,
+  Iterable<Object?> serialize(Serializers serializers, FormAItem object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'ppmTaskId',
       serializers.serialize(object.ppmTaskId,
           specifiedType: const FullType(String)),
@@ -149,71 +149,71 @@ class _$FormAItemSerializer implements StructuredSerializer<FormAItem> {
   }
 
   @override
-  FormAItem deserialize(Serializers serializers, Iterable<Object> serialized,
+  FormAItem deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new FormAItemBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'ppmTaskId':
           result.ppmTaskId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskScheduleDate':
           result.ppmTaskScheduleDate = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'assetId':
           result.assetId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'assetGroupName':
           result.assetGroupName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'assetCategoryName':
           result.assetCategoryName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'assetTypeName':
           result.assetTypeName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'assetBrandName':
           result.assetBrandName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'assetModelName':
           result.assetModelName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'assetNo':
           result.assetNo = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'assetName':
           result.assetName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'locationCodeId':
           result.locationCodeId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'assetCapacity':
           result.assetCapacity = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskTimeStart':
           result.ppmTaskTimeStart = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskTimeServiced':
           result.ppmTaskTimeServiced = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
       }
     }
@@ -229,9 +229,9 @@ class _$FormBItemSerializer implements StructuredSerializer<FormBItem> {
   final String wireName = 'FormBItem';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, FormBItem object,
+  Iterable<Object?> serialize(Serializers serializers, FormBItem object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'ppmTaskId',
       serializers.serialize(object.ppmTaskId,
           specifiedType: const FullType(String)),
@@ -244,23 +244,23 @@ class _$FormBItemSerializer implements StructuredSerializer<FormBItem> {
   }
 
   @override
-  FormBItem deserialize(Serializers serializers, Iterable<Object> serialized,
+  FormBItem deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new FormBItemBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'ppmTaskId':
           result.ppmTaskId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskGuideline':
           result.ppmTaskGuideline = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
       }
     }
@@ -276,9 +276,9 @@ class _$FormCItemSerializer implements StructuredSerializer<FormCItem> {
   final String wireName = 'FormCItem';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, FormCItem object,
+  Iterable<Object?> serialize(Serializers serializers, FormCItem object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'ppmTaskQualId',
       serializers.serialize(object.ppmTaskQualId,
           specifiedType: const FullType(String)),
@@ -309,47 +309,47 @@ class _$FormCItemSerializer implements StructuredSerializer<FormCItem> {
   }
 
   @override
-  FormCItem deserialize(Serializers serializers, Iterable<Object> serialized,
+  FormCItem deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new FormCItemBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'ppmTaskQualId':
           result.ppmTaskQualId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskId':
           result.ppmTaskId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskQualNumb':
           result.ppmTaskQualNumb = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskQualDesc':
           result.ppmTaskQualDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'frequencyId':
           result.frequencyId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'frequencyName':
           result.frequencyName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskQualResult':
           result.ppmTaskQualResult = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskQualRemark':
           result.ppmTaskQualRemark = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
       }
     }
@@ -365,9 +365,9 @@ class _$FormDItemSerializer implements StructuredSerializer<FormDItem> {
   final String wireName = 'FormDItem';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, FormDItem object,
+  Iterable<Object?> serialize(Serializers serializers, FormDItem object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'ppmTaskQuanId',
       serializers.serialize(object.ppmTaskQuanId,
           specifiedType: const FullType(String)),
@@ -410,63 +410,63 @@ class _$FormDItemSerializer implements StructuredSerializer<FormDItem> {
   }
 
   @override
-  FormDItem deserialize(Serializers serializers, Iterable<Object> serialized,
+  FormDItem deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new FormDItemBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'ppmTaskQuanId':
           result.ppmTaskQuanId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskId':
           result.ppmTaskId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskQuanNumb':
           result.ppmTaskQuanNumb = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskQuanDesc':
           result.ppmTaskQuanDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'frequencyId':
           result.frequencyId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'frequencyName':
           result.frequencyName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskQuanUnit':
           result.ppmTaskQuanUnit = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskQuanSetValues':
           result.ppmTaskQuanSetValues = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskQuanMeasuredValues':
           result.ppmTaskQuanMeasuredValues = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskQuanLimit':
           result.ppmTaskQuanLimit = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskQuanResult':
           result.ppmTaskQuanResult = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskQuanRemark':
           result.ppmTaskQuanRemark = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
       }
     }
@@ -482,9 +482,9 @@ class _$FormEItemSerializer implements StructuredSerializer<FormEItem> {
   final String wireName = 'FormEItem';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, FormEItem object,
+  Iterable<Object?> serialize(Serializers serializers, FormEItem object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'ppmTaskPartsId',
       serializers.serialize(object.ppmTaskPartsId,
           specifiedType: const FullType(String)),
@@ -500,27 +500,27 @@ class _$FormEItemSerializer implements StructuredSerializer<FormEItem> {
   }
 
   @override
-  FormEItem deserialize(Serializers serializers, Iterable<Object> serialized,
+  FormEItem deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new FormEItemBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'ppmTaskPartsId':
           result.ppmTaskPartsId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskId':
           result.ppmTaskId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskPartsDesc':
           result.ppmTaskPartsDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
       }
     }
@@ -536,9 +536,9 @@ class _$FormFItemSerializer implements StructuredSerializer<FormFItem> {
   final String wireName = 'FormFItem';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, FormFItem object,
+  Iterable<Object?> serialize(Serializers serializers, FormFItem object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'ppmTaskUploadId',
       serializers.serialize(object.ppmTaskUploadId,
           specifiedType: const FullType(String)),
@@ -569,47 +569,47 @@ class _$FormFItemSerializer implements StructuredSerializer<FormFItem> {
   }
 
   @override
-  FormFItem deserialize(Serializers serializers, Iterable<Object> serialized,
+  FormFItem deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new FormFItemBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'ppmTaskUploadId':
           result.ppmTaskUploadId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskUploadType':
           result.ppmTaskUploadType = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskId':
           result.ppmTaskId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'uploadId':
           result.uploadId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'uploadName':
           result.uploadName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'documentDesc':
           result.documentDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'documentFilename':
           result.documentFilename = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'documentSrc':
           result.documentSrc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
       }
     }
@@ -625,9 +625,9 @@ class _$FormGItemSerializer implements StructuredSerializer<FormGItem> {
   final String wireName = 'FormGItem';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, FormGItem object,
+  Iterable<Object?> serialize(Serializers serializers, FormGItem object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'ppmTaskId',
       serializers.serialize(object.ppmTaskId,
           specifiedType: const FullType(String)),
@@ -640,23 +640,23 @@ class _$FormGItemSerializer implements StructuredSerializer<FormGItem> {
   }
 
   @override
-  FormGItem deserialize(Serializers serializers, Iterable<Object> serialized,
+  FormGItem deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new FormGItemBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'ppmTaskId':
           result.ppmTaskId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskRemark':
           result.ppmTaskRemark = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
       }
     }
@@ -672,9 +672,9 @@ class _$FormHItemSerializer implements StructuredSerializer<FormHItem> {
   final String wireName = 'FormHItem';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, FormHItem object,
+  Iterable<Object?> serialize(Serializers serializers, FormHItem object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'ppmTaskUploadId',
       serializers.serialize(object.ppmTaskUploadId,
           specifiedType: const FullType(String)),
@@ -709,7 +709,7 @@ class _$FormHItemSerializer implements StructuredSerializer<FormHItem> {
       serializers.serialize(object.documentSrc,
           specifiedType: const FullType(String)),
     ];
-    Object value;
+    Object? value;
     value = object.uploadId;
     if (value != null) {
       result
@@ -721,63 +721,63 @@ class _$FormHItemSerializer implements StructuredSerializer<FormHItem> {
   }
 
   @override
-  FormHItem deserialize(Serializers serializers, Iterable<Object> serialized,
+  FormHItem deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new FormHItemBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'ppmTaskUploadId':
           result.ppmTaskUploadId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskUploadType':
           result.ppmTaskUploadType = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskUploadLongitude':
           result.ppmTaskUploadLongitude = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskUploadLatitude':
           result.ppmTaskUploadLatitude = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskUploadTimestamp':
           result.ppmTaskUploadTimestamp = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskUploadDesc':
           result.ppmTaskUploadDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskId':
           result.ppmTaskId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'uploadId':
           result.uploadId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'uploadName':
           result.uploadName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'documentDesc':
           result.documentDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'documentFilename':
           result.documentFilename = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'documentSrc':
           result.documentSrc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
       }
     }
@@ -800,16 +800,16 @@ class _$Form extends Form {
   @override
   final String checkAdditionalReport;
 
-  factory _$Form([void Function(FormBuilder) updates]) =>
+  factory _$Form([void Function(FormBuilder)? updates]) =>
       (new FormBuilder()..update(updates))._build();
 
   _$Form._(
-      {this.ppmTaskSectionId,
-      this.ppmTaskSectionName,
-      this.ppmTaskId,
-      this.ppmTaskSectionStatus,
-      this.checkParts,
-      this.checkAdditionalReport})
+      {required this.ppmTaskSectionId,
+      required this.ppmTaskSectionName,
+      required this.ppmTaskId,
+      required this.ppmTaskSectionStatus,
+      required this.checkParts,
+      required this.checkAdditionalReport})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         ppmTaskSectionId, r'Form', 'ppmTaskSectionId');
@@ -844,16 +844,15 @@ class _$Form extends Form {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc($jc(0, ppmTaskSectionId.hashCode),
-                        ppmTaskSectionName.hashCode),
-                    ppmTaskId.hashCode),
-                ppmTaskSectionStatus.hashCode),
-            checkParts.hashCode),
-        checkAdditionalReport.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, ppmTaskSectionId.hashCode);
+    _$hash = $jc(_$hash, ppmTaskSectionName.hashCode);
+    _$hash = $jc(_$hash, ppmTaskId.hashCode);
+    _$hash = $jc(_$hash, ppmTaskSectionStatus.hashCode);
+    _$hash = $jc(_$hash, checkParts.hashCode);
+    _$hash = $jc(_$hash, checkAdditionalReport.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -870,34 +869,34 @@ class _$Form extends Form {
 }
 
 class FormBuilder implements Builder<Form, FormBuilder> {
-  _$Form _$v;
+  _$Form? _$v;
 
-  String _ppmTaskSectionId;
-  String get ppmTaskSectionId => _$this._ppmTaskSectionId;
-  set ppmTaskSectionId(String ppmTaskSectionId) =>
+  String? _ppmTaskSectionId;
+  String? get ppmTaskSectionId => _$this._ppmTaskSectionId;
+  set ppmTaskSectionId(String? ppmTaskSectionId) =>
       _$this._ppmTaskSectionId = ppmTaskSectionId;
 
-  String _ppmTaskSectionName;
-  String get ppmTaskSectionName => _$this._ppmTaskSectionName;
-  set ppmTaskSectionName(String ppmTaskSectionName) =>
+  String? _ppmTaskSectionName;
+  String? get ppmTaskSectionName => _$this._ppmTaskSectionName;
+  set ppmTaskSectionName(String? ppmTaskSectionName) =>
       _$this._ppmTaskSectionName = ppmTaskSectionName;
 
-  String _ppmTaskId;
-  String get ppmTaskId => _$this._ppmTaskId;
-  set ppmTaskId(String ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
+  String? _ppmTaskId;
+  String? get ppmTaskId => _$this._ppmTaskId;
+  set ppmTaskId(String? ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
 
-  String _ppmTaskSectionStatus;
-  String get ppmTaskSectionStatus => _$this._ppmTaskSectionStatus;
-  set ppmTaskSectionStatus(String ppmTaskSectionStatus) =>
+  String? _ppmTaskSectionStatus;
+  String? get ppmTaskSectionStatus => _$this._ppmTaskSectionStatus;
+  set ppmTaskSectionStatus(String? ppmTaskSectionStatus) =>
       _$this._ppmTaskSectionStatus = ppmTaskSectionStatus;
 
-  String _checkParts;
-  String get checkParts => _$this._checkParts;
-  set checkParts(String checkParts) => _$this._checkParts = checkParts;
+  String? _checkParts;
+  String? get checkParts => _$this._checkParts;
+  set checkParts(String? checkParts) => _$this._checkParts = checkParts;
 
-  String _checkAdditionalReport;
-  String get checkAdditionalReport => _$this._checkAdditionalReport;
-  set checkAdditionalReport(String checkAdditionalReport) =>
+  String? _checkAdditionalReport;
+  String? get checkAdditionalReport => _$this._checkAdditionalReport;
+  set checkAdditionalReport(String? checkAdditionalReport) =>
       _$this._checkAdditionalReport = checkAdditionalReport;
 
   FormBuilder();
@@ -923,7 +922,7 @@ class FormBuilder implements Builder<Form, FormBuilder> {
   }
 
   @override
-  void update(void Function(FormBuilder) updates) {
+  void update(void Function(FormBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -933,18 +932,19 @@ class FormBuilder implements Builder<Form, FormBuilder> {
   _$Form _build() {
     final _$result = _$v ??
         new _$Form._(
-            ppmTaskSectionId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskSectionId, r'Form', 'ppmTaskSectionId'),
-            ppmTaskSectionName: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskSectionName, r'Form', 'ppmTaskSectionName'),
-            ppmTaskId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskId, r'Form', 'ppmTaskId'),
-            ppmTaskSectionStatus: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskSectionStatus, r'Form', 'ppmTaskSectionStatus'),
-            checkParts: BuiltValueNullFieldError.checkNotNull(
-                checkParts, r'Form', 'checkParts'),
-            checkAdditionalReport: BuiltValueNullFieldError.checkNotNull(
-                checkAdditionalReport, r'Form', 'checkAdditionalReport'));
+          ppmTaskSectionId: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskSectionId, r'Form', 'ppmTaskSectionId'),
+          ppmTaskSectionName: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskSectionName, r'Form', 'ppmTaskSectionName'),
+          ppmTaskId: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskId, r'Form', 'ppmTaskId'),
+          ppmTaskSectionStatus: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskSectionStatus, r'Form', 'ppmTaskSectionStatus'),
+          checkParts: BuiltValueNullFieldError.checkNotNull(
+              checkParts, r'Form', 'checkParts'),
+          checkAdditionalReport: BuiltValueNullFieldError.checkNotNull(
+              checkAdditionalReport, r'Form', 'checkAdditionalReport'),
+        );
     replace(_$result);
     return _$result;
   }
@@ -980,24 +980,24 @@ class _$FormAItem extends FormAItem {
   @override
   final String ppmTaskTimeServiced;
 
-  factory _$FormAItem([void Function(FormAItemBuilder) updates]) =>
+  factory _$FormAItem([void Function(FormAItemBuilder)? updates]) =>
       (new FormAItemBuilder()..update(updates))._build();
 
   _$FormAItem._(
-      {this.ppmTaskId,
-      this.ppmTaskScheduleDate,
-      this.assetId,
-      this.assetGroupName,
-      this.assetCategoryName,
-      this.assetTypeName,
-      this.assetBrandName,
-      this.assetModelName,
-      this.assetNo,
-      this.assetName,
-      this.locationCodeId,
-      this.assetCapacity,
-      this.ppmTaskTimeStart,
-      this.ppmTaskTimeServiced})
+      {required this.ppmTaskId,
+      required this.ppmTaskScheduleDate,
+      required this.assetId,
+      required this.assetGroupName,
+      required this.assetCategoryName,
+      required this.assetTypeName,
+      required this.assetBrandName,
+      required this.assetModelName,
+      required this.assetNo,
+      required this.assetName,
+      required this.locationCodeId,
+      required this.assetCapacity,
+      required this.ppmTaskTimeStart,
+      required this.ppmTaskTimeServiced})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'FormAItem', 'ppmTaskId');
     BuiltValueNullFieldError.checkNotNull(
@@ -1054,35 +1054,23 @@ class _$FormAItem extends FormAItem {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc(
-                            $jc(
-                                $jc(
-                                    $jc(
-                                        $jc(
-                                            $jc(
-                                                $jc(
-                                                    $jc(
-                                                        $jc(0,
-                                                            ppmTaskId.hashCode),
-                                                        ppmTaskScheduleDate
-                                                            .hashCode),
-                                                    assetId.hashCode),
-                                                assetGroupName.hashCode),
-                                            assetCategoryName.hashCode),
-                                        assetTypeName.hashCode),
-                                    assetBrandName.hashCode),
-                                assetModelName.hashCode),
-                            assetNo.hashCode),
-                        assetName.hashCode),
-                    locationCodeId.hashCode),
-                assetCapacity.hashCode),
-            ppmTaskTimeStart.hashCode),
-        ppmTaskTimeServiced.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, ppmTaskId.hashCode);
+    _$hash = $jc(_$hash, ppmTaskScheduleDate.hashCode);
+    _$hash = $jc(_$hash, assetId.hashCode);
+    _$hash = $jc(_$hash, assetGroupName.hashCode);
+    _$hash = $jc(_$hash, assetCategoryName.hashCode);
+    _$hash = $jc(_$hash, assetTypeName.hashCode);
+    _$hash = $jc(_$hash, assetBrandName.hashCode);
+    _$hash = $jc(_$hash, assetModelName.hashCode);
+    _$hash = $jc(_$hash, assetNo.hashCode);
+    _$hash = $jc(_$hash, assetName.hashCode);
+    _$hash = $jc(_$hash, locationCodeId.hashCode);
+    _$hash = $jc(_$hash, assetCapacity.hashCode);
+    _$hash = $jc(_$hash, ppmTaskTimeStart.hashCode);
+    _$hash = $jc(_$hash, ppmTaskTimeServiced.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -1107,72 +1095,72 @@ class _$FormAItem extends FormAItem {
 }
 
 class FormAItemBuilder implements Builder<FormAItem, FormAItemBuilder> {
-  _$FormAItem _$v;
+  _$FormAItem? _$v;
 
-  String _ppmTaskId;
-  String get ppmTaskId => _$this._ppmTaskId;
-  set ppmTaskId(String ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
+  String? _ppmTaskId;
+  String? get ppmTaskId => _$this._ppmTaskId;
+  set ppmTaskId(String? ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
 
-  String _ppmTaskScheduleDate;
-  String get ppmTaskScheduleDate => _$this._ppmTaskScheduleDate;
-  set ppmTaskScheduleDate(String ppmTaskScheduleDate) =>
+  String? _ppmTaskScheduleDate;
+  String? get ppmTaskScheduleDate => _$this._ppmTaskScheduleDate;
+  set ppmTaskScheduleDate(String? ppmTaskScheduleDate) =>
       _$this._ppmTaskScheduleDate = ppmTaskScheduleDate;
 
-  String _assetId;
-  String get assetId => _$this._assetId;
-  set assetId(String assetId) => _$this._assetId = assetId;
+  String? _assetId;
+  String? get assetId => _$this._assetId;
+  set assetId(String? assetId) => _$this._assetId = assetId;
 
-  String _assetGroupName;
-  String get assetGroupName => _$this._assetGroupName;
-  set assetGroupName(String assetGroupName) =>
+  String? _assetGroupName;
+  String? get assetGroupName => _$this._assetGroupName;
+  set assetGroupName(String? assetGroupName) =>
       _$this._assetGroupName = assetGroupName;
 
-  String _assetCategoryName;
-  String get assetCategoryName => _$this._assetCategoryName;
-  set assetCategoryName(String assetCategoryName) =>
+  String? _assetCategoryName;
+  String? get assetCategoryName => _$this._assetCategoryName;
+  set assetCategoryName(String? assetCategoryName) =>
       _$this._assetCategoryName = assetCategoryName;
 
-  String _assetTypeName;
-  String get assetTypeName => _$this._assetTypeName;
-  set assetTypeName(String assetTypeName) =>
+  String? _assetTypeName;
+  String? get assetTypeName => _$this._assetTypeName;
+  set assetTypeName(String? assetTypeName) =>
       _$this._assetTypeName = assetTypeName;
 
-  String _assetBrandName;
-  String get assetBrandName => _$this._assetBrandName;
-  set assetBrandName(String assetBrandName) =>
+  String? _assetBrandName;
+  String? get assetBrandName => _$this._assetBrandName;
+  set assetBrandName(String? assetBrandName) =>
       _$this._assetBrandName = assetBrandName;
 
-  String _assetModelName;
-  String get assetModelName => _$this._assetModelName;
-  set assetModelName(String assetModelName) =>
+  String? _assetModelName;
+  String? get assetModelName => _$this._assetModelName;
+  set assetModelName(String? assetModelName) =>
       _$this._assetModelName = assetModelName;
 
-  String _assetNo;
-  String get assetNo => _$this._assetNo;
-  set assetNo(String assetNo) => _$this._assetNo = assetNo;
+  String? _assetNo;
+  String? get assetNo => _$this._assetNo;
+  set assetNo(String? assetNo) => _$this._assetNo = assetNo;
 
-  String _assetName;
-  String get assetName => _$this._assetName;
-  set assetName(String assetName) => _$this._assetName = assetName;
+  String? _assetName;
+  String? get assetName => _$this._assetName;
+  set assetName(String? assetName) => _$this._assetName = assetName;
 
-  String _locationCodeId;
-  String get locationCodeId => _$this._locationCodeId;
-  set locationCodeId(String locationCodeId) =>
+  String? _locationCodeId;
+  String? get locationCodeId => _$this._locationCodeId;
+  set locationCodeId(String? locationCodeId) =>
       _$this._locationCodeId = locationCodeId;
 
-  String _assetCapacity;
-  String get assetCapacity => _$this._assetCapacity;
-  set assetCapacity(String assetCapacity) =>
+  String? _assetCapacity;
+  String? get assetCapacity => _$this._assetCapacity;
+  set assetCapacity(String? assetCapacity) =>
       _$this._assetCapacity = assetCapacity;
 
-  String _ppmTaskTimeStart;
-  String get ppmTaskTimeStart => _$this._ppmTaskTimeStart;
-  set ppmTaskTimeStart(String ppmTaskTimeStart) =>
+  String? _ppmTaskTimeStart;
+  String? get ppmTaskTimeStart => _$this._ppmTaskTimeStart;
+  set ppmTaskTimeStart(String? ppmTaskTimeStart) =>
       _$this._ppmTaskTimeStart = ppmTaskTimeStart;
 
-  String _ppmTaskTimeServiced;
-  String get ppmTaskTimeServiced => _$this._ppmTaskTimeServiced;
-  set ppmTaskTimeServiced(String ppmTaskTimeServiced) =>
+  String? _ppmTaskTimeServiced;
+  String? get ppmTaskTimeServiced => _$this._ppmTaskTimeServiced;
+  set ppmTaskTimeServiced(String? ppmTaskTimeServiced) =>
       _$this._ppmTaskTimeServiced = ppmTaskTimeServiced;
 
   FormAItemBuilder();
@@ -1206,7 +1194,7 @@ class FormAItemBuilder implements Builder<FormAItem, FormAItemBuilder> {
   }
 
   @override
-  void update(void Function(FormAItemBuilder) updates) {
+  void update(void Function(FormAItemBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -1216,28 +1204,35 @@ class FormAItemBuilder implements Builder<FormAItem, FormAItemBuilder> {
   _$FormAItem _build() {
     final _$result = _$v ??
         new _$FormAItem._(
-            ppmTaskId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskId, r'FormAItem', 'ppmTaskId'),
-            ppmTaskScheduleDate: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskScheduleDate, r'FormAItem', 'ppmTaskScheduleDate'),
-            assetId: BuiltValueNullFieldError.checkNotNull(
-                assetId, r'FormAItem', 'assetId'),
-            assetGroupName: BuiltValueNullFieldError.checkNotNull(
-                assetGroupName, r'FormAItem', 'assetGroupName'),
-            assetCategoryName: BuiltValueNullFieldError.checkNotNull(
-                assetCategoryName, r'FormAItem', 'assetCategoryName'),
-            assetTypeName: BuiltValueNullFieldError.checkNotNull(
-                assetTypeName, r'FormAItem', 'assetTypeName'),
-            assetBrandName: BuiltValueNullFieldError.checkNotNull(
-                assetBrandName, r'FormAItem', 'assetBrandName'),
-            assetModelName: BuiltValueNullFieldError.checkNotNull(
-                assetModelName, r'FormAItem', 'assetModelName'),
-            assetNo: BuiltValueNullFieldError.checkNotNull(assetNo, r'FormAItem', 'assetNo'),
-            assetName: BuiltValueNullFieldError.checkNotNull(assetName, r'FormAItem', 'assetName'),
-            locationCodeId: BuiltValueNullFieldError.checkNotNull(locationCodeId, r'FormAItem', 'locationCodeId'),
-            assetCapacity: BuiltValueNullFieldError.checkNotNull(assetCapacity, r'FormAItem', 'assetCapacity'),
-            ppmTaskTimeStart: BuiltValueNullFieldError.checkNotNull(ppmTaskTimeStart, r'FormAItem', 'ppmTaskTimeStart'),
-            ppmTaskTimeServiced: BuiltValueNullFieldError.checkNotNull(ppmTaskTimeServiced, r'FormAItem', 'ppmTaskTimeServiced'));
+          ppmTaskId: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskId, r'FormAItem', 'ppmTaskId'),
+          ppmTaskScheduleDate: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskScheduleDate, r'FormAItem', 'ppmTaskScheduleDate'),
+          assetId: BuiltValueNullFieldError.checkNotNull(
+              assetId, r'FormAItem', 'assetId'),
+          assetGroupName: BuiltValueNullFieldError.checkNotNull(
+              assetGroupName, r'FormAItem', 'assetGroupName'),
+          assetCategoryName: BuiltValueNullFieldError.checkNotNull(
+              assetCategoryName, r'FormAItem', 'assetCategoryName'),
+          assetTypeName: BuiltValueNullFieldError.checkNotNull(
+              assetTypeName, r'FormAItem', 'assetTypeName'),
+          assetBrandName: BuiltValueNullFieldError.checkNotNull(
+              assetBrandName, r'FormAItem', 'assetBrandName'),
+          assetModelName: BuiltValueNullFieldError.checkNotNull(
+              assetModelName, r'FormAItem', 'assetModelName'),
+          assetNo: BuiltValueNullFieldError.checkNotNull(
+              assetNo, r'FormAItem', 'assetNo'),
+          assetName: BuiltValueNullFieldError.checkNotNull(
+              assetName, r'FormAItem', 'assetName'),
+          locationCodeId: BuiltValueNullFieldError.checkNotNull(
+              locationCodeId, r'FormAItem', 'locationCodeId'),
+          assetCapacity: BuiltValueNullFieldError.checkNotNull(
+              assetCapacity, r'FormAItem', 'assetCapacity'),
+          ppmTaskTimeStart: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskTimeStart, r'FormAItem', 'ppmTaskTimeStart'),
+          ppmTaskTimeServiced: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskTimeServiced, r'FormAItem', 'ppmTaskTimeServiced'),
+        );
     replace(_$result);
     return _$result;
   }
@@ -1249,10 +1244,11 @@ class _$FormBItem extends FormBItem {
   @override
   final String ppmTaskGuideline;
 
-  factory _$FormBItem([void Function(FormBItemBuilder) updates]) =>
+  factory _$FormBItem([void Function(FormBItemBuilder)? updates]) =>
       (new FormBItemBuilder()..update(updates))._build();
 
-  _$FormBItem._({this.ppmTaskId, this.ppmTaskGuideline}) : super._() {
+  _$FormBItem._({required this.ppmTaskId, required this.ppmTaskGuideline})
+      : super._() {
     BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'FormBItem', 'ppmTaskId');
     BuiltValueNullFieldError.checkNotNull(
         ppmTaskGuideline, r'FormBItem', 'ppmTaskGuideline');
@@ -1275,7 +1271,11 @@ class _$FormBItem extends FormBItem {
 
   @override
   int get hashCode {
-    return $jf($jc($jc(0, ppmTaskId.hashCode), ppmTaskGuideline.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, ppmTaskId.hashCode);
+    _$hash = $jc(_$hash, ppmTaskGuideline.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -1288,15 +1288,15 @@ class _$FormBItem extends FormBItem {
 }
 
 class FormBItemBuilder implements Builder<FormBItem, FormBItemBuilder> {
-  _$FormBItem _$v;
+  _$FormBItem? _$v;
 
-  String _ppmTaskId;
-  String get ppmTaskId => _$this._ppmTaskId;
-  set ppmTaskId(String ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
+  String? _ppmTaskId;
+  String? get ppmTaskId => _$this._ppmTaskId;
+  set ppmTaskId(String? ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
 
-  String _ppmTaskGuideline;
-  String get ppmTaskGuideline => _$this._ppmTaskGuideline;
-  set ppmTaskGuideline(String ppmTaskGuideline) =>
+  String? _ppmTaskGuideline;
+  String? get ppmTaskGuideline => _$this._ppmTaskGuideline;
+  set ppmTaskGuideline(String? ppmTaskGuideline) =>
       _$this._ppmTaskGuideline = ppmTaskGuideline;
 
   FormBItemBuilder();
@@ -1318,7 +1318,7 @@ class FormBItemBuilder implements Builder<FormBItem, FormBItemBuilder> {
   }
 
   @override
-  void update(void Function(FormBItemBuilder) updates) {
+  void update(void Function(FormBItemBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -1328,10 +1328,11 @@ class FormBItemBuilder implements Builder<FormBItem, FormBItemBuilder> {
   _$FormBItem _build() {
     final _$result = _$v ??
         new _$FormBItem._(
-            ppmTaskId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskId, r'FormBItem', 'ppmTaskId'),
-            ppmTaskGuideline: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskGuideline, r'FormBItem', 'ppmTaskGuideline'));
+          ppmTaskId: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskId, r'FormBItem', 'ppmTaskId'),
+          ppmTaskGuideline: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskGuideline, r'FormBItem', 'ppmTaskGuideline'),
+        );
     replace(_$result);
     return _$result;
   }
@@ -1355,18 +1356,18 @@ class _$FormCItem extends FormCItem {
   @override
   final String ppmTaskQualRemark;
 
-  factory _$FormCItem([void Function(FormCItemBuilder) updates]) =>
+  factory _$FormCItem([void Function(FormCItemBuilder)? updates]) =>
       (new FormCItemBuilder()..update(updates))._build();
 
   _$FormCItem._(
-      {this.ppmTaskQualId,
-      this.ppmTaskId,
-      this.ppmTaskQualNumb,
-      this.ppmTaskQualDesc,
-      this.frequencyId,
-      this.frequencyName,
-      this.ppmTaskQualResult,
-      this.ppmTaskQualRemark})
+      {required this.ppmTaskQualId,
+      required this.ppmTaskId,
+      required this.ppmTaskQualNumb,
+      required this.ppmTaskQualDesc,
+      required this.frequencyId,
+      required this.frequencyName,
+      required this.ppmTaskQualResult,
+      required this.ppmTaskQualRemark})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         ppmTaskQualId, r'FormCItem', 'ppmTaskQualId');
@@ -1408,20 +1409,17 @@ class _$FormCItem extends FormCItem {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc(
-                            $jc($jc(0, ppmTaskQualId.hashCode),
-                                ppmTaskId.hashCode),
-                            ppmTaskQualNumb.hashCode),
-                        ppmTaskQualDesc.hashCode),
-                    frequencyId.hashCode),
-                frequencyName.hashCode),
-            ppmTaskQualResult.hashCode),
-        ppmTaskQualRemark.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, ppmTaskQualId.hashCode);
+    _$hash = $jc(_$hash, ppmTaskId.hashCode);
+    _$hash = $jc(_$hash, ppmTaskQualNumb.hashCode);
+    _$hash = $jc(_$hash, ppmTaskQualDesc.hashCode);
+    _$hash = $jc(_$hash, frequencyId.hashCode);
+    _$hash = $jc(_$hash, frequencyName.hashCode);
+    _$hash = $jc(_$hash, ppmTaskQualResult.hashCode);
+    _$hash = $jc(_$hash, ppmTaskQualRemark.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -1440,44 +1438,44 @@ class _$FormCItem extends FormCItem {
 }
 
 class FormCItemBuilder implements Builder<FormCItem, FormCItemBuilder> {
-  _$FormCItem _$v;
+  _$FormCItem? _$v;
 
-  String _ppmTaskQualId;
-  String get ppmTaskQualId => _$this._ppmTaskQualId;
-  set ppmTaskQualId(String ppmTaskQualId) =>
+  String? _ppmTaskQualId;
+  String? get ppmTaskQualId => _$this._ppmTaskQualId;
+  set ppmTaskQualId(String? ppmTaskQualId) =>
       _$this._ppmTaskQualId = ppmTaskQualId;
 
-  String _ppmTaskId;
-  String get ppmTaskId => _$this._ppmTaskId;
-  set ppmTaskId(String ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
+  String? _ppmTaskId;
+  String? get ppmTaskId => _$this._ppmTaskId;
+  set ppmTaskId(String? ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
 
-  String _ppmTaskQualNumb;
-  String get ppmTaskQualNumb => _$this._ppmTaskQualNumb;
-  set ppmTaskQualNumb(String ppmTaskQualNumb) =>
+  String? _ppmTaskQualNumb;
+  String? get ppmTaskQualNumb => _$this._ppmTaskQualNumb;
+  set ppmTaskQualNumb(String? ppmTaskQualNumb) =>
       _$this._ppmTaskQualNumb = ppmTaskQualNumb;
 
-  String _ppmTaskQualDesc;
-  String get ppmTaskQualDesc => _$this._ppmTaskQualDesc;
-  set ppmTaskQualDesc(String ppmTaskQualDesc) =>
+  String? _ppmTaskQualDesc;
+  String? get ppmTaskQualDesc => _$this._ppmTaskQualDesc;
+  set ppmTaskQualDesc(String? ppmTaskQualDesc) =>
       _$this._ppmTaskQualDesc = ppmTaskQualDesc;
 
-  String _frequencyId;
-  String get frequencyId => _$this._frequencyId;
-  set frequencyId(String frequencyId) => _$this._frequencyId = frequencyId;
+  String? _frequencyId;
+  String? get frequencyId => _$this._frequencyId;
+  set frequencyId(String? frequencyId) => _$this._frequencyId = frequencyId;
 
-  String _frequencyName;
-  String get frequencyName => _$this._frequencyName;
-  set frequencyName(String frequencyName) =>
+  String? _frequencyName;
+  String? get frequencyName => _$this._frequencyName;
+  set frequencyName(String? frequencyName) =>
       _$this._frequencyName = frequencyName;
 
-  String _ppmTaskQualResult;
-  String get ppmTaskQualResult => _$this._ppmTaskQualResult;
-  set ppmTaskQualResult(String ppmTaskQualResult) =>
+  String? _ppmTaskQualResult;
+  String? get ppmTaskQualResult => _$this._ppmTaskQualResult;
+  set ppmTaskQualResult(String? ppmTaskQualResult) =>
       _$this._ppmTaskQualResult = ppmTaskQualResult;
 
-  String _ppmTaskQualRemark;
-  String get ppmTaskQualRemark => _$this._ppmTaskQualRemark;
-  set ppmTaskQualRemark(String ppmTaskQualRemark) =>
+  String? _ppmTaskQualRemark;
+  String? get ppmTaskQualRemark => _$this._ppmTaskQualRemark;
+  set ppmTaskQualRemark(String? ppmTaskQualRemark) =>
       _$this._ppmTaskQualRemark = ppmTaskQualRemark;
 
   FormCItemBuilder();
@@ -1505,7 +1503,7 @@ class FormCItemBuilder implements Builder<FormCItem, FormCItemBuilder> {
   }
 
   @override
-  void update(void Function(FormCItemBuilder) updates) {
+  void update(void Function(FormCItemBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -1515,22 +1513,23 @@ class FormCItemBuilder implements Builder<FormCItem, FormCItemBuilder> {
   _$FormCItem _build() {
     final _$result = _$v ??
         new _$FormCItem._(
-            ppmTaskQualId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskQualId, r'FormCItem', 'ppmTaskQualId'),
-            ppmTaskId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskId, r'FormCItem', 'ppmTaskId'),
-            ppmTaskQualNumb: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskQualNumb, r'FormCItem', 'ppmTaskQualNumb'),
-            ppmTaskQualDesc: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskQualDesc, r'FormCItem', 'ppmTaskQualDesc'),
-            frequencyId: BuiltValueNullFieldError.checkNotNull(
-                frequencyId, r'FormCItem', 'frequencyId'),
-            frequencyName: BuiltValueNullFieldError.checkNotNull(
-                frequencyName, r'FormCItem', 'frequencyName'),
-            ppmTaskQualResult: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskQualResult, r'FormCItem', 'ppmTaskQualResult'),
-            ppmTaskQualRemark: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskQualRemark, r'FormCItem', 'ppmTaskQualRemark'));
+          ppmTaskQualId: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskQualId, r'FormCItem', 'ppmTaskQualId'),
+          ppmTaskId: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskId, r'FormCItem', 'ppmTaskId'),
+          ppmTaskQualNumb: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskQualNumb, r'FormCItem', 'ppmTaskQualNumb'),
+          ppmTaskQualDesc: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskQualDesc, r'FormCItem', 'ppmTaskQualDesc'),
+          frequencyId: BuiltValueNullFieldError.checkNotNull(
+              frequencyId, r'FormCItem', 'frequencyId'),
+          frequencyName: BuiltValueNullFieldError.checkNotNull(
+              frequencyName, r'FormCItem', 'frequencyName'),
+          ppmTaskQualResult: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskQualResult, r'FormCItem', 'ppmTaskQualResult'),
+          ppmTaskQualRemark: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskQualRemark, r'FormCItem', 'ppmTaskQualRemark'),
+        );
     replace(_$result);
     return _$result;
   }
@@ -1562,22 +1561,22 @@ class _$FormDItem extends FormDItem {
   @override
   final String ppmTaskQuanRemark;
 
-  factory _$FormDItem([void Function(FormDItemBuilder) updates]) =>
+  factory _$FormDItem([void Function(FormDItemBuilder)? updates]) =>
       (new FormDItemBuilder()..update(updates))._build();
 
   _$FormDItem._(
-      {this.ppmTaskQuanId,
-      this.ppmTaskId,
-      this.ppmTaskQuanNumb,
-      this.ppmTaskQuanDesc,
-      this.frequencyId,
-      this.frequencyName,
-      this.ppmTaskQuanUnit,
-      this.ppmTaskQuanSetValues,
-      this.ppmTaskQuanMeasuredValues,
-      this.ppmTaskQuanLimit,
-      this.ppmTaskQuanResult,
-      this.ppmTaskQuanRemark})
+      {required this.ppmTaskQuanId,
+      required this.ppmTaskId,
+      required this.ppmTaskQuanNumb,
+      required this.ppmTaskQuanDesc,
+      required this.frequencyId,
+      required this.frequencyName,
+      required this.ppmTaskQuanUnit,
+      required this.ppmTaskQuanSetValues,
+      required this.ppmTaskQuanMeasuredValues,
+      required this.ppmTaskQuanLimit,
+      required this.ppmTaskQuanResult,
+      required this.ppmTaskQuanRemark})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         ppmTaskQuanId, r'FormDItem', 'ppmTaskQuanId');
@@ -1631,28 +1630,21 @@ class _$FormDItem extends FormDItem {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc(
-                            $jc(
-                                $jc(
-                                    $jc(
-                                        $jc(
-                                            $jc($jc(0, ppmTaskQuanId.hashCode),
-                                                ppmTaskId.hashCode),
-                                            ppmTaskQuanNumb.hashCode),
-                                        ppmTaskQuanDesc.hashCode),
-                                    frequencyId.hashCode),
-                                frequencyName.hashCode),
-                            ppmTaskQuanUnit.hashCode),
-                        ppmTaskQuanSetValues.hashCode),
-                    ppmTaskQuanMeasuredValues.hashCode),
-                ppmTaskQuanLimit.hashCode),
-            ppmTaskQuanResult.hashCode),
-        ppmTaskQuanRemark.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, ppmTaskQuanId.hashCode);
+    _$hash = $jc(_$hash, ppmTaskId.hashCode);
+    _$hash = $jc(_$hash, ppmTaskQuanNumb.hashCode);
+    _$hash = $jc(_$hash, ppmTaskQuanDesc.hashCode);
+    _$hash = $jc(_$hash, frequencyId.hashCode);
+    _$hash = $jc(_$hash, frequencyName.hashCode);
+    _$hash = $jc(_$hash, ppmTaskQuanUnit.hashCode);
+    _$hash = $jc(_$hash, ppmTaskQuanSetValues.hashCode);
+    _$hash = $jc(_$hash, ppmTaskQuanMeasuredValues.hashCode);
+    _$hash = $jc(_$hash, ppmTaskQuanLimit.hashCode);
+    _$hash = $jc(_$hash, ppmTaskQuanResult.hashCode);
+    _$hash = $jc(_$hash, ppmTaskQuanRemark.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -1675,64 +1667,64 @@ class _$FormDItem extends FormDItem {
 }
 
 class FormDItemBuilder implements Builder<FormDItem, FormDItemBuilder> {
-  _$FormDItem _$v;
+  _$FormDItem? _$v;
 
-  String _ppmTaskQuanId;
-  String get ppmTaskQuanId => _$this._ppmTaskQuanId;
-  set ppmTaskQuanId(String ppmTaskQuanId) =>
+  String? _ppmTaskQuanId;
+  String? get ppmTaskQuanId => _$this._ppmTaskQuanId;
+  set ppmTaskQuanId(String? ppmTaskQuanId) =>
       _$this._ppmTaskQuanId = ppmTaskQuanId;
 
-  String _ppmTaskId;
-  String get ppmTaskId => _$this._ppmTaskId;
-  set ppmTaskId(String ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
+  String? _ppmTaskId;
+  String? get ppmTaskId => _$this._ppmTaskId;
+  set ppmTaskId(String? ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
 
-  String _ppmTaskQuanNumb;
-  String get ppmTaskQuanNumb => _$this._ppmTaskQuanNumb;
-  set ppmTaskQuanNumb(String ppmTaskQuanNumb) =>
+  String? _ppmTaskQuanNumb;
+  String? get ppmTaskQuanNumb => _$this._ppmTaskQuanNumb;
+  set ppmTaskQuanNumb(String? ppmTaskQuanNumb) =>
       _$this._ppmTaskQuanNumb = ppmTaskQuanNumb;
 
-  String _ppmTaskQuanDesc;
-  String get ppmTaskQuanDesc => _$this._ppmTaskQuanDesc;
-  set ppmTaskQuanDesc(String ppmTaskQuanDesc) =>
+  String? _ppmTaskQuanDesc;
+  String? get ppmTaskQuanDesc => _$this._ppmTaskQuanDesc;
+  set ppmTaskQuanDesc(String? ppmTaskQuanDesc) =>
       _$this._ppmTaskQuanDesc = ppmTaskQuanDesc;
 
-  String _frequencyId;
-  String get frequencyId => _$this._frequencyId;
-  set frequencyId(String frequencyId) => _$this._frequencyId = frequencyId;
+  String? _frequencyId;
+  String? get frequencyId => _$this._frequencyId;
+  set frequencyId(String? frequencyId) => _$this._frequencyId = frequencyId;
 
-  String _frequencyName;
-  String get frequencyName => _$this._frequencyName;
-  set frequencyName(String frequencyName) =>
+  String? _frequencyName;
+  String? get frequencyName => _$this._frequencyName;
+  set frequencyName(String? frequencyName) =>
       _$this._frequencyName = frequencyName;
 
-  String _ppmTaskQuanUnit;
-  String get ppmTaskQuanUnit => _$this._ppmTaskQuanUnit;
-  set ppmTaskQuanUnit(String ppmTaskQuanUnit) =>
+  String? _ppmTaskQuanUnit;
+  String? get ppmTaskQuanUnit => _$this._ppmTaskQuanUnit;
+  set ppmTaskQuanUnit(String? ppmTaskQuanUnit) =>
       _$this._ppmTaskQuanUnit = ppmTaskQuanUnit;
 
-  String _ppmTaskQuanSetValues;
-  String get ppmTaskQuanSetValues => _$this._ppmTaskQuanSetValues;
-  set ppmTaskQuanSetValues(String ppmTaskQuanSetValues) =>
+  String? _ppmTaskQuanSetValues;
+  String? get ppmTaskQuanSetValues => _$this._ppmTaskQuanSetValues;
+  set ppmTaskQuanSetValues(String? ppmTaskQuanSetValues) =>
       _$this._ppmTaskQuanSetValues = ppmTaskQuanSetValues;
 
-  String _ppmTaskQuanMeasuredValues;
-  String get ppmTaskQuanMeasuredValues => _$this._ppmTaskQuanMeasuredValues;
-  set ppmTaskQuanMeasuredValues(String ppmTaskQuanMeasuredValues) =>
+  String? _ppmTaskQuanMeasuredValues;
+  String? get ppmTaskQuanMeasuredValues => _$this._ppmTaskQuanMeasuredValues;
+  set ppmTaskQuanMeasuredValues(String? ppmTaskQuanMeasuredValues) =>
       _$this._ppmTaskQuanMeasuredValues = ppmTaskQuanMeasuredValues;
 
-  String _ppmTaskQuanLimit;
-  String get ppmTaskQuanLimit => _$this._ppmTaskQuanLimit;
-  set ppmTaskQuanLimit(String ppmTaskQuanLimit) =>
+  String? _ppmTaskQuanLimit;
+  String? get ppmTaskQuanLimit => _$this._ppmTaskQuanLimit;
+  set ppmTaskQuanLimit(String? ppmTaskQuanLimit) =>
       _$this._ppmTaskQuanLimit = ppmTaskQuanLimit;
 
-  String _ppmTaskQuanResult;
-  String get ppmTaskQuanResult => _$this._ppmTaskQuanResult;
-  set ppmTaskQuanResult(String ppmTaskQuanResult) =>
+  String? _ppmTaskQuanResult;
+  String? get ppmTaskQuanResult => _$this._ppmTaskQuanResult;
+  set ppmTaskQuanResult(String? ppmTaskQuanResult) =>
       _$this._ppmTaskQuanResult = ppmTaskQuanResult;
 
-  String _ppmTaskQuanRemark;
-  String get ppmTaskQuanRemark => _$this._ppmTaskQuanRemark;
-  set ppmTaskQuanRemark(String ppmTaskQuanRemark) =>
+  String? _ppmTaskQuanRemark;
+  String? get ppmTaskQuanRemark => _$this._ppmTaskQuanRemark;
+  set ppmTaskQuanRemark(String? ppmTaskQuanRemark) =>
       _$this._ppmTaskQuanRemark = ppmTaskQuanRemark;
 
   FormDItemBuilder();
@@ -1764,7 +1756,7 @@ class FormDItemBuilder implements Builder<FormDItem, FormDItemBuilder> {
   }
 
   @override
-  void update(void Function(FormDItemBuilder) updates) {
+  void update(void Function(FormDItemBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -1774,26 +1766,33 @@ class FormDItemBuilder implements Builder<FormDItem, FormDItemBuilder> {
   _$FormDItem _build() {
     final _$result = _$v ??
         new _$FormDItem._(
-            ppmTaskQuanId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskQuanId, r'FormDItem', 'ppmTaskQuanId'),
-            ppmTaskId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskId, r'FormDItem', 'ppmTaskId'),
-            ppmTaskQuanNumb: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskQuanNumb, r'FormDItem', 'ppmTaskQuanNumb'),
-            ppmTaskQuanDesc: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskQuanDesc, r'FormDItem', 'ppmTaskQuanDesc'),
-            frequencyId: BuiltValueNullFieldError.checkNotNull(
-                frequencyId, r'FormDItem', 'frequencyId'),
-            frequencyName: BuiltValueNullFieldError.checkNotNull(
-                frequencyName, r'FormDItem', 'frequencyName'),
-            ppmTaskQuanUnit: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskQuanUnit, r'FormDItem', 'ppmTaskQuanUnit'),
-            ppmTaskQuanSetValues: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskQuanSetValues, r'FormDItem', 'ppmTaskQuanSetValues'),
-            ppmTaskQuanMeasuredValues: BuiltValueNullFieldError.checkNotNull(ppmTaskQuanMeasuredValues, r'FormDItem', 'ppmTaskQuanMeasuredValues'),
-            ppmTaskQuanLimit: BuiltValueNullFieldError.checkNotNull(ppmTaskQuanLimit, r'FormDItem', 'ppmTaskQuanLimit'),
-            ppmTaskQuanResult: BuiltValueNullFieldError.checkNotNull(ppmTaskQuanResult, r'FormDItem', 'ppmTaskQuanResult'),
-            ppmTaskQuanRemark: BuiltValueNullFieldError.checkNotNull(ppmTaskQuanRemark, r'FormDItem', 'ppmTaskQuanRemark'));
+          ppmTaskQuanId: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskQuanId, r'FormDItem', 'ppmTaskQuanId'),
+          ppmTaskId: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskId, r'FormDItem', 'ppmTaskId'),
+          ppmTaskQuanNumb: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskQuanNumb, r'FormDItem', 'ppmTaskQuanNumb'),
+          ppmTaskQuanDesc: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskQuanDesc, r'FormDItem', 'ppmTaskQuanDesc'),
+          frequencyId: BuiltValueNullFieldError.checkNotNull(
+              frequencyId, r'FormDItem', 'frequencyId'),
+          frequencyName: BuiltValueNullFieldError.checkNotNull(
+              frequencyName, r'FormDItem', 'frequencyName'),
+          ppmTaskQuanUnit: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskQuanUnit, r'FormDItem', 'ppmTaskQuanUnit'),
+          ppmTaskQuanSetValues: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskQuanSetValues, r'FormDItem', 'ppmTaskQuanSetValues'),
+          ppmTaskQuanMeasuredValues: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskQuanMeasuredValues,
+              r'FormDItem',
+              'ppmTaskQuanMeasuredValues'),
+          ppmTaskQuanLimit: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskQuanLimit, r'FormDItem', 'ppmTaskQuanLimit'),
+          ppmTaskQuanResult: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskQuanResult, r'FormDItem', 'ppmTaskQuanResult'),
+          ppmTaskQuanRemark: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskQuanRemark, r'FormDItem', 'ppmTaskQuanRemark'),
+        );
     replace(_$result);
     return _$result;
   }
@@ -1807,10 +1806,13 @@ class _$FormEItem extends FormEItem {
   @override
   final String ppmTaskPartsDesc;
 
-  factory _$FormEItem([void Function(FormEItemBuilder) updates]) =>
+  factory _$FormEItem([void Function(FormEItemBuilder)? updates]) =>
       (new FormEItemBuilder()..update(updates))._build();
 
-  _$FormEItem._({this.ppmTaskPartsId, this.ppmTaskId, this.ppmTaskPartsDesc})
+  _$FormEItem._(
+      {required this.ppmTaskPartsId,
+      required this.ppmTaskId,
+      required this.ppmTaskPartsDesc})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         ppmTaskPartsId, r'FormEItem', 'ppmTaskPartsId');
@@ -1837,8 +1839,12 @@ class _$FormEItem extends FormEItem {
 
   @override
   int get hashCode {
-    return $jf($jc($jc($jc(0, ppmTaskPartsId.hashCode), ppmTaskId.hashCode),
-        ppmTaskPartsDesc.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, ppmTaskPartsId.hashCode);
+    _$hash = $jc(_$hash, ppmTaskId.hashCode);
+    _$hash = $jc(_$hash, ppmTaskPartsDesc.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -1852,20 +1858,20 @@ class _$FormEItem extends FormEItem {
 }
 
 class FormEItemBuilder implements Builder<FormEItem, FormEItemBuilder> {
-  _$FormEItem _$v;
+  _$FormEItem? _$v;
 
-  String _ppmTaskPartsId;
-  String get ppmTaskPartsId => _$this._ppmTaskPartsId;
-  set ppmTaskPartsId(String ppmTaskPartsId) =>
+  String? _ppmTaskPartsId;
+  String? get ppmTaskPartsId => _$this._ppmTaskPartsId;
+  set ppmTaskPartsId(String? ppmTaskPartsId) =>
       _$this._ppmTaskPartsId = ppmTaskPartsId;
 
-  String _ppmTaskId;
-  String get ppmTaskId => _$this._ppmTaskId;
-  set ppmTaskId(String ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
+  String? _ppmTaskId;
+  String? get ppmTaskId => _$this._ppmTaskId;
+  set ppmTaskId(String? ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
 
-  String _ppmTaskPartsDesc;
-  String get ppmTaskPartsDesc => _$this._ppmTaskPartsDesc;
-  set ppmTaskPartsDesc(String ppmTaskPartsDesc) =>
+  String? _ppmTaskPartsDesc;
+  String? get ppmTaskPartsDesc => _$this._ppmTaskPartsDesc;
+  set ppmTaskPartsDesc(String? ppmTaskPartsDesc) =>
       _$this._ppmTaskPartsDesc = ppmTaskPartsDesc;
 
   FormEItemBuilder();
@@ -1888,7 +1894,7 @@ class FormEItemBuilder implements Builder<FormEItem, FormEItemBuilder> {
   }
 
   @override
-  void update(void Function(FormEItemBuilder) updates) {
+  void update(void Function(FormEItemBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -1898,12 +1904,13 @@ class FormEItemBuilder implements Builder<FormEItem, FormEItemBuilder> {
   _$FormEItem _build() {
     final _$result = _$v ??
         new _$FormEItem._(
-            ppmTaskPartsId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskPartsId, r'FormEItem', 'ppmTaskPartsId'),
-            ppmTaskId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskId, r'FormEItem', 'ppmTaskId'),
-            ppmTaskPartsDesc: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskPartsDesc, r'FormEItem', 'ppmTaskPartsDesc'));
+          ppmTaskPartsId: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskPartsId, r'FormEItem', 'ppmTaskPartsId'),
+          ppmTaskId: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskId, r'FormEItem', 'ppmTaskId'),
+          ppmTaskPartsDesc: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskPartsDesc, r'FormEItem', 'ppmTaskPartsDesc'),
+        );
     replace(_$result);
     return _$result;
   }
@@ -1927,18 +1934,18 @@ class _$FormFItem extends FormFItem {
   @override
   final String documentSrc;
 
-  factory _$FormFItem([void Function(FormFItemBuilder) updates]) =>
+  factory _$FormFItem([void Function(FormFItemBuilder)? updates]) =>
       (new FormFItemBuilder()..update(updates))._build();
 
   _$FormFItem._(
-      {this.ppmTaskUploadId,
-      this.ppmTaskUploadType,
-      this.ppmTaskId,
-      this.uploadId,
-      this.uploadName,
-      this.documentDesc,
-      this.documentFilename,
-      this.documentSrc})
+      {required this.ppmTaskUploadId,
+      required this.ppmTaskUploadType,
+      required this.ppmTaskId,
+      required this.uploadId,
+      required this.uploadName,
+      required this.documentDesc,
+      required this.documentFilename,
+      required this.documentSrc})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         ppmTaskUploadId, r'FormFItem', 'ppmTaskUploadId');
@@ -1979,20 +1986,17 @@ class _$FormFItem extends FormFItem {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc(
-                            $jc($jc(0, ppmTaskUploadId.hashCode),
-                                ppmTaskUploadType.hashCode),
-                            ppmTaskId.hashCode),
-                        uploadId.hashCode),
-                    uploadName.hashCode),
-                documentDesc.hashCode),
-            documentFilename.hashCode),
-        documentSrc.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, ppmTaskUploadId.hashCode);
+    _$hash = $jc(_$hash, ppmTaskUploadType.hashCode);
+    _$hash = $jc(_$hash, ppmTaskId.hashCode);
+    _$hash = $jc(_$hash, uploadId.hashCode);
+    _$hash = $jc(_$hash, uploadName.hashCode);
+    _$hash = $jc(_$hash, documentDesc.hashCode);
+    _$hash = $jc(_$hash, documentFilename.hashCode);
+    _$hash = $jc(_$hash, documentSrc.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -2011,42 +2015,42 @@ class _$FormFItem extends FormFItem {
 }
 
 class FormFItemBuilder implements Builder<FormFItem, FormFItemBuilder> {
-  _$FormFItem _$v;
+  _$FormFItem? _$v;
 
-  String _ppmTaskUploadId;
-  String get ppmTaskUploadId => _$this._ppmTaskUploadId;
-  set ppmTaskUploadId(String ppmTaskUploadId) =>
+  String? _ppmTaskUploadId;
+  String? get ppmTaskUploadId => _$this._ppmTaskUploadId;
+  set ppmTaskUploadId(String? ppmTaskUploadId) =>
       _$this._ppmTaskUploadId = ppmTaskUploadId;
 
-  String _ppmTaskUploadType;
-  String get ppmTaskUploadType => _$this._ppmTaskUploadType;
-  set ppmTaskUploadType(String ppmTaskUploadType) =>
+  String? _ppmTaskUploadType;
+  String? get ppmTaskUploadType => _$this._ppmTaskUploadType;
+  set ppmTaskUploadType(String? ppmTaskUploadType) =>
       _$this._ppmTaskUploadType = ppmTaskUploadType;
 
-  String _ppmTaskId;
-  String get ppmTaskId => _$this._ppmTaskId;
-  set ppmTaskId(String ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
+  String? _ppmTaskId;
+  String? get ppmTaskId => _$this._ppmTaskId;
+  set ppmTaskId(String? ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
 
-  String _uploadId;
-  String get uploadId => _$this._uploadId;
-  set uploadId(String uploadId) => _$this._uploadId = uploadId;
+  String? _uploadId;
+  String? get uploadId => _$this._uploadId;
+  set uploadId(String? uploadId) => _$this._uploadId = uploadId;
 
-  String _uploadName;
-  String get uploadName => _$this._uploadName;
-  set uploadName(String uploadName) => _$this._uploadName = uploadName;
+  String? _uploadName;
+  String? get uploadName => _$this._uploadName;
+  set uploadName(String? uploadName) => _$this._uploadName = uploadName;
 
-  String _documentDesc;
-  String get documentDesc => _$this._documentDesc;
-  set documentDesc(String documentDesc) => _$this._documentDesc = documentDesc;
+  String? _documentDesc;
+  String? get documentDesc => _$this._documentDesc;
+  set documentDesc(String? documentDesc) => _$this._documentDesc = documentDesc;
 
-  String _documentFilename;
-  String get documentFilename => _$this._documentFilename;
-  set documentFilename(String documentFilename) =>
+  String? _documentFilename;
+  String? get documentFilename => _$this._documentFilename;
+  set documentFilename(String? documentFilename) =>
       _$this._documentFilename = documentFilename;
 
-  String _documentSrc;
-  String get documentSrc => _$this._documentSrc;
-  set documentSrc(String documentSrc) => _$this._documentSrc = documentSrc;
+  String? _documentSrc;
+  String? get documentSrc => _$this._documentSrc;
+  set documentSrc(String? documentSrc) => _$this._documentSrc = documentSrc;
 
   FormFItemBuilder();
 
@@ -2073,7 +2077,7 @@ class FormFItemBuilder implements Builder<FormFItem, FormFItemBuilder> {
   }
 
   @override
-  void update(void Function(FormFItemBuilder) updates) {
+  void update(void Function(FormFItemBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -2083,22 +2087,23 @@ class FormFItemBuilder implements Builder<FormFItem, FormFItemBuilder> {
   _$FormFItem _build() {
     final _$result = _$v ??
         new _$FormFItem._(
-            ppmTaskUploadId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskUploadId, r'FormFItem', 'ppmTaskUploadId'),
-            ppmTaskUploadType: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskUploadType, r'FormFItem', 'ppmTaskUploadType'),
-            ppmTaskId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskId, r'FormFItem', 'ppmTaskId'),
-            uploadId: BuiltValueNullFieldError.checkNotNull(
-                uploadId, r'FormFItem', 'uploadId'),
-            uploadName: BuiltValueNullFieldError.checkNotNull(
-                uploadName, r'FormFItem', 'uploadName'),
-            documentDesc: BuiltValueNullFieldError.checkNotNull(
-                documentDesc, r'FormFItem', 'documentDesc'),
-            documentFilename: BuiltValueNullFieldError.checkNotNull(
-                documentFilename, r'FormFItem', 'documentFilename'),
-            documentSrc: BuiltValueNullFieldError.checkNotNull(
-                documentSrc, r'FormFItem', 'documentSrc'));
+          ppmTaskUploadId: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskUploadId, r'FormFItem', 'ppmTaskUploadId'),
+          ppmTaskUploadType: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskUploadType, r'FormFItem', 'ppmTaskUploadType'),
+          ppmTaskId: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskId, r'FormFItem', 'ppmTaskId'),
+          uploadId: BuiltValueNullFieldError.checkNotNull(
+              uploadId, r'FormFItem', 'uploadId'),
+          uploadName: BuiltValueNullFieldError.checkNotNull(
+              uploadName, r'FormFItem', 'uploadName'),
+          documentDesc: BuiltValueNullFieldError.checkNotNull(
+              documentDesc, r'FormFItem', 'documentDesc'),
+          documentFilename: BuiltValueNullFieldError.checkNotNull(
+              documentFilename, r'FormFItem', 'documentFilename'),
+          documentSrc: BuiltValueNullFieldError.checkNotNull(
+              documentSrc, r'FormFItem', 'documentSrc'),
+        );
     replace(_$result);
     return _$result;
   }
@@ -2110,10 +2115,11 @@ class _$FormGItem extends FormGItem {
   @override
   final String ppmTaskRemark;
 
-  factory _$FormGItem([void Function(FormGItemBuilder) updates]) =>
+  factory _$FormGItem([void Function(FormGItemBuilder)? updates]) =>
       (new FormGItemBuilder()..update(updates))._build();
 
-  _$FormGItem._({this.ppmTaskId, this.ppmTaskRemark}) : super._() {
+  _$FormGItem._({required this.ppmTaskId, required this.ppmTaskRemark})
+      : super._() {
     BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'FormGItem', 'ppmTaskId');
     BuiltValueNullFieldError.checkNotNull(
         ppmTaskRemark, r'FormGItem', 'ppmTaskRemark');
@@ -2136,7 +2142,11 @@ class _$FormGItem extends FormGItem {
 
   @override
   int get hashCode {
-    return $jf($jc($jc(0, ppmTaskId.hashCode), ppmTaskRemark.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, ppmTaskId.hashCode);
+    _$hash = $jc(_$hash, ppmTaskRemark.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -2149,15 +2159,15 @@ class _$FormGItem extends FormGItem {
 }
 
 class FormGItemBuilder implements Builder<FormGItem, FormGItemBuilder> {
-  _$FormGItem _$v;
+  _$FormGItem? _$v;
 
-  String _ppmTaskId;
-  String get ppmTaskId => _$this._ppmTaskId;
-  set ppmTaskId(String ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
+  String? _ppmTaskId;
+  String? get ppmTaskId => _$this._ppmTaskId;
+  set ppmTaskId(String? ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
 
-  String _ppmTaskRemark;
-  String get ppmTaskRemark => _$this._ppmTaskRemark;
-  set ppmTaskRemark(String ppmTaskRemark) =>
+  String? _ppmTaskRemark;
+  String? get ppmTaskRemark => _$this._ppmTaskRemark;
+  set ppmTaskRemark(String? ppmTaskRemark) =>
       _$this._ppmTaskRemark = ppmTaskRemark;
 
   FormGItemBuilder();
@@ -2179,7 +2189,7 @@ class FormGItemBuilder implements Builder<FormGItem, FormGItemBuilder> {
   }
 
   @override
-  void update(void Function(FormGItemBuilder) updates) {
+  void update(void Function(FormGItemBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -2189,10 +2199,11 @@ class FormGItemBuilder implements Builder<FormGItem, FormGItemBuilder> {
   _$FormGItem _build() {
     final _$result = _$v ??
         new _$FormGItem._(
-            ppmTaskId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskId, r'FormGItem', 'ppmTaskId'),
-            ppmTaskRemark: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskRemark, r'FormGItem', 'ppmTaskRemark'));
+          ppmTaskId: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskId, r'FormGItem', 'ppmTaskId'),
+          ppmTaskRemark: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskRemark, r'FormGItem', 'ppmTaskRemark'),
+        );
     replace(_$result);
     return _$result;
   }
@@ -2214,7 +2225,7 @@ class _$FormHItem extends FormHItem {
   @override
   final String ppmTaskId;
   @override
-  final String uploadId;
+  final String? uploadId;
   @override
   final String uploadName;
   @override
@@ -2224,22 +2235,22 @@ class _$FormHItem extends FormHItem {
   @override
   final String documentSrc;
 
-  factory _$FormHItem([void Function(FormHItemBuilder) updates]) =>
+  factory _$FormHItem([void Function(FormHItemBuilder)? updates]) =>
       (new FormHItemBuilder()..update(updates))._build();
 
   _$FormHItem._(
-      {this.ppmTaskUploadId,
-      this.ppmTaskUploadType,
-      this.ppmTaskUploadLongitude,
-      this.ppmTaskUploadLatitude,
-      this.ppmTaskUploadTimestamp,
-      this.ppmTaskUploadDesc,
-      this.ppmTaskId,
+      {required this.ppmTaskUploadId,
+      required this.ppmTaskUploadType,
+      required this.ppmTaskUploadLongitude,
+      required this.ppmTaskUploadLatitude,
+      required this.ppmTaskUploadTimestamp,
+      required this.ppmTaskUploadDesc,
+      required this.ppmTaskId,
       this.uploadId,
-      this.uploadName,
-      this.documentDesc,
-      this.documentFilename,
-      this.documentSrc})
+      required this.uploadName,
+      required this.documentDesc,
+      required this.documentFilename,
+      required this.documentSrc})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         ppmTaskUploadId, r'FormHItem', 'ppmTaskUploadId');
@@ -2291,30 +2302,21 @@ class _$FormHItem extends FormHItem {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc(
-                            $jc(
-                                $jc(
-                                    $jc(
-                                        $jc(
-                                            $jc(
-                                                $jc(0,
-                                                    ppmTaskUploadId.hashCode),
-                                                ppmTaskUploadType.hashCode),
-                                            ppmTaskUploadLongitude.hashCode),
-                                        ppmTaskUploadLatitude.hashCode),
-                                    ppmTaskUploadTimestamp.hashCode),
-                                ppmTaskUploadDesc.hashCode),
-                            ppmTaskId.hashCode),
-                        uploadId.hashCode),
-                    uploadName.hashCode),
-                documentDesc.hashCode),
-            documentFilename.hashCode),
-        documentSrc.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, ppmTaskUploadId.hashCode);
+    _$hash = $jc(_$hash, ppmTaskUploadType.hashCode);
+    _$hash = $jc(_$hash, ppmTaskUploadLongitude.hashCode);
+    _$hash = $jc(_$hash, ppmTaskUploadLatitude.hashCode);
+    _$hash = $jc(_$hash, ppmTaskUploadTimestamp.hashCode);
+    _$hash = $jc(_$hash, ppmTaskUploadDesc.hashCode);
+    _$hash = $jc(_$hash, ppmTaskId.hashCode);
+    _$hash = $jc(_$hash, uploadId.hashCode);
+    _$hash = $jc(_$hash, uploadName.hashCode);
+    _$hash = $jc(_$hash, documentDesc.hashCode);
+    _$hash = $jc(_$hash, documentFilename.hashCode);
+    _$hash = $jc(_$hash, documentSrc.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -2337,62 +2339,62 @@ class _$FormHItem extends FormHItem {
 }
 
 class FormHItemBuilder implements Builder<FormHItem, FormHItemBuilder> {
-  _$FormHItem _$v;
+  _$FormHItem? _$v;
 
-  String _ppmTaskUploadId;
-  String get ppmTaskUploadId => _$this._ppmTaskUploadId;
-  set ppmTaskUploadId(String ppmTaskUploadId) =>
+  String? _ppmTaskUploadId;
+  String? get ppmTaskUploadId => _$this._ppmTaskUploadId;
+  set ppmTaskUploadId(String? ppmTaskUploadId) =>
       _$this._ppmTaskUploadId = ppmTaskUploadId;
 
-  String _ppmTaskUploadType;
-  String get ppmTaskUploadType => _$this._ppmTaskUploadType;
-  set ppmTaskUploadType(String ppmTaskUploadType) =>
+  String? _ppmTaskUploadType;
+  String? get ppmTaskUploadType => _$this._ppmTaskUploadType;
+  set ppmTaskUploadType(String? ppmTaskUploadType) =>
       _$this._ppmTaskUploadType = ppmTaskUploadType;
 
-  String _ppmTaskUploadLongitude;
-  String get ppmTaskUploadLongitude => _$this._ppmTaskUploadLongitude;
-  set ppmTaskUploadLongitude(String ppmTaskUploadLongitude) =>
+  String? _ppmTaskUploadLongitude;
+  String? get ppmTaskUploadLongitude => _$this._ppmTaskUploadLongitude;
+  set ppmTaskUploadLongitude(String? ppmTaskUploadLongitude) =>
       _$this._ppmTaskUploadLongitude = ppmTaskUploadLongitude;
 
-  String _ppmTaskUploadLatitude;
-  String get ppmTaskUploadLatitude => _$this._ppmTaskUploadLatitude;
-  set ppmTaskUploadLatitude(String ppmTaskUploadLatitude) =>
+  String? _ppmTaskUploadLatitude;
+  String? get ppmTaskUploadLatitude => _$this._ppmTaskUploadLatitude;
+  set ppmTaskUploadLatitude(String? ppmTaskUploadLatitude) =>
       _$this._ppmTaskUploadLatitude = ppmTaskUploadLatitude;
 
-  String _ppmTaskUploadTimestamp;
-  String get ppmTaskUploadTimestamp => _$this._ppmTaskUploadTimestamp;
-  set ppmTaskUploadTimestamp(String ppmTaskUploadTimestamp) =>
+  String? _ppmTaskUploadTimestamp;
+  String? get ppmTaskUploadTimestamp => _$this._ppmTaskUploadTimestamp;
+  set ppmTaskUploadTimestamp(String? ppmTaskUploadTimestamp) =>
       _$this._ppmTaskUploadTimestamp = ppmTaskUploadTimestamp;
 
-  String _ppmTaskUploadDesc;
-  String get ppmTaskUploadDesc => _$this._ppmTaskUploadDesc;
-  set ppmTaskUploadDesc(String ppmTaskUploadDesc) =>
+  String? _ppmTaskUploadDesc;
+  String? get ppmTaskUploadDesc => _$this._ppmTaskUploadDesc;
+  set ppmTaskUploadDesc(String? ppmTaskUploadDesc) =>
       _$this._ppmTaskUploadDesc = ppmTaskUploadDesc;
 
-  String _ppmTaskId;
-  String get ppmTaskId => _$this._ppmTaskId;
-  set ppmTaskId(String ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
+  String? _ppmTaskId;
+  String? get ppmTaskId => _$this._ppmTaskId;
+  set ppmTaskId(String? ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
 
-  String _uploadId;
-  String get uploadId => _$this._uploadId;
-  set uploadId(String uploadId) => _$this._uploadId = uploadId;
+  String? _uploadId;
+  String? get uploadId => _$this._uploadId;
+  set uploadId(String? uploadId) => _$this._uploadId = uploadId;
 
-  String _uploadName;
-  String get uploadName => _$this._uploadName;
-  set uploadName(String uploadName) => _$this._uploadName = uploadName;
+  String? _uploadName;
+  String? get uploadName => _$this._uploadName;
+  set uploadName(String? uploadName) => _$this._uploadName = uploadName;
 
-  String _documentDesc;
-  String get documentDesc => _$this._documentDesc;
-  set documentDesc(String documentDesc) => _$this._documentDesc = documentDesc;
+  String? _documentDesc;
+  String? get documentDesc => _$this._documentDesc;
+  set documentDesc(String? documentDesc) => _$this._documentDesc = documentDesc;
 
-  String _documentFilename;
-  String get documentFilename => _$this._documentFilename;
-  set documentFilename(String documentFilename) =>
+  String? _documentFilename;
+  String? get documentFilename => _$this._documentFilename;
+  set documentFilename(String? documentFilename) =>
       _$this._documentFilename = documentFilename;
 
-  String _documentSrc;
-  String get documentSrc => _$this._documentSrc;
-  set documentSrc(String documentSrc) => _$this._documentSrc = documentSrc;
+  String? _documentSrc;
+  String? get documentSrc => _$this._documentSrc;
+  set documentSrc(String? documentSrc) => _$this._documentSrc = documentSrc;
 
   FormHItemBuilder();
 
@@ -2423,7 +2425,7 @@ class FormHItemBuilder implements Builder<FormHItem, FormHItemBuilder> {
   }
 
   @override
-  void update(void Function(FormHItemBuilder) updates) {
+  void update(void Function(FormHItemBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -2433,28 +2435,33 @@ class FormHItemBuilder implements Builder<FormHItem, FormHItemBuilder> {
   _$FormHItem _build() {
     final _$result = _$v ??
         new _$FormHItem._(
-            ppmTaskUploadId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskUploadId, r'FormHItem', 'ppmTaskUploadId'),
-            ppmTaskUploadType: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskUploadType, r'FormHItem', 'ppmTaskUploadType'),
-            ppmTaskUploadLongitude: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskUploadLongitude, r'FormHItem', 'ppmTaskUploadLongitude'),
-            ppmTaskUploadLatitude: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskUploadLatitude, r'FormHItem', 'ppmTaskUploadLatitude'),
-            ppmTaskUploadTimestamp: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskUploadTimestamp, r'FormHItem', 'ppmTaskUploadTimestamp'),
-            ppmTaskUploadDesc: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskUploadDesc, r'FormHItem', 'ppmTaskUploadDesc'),
-            ppmTaskId: BuiltValueNullFieldError.checkNotNull(
-                ppmTaskId, r'FormHItem', 'ppmTaskId'),
-            uploadId: uploadId,
-            uploadName: BuiltValueNullFieldError.checkNotNull(uploadName, r'FormHItem', 'uploadName'),
-            documentDesc: BuiltValueNullFieldError.checkNotNull(documentDesc, r'FormHItem', 'documentDesc'),
-            documentFilename: BuiltValueNullFieldError.checkNotNull(documentFilename, r'FormHItem', 'documentFilename'),
-            documentSrc: BuiltValueNullFieldError.checkNotNull(documentSrc, r'FormHItem', 'documentSrc'));
+          ppmTaskUploadId: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskUploadId, r'FormHItem', 'ppmTaskUploadId'),
+          ppmTaskUploadType: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskUploadType, r'FormHItem', 'ppmTaskUploadType'),
+          ppmTaskUploadLongitude: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskUploadLongitude, r'FormHItem', 'ppmTaskUploadLongitude'),
+          ppmTaskUploadLatitude: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskUploadLatitude, r'FormHItem', 'ppmTaskUploadLatitude'),
+          ppmTaskUploadTimestamp: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskUploadTimestamp, r'FormHItem', 'ppmTaskUploadTimestamp'),
+          ppmTaskUploadDesc: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskUploadDesc, r'FormHItem', 'ppmTaskUploadDesc'),
+          ppmTaskId: BuiltValueNullFieldError.checkNotNull(
+              ppmTaskId, r'FormHItem', 'ppmTaskId'),
+          uploadId: uploadId,
+          uploadName: BuiltValueNullFieldError.checkNotNull(
+              uploadName, r'FormHItem', 'uploadName'),
+          documentDesc: BuiltValueNullFieldError.checkNotNull(
+              documentDesc, r'FormHItem', 'documentDesc'),
+          documentFilename: BuiltValueNullFieldError.checkNotNull(
+              documentFilename, r'FormHItem', 'documentFilename'),
+          documentSrc: BuiltValueNullFieldError.checkNotNull(
+              documentSrc, r'FormHItem', 'documentSrc'),
+        );
     replace(_$result);
     return _$result;
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,no_leading_underscores_for_local_identifiers,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new,unnecessary_lambdas
+// ignore_for_file: deprecated_member_use_from_same_package,type=lint

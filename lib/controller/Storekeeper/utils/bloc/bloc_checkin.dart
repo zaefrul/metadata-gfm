@@ -116,7 +116,7 @@ class BlocCheckin extends Bloc {
   Future<void> getMaterials() async {
     final pref = await SharedPreferences.getInstance();
     final list = pref.getStringList(_kMaterials);
-    final listM = list.map((e) => Item.fromString(json.decode(e))).toList();
+    final listM = list?.map((e) => Item.fromString(json.decode(e))).toList() ?? [];
     _materials.sink.add(listM);
     return;
   }
@@ -124,28 +124,28 @@ class BlocCheckin extends Bloc {
   Future<void> getDoNo() async {
     final pref = await SharedPreferences.getInstance();
     final value = pref.getString(_kDoNo);
-    _doNo.text = value;
+    _doNo.text = value ?? '';
     return;
   }
 
   Future<void> getSupplierName() async {
     final pref = await SharedPreferences.getInstance();
     final value = pref.getString(_kSupplier);
-    _supplierName.text = value;
+    _supplierName.text = value ?? '';
     return;
   }
 
   Future<void> getDo() async {
     final pref = await SharedPreferences.getInstance();
     final values = pref.getStringList(_kDo);
-    dos = values.map((e) => File(e)).toList();
+    dos = values?.map((e) => File(e)).toList() ?? [];
     return;
   }
 
   Future<void> getStore() async {
     final pref = await SharedPreferences.getInstance();
     final value = pref.getString(_kStore);
-    final translate = json.decode(value);
+    final translate = json.decode(value ?? '{}');
     final item = deserialize<ComplaintDStore>(translate);
     store = item;
     return;
@@ -156,7 +156,7 @@ class BlocCheckin extends Bloc {
         Provider(fetchURL: "/store/purchase_option_store");
     _provider.context = context;
 
-    final result = await checker(_provider.getJson());
+    final result = await checker(_provider.getJson(url: "/store/purchase_option_store"));
     final list = deserializeListOf<ComplaintDStore>(result).toList();
     return list;
   }
@@ -172,7 +172,7 @@ class BlocCheckin extends Bloc {
     if (valuesD.length == 0) throw "Please upload DO ";
     if (fieldDoNo.length == 0) throw "Please insert Do Number";
     if (fieldSupplier.length == 0) throw "Please insert Supplier Name";
-    final Provider _provider = Provider();
+    final Provider _provider = Provider(fetchURL: "/do/check_in_direct");
     _provider.context = context;
 
     final body = await param;

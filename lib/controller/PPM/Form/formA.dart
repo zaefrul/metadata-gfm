@@ -5,51 +5,49 @@ import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/services.dart';
-
 import 'package:gfm_gems/model/responseValue.dart';
 import 'package:gfm_gems/view/dialog.dart';
 import 'package:toast/toast.dart';
 
 class FormA extends StatefulWidget {
-  String id;
-  Function verification;
+  final String id;
+  final ValueChanged<bool>? verification;
   final bool viewer;
   final bool verified;
 
-  FormA(this.id, {this.verification, this.viewer, this.verified});
+  const FormA(
+    this.id, {
+    this.verification,
+    this.viewer = false,
+    this.verified = false,
+    Key? key,
+  }) : super(key: key);
 
   @override
   _FormAState createState() => _FormAState();
 }
 
 class _FormAState extends State<FormA> {
-  String keyword;
+  String keyword = "";
+  String startDate = "";
+  String assetNo = "";
+  String taskNo = "";
+  String model = "";
+  String capacity = "";
+  String pmStart = "";
+  String pmEnd = "";
 
-  String startDate;
+  late Provider provider;
+  late bool verified;
 
-  String assetNo;
-
-  String taskNo;
-
-  String model;
-
-  String capacity;
-
-  String pmStart;
-
-  String pmEnd;
-
-  Provider provider;
-
-  bool verified;
   @override
   void initState() {
     super.initState();
     verified = widget.verified;
-
     provider = Provider(
-        taskID: widget.id,
-        fetchURL: "/api/m_ppm.php?type=ppm_section_a&ppmTaskId=");
+      taskID: widget.id,
+      fetchURL: "/api/m_ppm.php?type=ppm_section_a&ppmTaskId=",
+    );
   }
 
   @override
@@ -57,75 +55,78 @@ class _FormAState extends State<FormA> {
     ToastContext().init(context);
     provider.context = context;
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          iconTheme: IconThemeData(
-            color: colorTheme3,
-          ),
-          title: getTitle("A. Asset Details", bold: true),
-          actions: widget.viewer
-              ? null
-              : verified
-                  ? null
-                  : <Widget>[
-                      new GestureDetector(
-                          child: Icon(
-                            Icons.camera,
-                            color: colorTheme3,
-                            size: 30,
-                          ),
-                          onTap: scan),
-                      new SizedBox(width: 20),
-                    ],
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(
+          color: colorTheme3,
         ),
-        body: FutureBuilder(
-            future: provider.fetch(),
-            builder: (context, AsyncSnapshot<ResponseValue> snapshot) {
-              if (snapshot.data != null)
-                assetNo = snapshot.data.sectionAList.assetNo;
-              return snapshot.data == null
-                  ? Center(child: CircularProgressIndicator())
-                  : body(snapshot.data.sectionAList);
-            }));
+        title: getTitle("A. Asset Details", bold: true),
+        actions: widget.viewer || verified
+            ? null
+            : <Widget>[
+                GestureDetector(
+                  child: Icon(
+                    Icons.camera,
+                    color: colorTheme3,
+                    size: 30,
+                  ),
+                  onTap: scan,
+                ),
+                SizedBox(width: 20),
+              ],
+      ),
+      body: FutureBuilder<ResponseValue>(
+        future: provider.fetch(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            assetNo = snapshot.data?.sectionAList?.assetNo ?? "";
+          }
+          return !snapshot.hasData
+              ? Center(child: CircularProgressIndicator())
+              : body(snapshot.data!.sectionAList ?? FormAItem());
+        },
+      ),
+    );
   }
 
-  Future scan() async {
+  Future<void> scan() async {
     try {
       var barcode = await BarcodeScanner.scan();
       if (barcode.rawContent == assetNo) {
-        startDate =
-            new DateFormat("yyyy/MM/dd hh:mm:ss").format(DateTime.now());
+        startDate = DateFormat("yyyy/MM/dd hh:mm:ss").format(DateTime.now());
         verified = true;
-        widget.verification(true);
+        widget.verification?.call(true);
         await provider
             .post(url: "/api/m_ppm.php", body: {
               "action": "save_scan_start_time",
-              "ppmTaskId": widget.id
+              "ppmTaskId": widget.id,
             })
             .then((value) => setState(() => alert(value)))
             .catchError((err) {
-              verified = false;
-              alert(err);
-            });
+          verified = false;
+          alert(err);
+        });
         return;
-      } else
-        this.keyword = "Incorrect Asset No.";
+      } else {
+        keyword = "Incorrect Asset No.";
+      }
     } on PlatformException catch (e) {
-      if (e.code == BarcodeScanner.cameraAccessDenied)
-        this.keyword = 'The user did not grant the camera permission!';
-      else
-        this.keyword = 'image scanning fail, please try again';
+      if (e.code == BarcodeScanner.cameraAccessDenied) {
+        keyword = 'The user did not grant the camera permission!';
+      } else {
+        keyword = 'Image scanning failed, please try again';
+      }
     } on FormatException {
-      this.keyword = 'image scanning fail, please try again';
+      keyword = 'Image scanning failed, please try again';
     } catch (e) {
-      this.keyword = 'image scanning fail, please try again';
+      keyword = 'Image scanning failed, please try again';
     }
 
-    Toast.show(this.keyword);
+    Toast.show(keyword);
   }
 
   Widget body(FormAItem object) {
-    return new Padding(
+    return Padding(
       padding: EdgeInsets.all(16),
       child: Column(
         children: <Widget>[
@@ -143,23 +144,29 @@ class _FormAState extends State<FormA> {
     );
   }
 
-  Widget getTitle(String text, {bold = false}) => new Container(
+  Widget getTitle(String text, {bool bold = false}) => Container(
         alignment: Alignment.centerLeft,
-        padding: bold == false ? EdgeInsets.only(top: 12) : null,
-        child: new Text(text,
-            style: TextStyle(
-                fontWeight: bold ? FontWeight.bold : FontWeight.normal,
-                color: colorTheme3)),
+        padding: bold ? null : EdgeInsets.only(top: 12),
+        child: Text(
+          text,
+          style: TextStyle(
+            fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+            color: colorTheme3,
+          ),
+        ),
       );
 
-  void alert(String txt) => showDialog(
+  void alert(String txt) {
+    showDialog(
       context: context,
       builder: (BuildContext context) => CustomDialog(
-            description: txt,
-            buttonText: "Okay",
-            image: Image.asset(
-              "assets/icon_trans.png",
-              height: 40,
-            ),
-          ));
+        description: txt,
+        buttonText: "Okay",
+        image: Image.asset(
+          "assets/icon_trans.png",
+          height: 40,
+        ),
+      ),
+    );
+  }
 }

@@ -11,12 +11,18 @@ class ProcumentHomepage extends StatefulWidget {
 
 class _ProcumentHomepageState extends State<ProcumentHomepage>
     with TickerProviderStateMixin {
-  TabController _controller;
+  late TabController _controller;
 
   @override
   void initState() {
     super.initState();
     _controller = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -28,14 +34,14 @@ class _ProcumentHomepageState extends State<ProcumentHomepage>
   }
 }
 
-class _AppBar extends StatelessWidget with PreferredSizeWidget {
+class _AppBar extends StatelessWidget implements PreferredSizeWidget {
   final TabController _controller;
   _AppBar(this._controller);
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: new Text("Purchase Ordering"),
+      title: Text("Purchase Ordering"),
       backgroundColor: Colors.white,
       centerTitle: true,
       leading: leading,
@@ -44,14 +50,14 @@ class _AppBar extends StatelessWidget with PreferredSizeWidget {
     );
   }
 
-  get leading {
+  Widget get leading {
     return Container(
       child: Image.asset("assets/icon_trans.png", height: 30, width: 30),
       padding: EdgeInsets.all(14),
     );
   }
 
-  get bottom {
+  PreferredSizeWidget get bottom {
     return TabBar(
       labelColor: colorTheme3,
       controller: _controller,
@@ -63,7 +69,7 @@ class _AppBar extends StatelessWidget with PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(105);
+  Size get preferredSize => const Size.fromHeight(105);
 }
 
 class _SearchButton extends StatelessWidget {
@@ -87,19 +93,22 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TabBarView(controller: _controller, children: [
-      MyPurchaseOrders(),
-      SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _DropdownFilter(bloc),
-            Divider(),
-            PurchaseOrderList(bloc),
-          ],
+    return TabBarView(
+      controller: _controller,
+      children: [
+        MyPurchaseOrders(),
+        SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _DropdownFilter(bloc),
+              Divider(),
+              PurchaseOrderList(bloc),
+            ],
+          ),
         ),
-      )
-    ]);
+      ],
+    );
   }
 }
 
@@ -110,8 +119,8 @@ class _DropdownFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<String>(
-      stream: bloc.selected$,
+    return StreamBuilder<String?>(
+      stream: bloc.selected$ as Stream<String?>,
       builder: (ctx, snapshot) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
         child: DropdownButton<String>(
@@ -120,7 +129,7 @@ class _DropdownFilter extends StatelessWidget {
           items: statuses
               .map((f) => DropdownMenuItem(child: Text(f), value: f))
               .toList(),
-          onChanged: bloc.setSelected,
+          onChanged: (String? value) => bloc.setSelected(value),
         ),
       ),
     );

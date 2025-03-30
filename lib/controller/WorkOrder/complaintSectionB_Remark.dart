@@ -11,8 +11,8 @@ class ComplaintSectionB extends StatefulWidget {
 
   ComplaintSectionB({
     this.name = "B",
-    this.id,
-    this.viewer,
+    required this.id,
+    required this.viewer,
   });
 
   @override
@@ -22,14 +22,14 @@ class ComplaintSectionB extends StatefulWidget {
 class _ComplaintSectionBState extends State<ComplaintSectionB> {
   bool loading = true;
   String remark = "";
-  Provider provider;
+  late Provider provider;
 
   _ComplaintSectionBState(String id) {
     provider = Provider(
         taskID: id, fetchURL: "/api/m_wo.php?type=wo_repair_work&woTaskId=");
     provider
         .fetch()
-        .then((value) => setState(() => remark = value.result))
+        .then((value) => setState(() => remark = value.result ?? ""))
         .catchError((err) => print(err))
         .whenComplete(() => setState(() => loading = false));
   }

@@ -1,191 +1,286 @@
+// ignore_for_file: library_private_types_in_public_api, file_names, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
-import 'package:gfm_gems/controller/Utilities/Bloc/bloc.dart';
-import 'package:gfm_gems/model/meter.dart';
-import 'package:gfm_gems/view/drawer.dart';
+import 'package:gfm_gems/controller/Storekeeper/utils/widget/dialog.dart';
+import 'package:gfm_gems/model/user.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:gfm_gems/utils/network.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
-import 'util.dart';
-import 'MonthlyReading.dart' as page;
+import 'package:url_launcher/url_launcher.dart';
 
-class UtilitiesHome extends StatefulWidget {
+import '../../view/bar.dart';
+import '../../view/drawer.dart';
+import '../Homepage/resetPassword.dart';
+
+class Homepage extends StatefulWidget {
+  const Homepage({super.key});
   @override
-  _UtilitiesHomeState createState() => _UtilitiesHomeState();
+  _HomepageState createState() => _HomepageState();
 }
 
-class _UtilitiesHomeState extends State<UtilitiesHome> {
-  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  final Bloc bloc = Bloc();
+class _HomepageState extends State<Homepage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  bool isStorekeeper = false;
+  bool isUtilities = false;
 
-  _UtilitiesHomeState() {
-    bloc.fetch(api.MetersE);
-    bloc.fetch(api.MetersW);
-  }
+  final String email = "operationalexcellence@globalfm.com.my";
 
   @override
-  void dispose() {
-    bloc.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+
+    _firebaseMessaging.getToken().then((token) {
+      if (token != null) {
+        print(token);
+        var body = {"action": "save_token", "token": token};
+
+        Provider provider = Provider(fetchURL: "/api/m_ppm.php");
+        provider.context = context;
+        provider.post(url: "/api/m_ppm.php", body: body);
+      }
+    });
+
+    User.getPrefUser.then((value) {
+      var user = User.fromMap(value);
+      user.roles.forEach((element) {
+        if (element.id == "1") {
+          setState(() {
+            isStorekeeper = true;
+            isUtilities = true;
+          });
+        } else {
+          if (element.id == "16") setState(() => isStorekeeper = true);
+          if (element.id == "18") setState(() => isUtilities = true);
+        }
+
+        debugPrint("User Role: ${element.desc}");
+        debugPrint("User ID: ${element.id}");
+        debugPrint("Have access to Storekeeper: $isStorekeeper");
+        debugPrint("Have access to Utilities: $isUtilities");
+      });
+    });
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    bloc.err$.listen((event) => Toast.show(event, duration: 4));
+
+    User.getPrefUser.then((value) {
+      var user = User.fromMap(value);
+      final Request _request = Request(context, user.userID);
+      if (user.isFirstTime == "Yes") {
+        Navigator.pushNamed(context, ResetPassword.routeName,
+                arguments: ResetArguments(user.username))
+            .then((_) {
+          user.updateFirstTime("No");
+          return Request(context, user.userID).check();
+        }).then((value) {
+          if (value.isEmpty) _request.openSignature(user.userID);
+        }).catchError((err) => print(err));
+      } else {
+        Request(context, user.userID).check().then((value) {
+          if (value.isEmpty) _request.openSignature(user.userID);
+        }).catchError((err) => print(err));
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     ToastContext().init(context);
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          title: Text(
-            "Utilities",
-            style: TextStyle(color: colorTheme3),
+    return Scaffold(
+      key: _scaffoldKey,
+      drawer: BuildDrawer(() => Navigator.pop(context), isHome: true),
+      // Wrap the custom bar widget in PreferredSize to ensure it is a PreferredSizeWidget.
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(kToolbarHeight),
+        child: bar(_scaffoldKey, text: "GEMS"),
+      ),
+      body: Stack(
+        children: <Widget>[
+          background,
+          GridView.count(
+            crossAxisCount: 2,
+            mainAxisSpacing: 10.0,
+            crossAxisSpacing: 10.0,
+            padding: const EdgeInsets.all(3.0),
+            children: <Widget>[
+              gridView("Preventive Maintenance", Colors.cyanAccent,
+                  icon: "workorder.png", route: "/ppm"),
+              gridView("Routine Inspection", Colors.cyanAccent,
+                  icon: "workorder.png", route: routeRoutineInspection),
+              gridView("Work Order", Colors.cyanAccent,
+                  icon: "work_order.png", route: "/workorder"),
+              gridView("StoreKeeper", Colors.yellowAccent,
+                  icon: "facilitycondition.png", onTap: () async {
+                final user = User.fromMap(await User.getPrefUser);
+                final _role = user.roles.map((role) => role.desc).toList();
+                if (_role.contains("Storekeeper") ||
+                    _role.contains("Administrator")) {
+                  Navigator.pushNamed(context, routeDashboard);
+                } else {
+                  Toast.show("You have no access rights");
+                }
+              }, isAllowed: isStorekeeper),
+              gridView("Utilities", Colors.greenAccent,
+                  icon: "bpm.png",
+                  route: routeUtilities,
+                  isAllowed: isUtilities),
+              gridView(
+                "Leaderboard",
+                Colors.black,
+                image: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Image.asset(
+                    "assets/Complete.png",
+                    color: Colors.white,
+                  ),
+                ),
+                onTap: () {},
+                route: routeLeaderboard,
+              ),
+              gridView(
+                "Attendance",
+                Colors.black,
+                image: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Image.asset(
+                    "assets/attandance.png",
+                    color: Colors.white,
+                  ),
+                ),
+                onTap: openEmail,
+                route: routeAttendance,
+              ),
+              gridView(
+                "Suggestion",
+                const Color(0xFF99C24C),
+                image: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Image.asset(
+                    "assets/feedback.png",
+                  ),
+                ),
+                onTap: openEmail,
+                route: null,
+              ),
+            ],
           ),
-          backgroundColor: Colors.white,
-          centerTitle: true,
-          actions: [
-            _BuildAddButton(onRefresh: () {
-              bloc.fetch(api.ReadingE);
-              bloc.fetch(api.ReadingW);
-            })
-          ],
-          leading: new IconButton(
-              icon: new Image.asset("assets/icon_trans.png", width: 30.0),
-              color: Colors.black,
-              onPressed: () {
-                _scaffoldKey.currentState.openDrawer();
-              }),
-          bottom: TabBar(
-            indicatorColor: colorTheme2,
-            tabs: [
-              Tab(icon: new Image.asset("assets/drop.png", width: 24.0)),
-              Tab(icon: new Image.asset("assets/flash.png", width: 24.0)),
+        ],
+      ),
+    );
+  }
+
+  Widget gridView(dynamic text, dynamic color,
+          {String? icon,
+          Widget? image,
+          String? route,
+          Function()? onTap,
+          bool isAllowed= false}) =>
+      GestureDetector(
+        onTap: () {
+          if (!isAllowed) {
+            Toast.show("No Access Rights", duration: 3);
+          } else {
+            if (route == null) {
+              onTap?.call();
+            } else {
+              Navigator.pushNamed(context, route);
+            }
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.all(10.0),
+          alignment: Alignment.bottomCenter,
+          color: Colors.transparent,
+          child: Column(
+            children: <Widget>[
+              Container(
+                height: 100,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(50),
+                  color: color,
+                ),
+                child: icon == null
+                    ? image
+                    : Image.asset("assets/$icon", fit: BoxFit.fitHeight),
+              ),
+              const SizedBox(height: 20),
+              Align(
+                alignment: Alignment.center,
+                child: Text(
+                  text,
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ],
           ),
         ),
-        drawer: BuildDrawer(() => Navigator.pop(context)),
-        body: TabBarView(
-          children: [
-            ListReading(bloc, bloc.mw$, isWater: true),
-            ListReading(bloc, bloc.me$, isElectric: true),
-          ],
-        ),
-      ),
-    );
+      );
+
+  Widget get background => SizedBox(
+        height: double.infinity,
+        width: double.infinity,
+        child: Image.asset("assets/bg.jpg", fit: BoxFit.fill),
+      );
+
+  void openEmail() async {
+    final url = Uri.parse("https://forms.office.com/r/CYvjipHJ4S");
+    if (!await launchUrl(url)) {
+      throw 'Could not launch $url';
+    }
   }
 }
 
-class _BuildAddButton extends StatelessWidget {
-  final Function onRefresh;
+class Request {
+  final Provider _checkSignature;
+  final BuildContext _context;
 
-  const _BuildAddButton({Key key, this.onRefresh}) : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: IconButton(
-        icon: Icon(Icons.add, size: 32),
-        onPressed: () => UtilsBill(onRefresh).selectType(context),
-      ),
-    );
+  Request(this._context, String id)
+      : _checkSignature = Provider(
+          fetchURL: "/user_signature/",
+          taskID: id,
+        );
+
+  Future<String> check() async {
+    _checkSignature.context = _context;
+    try {
+      final result = await _checkSignature.getJson(url: "/user_signature/");
+      if (result is List) return "";
+      if (result == null) return "";
+      final file = result["file"];
+      if (file.isEmpty) {
+        return "";
+      } else {
+        final pref = await SharedPreferences.getInstance();
+        pref.setString(kUserSignature, file);
+      }
+      return "file";
+    } catch (err) {
+      rethrow;
+    }
   }
-}
 
-class ListReading extends StatelessWidget {
-  final Stream<List<Meter>> stream;
-  final Bloc bloc;
-
-  final bool isWater;
-  final bool isElectric;
-
-  ListReading(this.bloc, this.stream,
-      {this.isElectric = false, this.isWater = false});
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<List<Meter>>(
-        stream: stream,
-        builder: (_, s) {
-          return RefreshIndicator(
-            onRefresh: () =>
-                isWater ? bloc.fetch(api.MetersW) : bloc.fetch(api.MetersE),
-            child: ListView.separated(
-              padding: EdgeInsets.symmetric(vertical: 12),
-              itemBuilder: (_, i) => TileMeter(
-                bloc,
-                s.hasData ? s.data[i] : null,
-                isWater: isWater,
-                isElectric: isElectric,
-              ),
-              itemCount: s.hasData ? s.data.length : 0,
-              separatorBuilder: (_, __) =>
-                  Divider(color: colorTheme3.withOpacity(0.7)),
-            ),
-          );
-        });
-  }
-}
-
-class TileMeter extends StatelessWidget {
-  final Meter value;
-  final Bloc bloc;
-
-  final bool isWater;
-  final bool isElectric;
-
-  TileMeter(this.bloc, this.value,
-      {this.isElectric = false, this.isWater = false});
-
-  @override
-  Widget build(BuildContext context) {
-    String readingType;
-    if (isWater) readingType = "35m³";
-    if (isElectric) readingType = "kWh";
-    return ListTile(
-      title: Text(
-        value.meterName,
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      subtitle: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Monthly Total(RM) : " + value.monthlyTotalRm),
-            Padding(
-                padding: EdgeInsets.symmetric(vertical: 4),
-                child: Text(
-                    "Daily Total($readingType) : " + value.dailyLatestReading)),
-            Text("Reading($readingType) : " + value.dailyLatestReading),
-          ],
-        ),
-      ),
-      trailing: Container(
-        height: 40,
-        width: 120,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5), color: colorTheme2),
-        child: Text(
-          value.meterLocation,
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-      ),
-      onTap: () {
-        bloc.sMeter = value;
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (_) => page.ListReading(
-                      bloc,
-                      value,
-                      isWater: isWater,
-                      isElectric: isElectric,
-                    )));
+  void openSignature(String id) {
+    showDialog(
+      context: _context,
+      builder: (_) {
+        return CustomDialog(
+          rootPage: "/homepage",
+          description: "You need set initial signature",
+          buttonText: "Okay",
+          image: Image.asset("assets/icon_trans.png", height: 40),
+          okayTapped: () {
+            Navigator.pushNamed(
+              _context,
+              routeSignature,
+              arguments: id,
+            );
+          },
+        );
       },
     );
   }

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of dot;
+part of 'dot.dart';
 
 // **************************************************************************
 // BuiltValueGenerator
@@ -15,9 +15,9 @@ class _$DotSerializer implements StructuredSerializer<Dot> {
   final String wireName = 'Dot';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, Dot object,
+  Iterable<Object?> serialize(Serializers serializers, Dot object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'date',
       serializers.serialize(object.date, specifiedType: const FullType(String)),
       'total',
@@ -33,29 +33,29 @@ class _$DotSerializer implements StructuredSerializer<Dot> {
   }
 
   @override
-  Dot deserialize(Serializers serializers, Iterable<Object> serialized,
+  Dot deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new DotBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'date':
           result.date = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'total':
           result.total = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'status':
           result.status.replace(serializers.deserialize(value,
-                  specifiedType:
-                      const FullType(BuiltList, const [const FullType(String)]))
-              as BuiltList<Object>);
+                  specifiedType: const FullType(
+                      BuiltList, const [const FullType(String)]))!
+              as BuiltList<Object?>);
           break;
       }
     }
@@ -72,10 +72,11 @@ class _$Dot extends Dot {
   @override
   final BuiltList<String> status;
 
-  factory _$Dot([void Function(DotBuilder) updates]) =>
+  factory _$Dot([void Function(DotBuilder)? updates]) =>
       (new DotBuilder()..update(updates))._build();
 
-  _$Dot._({this.date, this.total, this.status}) : super._() {
+  _$Dot._({required this.date, required this.total, required this.status})
+      : super._() {
     BuiltValueNullFieldError.checkNotNull(date, r'Dot', 'date');
     BuiltValueNullFieldError.checkNotNull(total, r'Dot', 'total');
     BuiltValueNullFieldError.checkNotNull(status, r'Dot', 'status');
@@ -99,8 +100,12 @@ class _$Dot extends Dot {
 
   @override
   int get hashCode {
-    return $jf(
-        $jc($jc($jc(0, date.hashCode), total.hashCode), status.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, date.hashCode);
+    _$hash = $jc(_$hash, total.hashCode);
+    _$hash = $jc(_$hash, status.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -114,20 +119,20 @@ class _$Dot extends Dot {
 }
 
 class DotBuilder implements Builder<Dot, DotBuilder> {
-  _$Dot _$v;
+  _$Dot? _$v;
 
-  String _date;
-  String get date => _$this._date;
-  set date(String date) => _$this._date = date;
+  String? _date;
+  String? get date => _$this._date;
+  set date(String? date) => _$this._date = date;
 
-  String _total;
-  String get total => _$this._total;
-  set total(String total) => _$this._total = total;
+  String? _total;
+  String? get total => _$this._total;
+  set total(String? total) => _$this._total = total;
 
-  ListBuilder<String> _status;
+  ListBuilder<String>? _status;
   ListBuilder<String> get status =>
       _$this._status ??= new ListBuilder<String>();
-  set status(ListBuilder<String> status) => _$this._status = status;
+  set status(ListBuilder<String>? status) => _$this._status = status;
 
   DotBuilder();
 
@@ -149,7 +154,7 @@ class DotBuilder implements Builder<Dot, DotBuilder> {
   }
 
   @override
-  void update(void Function(DotBuilder) updates) {
+  void update(void Function(DotBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -161,12 +166,13 @@ class DotBuilder implements Builder<Dot, DotBuilder> {
     try {
       _$result = _$v ??
           new _$Dot._(
-              date: BuiltValueNullFieldError.checkNotNull(date, r'Dot', 'date'),
-              total:
-                  BuiltValueNullFieldError.checkNotNull(total, r'Dot', 'total'),
-              status: status.build());
+            date: BuiltValueNullFieldError.checkNotNull(date, r'Dot', 'date'),
+            total:
+                BuiltValueNullFieldError.checkNotNull(total, r'Dot', 'total'),
+            status: status.build(),
+          );
     } catch (_) {
-      String _$failedField;
+      late String _$failedField;
       try {
         _$failedField = 'status';
         status.build();
@@ -181,4 +187,4 @@ class DotBuilder implements Builder<Dot, DotBuilder> {
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,no_leading_underscores_for_local_identifiers,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new,unnecessary_lambdas
+// ignore_for_file: deprecated_member_use_from_same_package,type=lint

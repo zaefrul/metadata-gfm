@@ -23,38 +23,41 @@ class CheckinAdd extends StatefulWidget {
 class _CheckinAddState extends State<CheckinAdd> {
   @override
   void didChangeDependencies() {
+    // Listen to loading state and error streams
     widget._controller.loadingState$.listen((event) {
-      if (event == true)
+      if (event == true) {
         showDialog(
           context: context,
-          builder: (_) => Center(
+          barrierDismissible: false,
+          builder: (_) => const Center(
             child: CircularProgressIndicator(),
           ),
         );
-      else if (event == false) Navigator.pop(context);
+      } else {
+        Navigator.pop(context);
+      }
     });
     widget._controller.err$.listen((event) {
-      if (event == "Your session already expired, please relogin.")
+      if (event == "Your session already expired, please relogin.") {
         showDialog(
-            context: context,
-            builder: (BuildContext context) => CustomDialog(
-                  title: "Expired Session",
-                  description: event,
-                  buttonText: "Okay",
-                  image: Image.asset(
-                    "assets/icon_trans.png",
-                    height: 40,
-                  ),
-                )).whenComplete(() async {
-          var userPref = await User.getPrefUser;
-          var user = User.fromMap(userPref);
+          context: context,
+          builder: (BuildContext context) => CustomDialog(
+            title: "Expired Session",
+            description: event,
+            buttonText: "Okay",
+            image: Image.asset(
+              "assets/icon_trans.png",
+              height: 40,
+            ),
+          ),
+        ).whenComplete(() async {
+          final userPref = await User.getPrefUser;
+          final user = User.fromMap(userPref);
           user.removeUser();
           Navigator.pop(context);
-          Navigator.pushReplacementNamed(
-            context,
-            "/",
-          );
+          Navigator.pushReplacementNamed(context, "/");
         });
+      }
       Toast.show(event);
     });
     super.didChangeDependencies();
@@ -71,190 +74,180 @@ class _CheckinAddState extends State<CheckinAdd> {
     ToastContext().init(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text("Add Material / Item"),
+        title: const Text("Add Material / Item"),
         centerTitle: true,
         backgroundColor: Colors.white,
       ),
       body: Container(
-        padding: EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12),
         child: ListView(
           children: [
             _dropdown<ComplaintDStore>(
               widget._controller.list4$,
               widget._controller.setFourth,
-              value: widget._controller.fourth$,
+              value: widget._controller.fourth$.cast<ComplaintDStore>(),
               enable: true,
             ),
             StreamBuilder<ComplaintDStore>(
-                stream: widget._controller.fourth$,
-                builder: (context, snapshot) {
-                  return _dropdown<ComplaintDGroupStore>(
-                      widget._controller.list1$, widget._controller.setfirst,
-                      value: widget._controller.first$,
-                      enable: snapshot.data != null);
-                }),
+              stream: widget._controller.fourth$.cast<ComplaintDStore>(),
+              builder: (context, AsyncSnapshot<ComplaintDStore> snapshot) {
+                return _dropdown<ComplaintDGroupStore>(
+                  widget._controller.list1$,
+                  widget._controller.setfirst,
+                  value: widget._controller.first$.cast<ComplaintDGroupStore>(),
+                  enable: snapshot.hasData && snapshot.data != null,
+                );
+              },
+            ),
             StreamBuilder<ComplaintDGroupStore>(
-                stream: widget._controller.first$,
-                builder: (context, snapshot) {
-                  return _dropdown<ComplaintDStoreType>(
-                      widget._controller.list2$, widget._controller.setsecond,
-                      value: widget._controller.second$,
-                      enable: snapshot.data != null);
-                }),
+              stream: widget._controller.first$.cast<ComplaintDGroupStore>(),
+              builder: (context, AsyncSnapshot<ComplaintDGroupStore> snapshot) {
+                return _dropdown<ComplaintDStoreType>(
+                  widget._controller.list2$,
+                  widget._controller.setsecond,
+                  value: widget._controller.second$.cast<ComplaintDStoreType>(),
+                  enable: snapshot.hasData && snapshot.data != null,
+                );
+              },
+            ),
             StreamBuilder<ComplaintDStoreType>(
-                stream: widget._controller.second$,
-                builder: (context, snapshot) {
-                  return _dropdown<MaterialStorePart>(
-                      widget._controller.list3$, widget._controller.setthird,
-                      value: widget._controller.third$,
-                      enable: snapshot.data != null);
-                }),
-            StreamBuilder<MaterialStorePart>(
-              stream: widget._controller.third$,
-              builder: (context, snapshot) => TextField(
-                  enabled: snapshot.data != null,
-                  controller: widget._controller.quantity,
-                  keyboardType: TextInputType.number,
-                  decoration:
-                      InputDecoration(labelText: "Quantity", hintText: "0")),
+              stream: widget._controller.second$.cast<ComplaintDStoreType>(),
+              builder: (context, AsyncSnapshot<ComplaintDStoreType> snapshot) {
+                return _dropdown<MaterialStorePart>(
+                  widget._controller.list3$,
+                  widget._controller.setthird,
+                  value: widget._controller.third$.cast<MaterialStorePart>(),
+                  enable: snapshot.hasData && snapshot.data != null,
+                );
+              },
             ),
             StreamBuilder<MaterialStorePart>(
-              stream: widget._controller.third$,
+              stream: widget._controller.third$.cast<MaterialStorePart>(),
               builder: (context, snapshot) => TextField(
-                  enabled: snapshot.data != null,
-                  controller: widget._controller.remark,
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                  decoration: InputDecoration(
-                      labelText: "Price Per Unit (RM)", hintText: "10.00")),
+                enabled: snapshot.hasData && snapshot.data != null,
+                controller: widget._controller.quantity,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: "Quantity", hintText: "0"),
+              ),
             ),
             StreamBuilder<MaterialStorePart>(
-              stream: widget._controller.third$,
+              stream: widget._controller.third$.cast<MaterialStorePart>(),
               builder: (context, snapshot) => TextField(
-                  enabled: snapshot.data != null,
-                  controller: widget._controller.subLocation,
-                  decoration: InputDecoration(labelText: "Sub Location")),
+                enabled: snapshot.hasData && snapshot.data != null,
+                controller: widget._controller.remark,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(labelText: "Price Per Unit (RM)", hintText: "10.00"),
+              ),
             ),
             StreamBuilder<MaterialStorePart>(
-              stream: widget._controller.third$,
+              stream: widget._controller.third$.cast<MaterialStorePart>(),
               builder: (context, snapshot) => TextField(
-                  enabled: snapshot.data != null,
-                  controller: widget._controller.warranty,
-                  keyboardType: TextInputType.number,
-                  decoration:
-                      InputDecoration(labelText: "Warranty", hintText: "1")),
+                enabled: snapshot.hasData && snapshot.data != null,
+                controller: widget._controller.subLocation,
+                decoration: const InputDecoration(labelText: "Sub Location"),
+              ),
+            ),
+            StreamBuilder<MaterialStorePart>(
+              stream: widget._controller.third$.cast<MaterialStorePart>(),
+              builder: (context, snapshot) => TextField(
+                enabled: snapshot.hasData && snapshot.data != null,
+                controller: widget._controller.warranty,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: "Warranty", hintText: "1"),
+              ),
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.done),
-          onPressed: () {
-            final item = widget._controller.value(context);
-            Navigator.pop(context, item);
-          }),
+        child: const Icon(Icons.done),
+        onPressed: () {
+          final item = widget._controller.value(context);
+          Navigator.pop(context, item);
+        },
+      ),
     );
   }
 
-  Widget _dropdown<T>(Stream<List<T>> stream, sink,
-      {Stream<T> value, bool enable = false}) {
-    final Widget listView = StreamBuilder<List<T>>(
-        stream: stream,
-        builder: (context, snapshot) => StreamBuilder<T>(
-            stream: value,
-            builder: (context, selected) {
-              final List<DropdownMenuItem<T>> _items = [];
-              String _hint = "";
-              String _hintDisable = "";
-              if (T.toString() == "ComplaintDStore") {
-                _hint = "Select Store";
-                final list = [];
-                if (snapshot.data != null)
-                  list.addAll(snapshot.data.map((e) => e as ComplaintDStore));
-                _items.addAll(list
-                    .map(
-                      (item) => DropdownMenuItem<T>(
-                        child: Text(item.itemName),
-                        value: item as T,
-                      ),
-                    )
-                    .toList());
-              } else if (T.toString() == "ComplaintDGroup") {
-                _hint = "Select Group";
-                _hintDisable = "Select Group";
-                final list = [];
-                if (snapshot.data != null)
-                  list.addAll(snapshot.data.map((e) => e as ComplaintDGroup));
-                _items.addAll(list
-                    .map(
-                      (item) => DropdownMenuItem<T>(
-                        child: Text(item.itemName),
-                        value: item as T,
-                      ),
-                    )
-                    .toList());
-              } else if (T.toString() == "ComplaintDGroupStore") {
-                _hint = "Select Group";
-                _hintDisable = "Select Group";
-                final list = [];
-                if (snapshot.data != null)
-                  list.addAll(
-                      snapshot.data.map((e) => e as ComplaintDGroupStore));
-                _items.addAll(list
-                    .map(
-                      (item) => DropdownMenuItem<T>(
-                        child: Text(item.itemName),
-                        value: item as T,
-                      ),
-                    )
-                    .toList());
-              } else if (T.toString() == "ComplaintDStoreType") {
-                _hint = "Select Type";
-                _hintDisable = "Select Type";
+  Widget _dropdown<T>(
+    Stream<List<T>> stream,
+    Function sink, {
+    Stream<T>? value,
+    bool enable = false,
+  }) {
+    return StreamBuilder<List<T>>(
+      stream: stream,
+      builder: (context, snapshot) => StreamBuilder<T>(
+        stream: value,
+        builder: (context, AsyncSnapshot<T> selected) {
+          final List<DropdownMenuItem<T>> _items = [];
+          String _hint = "";
+          String _hintDisable = "";
+          if (T.toString() == "ComplaintDStore") {
+            _hint = "Select Store";
+            final list = <ComplaintDStore>[];
+            if (snapshot.hasData && snapshot.data != null)
+              list.addAll(snapshot.data!.map((e) => e as ComplaintDStore));
+            _items.addAll(list
+                .map((item) => DropdownMenuItem<T>(
+                      child: Text(item.itemName ?? 'Unknown'),
+                      value: item as T,
+                    ))
+                .toList());
+          } else if (T.toString() == "ComplaintDGroupStore") {
+            _hint = "Select Group";
+            _hintDisable = "Select Group";
+            final list = <ComplaintDGroupStore>[];
+            if (snapshot.hasData && snapshot.data != null)
+              list.addAll(snapshot.data!.map((e) => e as ComplaintDGroupStore));
+            _items.addAll(list
+                .map((item) => DropdownMenuItem<T>(
+                      child: Text(item.itemName ?? 'Unknown'),
+                      value: item as T,
+                    ))
+                .toList());
+          } else if (T.toString() == "ComplaintDStoreType") {
+            _hint = "Select Type";
+            _hintDisable = "Select Type";
+            final list = <ComplaintDStoreType>[];
+            if (snapshot.hasData && snapshot.data != null)
+              list.addAll(snapshot.data!.map((e) => e as ComplaintDStoreType));
+            _items.addAll(list
+                .map((item) => DropdownMenuItem<T>(
+                      child: Text(item.itemName ?? 'Unknown'),
+                      value: item as T,
+                    ))
+                .toList());
+          } else if (T.toString() == "MaterialStorePart") {
+            _hint = "Select Part";
+            _hintDisable = "Select Part";
+            final list = <MaterialStorePart>[];
+            if (snapshot.hasData && snapshot.data != null)
+              list.addAll(snapshot.data!.map((e) => e as MaterialStorePart));
+            _items.addAll(list
+                .map((item) => DropdownMenuItem<T>(
+                      child: Text(item.itemDescription ?? 'No Description'),
+                      value: item as T,
+                    ))
+                .toList());
+          }
 
-                final list = [];
-                if (snapshot.data != null)
-                  list.addAll(
-                      snapshot.data.map((e) => e as ComplaintDStoreType));
-                _items.addAll(list
-                    .map(
-                      (item) => DropdownMenuItem<T>(
-                        child: Text(item.itemName),
-                        value: item as T,
-                      ),
-                    )
-                    .toList());
-              } else if (T.toString() == "MaterialStorePart") {
-                _hint = "Select Part";
-                _hintDisable = "Select Part";
-                final list = [];
-                if (snapshot.data != null)
-                  list.addAll(snapshot.data.map((e) => e as MaterialStorePart));
-                _items.addAll(list
-                    .map(
-                      (item) => DropdownMenuItem<T>(
-                        child: Text(item.itemDescription),
-                        value: item as T,
-                      ),
-                    )
-                    .toList());
-              }
-
-              return DropdownButton<T>(
-                hint: Text(_hint),
-                disabledHint: Text(_hintDisable),
-                isExpanded: true,
-                items: _items,
-                value: selected.data,
-                onChanged: (item) => enable == false ? null : sink(item),
-              );
-            }));
-
-    return listView;
+          return DropdownButton<T>(
+            hint: Text(_hint),
+            disabledHint: Text(_hintDisable),
+            isExpanded: true,
+            items: _items,
+            value: selected.data,
+            onChanged: enable ? (item) => sink(item) : null,
+          );
+        },
+      ),
+    );
   }
 }
 
 class Controller extends Bloc {
-  // VARIABLE
+  // VARIABLES
   final Request _request;
   final TextEditingController _remark = TextEditingController();
   final TextEditingController _quantity = TextEditingController();
@@ -263,16 +256,16 @@ class Controller extends Bloc {
 
   final BehaviorSubject<bool> _invalidQuantity =
       BehaviorSubject<bool>.seeded(true);
-  final BehaviorSubject<String> _invalidMessage =
-      BehaviorSubject<String>.seeded("Please Check All Field");
-  final BehaviorSubject<ComplaintDGroupStore> _valueFirst =
-      BehaviorSubject<ComplaintDGroupStore>();
-  final BehaviorSubject<ComplaintDStoreType> _valueSecond =
-      BehaviorSubject<ComplaintDStoreType>();
-  final BehaviorSubject<MaterialStorePart> _valueThird =
-      BehaviorSubject<MaterialStorePart>();
-  final BehaviorSubject<ComplaintDStore> _valueFourth =
-      BehaviorSubject<ComplaintDStore>();
+  final BehaviorSubject<String?> _invalidMessage =
+      BehaviorSubject<String?>.seeded("Please Check All Fields");
+  final BehaviorSubject<ComplaintDGroupStore?> _valueFirst =
+      BehaviorSubject<ComplaintDGroupStore?>();
+  final BehaviorSubject<ComplaintDStoreType?> _valueSecond =
+      BehaviorSubject<ComplaintDStoreType?>();
+  final BehaviorSubject<MaterialStorePart?> _valueThird =
+      BehaviorSubject<MaterialStorePart?>();
+  final BehaviorSubject<ComplaintDStore?> _valueFourth =
+      BehaviorSubject<ComplaintDStore?>();
   final BehaviorSubject<List<ComplaintDGroupStore>> _listFirst =
       BehaviorSubject<List<ComplaintDGroupStore>>.seeded([]);
   final BehaviorSubject<List<ComplaintDStoreType>> _listSecond =
@@ -316,7 +309,7 @@ class Controller extends Bloc {
     _valueThird.listen((value) {
       remark.text = "";
       invalid = true;
-      quantity.text = value.partCount;
+      quantity.text = value?.partCount ?? "";
     });
 
     _quantity.addListener(() {
@@ -325,12 +318,12 @@ class Controller extends Bloc {
         invalid = true;
         fourth = "";
         invalidMessage =
-            "Quantity must be less than " + _valueThird.value.partCount;
+            "Quantity must be less than ${_valueThird.value?.partCount ?? "0"}";
       } else {
         if (value == 0) {
           invalid = true;
           fourth = "";
-          invalidMessage = "Quantity cannot 0";
+          invalidMessage = "Quantity cannot be 0";
         } else {
           invalidMessage = null;
           invalid = false;
@@ -342,6 +335,7 @@ class Controller extends Bloc {
   }
 
   // DISPOSE
+  @override
   void dispose() {
     _valueFirst.close();
     _valueSecond.close();
@@ -360,39 +354,38 @@ class Controller extends Bloc {
     super.dispose();
   }
 
-  // GET
-  get list1$ => _listFirst.stream;
-  get list2$ => _listSecond.stream;
-  get list3$ => _listThird.stream;
-  get list4$ => _listFourth.stream;
-  get first$ => _valueFirst.stream;
-  get second$ => _valueSecond.stream;
-  get third$ => _valueThird.stream;
-  get fourth$ => _valueFourth.stream;
-  get first => _valueFirst.value;
-  get second => _valueSecond.value;
-  get third => _valueThird.value;
-  get fourth => _valueFourth.value;
-  get remark => _remark;
-  get quantity => _quantity;
-  get subLocation => _subLocation;
-  get warranty => _warranty;
-  get invalid$ => _invalidQuantity.stream;
-  get validity {
-    final now = DateTime.now().add(Duration());
-    final year = now.year + int.parse(warranty.text);
-    final newDate = new DateTime(year, now.month, now.day);
-    final f = DateFormat("yyyy-MM-dd");
-    final result = f.format(newDate);
+  // GETTERS
+  Stream<List<ComplaintDGroupStore>> get list1$ => _listFirst.stream;
+  Stream<List<ComplaintDStoreType>> get list2$ => _listSecond.stream;
+  Stream<List<MaterialStorePart>> get list3$ => _listThird.stream;
+  Stream<List<ComplaintDStore>> get list4$ => _listFourth.stream;
+  Stream<ComplaintDGroupStore?> get first$ => _valueFirst.stream;
+  Stream<ComplaintDStoreType?> get second$ => _valueSecond.stream;
+  Stream<MaterialStorePart?> get third$ => _valueThird.stream;
+  Stream<ComplaintDStore?> get fourth$ => _valueFourth.stream;
+  ComplaintDGroupStore? get first => _valueFirst.valueOrNull;
+  ComplaintDStoreType? get second => _valueSecond.valueOrNull;
+  MaterialStorePart? get third => _valueThird.valueOrNull;
+  ComplaintDStore? get selectedFourth => _valueFourth.valueOrNull;
+  TextEditingController get remark => _remark;
+  TextEditingController get quantity => _quantity;
+  TextEditingController get subLocation => _subLocation;
+  TextEditingController get warranty => _warranty;
+  Stream<bool> get invalid$ => _invalidQuantity.stream;
 
-    return result;
+  String get validity {
+    final now = DateTime.now();
+    final year = now.year + int.parse(warranty.text);
+    final newDate = DateTime(year, now.month, now.day);
+    final f = DateFormat("yyyy-MM-dd");
+    return f.format(newDate);
   }
 
-  // SINK
-  setfirst(ComplaintDGroupStore value) => _valueFirst.sink.add(value);
-  setsecond(ComplaintDStoreType value) => _valueSecond.sink.add(value);
-  setthird(MaterialStorePart value) => _valueThird.sink.add(value);
-  setFourth(ComplaintDStore value) => _valueFourth.sink.add(value);
+  // SETTERS
+  void setfirst(ComplaintDGroupStore? value) => _valueFirst.sink.add(value);
+  void setsecond(ComplaintDStoreType? value) => _valueSecond.sink.add(value);
+  void setthird(MaterialStorePart? value) => _valueThird.sink.add(value);
+  void setFourth(ComplaintDStore? value) => _valueFourth.sink.add(value);
   set listFirst(List<ComplaintDGroupStore> values) =>
       _listFirst.sink.add(values);
   set listSecond(List<ComplaintDStoreType> values) =>
@@ -400,109 +393,48 @@ class Controller extends Bloc {
   set listThird(List<MaterialStorePart> values) => _listThird.sink.add(values);
   set listFourth(List<ComplaintDStore> values) => _listFourth.sink.add(values);
   set fourth(String value) => _quantity.text = value;
-  set invalidMessage(String value) => _invalidMessage.sink.add(value);
+  set invalidMessage(String? value) => _invalidMessage.sink.add(value);
   set invalid(bool value) => _invalidQuantity.sink.add(value);
 
-  // METHOD
-  void getFirst() => checker(_request.listFirst(_valueFourth.value.itemId))
-      .then((value) => listFirst = value);
-  void getSecond() => checker(_request.listSecond(
-          _valueFirst.value.itemId, _valueFourth.value.itemId))
-      .then((value) => listSecond = value);
-  void getThird() => checker(_request.listThird(
-          _valueSecond.value.itemId, _valueFourth.value.itemId))
-      .then((value) => listThird = value);
-  void getFourth() =>
-      checker(_request.listFourth()).then((value) => listFourth = value);
-  Future<void> upload(BuildContext context) {
-    FocusScope.of(context).unfocus();
-    if (_invalidQuantity.value == true) {
-      Toast.show(_invalidMessage.value, duration: 3);
-      throw "";
-    } else {
-      Toast.show(_invalidMessage.value, duration: 3);
-      return _request.post(
-        _valueThird.value.partId,
-        remark: remark.text,
-        quantity: _quantity.text,
-      );
-    }
+  // METHODS
+  dynamic value(BuildContext context) {
+    return {
+      "remark": remark.text,
+      "quantity": quantity.text,
+      "subLocation": subLocation.text,
+      "warranty": warranty.text,
+      "validity": validity,
+      "selectedPart": third,
+    };
   }
 
-  Item value(BuildContext context) {
+  void getFirst() => _request
+      .listFirst(_valueFourth.valueOrNull?.itemId ?? "")
+      .then((value) => listFirst = value);
+  void getSecond() => _request
+      .listSecond(
+          _valueFirst.valueOrNull?.itemId ?? "",
+          _valueFourth.valueOrNull?.itemId ?? "")
+      .then((value) => listSecond = value);
+  void getThird() => _request
+      .listThird(
+          _valueSecond.valueOrNull?.itemId ?? "",
+          _valueFourth.valueOrNull?.itemId ?? "")
+      .then((value) => listThird = value);
+  void getFourth() =>
+      _request.listFourth().then((value) => listFourth = value);
+
+  Future<void> upload(BuildContext context) async {
     FocusScope.of(context).unfocus();
-    bool checkEmpty = false;
-    List<TextEditingController> tempCtrl = [
-      _remark,
-      _quantity,
-      _warranty,
-    ];
-
-    checkEmpty = tempCtrl.firstWhere((element) => element.text.isEmpty,
-            orElse: () => null) !=
-        null;
-    if (checkEmpty) {
-      Toast.show("Please check all fields");
-      throw "Please check all fields";
-    }
-
-    tempCtrl = [
-      _quantity,
-      _warranty,
-    ];
-
-    for (var i = 0; i < tempCtrl.length; i++) {
-      final ctrl = tempCtrl[i];
-      try {
-        final _ = int.parse(ctrl.text);
-      } catch (err) {
-        Toast.show("Please check all fields must be numerical and integer");
-        throw "Please check all fields must be numerical  and integer";
-      }
-    }
-
-    tempCtrl = [
-      _remark,
-    ];
-
-    for (var i = 0; i < tempCtrl.length; i++) {
-      final ctrl = tempCtrl[i];
-      try {
-        final _ = double.parse(ctrl.text);
-      } catch (err) {
-        Toast.show("Please check all fields must be numerical");
-        throw "Please check all fields must be numerical";
-      }
-    }
-
-    final quantity = int.parse(_quantity.value.text);
-    final maxOrder = int.parse(_valueThird.value.partMaxOrder ?? 0);
-    final minOrder = int.parse(_valueThird.value.partMinOrder ?? 0);
-
-    if (quantity < minOrder) {
-      Toast.show("Min order is : $minOrder");
-      throw "Min order is : $minOrder ";
-    }
-    if (quantity > maxOrder) {
-      Toast.show("Max order is : $maxOrder");
-      throw "Max order is : $maxOrder ";
-    }
-
     if (_invalidQuantity.value == true) {
-      Toast.show(_invalidMessage.value, duration: 3);
-      throw "";
+      Toast.show(_invalidMessage.valueOrNull ?? "Invalid input", duration: 3);
+      throw Exception("Invalid input");
     } else {
-      Toast.show(_invalidMessage.value, duration: 3);
-      return Item(
-        _valueFirst.value.itemName,
-        _valueSecond.value.itemName,
-        _valueThird.value.itemDescription,
-        _valueThird.value.partId,
-        int.parse(_quantity.value.text).toString(),
-        (double.parse(_remark.value.text)).toStringAsFixed(2),
-        subLocation.text,
-        int.parse(warranty.text).toString(),
-        validity,
+      Toast.show("Uploading...", duration: 3);
+      await _request.post(
+        _valueThird.valueOrNull?.partId ?? "",
+        remark: remark.text,
+        quantity: _quantity.text,
       );
     }
   }
@@ -522,7 +454,7 @@ class Request {
             Provider(fetchURL: "/part/purchase_option_item_type/"),
         _providerThird = Provider(fetchURL: "/part/purchase_option_part/"),
         _providerFourth = Provider(fetchURL: "/store/purchase_option_store"),
-        _providerUpload = Provider();
+        _providerUpload = Provider(fetchURL: "/wo_parts");
 
   Future<List<ComplaintDGroupStore>> listFirst(String id) => _providerFirst
       .fetchComplaint(additionalParam: id, groupStore: true)
@@ -538,7 +470,7 @@ class Request {
   Future<List<ComplaintDStore>> listFourth() => _providerFourth
       .fetchComplaint(store: true)
       .then((value) => value.map((e) => e as ComplaintDStore).toList());
-  Future<void> post(String itemId, {String remark, String quantity}) =>
+  Future<void> post(String itemId, {required String remark, required String quantity}) =>
       _providerUpload.post(url: "/wo_parts", body: {
         "quantity": quantity,
         "itemId": itemId,

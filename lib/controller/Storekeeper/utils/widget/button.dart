@@ -6,7 +6,7 @@ class Button extends StatelessWidget {
   final String text;
   final Color color;
 
-  Button({@required this.onPressed, this.text, this.color});
+  Button({required this.onPressed, required this.text, required this.color});
 
   @override
   Widget build(BuildContext context) {

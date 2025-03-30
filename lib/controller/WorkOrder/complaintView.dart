@@ -6,9 +6,10 @@ import 'complaintList.dart';
 class ComplaintView extends StatefulWidget {
   final int index;
   final String url;
-  final Widget headers;
+  final Widget? headers;
 
-  ComplaintView(this.url, this.headers, this.index);
+  const ComplaintView(this.url, this.headers, this.index, {Key? key})
+      : super(key: key);
 
   @override
   _ComplaintViewState createState() => _ComplaintViewState();
@@ -17,8 +18,8 @@ class ComplaintView extends StatefulWidget {
 class _ComplaintViewState extends State<ComplaintView> {
   String dropdownValue = "All Status";
   String dropdownType = "All Type";
-  List<WorkOrderTask> _listTask = List<WorkOrderTask>();
-  List<WorkOrderTask> _filterTask = List<WorkOrderTask>();
+  List<WorkOrderTask> _listTask = [];
+  List<WorkOrderTask> _filterTask = [];
 
   @override
   void initState() {
@@ -38,32 +39,30 @@ class _ComplaintViewState extends State<ComplaintView> {
       provider.context = context;
 
       var value = await provider.fetch();
+      _listTask = List<WorkOrderTask>.from((value.workorderTask ?? []) as Iterable);
 
-      _listTask = value.workorderTask.toList();
-
-      if (dropdownValue != "All Status")
+      if (dropdownValue != "All Status") {
         _filterTask = _listTask
-            .toList()
             .where((test) => test.woTaskStatus == dropdownValue)
             .toList();
-      else
+      } else {
         _filterTask = _listTask;
-
-      return Future.value(_filterTask);
+      }
+      return _filterTask;
     } catch (err) {
       return Future.error(err);
     }
   }
 
   Widget get _filter => DropdownButton<String>(
-        underline: new Container(),
+        underline: Container(),
         value: dropdownValue,
-        onChanged: (String newValue) {
+        onChanged: (String? newValue) {
           setState(() {
-            dropdownValue = newValue;
-            if (newValue != "All Status")
+            dropdownValue = newValue ?? "All Status";
+            if (dropdownValue != "All Status")
               _filterTask = _listTask
-                  .where((test) => test.woTaskStatus == newValue)
+                  .where((test) => test.woTaskStatus == dropdownValue)
                   .toList();
             else
               _filterTask = _listTask;
@@ -87,11 +86,11 @@ class _ComplaintViewState extends State<ComplaintView> {
       );
 
   Widget get _filterType => DropdownButton<String>(
-        underline: new Container(),
+        underline: Container(),
         value: dropdownType,
-        onChanged: (String newValue) {
+        onChanged: (String? newValue) {
           setState(() {
-            dropdownType = newValue;
+            dropdownType = newValue ?? "All Type";
             _fetch();
           });
         },
@@ -107,53 +106,56 @@ class _ComplaintViewState extends State<ComplaintView> {
         }).toList(),
       );
 
-  Widget get _header => new Row(
+  Widget get _header => Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: widget.headers == null
             ? <Widget>[
                 _filter,
                 _filterType,
               ]
-            : <Widget>[_filter, _filterType, widget.headers],
+            : <Widget>[
+                _filter,
+                _filterType,
+                widget.headers!,
+              ],
       );
 
   @override
   Widget build(BuildContext context) {
-    var loading = new Container(
-      child: Center(
+    Widget loadingWidget = Container(
+      color: Colors.black.withOpacity(0.3),
+      child: const Center(
         child: CircularProgressIndicator(),
       ),
-      color: Colors.black.withOpacity(0.3),
     );
-    Widget body(List<WorkOrderTask> value) => new Container(
-          child: new Column(
+
+    Widget body(List<WorkOrderTask> value) => Container(
+          child: Column(
             children: <Widget>[
-              new SizedBox(
-                height: 12,
-              ),
-              new Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: _header,
               ),
-              new Divider(),
-              new Expanded(
-                child: new ComplaintList(
+              const Divider(),
+              Expanded(
+                child: ComplaintList(
                   list: value,
                   viewer: widget.index == 0,
                   refresh: _fetch,
                 ),
-              )
+              ),
             ],
           ),
         );
 
-    return FutureBuilder(
+    return FutureBuilder<List<WorkOrderTask>>(
       future: _fetch(),
       builder: (context, AsyncSnapshot<List<WorkOrderTask>> snapshot) {
-        if (snapshot.error != null) return body(List<WorkOrderTask>());
-        if (snapshot.data == null) return loading;
+        if (snapshot.hasError) return body([]);
+        if (!snapshot.hasData) return loadingWidget;
 
-        return body(snapshot.data);
+        return body(snapshot.data!);
       },
     );
   }

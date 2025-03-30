@@ -17,9 +17,9 @@ class _$ComplaintResponseSerializer
   final String wireName = 'ComplaintResponse';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, ComplaintResponse object,
+  Iterable<Object?> serialize(Serializers serializers, ComplaintResponse object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'success',
       serializers.serialize(object.success,
           specifiedType: const FullType(bool)),
@@ -30,7 +30,7 @@ class _$ComplaintResponseSerializer
       serializers.serialize(object.errmsg,
           specifiedType: const FullType(String)),
     ];
-    Object value;
+    Object? value;
     value = object.items;
     if (value != null) {
       result
@@ -68,51 +68,51 @@ class _$ComplaintResponseSerializer
 
   @override
   ComplaintResponse deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new ComplaintResponseBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'success':
           result.success = serializers.deserialize(value,
-              specifiedType: const FullType(bool)) as bool;
+              specifiedType: const FullType(bool))! as bool;
           break;
         case 'error':
           result.error = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'errmsg':
           result.errmsg = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'result':
           result.items.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
-                      BuiltList, const [const FullType(ComplaintD)]))
-              as BuiltList<Object>);
+                      BuiltList, const [const FullType(ComplaintD)]))!
+              as BuiltList<Object?>);
           break;
         case 'result':
           result.groups.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
-                      BuiltList, const [const FullType(ComplaintDGroup)]))
-              as BuiltList<Object>);
+                      BuiltList, const [const FullType(ComplaintDGroup)]))!
+              as BuiltList<Object?>);
           break;
         case 'result':
           result.types.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
-                      BuiltList, const [const FullType(ComplaintDType)]))
-              as BuiltList<Object>);
+                      BuiltList, const [const FullType(ComplaintDType)]))!
+              as BuiltList<Object?>);
           break;
         case 'result':
           result.parts.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
-                      BuiltList, const [const FullType(ComplaintDPart)]))
-              as BuiltList<Object>);
+                      BuiltList, const [const FullType(ComplaintDPart)]))!
+              as BuiltList<Object?>);
           break;
       }
     }
@@ -129,22 +129,22 @@ class _$ComplaintResponse extends ComplaintResponse {
   @override
   final String errmsg;
   @override
-  final BuiltList<ComplaintD> items;
+  final BuiltList<ComplaintD>? items;
   @override
-  final BuiltList<ComplaintDGroup> groups;
+  final BuiltList<ComplaintDGroup>? groups;
   @override
-  final BuiltList<ComplaintDType> types;
+  final BuiltList<ComplaintDType>? types;
   @override
-  final BuiltList<ComplaintDPart> parts;
+  final BuiltList<ComplaintDPart>? parts;
 
   factory _$ComplaintResponse(
-          [void Function(ComplaintResponseBuilder) updates]) =>
+          [void Function(ComplaintResponseBuilder)? updates]) =>
       (new ComplaintResponseBuilder()..update(updates))._build();
 
   _$ComplaintResponse._(
-      {this.success,
-      this.error,
-      this.errmsg,
+      {required this.success,
+      required this.error,
+      required this.errmsg,
       this.items,
       this.groups,
       this.types,
@@ -180,16 +180,16 @@ class _$ComplaintResponse extends ComplaintResponse {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc($jc($jc(0, success.hashCode), error.hashCode),
-                        errmsg.hashCode),
-                    items.hashCode),
-                groups.hashCode),
-            types.hashCode),
-        parts.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, success.hashCode);
+    _$hash = $jc(_$hash, error.hashCode);
+    _$hash = $jc(_$hash, errmsg.hashCode);
+    _$hash = $jc(_$hash, items.hashCode);
+    _$hash = $jc(_$hash, groups.hashCode);
+    _$hash = $jc(_$hash, types.hashCode);
+    _$hash = $jc(_$hash, parts.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -208,39 +208,39 @@ class _$ComplaintResponse extends ComplaintResponse {
 
 class ComplaintResponseBuilder
     implements Builder<ComplaintResponse, ComplaintResponseBuilder> {
-  _$ComplaintResponse _$v;
+  _$ComplaintResponse? _$v;
 
-  bool _success;
-  bool get success => _$this._success;
-  set success(bool success) => _$this._success = success;
+  bool? _success;
+  bool? get success => _$this._success;
+  set success(bool? success) => _$this._success = success;
 
-  String _error;
-  String get error => _$this._error;
-  set error(String error) => _$this._error = error;
+  String? _error;
+  String? get error => _$this._error;
+  set error(String? error) => _$this._error = error;
 
-  String _errmsg;
-  String get errmsg => _$this._errmsg;
-  set errmsg(String errmsg) => _$this._errmsg = errmsg;
+  String? _errmsg;
+  String? get errmsg => _$this._errmsg;
+  set errmsg(String? errmsg) => _$this._errmsg = errmsg;
 
-  ListBuilder<ComplaintD> _items;
+  ListBuilder<ComplaintD>? _items;
   ListBuilder<ComplaintD> get items =>
       _$this._items ??= new ListBuilder<ComplaintD>();
-  set items(ListBuilder<ComplaintD> items) => _$this._items = items;
+  set items(ListBuilder<ComplaintD>? items) => _$this._items = items;
 
-  ListBuilder<ComplaintDGroup> _groups;
+  ListBuilder<ComplaintDGroup>? _groups;
   ListBuilder<ComplaintDGroup> get groups =>
       _$this._groups ??= new ListBuilder<ComplaintDGroup>();
-  set groups(ListBuilder<ComplaintDGroup> groups) => _$this._groups = groups;
+  set groups(ListBuilder<ComplaintDGroup>? groups) => _$this._groups = groups;
 
-  ListBuilder<ComplaintDType> _types;
+  ListBuilder<ComplaintDType>? _types;
   ListBuilder<ComplaintDType> get types =>
       _$this._types ??= new ListBuilder<ComplaintDType>();
-  set types(ListBuilder<ComplaintDType> types) => _$this._types = types;
+  set types(ListBuilder<ComplaintDType>? types) => _$this._types = types;
 
-  ListBuilder<ComplaintDPart> _parts;
+  ListBuilder<ComplaintDPart>? _parts;
   ListBuilder<ComplaintDPart> get parts =>
       _$this._parts ??= new ListBuilder<ComplaintDPart>();
-  set parts(ListBuilder<ComplaintDPart> parts) => _$this._parts = parts;
+  set parts(ListBuilder<ComplaintDPart>? parts) => _$this._parts = parts;
 
   ComplaintResponseBuilder();
 
@@ -266,7 +266,7 @@ class ComplaintResponseBuilder
   }
 
   @override
-  void update(void Function(ComplaintResponseBuilder) updates) {
+  void update(void Function(ComplaintResponseBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -278,18 +278,19 @@ class ComplaintResponseBuilder
     try {
       _$result = _$v ??
           new _$ComplaintResponse._(
-              success: BuiltValueNullFieldError.checkNotNull(
-                  success, r'ComplaintResponse', 'success'),
-              error: BuiltValueNullFieldError.checkNotNull(
-                  error, r'ComplaintResponse', 'error'),
-              errmsg: BuiltValueNullFieldError.checkNotNull(
-                  errmsg, r'ComplaintResponse', 'errmsg'),
-              items: _items?.build(),
-              groups: _groups?.build(),
-              types: _types?.build(),
-              parts: _parts?.build());
+            success: BuiltValueNullFieldError.checkNotNull(
+                success, r'ComplaintResponse', 'success'),
+            error: BuiltValueNullFieldError.checkNotNull(
+                error, r'ComplaintResponse', 'error'),
+            errmsg: BuiltValueNullFieldError.checkNotNull(
+                errmsg, r'ComplaintResponse', 'errmsg'),
+            items: _items?.build(),
+            groups: _groups?.build(),
+            types: _types?.build(),
+            parts: _parts?.build(),
+          );
     } catch (_) {
-      String _$failedField;
+      late String _$failedField;
       try {
         _$failedField = 'items';
         _items?.build();
@@ -310,4 +311,4 @@ class ComplaintResponseBuilder
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,no_leading_underscores_for_local_identifiers,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new,unnecessary_lambdas
+// ignore_for_file: deprecated_member_use_from_same_package,type=lint

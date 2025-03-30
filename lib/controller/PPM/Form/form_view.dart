@@ -22,24 +22,26 @@ class FormView extends StatefulWidget {
   final String siteName;
   final String taskNo;
   final String taskStatus;
-  final Function refresh;
+  final VoidCallback refresh;
   final bool viewer;
 
-  FormView(
-      {this.id,
-      this.siteName,
-      this.taskNo,
-      this.taskStatus,
-      this.refresh,
-      this.viewer = false});
+  const FormView({
+    required this.id,
+    required this.siteName,
+    required this.taskNo,
+    required this.taskStatus,
+    required this.refresh,
+    this.viewer = false,
+    Key? key,
+  }) : super(key: key);
 
   @override
-  _FormViewState createState() => _FormViewState(id: this.id);
+  _FormViewState createState() => _FormViewState(id: id);
 }
 
 class _FormViewState extends State<FormView> {
-  List<String> allStatus;
-  Map<String, String> titles = {
+  List<String> allStatus = [];
+  final Map<String, String> titles = {
     "A": "A. Asset Details",
     "B":
         "B. Safety Precaution / General Guidline prior to maintenance activity",
@@ -52,15 +54,15 @@ class _FormViewState extends State<FormView> {
     "I": "I. Executor",
   };
 
-  Provider provider;
+  late Provider provider;
   final String id;
   bool verified = true;
   bool fieldDisable = true;
-  ResponseValue responseValue;
-  List<String> statusList;
+  ResponseValue? responseValue;
+  List<String> statusList = [];
   int checkpoint = 1;
 
-  _FormViewState({this.id});
+  _FormViewState({required this.id});
 
   @override
   void initState() {
@@ -74,16 +76,17 @@ class _FormViewState extends State<FormView> {
       fieldDisable = true;
       verified = false;
     }
-    if (widget.taskStatus == "In Progress" || widget.taskStatus == "Re-Open") {
+    if (widget.taskStatus == "In Progress" ||
+        widget.taskStatus == "Re-Open") {
       fieldDisable = false;
     }
 
     if (widget.viewer) fieldDisable = true;
 
     provider = Provider(
-        taskID: widget.id, //"771266",
-        fetchURL:
-            "/ppm_v2/ppm_section_status/"); //"/api/m_ppm.php?type=ppm_section_status&ppmTaskId=");
+      taskID: widget.id,
+      fetchURL: "/ppm_v2/ppm_section_status/",
+    );
 
     refreshStatus();
   }
@@ -94,193 +97,220 @@ class _FormViewState extends State<FormView> {
     provider.context = context;
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: Colors.white,
-          iconTheme: IconThemeData(
-            color: colorTheme3,
-          ),
-          title: new Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                getTitle(widget.siteName, bold: true),
-                Text(
-                  widget.taskNo,
-                  style: TextStyle(fontSize: 16, color: colorTheme3),
-                  textAlign: TextAlign.left,
-                ),
-              ])),
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: colorTheme3),
+        title: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            getTitle(widget.siteName, bold: true),
+            Text(
+              widget.taskNo,
+              style: TextStyle(fontSize: 16, color: colorTheme3),
+              textAlign: TextAlign.left,
+            ),
+          ],
+        ),
+      ),
       body: responseValue == null
           ? Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: refreshStatus,
               child: ListView.separated(
-                  padding: EdgeInsets.only(top: 16, bottom: 70),
-                  separatorBuilder: (context, index) =>
-                      Divider(color: Colors.black),
-                  itemCount: statusList.length + 1,
-                  itemBuilder: (context, item) {
-                    if (item == 0) {
-                      return FutureBuilder<ExecutionModel>(
-                          future: _time,
-                          builder: (context, snapshot) {
-                            final String max = snapshot.data?.max ?? "0";
-                            final String min = snapshot.data?.min ?? "0";
-                            final bool exceed = snapshot.data?.exceed ?? false;
-                            return Container(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 8, horizontal: 16),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Min Time Allocated : $min",
-                                      style: TextStyle(
-                                        color:
-                                            exceed ? Colors.red : Colors.black,
-                                      ),
-                                    ),
-                                    SizedBox(height: 12),
-                                    Text("Max Time Allocated : $max")
-                                  ],
-                                ));
-                          });
-                    }
+                padding: EdgeInsets.only(top: 16, bottom: 70),
+                separatorBuilder: (context, index) =>
+                    Divider(color: Colors.black),
+                itemCount: statusList.length + 1,
+                itemBuilder: (context, item) {
+                  if (item == 0) {
+                    return FutureBuilder<ExecutionModel>(
+                      future: _time,
+                      builder: (context, snapshot) {
+                        final String max = snapshot.data?.max ?? "0";
+                        final String min = snapshot.data?.min ?? "0";
+                        final bool exceed = snapshot.data?.exceed ?? false;
+                        return Container(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 16),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Min Time Allocated : $min",
+                                style: TextStyle(
+                                  color: exceed ? Colors.red : Colors.black,
+                                ),
+                              ),
+                              SizedBox(height: 12),
+                              Text("Max Time Allocated : $max")
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  }
 
-                    formModel.Form _form = responseValue.statusList[item - 1];
-                    return tile(
-                        _form.ppmTaskSectionName,
-                        _form.ppmTaskSectionStatus,
-                        _form.checkParts,
-                        _form.checkAdditionalReport);
-                  })),
-      floatingActionButton: new FloatingActionButton.extended(
-        label: new Text(widget.viewer ? "View Form" : "Submit"),
+                  formModel.Form _form =
+                      responseValue?.statusList != null
+                          ? responseValue!.statusList![item - 1]
+                          : formModel.Form(); // Provide a default value if null
+                  return tile(
+                      _form.ppmTaskSectionName,
+                      _form.ppmTaskSectionStatus,
+                      _form.checkParts,
+                      _form.checkAdditionalReport);
+                },
+              ),
+            ),
+      floatingActionButton: FloatingActionButton.extended(
+        label: Text(widget.viewer ? "View Form" : "Submit"),
         backgroundColor:
             (widget.viewer || enableSubmit) ? colorTheme2 : colorTheme3,
         onPressed: (widget.viewer || enableSubmit)
             ? () {
-                var page = new PDF(
-                    id: widget.id,
-                    transactionNo: widget.taskNo,
-                    viewer: widget.viewer,
-                    checkpoint: checkpoint,
-                    submitted: () {
-                      widget.refresh();
-                      fieldDisable = true;
-                    });
-                Navigator.of(context).push(new MaterialPageRoute(
+                var page = PDF(
+                  id: widget.id,
+                  transactionNo: widget.taskNo,
+                  viewer: widget.viewer,
+                  checkpoint: checkpoint,
+                  submitted: () {
+                    widget.refresh();
+                    fieldDisable = true;
+                  },
+                );
+                Navigator.of(context).push(MaterialPageRoute(
                   builder: (BuildContext context) => page,
                 ));
               }
             : () {
-                if (!verified)
+                if (!verified) {
                   Toast.show(
-                      "To get started, you need to scan the QR code of the asset from section A. Asset Details.",
-                      duration: 3);
-                else
-                  Toast.show("All sections must be completed before submit",
-                      duration: 1);
+                    "To get started, you need to scan the QR code of the asset from section A. Asset Details.",
+                    duration: 3,
+                  );
+                } else {
+                  Toast.show(
+                    "All sections must be completed before submit",
+                    duration: 1,
+                  );
+                }
               },
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.centerFloat,
     );
   }
 
-  Widget getTitle(String text, {bold = false, double size}) => new Container(
+  Widget getTitle(String text, {bool bold = false, double? size}) => Container(
         padding: EdgeInsets.only(top: 3),
         alignment: Alignment.centerLeft,
-        child: new Text(text,
-            style: TextStyle(
-                fontWeight: bold ? FontWeight.bold : FontWeight.normal,
-                color: colorTheme3)),
+        child: Text(
+          text,
+          style: TextStyle(
+            fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+            color: colorTheme3,
+          ),
+        ),
       );
 
   Widget status(String text) {
-    var color;
-    if (text == "Info")
+    Color color;
+    if (text == "Info") {
       color = colorTheme2;
-    else if (text == "Pending")
+    } else if (text == "Pending") {
       color = colorTheme4;
-    else if (text == "In Progress")
+    } else if (text == "In Progress") {
       color = colorTheme1;
-    else
+    } else {
       color = colorTheme3;
+    }
 
-    return new Container(
-        alignment: Alignment.center,
-        height: 30.0,
-        width: 100.0,
-        decoration: BoxDecoration(
-            color: color, borderRadius: new BorderRadius.circular(20.0)),
-        child: new Text(text,
-            style: TextStyle(color: Colors.white, fontFamily: 'Avenir')));
+    return Container(
+      alignment: Alignment.center,
+      height: 30.0,
+      width: 100.0,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(color: Colors.white, fontFamily: 'Avenir'),
+      ),
+    );
   }
 
   Widget tile(String item, String statusDesc, String parts, String report) =>
       ListTile(
-          title: new Row(children: <Widget>[
-            new Expanded(child: getTitle(titles[item])),
+        title: Row(
+          children: <Widget>[
+            Expanded(child: getTitle(titles[item]!)),
             status(statusDesc)
-          ]),
-          trailing: new Icon(Icons.arrow_right),
-          onTap: () {
-            Object object;
-
-            if (item == "A")
-              object = new FormA(id, verification: (bool status) {
+          ],
+        ),
+        trailing: Icon(Icons.arrow_right),
+        onTap: () {
+          Object object = Container(); // Default assignment
+          if (item == "A") {
+            object = FormA(
+              id,
+              verification: (bool status) {
                 setState(() {
                   verified = status;
                   fieldDisable = !status;
                 });
-              }, viewer: widget.viewer, verified: verified);
-            else if (item == "B")
-              object = new FormB(id);
-            else if (item == "C")
-              object = new FormC(id, verified, refreshStatus, fieldDisable);
-            else if (item == "D")
-              object = new FormD(id, verified, refreshStatus, fieldDisable);
-            else if (item == "E")
-              object =
-                  new FormE(id, verified, refreshStatus, fieldDisable, parts);
-            else if (item == "F")
-              object =
-                  new FormF(id, verified, refreshStatus, fieldDisable, report);
-            else if (item == "G")
-              object = new FormG(id, verified, refreshStatus, fieldDisable);
-            else if (item == "H")
-              object = new FormH(id, verified, refreshStatus, fieldDisable);
-            else if (item == "I")
-              object = new PPMAddTechnician(
-                  id, verified, refreshStatus, fieldDisable);
+              },
+              viewer: widget.viewer,
+              verified: verified,
+            );
+          } else if (item == "B") {
+            object = FormB(id);
+          } else if (item == "C") {
+            object = FormC(
+              id,
+              verified,
+              (bool _) => refreshStatus(),
+              fieldDisable,
+            );
+          } else if (item == "D") {
+            object = FormD(id, verified, () => refreshStatus(), fieldDisable);
+          } else if (item == "E") {
+            object = FormE(id, verified, () => refreshStatus(), fieldDisable, parts);
+          } else if (item == "F") {
+            object = FormF(id, verified, () => refreshStatus(), fieldDisable, report);
+          } else if (item == "G") {
+            object = FormG(id, verified, (bool _) => refreshStatus(), fieldDisable);
+          } else if (item == "H") {
+            object = FormH(id, verified, (bool _) => refreshStatus(), fieldDisable);
+          } else if (item == "I") {
+            object = PPMAddTechnician(id, verified, () => refreshStatus(), fieldDisable);
+          }
 
-            Navigator.of(context)
-                .push(new MaterialPageRoute(
-                  builder: (BuildContext context) => object,
-                ))
-                .whenComplete(() => refreshStatus);
-          });
+          Navigator.of(context)
+              .push(MaterialPageRoute(
+                builder: (BuildContext context) => object as Widget,
+              ))
+              .whenComplete(() => refreshStatus());
+        },
+      );
 
   bool get enableSubmit {
-    bool check = true;
     for (String f in statusList) {
-      if (f != "Info") if (f != "Completed") return false;
+      if (f != "Info" && f != "Completed") return false;
     }
-
-    return check;
+    return true;
   }
 
   Future<void> refreshStatus() async {
     var value = await provider.fetch();
-
     setState(() {
       responseValue = value;
-      var result =
-          responseValue.statusList.map((f) => f.ppmTaskSectionStatus).toList();
-      statusList = result;
+      var result = responseValue!.statusList != null
+          ? responseValue!.statusList!.map((f) => f.ppmTaskSectionStatus).toList()
+          : [];
+      statusList = result.cast<String>();
     });
-
-    return Future.value();
   }
 
   Future<ExecutionModel> get _time async {
@@ -288,10 +318,8 @@ class _FormViewState extends State<FormView> {
       final _future = await Provider(
         fetchURL: '/ppm_v2/execution_info/',
         taskID: widget.id,
-      ).getJson();
-
+      ).getJson(url: '/ppm_v2/execution_info/');
       final _model = ExecutionModel.fromJson(_future);
-
       return _model;
     } catch (err) {
       throw err;

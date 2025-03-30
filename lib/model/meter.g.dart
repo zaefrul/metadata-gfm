@@ -16,9 +16,9 @@ class _$MeterSerializer implements StructuredSerializer<Meter> {
   final String wireName = 'Meter';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, Meter object,
+  Iterable<Object?> serialize(Serializers serializers, Meter object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'meterId',
       serializers.serialize(object.meterId,
           specifiedType: const FullType(String)),
@@ -38,7 +38,7 @@ class _$MeterSerializer implements StructuredSerializer<Meter> {
       serializers.serialize(object.siteId,
           specifiedType: const FullType(String)),
     ];
-    Object value;
+    Object? value;
     value = object.dailyLatestDate;
     if (value != null) {
       result
@@ -71,55 +71,55 @@ class _$MeterSerializer implements StructuredSerializer<Meter> {
   }
 
   @override
-  Meter deserialize(Serializers serializers, Iterable<Object> serialized,
+  Meter deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new MeterBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'meterId':
           result.meterId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'meterLocation':
           result.meterLocation = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'meterName':
           result.meterName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'meterStatus':
           result.meterStatus = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'meterType':
           result.meterType = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'siteId':
           result.siteId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'dailyLatestDate':
           result.dailyLatestDate = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'dailyLatestReading':
           result.dailyLatestReading = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'dailyTotal':
           result.dailyTotal = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'monthlyTotalRm':
           result.monthlyTotalRm = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
       }
     }
@@ -135,10 +135,10 @@ class _$ReadingSerializer implements StructuredSerializer<Reading> {
   final String wireName = 'Reading';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, Reading object,
+  Iterable<Object?> serialize(Serializers serializers, Reading object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[];
-    Object value;
+    final result = <Object?>[];
+    Object? value;
     value = object.utilityId;
     if (value != null) {
       result
@@ -234,67 +234,67 @@ class _$ReadingSerializer implements StructuredSerializer<Reading> {
   }
 
   @override
-  Reading deserialize(Serializers serializers, Iterable<Object> serialized,
+  Reading deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new ReadingBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'utilityId':
           result.utilityId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'utilityType':
           result.utilityType = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'utilityReadingType':
           result.utilityReadingType = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'utilityReading':
           result.utilityReading = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'utilityDate':
           result.utilityDate = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'utilityTotalRm':
           result.utilityTotalRm = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'utilityMaxDemand':
           result.utilityMaxDemand = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'utilityTimestamp':
           result.utilityTimestamp = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'meterName':
           result.meterName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'meterLocation':
           result.meterLocation = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'utilityRecordedBy':
           result.utilityRecordedBy = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'utilityImage':
           result.utilityImage = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'utilityShift':
           result.utilityShift = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
       }
     }
@@ -317,24 +317,24 @@ class _$Meter extends Meter {
   @override
   final String siteId;
   @override
-  final String dailyLatestDate;
+  final String? dailyLatestDate;
   @override
-  final String dailyLatestReading;
+  final String? dailyLatestReading;
   @override
-  final String dailyTotal;
+  final String? dailyTotal;
   @override
-  final String monthlyTotalRm;
+  final String? monthlyTotalRm;
 
-  factory _$Meter([void Function(MeterBuilder) updates]) =>
+  factory _$Meter([void Function(MeterBuilder)? updates]) =>
       (new MeterBuilder()..update(updates))._build();
 
   _$Meter._(
-      {this.meterId,
-      this.meterLocation,
-      this.meterName,
-      this.meterStatus,
-      this.meterType,
-      this.siteId,
+      {required this.meterId,
+      required this.meterLocation,
+      required this.meterName,
+      required this.meterStatus,
+      required this.meterType,
+      required this.siteId,
       this.dailyLatestDate,
       this.dailyLatestReading,
       this.dailyTotal,
@@ -374,24 +374,19 @@ class _$Meter extends Meter {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc(
-                            $jc(
-                                $jc(
-                                    $jc($jc(0, meterId.hashCode),
-                                        meterLocation.hashCode),
-                                    meterName.hashCode),
-                                meterStatus.hashCode),
-                            meterType.hashCode),
-                        siteId.hashCode),
-                    dailyLatestDate.hashCode),
-                dailyLatestReading.hashCode),
-            dailyTotal.hashCode),
-        monthlyTotalRm.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, meterId.hashCode);
+    _$hash = $jc(_$hash, meterLocation.hashCode);
+    _$hash = $jc(_$hash, meterName.hashCode);
+    _$hash = $jc(_$hash, meterStatus.hashCode);
+    _$hash = $jc(_$hash, meterType.hashCode);
+    _$hash = $jc(_$hash, siteId.hashCode);
+    _$hash = $jc(_$hash, dailyLatestDate.hashCode);
+    _$hash = $jc(_$hash, dailyLatestReading.hashCode);
+    _$hash = $jc(_$hash, dailyTotal.hashCode);
+    _$hash = $jc(_$hash, monthlyTotalRm.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -412,50 +407,50 @@ class _$Meter extends Meter {
 }
 
 class MeterBuilder implements Builder<Meter, MeterBuilder> {
-  _$Meter _$v;
+  _$Meter? _$v;
 
-  String _meterId;
-  String get meterId => _$this._meterId;
-  set meterId(String meterId) => _$this._meterId = meterId;
+  String? _meterId;
+  String? get meterId => _$this._meterId;
+  set meterId(String? meterId) => _$this._meterId = meterId;
 
-  String _meterLocation;
-  String get meterLocation => _$this._meterLocation;
-  set meterLocation(String meterLocation) =>
+  String? _meterLocation;
+  String? get meterLocation => _$this._meterLocation;
+  set meterLocation(String? meterLocation) =>
       _$this._meterLocation = meterLocation;
 
-  String _meterName;
-  String get meterName => _$this._meterName;
-  set meterName(String meterName) => _$this._meterName = meterName;
+  String? _meterName;
+  String? get meterName => _$this._meterName;
+  set meterName(String? meterName) => _$this._meterName = meterName;
 
-  String _meterStatus;
-  String get meterStatus => _$this._meterStatus;
-  set meterStatus(String meterStatus) => _$this._meterStatus = meterStatus;
+  String? _meterStatus;
+  String? get meterStatus => _$this._meterStatus;
+  set meterStatus(String? meterStatus) => _$this._meterStatus = meterStatus;
 
-  String _meterType;
-  String get meterType => _$this._meterType;
-  set meterType(String meterType) => _$this._meterType = meterType;
+  String? _meterType;
+  String? get meterType => _$this._meterType;
+  set meterType(String? meterType) => _$this._meterType = meterType;
 
-  String _siteId;
-  String get siteId => _$this._siteId;
-  set siteId(String siteId) => _$this._siteId = siteId;
+  String? _siteId;
+  String? get siteId => _$this._siteId;
+  set siteId(String? siteId) => _$this._siteId = siteId;
 
-  String _dailyLatestDate;
-  String get dailyLatestDate => _$this._dailyLatestDate;
-  set dailyLatestDate(String dailyLatestDate) =>
+  String? _dailyLatestDate;
+  String? get dailyLatestDate => _$this._dailyLatestDate;
+  set dailyLatestDate(String? dailyLatestDate) =>
       _$this._dailyLatestDate = dailyLatestDate;
 
-  String _dailyLatestReading;
-  String get dailyLatestReading => _$this._dailyLatestReading;
-  set dailyLatestReading(String dailyLatestReading) =>
+  String? _dailyLatestReading;
+  String? get dailyLatestReading => _$this._dailyLatestReading;
+  set dailyLatestReading(String? dailyLatestReading) =>
       _$this._dailyLatestReading = dailyLatestReading;
 
-  String _dailyTotal;
-  String get dailyTotal => _$this._dailyTotal;
-  set dailyTotal(String dailyTotal) => _$this._dailyTotal = dailyTotal;
+  String? _dailyTotal;
+  String? get dailyTotal => _$this._dailyTotal;
+  set dailyTotal(String? dailyTotal) => _$this._dailyTotal = dailyTotal;
 
-  String _monthlyTotalRm;
-  String get monthlyTotalRm => _$this._monthlyTotalRm;
-  set monthlyTotalRm(String monthlyTotalRm) =>
+  String? _monthlyTotalRm;
+  String? get monthlyTotalRm => _$this._monthlyTotalRm;
+  set monthlyTotalRm(String? monthlyTotalRm) =>
       _$this._monthlyTotalRm = monthlyTotalRm;
 
   MeterBuilder();
@@ -485,7 +480,7 @@ class MeterBuilder implements Builder<Meter, MeterBuilder> {
   }
 
   @override
-  void update(void Function(MeterBuilder) updates) {
+  void update(void Function(MeterBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -495,22 +490,23 @@ class MeterBuilder implements Builder<Meter, MeterBuilder> {
   _$Meter _build() {
     final _$result = _$v ??
         new _$Meter._(
-            meterId: BuiltValueNullFieldError.checkNotNull(
-                meterId, r'Meter', 'meterId'),
-            meterLocation: BuiltValueNullFieldError.checkNotNull(
-                meterLocation, r'Meter', 'meterLocation'),
-            meterName: BuiltValueNullFieldError.checkNotNull(
-                meterName, r'Meter', 'meterName'),
-            meterStatus: BuiltValueNullFieldError.checkNotNull(
-                meterStatus, r'Meter', 'meterStatus'),
-            meterType: BuiltValueNullFieldError.checkNotNull(
-                meterType, r'Meter', 'meterType'),
-            siteId: BuiltValueNullFieldError.checkNotNull(
-                siteId, r'Meter', 'siteId'),
-            dailyLatestDate: dailyLatestDate,
-            dailyLatestReading: dailyLatestReading,
-            dailyTotal: dailyTotal,
-            monthlyTotalRm: monthlyTotalRm);
+          meterId: BuiltValueNullFieldError.checkNotNull(
+              meterId, r'Meter', 'meterId'),
+          meterLocation: BuiltValueNullFieldError.checkNotNull(
+              meterLocation, r'Meter', 'meterLocation'),
+          meterName: BuiltValueNullFieldError.checkNotNull(
+              meterName, r'Meter', 'meterName'),
+          meterStatus: BuiltValueNullFieldError.checkNotNull(
+              meterStatus, r'Meter', 'meterStatus'),
+          meterType: BuiltValueNullFieldError.checkNotNull(
+              meterType, r'Meter', 'meterType'),
+          siteId:
+              BuiltValueNullFieldError.checkNotNull(siteId, r'Meter', 'siteId'),
+          dailyLatestDate: dailyLatestDate,
+          dailyLatestReading: dailyLatestReading,
+          dailyTotal: dailyTotal,
+          monthlyTotalRm: monthlyTotalRm,
+        );
     replace(_$result);
     return _$result;
   }
@@ -518,33 +514,33 @@ class MeterBuilder implements Builder<Meter, MeterBuilder> {
 
 class _$Reading extends Reading {
   @override
-  final String utilityId;
+  final String? utilityId;
   @override
-  final String utilityType;
+  final String? utilityType;
   @override
-  final String utilityReadingType;
+  final String? utilityReadingType;
   @override
-  final String utilityReading;
+  final String? utilityReading;
   @override
-  final String utilityDate;
+  final String? utilityDate;
   @override
-  final String utilityTotalRm;
+  final String? utilityTotalRm;
   @override
-  final String utilityMaxDemand;
+  final String? utilityMaxDemand;
   @override
-  final String utilityTimestamp;
+  final String? utilityTimestamp;
   @override
-  final String meterName;
+  final String? meterName;
   @override
-  final String meterLocation;
+  final String? meterLocation;
   @override
-  final String utilityRecordedBy;
+  final String? utilityRecordedBy;
   @override
-  final String utilityImage;
+  final String? utilityImage;
   @override
-  final String utilityShift;
+  final String? utilityShift;
 
-  factory _$Reading([void Function(ReadingBuilder) updates]) =>
+  factory _$Reading([void Function(ReadingBuilder)? updates]) =>
       (new ReadingBuilder()..update(updates))._build();
 
   _$Reading._(
@@ -591,30 +587,22 @@ class _$Reading extends Reading {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc(
-                            $jc(
-                                $jc(
-                                    $jc(
-                                        $jc(
-                                            $jc(
-                                                $jc($jc(0, utilityId.hashCode),
-                                                    utilityType.hashCode),
-                                                utilityReadingType.hashCode),
-                                            utilityReading.hashCode),
-                                        utilityDate.hashCode),
-                                    utilityTotalRm.hashCode),
-                                utilityMaxDemand.hashCode),
-                            utilityTimestamp.hashCode),
-                        meterName.hashCode),
-                    meterLocation.hashCode),
-                utilityRecordedBy.hashCode),
-            utilityImage.hashCode),
-        utilityShift.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, utilityId.hashCode);
+    _$hash = $jc(_$hash, utilityType.hashCode);
+    _$hash = $jc(_$hash, utilityReadingType.hashCode);
+    _$hash = $jc(_$hash, utilityReading.hashCode);
+    _$hash = $jc(_$hash, utilityDate.hashCode);
+    _$hash = $jc(_$hash, utilityTotalRm.hashCode);
+    _$hash = $jc(_$hash, utilityMaxDemand.hashCode);
+    _$hash = $jc(_$hash, utilityTimestamp.hashCode);
+    _$hash = $jc(_$hash, meterName.hashCode);
+    _$hash = $jc(_$hash, meterLocation.hashCode);
+    _$hash = $jc(_$hash, utilityRecordedBy.hashCode);
+    _$hash = $jc(_$hash, utilityImage.hashCode);
+    _$hash = $jc(_$hash, utilityShift.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -638,66 +626,66 @@ class _$Reading extends Reading {
 }
 
 class ReadingBuilder implements Builder<Reading, ReadingBuilder> {
-  _$Reading _$v;
+  _$Reading? _$v;
 
-  String _utilityId;
-  String get utilityId => _$this._utilityId;
-  set utilityId(String utilityId) => _$this._utilityId = utilityId;
+  String? _utilityId;
+  String? get utilityId => _$this._utilityId;
+  set utilityId(String? utilityId) => _$this._utilityId = utilityId;
 
-  String _utilityType;
-  String get utilityType => _$this._utilityType;
-  set utilityType(String utilityType) => _$this._utilityType = utilityType;
+  String? _utilityType;
+  String? get utilityType => _$this._utilityType;
+  set utilityType(String? utilityType) => _$this._utilityType = utilityType;
 
-  String _utilityReadingType;
-  String get utilityReadingType => _$this._utilityReadingType;
-  set utilityReadingType(String utilityReadingType) =>
+  String? _utilityReadingType;
+  String? get utilityReadingType => _$this._utilityReadingType;
+  set utilityReadingType(String? utilityReadingType) =>
       _$this._utilityReadingType = utilityReadingType;
 
-  String _utilityReading;
-  String get utilityReading => _$this._utilityReading;
-  set utilityReading(String utilityReading) =>
+  String? _utilityReading;
+  String? get utilityReading => _$this._utilityReading;
+  set utilityReading(String? utilityReading) =>
       _$this._utilityReading = utilityReading;
 
-  String _utilityDate;
-  String get utilityDate => _$this._utilityDate;
-  set utilityDate(String utilityDate) => _$this._utilityDate = utilityDate;
+  String? _utilityDate;
+  String? get utilityDate => _$this._utilityDate;
+  set utilityDate(String? utilityDate) => _$this._utilityDate = utilityDate;
 
-  String _utilityTotalRm;
-  String get utilityTotalRm => _$this._utilityTotalRm;
-  set utilityTotalRm(String utilityTotalRm) =>
+  String? _utilityTotalRm;
+  String? get utilityTotalRm => _$this._utilityTotalRm;
+  set utilityTotalRm(String? utilityTotalRm) =>
       _$this._utilityTotalRm = utilityTotalRm;
 
-  String _utilityMaxDemand;
-  String get utilityMaxDemand => _$this._utilityMaxDemand;
-  set utilityMaxDemand(String utilityMaxDemand) =>
+  String? _utilityMaxDemand;
+  String? get utilityMaxDemand => _$this._utilityMaxDemand;
+  set utilityMaxDemand(String? utilityMaxDemand) =>
       _$this._utilityMaxDemand = utilityMaxDemand;
 
-  String _utilityTimestamp;
-  String get utilityTimestamp => _$this._utilityTimestamp;
-  set utilityTimestamp(String utilityTimestamp) =>
+  String? _utilityTimestamp;
+  String? get utilityTimestamp => _$this._utilityTimestamp;
+  set utilityTimestamp(String? utilityTimestamp) =>
       _$this._utilityTimestamp = utilityTimestamp;
 
-  String _meterName;
-  String get meterName => _$this._meterName;
-  set meterName(String meterName) => _$this._meterName = meterName;
+  String? _meterName;
+  String? get meterName => _$this._meterName;
+  set meterName(String? meterName) => _$this._meterName = meterName;
 
-  String _meterLocation;
-  String get meterLocation => _$this._meterLocation;
-  set meterLocation(String meterLocation) =>
+  String? _meterLocation;
+  String? get meterLocation => _$this._meterLocation;
+  set meterLocation(String? meterLocation) =>
       _$this._meterLocation = meterLocation;
 
-  String _utilityRecordedBy;
-  String get utilityRecordedBy => _$this._utilityRecordedBy;
-  set utilityRecordedBy(String utilityRecordedBy) =>
+  String? _utilityRecordedBy;
+  String? get utilityRecordedBy => _$this._utilityRecordedBy;
+  set utilityRecordedBy(String? utilityRecordedBy) =>
       _$this._utilityRecordedBy = utilityRecordedBy;
 
-  String _utilityImage;
-  String get utilityImage => _$this._utilityImage;
-  set utilityImage(String utilityImage) => _$this._utilityImage = utilityImage;
+  String? _utilityImage;
+  String? get utilityImage => _$this._utilityImage;
+  set utilityImage(String? utilityImage) => _$this._utilityImage = utilityImage;
 
-  String _utilityShift;
-  String get utilityShift => _$this._utilityShift;
-  set utilityShift(String utilityShift) => _$this._utilityShift = utilityShift;
+  String? _utilityShift;
+  String? get utilityShift => _$this._utilityShift;
+  set utilityShift(String? utilityShift) => _$this._utilityShift = utilityShift;
 
   ReadingBuilder();
 
@@ -729,7 +717,7 @@ class ReadingBuilder implements Builder<Reading, ReadingBuilder> {
   }
 
   @override
-  void update(void Function(ReadingBuilder) updates) {
+  void update(void Function(ReadingBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -739,22 +727,23 @@ class ReadingBuilder implements Builder<Reading, ReadingBuilder> {
   _$Reading _build() {
     final _$result = _$v ??
         new _$Reading._(
-            utilityId: utilityId,
-            utilityType: utilityType,
-            utilityReadingType: utilityReadingType,
-            utilityReading: utilityReading,
-            utilityDate: utilityDate,
-            utilityTotalRm: utilityTotalRm,
-            utilityMaxDemand: utilityMaxDemand,
-            utilityTimestamp: utilityTimestamp,
-            meterName: meterName,
-            meterLocation: meterLocation,
-            utilityRecordedBy: utilityRecordedBy,
-            utilityImage: utilityImage,
-            utilityShift: utilityShift);
+          utilityId: utilityId,
+          utilityType: utilityType,
+          utilityReadingType: utilityReadingType,
+          utilityReading: utilityReading,
+          utilityDate: utilityDate,
+          utilityTotalRm: utilityTotalRm,
+          utilityMaxDemand: utilityMaxDemand,
+          utilityTimestamp: utilityTimestamp,
+          meterName: meterName,
+          meterLocation: meterLocation,
+          utilityRecordedBy: utilityRecordedBy,
+          utilityImage: utilityImage,
+          utilityShift: utilityShift,
+        );
     replace(_$result);
     return _$result;
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,no_leading_underscores_for_local_identifiers,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new,unnecessary_lambdas
+// ignore_for_file: deprecated_member_use_from_same_package,type=lint

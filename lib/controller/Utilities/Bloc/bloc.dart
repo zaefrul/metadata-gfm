@@ -64,7 +64,7 @@ class Bloc {
   set errMsg(String value) => _errMsg.sink.add(value);
   void loading() => _loadingState.sink.add(true);
   void done() => _loadingState.sink.add(false);
-  void close() => _loadingState.sink.add(null);
+  void close() => _loadingState.sink.add(false);
   List<Reading> readingMap(List values) =>
       values.map((e) => e as Reading).toList();
   List<Meter> meterMap(List values) => values.map((e) => e as Meter).toList();
@@ -101,42 +101,31 @@ class Bloc {
     switch (value) {
       case api.MetersE:
         return checker(_request.fetchMetersE().then((values) => me = values));
-        break;
       case api.MetersW:
         return checker(_request.fetchMetersW().then((values) => mw = values));
-        break;
       case api.Reading:
         return checker(_request.fetchReading().then((values) => r = values));
-        break;
       case api.ReadingW:
         return checker(_request.fetchReadingW().then((values) => rw = values));
-        break;
       case api.ReadingE:
         return checker(_request.fetchReadingE().then((values) => re = values));
-        break;
       case api.ReadingDW:
         return checker(_request
             .fetchReadingDW(_selectedMeter.value.meterId)
             .then((values) => rdw = values));
-        break;
       case api.ReadingMW:
         return checker(_request
             .fetchReadingMW(_selectedMeter.value.meterId)
             .then((values) => rmw = values));
-        break;
       case api.ReadingDE:
         return checker(_request
             .fetchReadingDE(_selectedMeter.value.meterId)
             .then((values) => rde = values));
-        break;
       case api.ReadingME:
         return checker(_request
             .fetchReadingME(_selectedMeter.value.meterId)
             .then((values) => rme = values));
-        break;
     }
-
-    return;
   }
 }
 

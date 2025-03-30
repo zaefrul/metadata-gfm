@@ -167,7 +167,7 @@ class _ChangeState extends State<Change> {
       "newPassword": newPassword
     };
 
-    Provider provider = Provider();
+    Provider provider = Provider(fetchURL: "/api/m_ppm.php"); // Replace with the actual URL
 
     provider
         .post(url: "/api/m_ppm.php", body: bodyProvider)
@@ -179,7 +179,7 @@ class _ChangeState extends State<Change> {
   void alert(String txt, {bool success = true}) => showDialog(
       context: context,
       builder: (BuildContext context) => CustomDialog(
-          rootPage: success ? "/profile" : null,
+          rootPage: success ? "/profile" : "",
           description: txt,
           buttonText: "Okay",
           image: Image.asset(

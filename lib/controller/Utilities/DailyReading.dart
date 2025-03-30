@@ -7,14 +7,14 @@ class ListReading extends StatelessWidget {
   final Reading reading;
   final bool isWater;
   final bool isElectric;
-  final Stream stream;
+  final Stream<dynamic>? stream;
 
   ListReading(this.bloc, this.reading,
       {this.isWater = false, this.isElectric = false})
       : this.stream = isWater
             ? bloc.rdw$
             : isElectric
-                ? bloc.rde$
+                ? bloc.rde$ as Stream<dynamic>
                 : null {
     if (isWater) {
       bloc.fetch(api.ReadingDW);

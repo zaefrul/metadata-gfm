@@ -6,7 +6,7 @@ import 'package:toast/toast.dart';
 class RouteTechnicianDetail extends StatefulWidget {
   final Item item;
 
-  RouteTechnicianDetail({this.item});
+  RouteTechnicianDetail({required this.item});
 
   @override
   _RouteTechnicianDetailState createState() =>
@@ -84,12 +84,13 @@ class _Dropdown extends StatelessWidget {
       (listValue) => streaming<String>(
         listen,
         (selectedValue) {
-          if (listValue == null && label != "Group")
+          if (listValue == null && label != "Group") {
             return TextField(
               decoration: InputDecoration(
                   labelText: label, suffixIcon: Icon(Icons.arrow_drop_down)),
               enabled: false,
             );
+          }
 
           // return SearchableDropdown.single(
           //   items: (listValue ?? ["select one"])
@@ -104,6 +105,8 @@ class _Dropdown extends StatelessWidget {
           //   onChanged: dispatch,
           //   isExpanded: true,
           // );
+
+          return SizedBox.shrink(); // Default return to avoid null.
         },
       ),
     );
@@ -122,7 +125,11 @@ class _Dropdown extends StatelessWidget {
             enabled: false,
           );
 
-        return builder(snapshot.data);
+        if (snapshot.hasData) {
+          return builder(snapshot.data as T);
+        } else {
+          return SizedBox.shrink(); // Return an empty widget if no data is available.
+        }
       },
     );
   }

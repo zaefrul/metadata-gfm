@@ -6,7 +6,7 @@ import 'package:gfm_gems/controller/Storekeeper/utils/widget/dialog.dart';
 class RouteEngineer extends StatefulWidget {
   final BlocTechnician bloc;
 
-  RouteEngineer({BlocTechnician value}) : this.bloc = value ?? BlocTechnician();
+  RouteEngineer({BlocTechnician? value}) : bloc = value ?? BlocTechnician();
 
   @override
   _RouteEngineerState createState() => _RouteEngineerState();
@@ -33,13 +33,13 @@ class _RouteEngineerState extends State<RouteEngineer> {
           Divider(color: Colors.black38),
           _Title(widget.bloc),
           StreamBuilder<List<Item>>(
-            stream: widget.bloc.stream,
+            stream: widget.bloc.stream as Stream<List<Item>>?,
             builder: (ctx, snapshot) {
-              if (snapshot.data == null || snapshot.error != null)
+              if (!snapshot.hasData || snapshot.data == null || snapshot.data!.isEmpty) {
                 return Container();
-              else if (snapshot.data.length == 0) return Container();
+              }
 
-              return _ListView(snapshot.data, widget.bloc);
+              return _ListView(snapshot.data!, widget.bloc);
             },
           ),
           SizedBox(height: 70),
@@ -71,21 +71,23 @@ class _Info extends StatelessWidget {
     );
   }
 
-  TableRow row(String title, String value) {
+  TableRow row(String title, String? value) {
     return TableRow(children: [
       TableCell(
-          child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Text(
-          title,
-          style: TextStyle(fontWeight: FontWeight.bold),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Text(
+            title,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
-      )),
+      ),
       TableCell(
-          child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Text(value),
-      )),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Text(value ?? 'N/A'),
+        ),
+      ),
     ]);
   }
 }
@@ -109,7 +111,7 @@ class _Title extends StatelessWidget {
 
   void onPressed(BuildContext context) =>
       Navigator.pushNamed(context, routeTechnicianDetail).then(
-        (value) => value != null ? bloc.setSink(value) : null,
+        (value) => value != null ? bloc.setSink(value as Item) : null,
       );
 }
 
@@ -141,7 +143,7 @@ class _ListViewState extends State<_ListView> {
       title: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: Text(
-          index.toString() + '.  ' + item.name,
+          '$index. ${item.name}',
           overflow: TextOverflow.fade,
         ),
       ),
@@ -149,11 +151,15 @@ class _ListViewState extends State<_ListView> {
         children: <Widget>[
           IconButton(
             icon: Icon(Icons.edit, color: colorTheme2),
-            onPressed: () => Navigator.pushNamed(context, routeTechnicianDetail,
-                    arguments: item)
-                .then((value) => value != null
-                    ? widget.bloc.replaceItem(item, value)
-                    : null),
+            onPressed: () => Navigator.pushNamed(
+              context,
+              routeTechnicianDetail,
+              arguments: item,
+            ).then((value) {
+              if (value != null) {
+                widget.bloc.replaceItem(item, value as Item);
+              }
+            }),
           ),
           IconButton(
             icon: Icon(Icons.delete, color: colorTheme4),
@@ -161,8 +167,9 @@ class _ListViewState extends State<_ListView> {
           ),
           Spacer(),
           IconButton(
-              icon: Icon(Icons.remove, color: Colors.grey),
-              onPressed: () => setState(item.minusQuantity)),
+            icon: Icon(Icons.remove, color: Colors.grey),
+            onPressed: () => setState(item.minusQuantity),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Text(
@@ -181,7 +188,7 @@ class _ListViewState extends State<_ListView> {
           alignment: Alignment.centerLeft,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 22.0, vertical: 16),
-            child: Text(item.desc != null ? item.desc : 'no description'),
+            child: Text(item.desc ?? 'No description'),
           ),
         ),
       ],
@@ -239,8 +246,7 @@ class _FloatingButton extends StatelessWidget {
         bloc.type = ScreenType.forTechnician;
         bloc.setComment(text);
 
-        Navigator.pushReplacementNamed(context, routeTechnician,
-            arguments: bloc);
+        Navigator.pushReplacementNamed(context, routeTechnician, arguments: bloc);
       },
     );
 

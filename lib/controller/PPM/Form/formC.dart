@@ -10,33 +10,35 @@ import 'package:toast/toast.dart';
 class FormC extends StatefulWidget {
   final String id;
   final bool verified;
-  final Function refreshStatus;
+  final ValueChanged<bool> refreshStatus;
   final bool disable;
 
-  FormC(this.id, this.verified, this.refreshStatus, this.disable);
+  const FormC(this.id, this.verified, this.refreshStatus, this.disable, {Key? key})
+      : super(key: key);
 
   @override
   _FormCState createState() => _FormCState();
 }
 
 class _FormCState extends State<FormC> {
-  Provider provider;
+  late Provider provider;
   bool loading = false;
-  String dropdownValue;
-  List<UploadItem> items = List<UploadItem>();
+  String? dropdownValue;
+  List<UploadItem> items = [];
 
-  String assetNo;
-  String model;
-  String capacity;
-  String pmStart;
-  String pmEnd;
+  String? assetNo;
+  String? model;
+  String? capacity;
+  String? pmStart;
+  String? pmEnd;
 
   @override
   void initState() {
     super.initState();
     provider = Provider(
-        taskID: widget.id,
-        fetchURL: "/api/m_ppm.php?type=ppm_section_c&ppmTaskId=");
+      taskID: widget.id,
+      fetchURL: "/api/m_ppm.php?type=ppm_section_c&ppmTaskId=",
+    );
   }
 
   @override
@@ -46,56 +48,47 @@ class _FormCState extends State<FormC> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        iconTheme: IconThemeData(
-          color: colorTheme3,
-        ),
+        iconTheme: IconThemeData(color: colorTheme3),
         title: getTitle("C. Qualitative Task", bold: true),
       ),
-      body: FutureBuilder(
+      body: FutureBuilder<ResponseValue>(
         future: provider.fetch(),
         builder: (context, AsyncSnapshot<ResponseValue> snapshot) {
           List<ListTile> children = [
             ListTile(
-              title: new Text("Enviromental Check"),
+              title: Text("Enviromental Check"),
             )
           ];
 
-          if (snapshot.data != null && items.length == 0)
-            snapshot.data.sectionCList.forEach((f) {
-              var updateItem =
-                  UploadItem.from(index: items.length.toString(), item: f);
-
+          if (snapshot.hasData && items.isEmpty) {
+            snapshot.data!.sectionCList?.forEach((f) {
+              var updateItem = UploadItem.from(index: items.length.toString(), item: f);
               items.add(updateItem);
             });
+          }
 
-          if (items.length > 0)
-            children.addAll(items
-                .map((x) => widget.disable ? getFormDisabled(x) : getForm(x))
-                .toList());
+          if (items.isNotEmpty) {
+            children.addAll(items.map((x) =>
+                widget.disable ? getFormDisabled(x) : getForm(x)).toList());
+          }
 
-          return loading || snapshot.data == null
-              ? new Stack(
+          return loading || !snapshot.hasData
+              ? Stack(
                   children: <Widget>[
-                    ListView(
-                      children: children,
-                    ),
+                    ListView(children: children),
                     Container(
                       color: Colors.black.withOpacity(0.5),
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
+                      child: Center(child: CircularProgressIndicator()),
                     )
                   ],
                 )
-              : ListView(
-                  children: children,
-                );
+              : ListView(children: children);
         },
       ),
       floatingActionButton: widget.disable
           ? null
           : FloatingActionButton.extended(
-              label: new Text("Save"),
+              label: Text("Save"),
               backgroundColor: colorTheme2,
               onPressed: () {
                 if (widget.verified) {
@@ -108,23 +101,14 @@ class _FormCState extends State<FormC> {
                     "ppmTaskId": widget.id,
                   };
 
-                  // int count_NA = 0;
-
                   items.forEach((f) {
-                    // if (f.result == "N/A") count_NA++;
-                    // else
                     body.addAll(f.body);
                   });
-
-                  // if (items.length == count_NA){
-                  //   Toast.show("Nothing to update.", context);
-                  //   return;
-                  // }
 
                   provider
                       .post(url: "/api/m_ppm.php", body: body)
                       .then((value) {
-                    widget.refreshStatus();
+                    widget.refreshStatus(true);
                     alert(value);
                   }).catchError((err) {
                     alert(err);
@@ -139,84 +123,83 @@ class _FormCState extends State<FormC> {
     );
   }
 
-  Widget getTitle(String text, {bold = false}) => new Container(
-        alignment: Alignment.centerLeft,
-        child: new Text(text,
-            style: TextStyle(
-                fontWeight: bold ? FontWeight.bold : FontWeight.normal,
-                color: colorTheme3)),
-      );
+  Widget getTitle(String text, {bool bold = false}) {
+    return Container(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        text,
+        style: TextStyle(
+          fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+          color: colorTheme3,
+        ),
+      ),
+    );
+  }
 
   ListTile getForm(UploadItem item) {
     print(item);
-    return new ListTile(
+    return ListTile(
       title: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            getTitle(item.number + ". " + item.desc),
-            // item.result != "N/A" ?
-            filter(item),
-            // : field("Status", (_) => null,
-            //     value: "N/A", horizontal: 0.0, enable: false),
-            field(
-              "Remark",
-              (text) => item.remark = text,
-              horizontal: 0.0,
-              value: item.remark,
-              // enable: (item.result != "N/A")
-            ),
-            SizedBox(
-              height: 30,
-            )
-          ]),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          getTitle(item.number + ". " + item.desc),
+          filter(item),
+          field(
+            "Remark",
+            (text) => item.remark = text,
+            horizontal: 0.0,
+            value: item.remark,
+          ),
+          SizedBox(height: 30),
+        ],
+      ),
     );
   }
 
   ListTile getFormDisabled(UploadItem item) {
-    return new ListTile(
+    return ListTile(
       title: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            getTitle(item.number + ". " + item.desc),
-            field("Status", (_) => null,
-                value: item.statusCheck == "N/A" ? "N/A" : item.result,
-                horizontal: 0.0,
-                enable: false),
-            field("Remark", (text) => item.remark = text,
-                horizontal: 0.0, value: item.remark, enable: false),
-            SizedBox(
-              height: 30,
-            )
-          ]),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          getTitle(item.number + ". " + item.desc),
+          field("Status", (_) => null,
+              value: item.statusCheck == "N/A" ? "N/A" : item.result,
+              horizontal: 0.0,
+              enable: false),
+          field("Remark", (text) => item.remark = text,
+              horizontal: 0.0, value: item.remark, enable: false),
+          SizedBox(height: 30),
+        ],
+      ),
     );
   }
 
-  DropdownButton filter(UploadItem item) {
+  DropdownButton<String> filter(UploadItem item) {
     return DropdownButton<String>(
-        hint: new Text("Status"),
-        isExpanded: true,
-        style: TextStyle(fontFamily: "Avenir", color: colorTheme3),
-        value: item.dropDownValue,
-        onChanged: (String newValue) {
-          setState(() => item.result = newValue);
-        },
-        items: [
-          DropdownMenuItem(value: "Pass", child: new Text("Pass")),
-          DropdownMenuItem(value: "Fail", child: new Text("Fail")),
-          DropdownMenuItem(value: "N/A", child: new Text("N/A")),
-        ]);
+      hint: Text("Status"),
+      isExpanded: true,
+      style: TextStyle(fontFamily: "Avenir", color: colorTheme3),
+      value: item.dropDownValue,
+      onChanged: (String? newValue) {
+        setState(() => item.result = newValue ?? "");
+      },
+      items: [
+        DropdownMenuItem(value: "Pass", child: Text("Pass")),
+        DropdownMenuItem(value: "Fail", child: Text("Fail")),
+        DropdownMenuItem(value: "N/A", child: Text("N/A")),
+      ],
+    );
   }
 
   void alert(String txt) {
     showDialog(
-        context: context,
-        builder: (BuildContext context) => CustomDialog(
-            description: txt,
-            buttonText: "Okay",
-            image: Image.asset(
-              "assets/icon_trans.png",
-              height: 40,
-            )));
+      context: context,
+      builder: (BuildContext context) => CustomDialog(
+        description: txt,
+        buttonText: "Okay",
+        image: Image.asset("assets/icon_trans.png", height: 40),
+      ),
+    );
   }
 }
 
@@ -228,20 +211,27 @@ class UploadItem {
   String result;
   String remark;
 
-  UploadItem(
-      {this.index, this.id, this.number, this.desc, this.result, this.remark});
+  UploadItem({
+    required this.index,
+    required this.id,
+    required this.number,
+    required this.desc,
+    this.result = "",
+    this.remark = "",
+  });
 
-  factory UploadItem.from({String index, FormCItem item}) {
+  factory UploadItem.from({required String index, required FormCItem item}) {
     return UploadItem(
-        index: index,
-        id: item.ppmTaskQualId,
-        number: item.ppmTaskQualNumb,
-        desc: item.ppmTaskQualDesc,
-        result: item.ppmTaskQualResult,
-        remark: item.ppmTaskQualRemark);
+      index: index,
+      id: item.ppmTaskQualId,
+      number: item.ppmTaskQualNumb,
+      desc: item.ppmTaskQualDesc,
+      result: item.ppmTaskQualResult,
+      remark: item.ppmTaskQualRemark,
+    );
   }
 
-  String get dropDownValue {
+  String? get dropDownValue {
     switch (result) {
       case "Pass":
         return "Pass";
@@ -265,7 +255,6 @@ class UploadItem {
       return "";
   }
 
-  @override
   Map<String, dynamic> get body => {
         "ppmTaskQual[$index][id]": id,
         "ppmTaskQual[$index][result]": statusCheck,

@@ -1,3 +1,14 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath 'com.google.gms:google-services:4.3.15'
+    }
+}
+
 allprojects {
     repositories {
         google()
@@ -8,6 +19,13 @@ allprojects {
 rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
+    //>>>>>>>>>>>>>>>>>>> Add this  >>>>>>>>>>>>
+    afterEvaluate {
+        android {
+            compileSdkVersion 35
+        }
+    }
+    //>>>>>>>>>>>>> End  >>>>>>>>>>>>>
 }
 subprojects {
     afterEvaluate { project ->

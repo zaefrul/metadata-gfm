@@ -9,6 +9,8 @@ final String api_save = 'save_wr_rectification_time, woTaskId=';
 final String id = '90';
 
 class APILIST extends StatefulWidget {
+  const APILIST({Key? key}) : super(key: key);
+
   @override
   _APILISTState createState() => _APILISTState();
 }
@@ -26,7 +28,7 @@ class _APILISTState extends State<APILIST> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("testing"),
+        title: const Text("testing"),
       ),
       body: Container(
         height: MediaQuery.of(context).size.height,
@@ -34,24 +36,25 @@ class _APILISTState extends State<APILIST> {
           children: [
             Expanded(
               child: ListView(
-                  children: [api_rect, api_save]
-                      .map((e) => TileBuild(
-                            url: e,
-                            sink: _result.sink,
-                            isGet: api_rect == e,
-                            isPost: api_save == e,
-                          ))
-                      .toList()),
+                children: [api_rect, api_save]
+                    .map((e) => TileBuild(
+                          url: e,
+                          sink: _result.sink,
+                          isGet: e == api_rect,
+                          isPost: e == api_save,
+                        ))
+                    .toList(),
+              ),
             ),
             Center(
-                child: StreamBuilder(
-              stream: _result.stream,
-              builder: (context, snapshot) {
-                if (snapshot.data == null) return Container();
-                final result = snapshot.data;
-                return Text(result);
-              },
-            ))
+              child: StreamBuilder<String>(
+                stream: _result.stream,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) return Container();
+                  return Text(snapshot.data!);
+                },
+              ),
+            )
           ],
         ),
       ),
@@ -61,58 +64,59 @@ class _APILISTState extends State<APILIST> {
 
 class TileBuild extends StatelessWidget {
   final String url;
-  final Sink sink;
+  final Sink<String> sink;
   final bool isGet;
   final bool isPost;
 
-  const TileBuild(
-      {Key key,
-      @required this.url,
-      @required this.sink,
-      this.isGet = false,
-      this.isPost = false})
-      : super(key: key);
+  const TileBuild({
+    Key? key,
+    required this.url,
+    required this.sink,
+    this.isGet = false,
+    this.isPost = false,
+  }) : super(key: key);
+
+  void onTap() {
+    final Provider provider = Provider(fetchURL: url, taskID: id);
+    try {
+      var result;
+      if (isGet) {
+        result = provider.fetch();
+      } else {
+        result = provider.post(url: url, body: {"action": url});
+      }
+      sink.add(result.toString());
+    } catch (e) {
+      sink.add(e.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListTile(
       title: Text("API $url"),
       onTap: onTap,
       trailing: TextButton(
-        child: Text('TEST'),
+        child: const Text('TEST'),
         onPressed: onTap,
       ),
     );
   }
-
-  void onTap() {
-    final Provider provider = Provider(
-      fetchURL: url,
-      taskID: id,
-    );
-
-    try {
-      var result;
-      if (isGet)
-        result = provider.fetch();
-      else
-        result = provider.post();
-
-      sink.add(result);
-    } catch (e) {
-      sink.add(e.toString());
-    }
-  }
 }
 
 class SampleScreen extends StatelessWidget {
+  const SampleScreen({Key? key}) : super(key: key);
+
   Widget status(String title, Color color) => Container(
-      alignment: Alignment.center,
-      height: 30.0,
-      width: 100.0,
-      decoration: BoxDecoration(
-          color: color, borderRadius: new BorderRadius.circular(20.0)),
-      child: new Text(title,
-          style: TextStyle(color: Colors.white, fontFamily: 'Avenir')));
+        alignment: Alignment.center,
+        height: 30.0,
+        width: 100.0,
+        decoration: BoxDecoration(
+            color: color, borderRadius: BorderRadius.circular(20.0)),
+        child: Text(title,
+            style: const TextStyle(
+                color: Colors.white, fontFamily: 'Avenir')),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -120,61 +124,61 @@ class SampleScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               "Demo LKIM",
-              style: TextStyle(fontWeight: FontWeight.bold, color: colorTheme3),
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, color: colorTheme3),
             ),
-            Text(
+            const Text(
               "WRLKIM20041700002",
               style: TextStyle(fontSize: 16),
             )
           ],
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
         ),
-        leading: Icon(Icons.chevron_left_outlined, size: 32),
+        leading: const Icon(Icons.chevron_left_outlined, size: 32),
       ),
       body: ListView(
-        padding: EdgeInsets.only(top: 12),
+        padding: const EdgeInsets.only(top: 12),
         children: [
           ListTile(
             title: Row(
               children: [
-                Text("A. Complaints Details"),
-                Spacer(),
+                const Text("A. Complaints Details"),
+                const Spacer(),
                 status("Info", colorTheme2)
               ],
             ),
-            trailing: Icon(Icons.arrow_right),
+            trailing: const Icon(Icons.arrow_right),
           ),
-          Divider(thickness: 1),
+          const Divider(thickness: 1),
           ListTile(
             title: Row(
               children: [
-                Text("B. Assign Executor"),
-                Spacer(),
+                const Text("B. Assign Executor"),
+                const Spacer(),
                 status("Pending", colorTheme4)
               ],
             ),
-            trailing: Icon(Icons.arrow_right),
+            trailing: const Icon(Icons.arrow_right),
           ),
-          Divider(thickness: 1),
+          const Divider(thickness: 1),
           ListTile(
             title: Row(
               children: [
-                Text("C. Rectification Time"),
-                Spacer(),
+                const Text("C. Rectification Time"),
+                const Spacer(),
                 status("Pending", colorTheme4)
               ],
             ),
-            trailing: Icon(Icons.arrow_right),
+            trailing: const Icon(Icons.arrow_right),
           )
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: colorTheme3,
-        label: Text("Submit"),
+        label: const Text("Submit"),
         onPressed: () {},
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

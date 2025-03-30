@@ -9,17 +9,20 @@ class ListReading extends StatelessWidget {
   final Meter reading;
   final bool isWater;
   final bool isElectric;
-  final Stream streamMonthly;
-  final Stream streamDaily;
+  final Stream<List<Reading>>? streamMonthly;
+  final Stream<List<Reading>>? streamDaily;
 
-  ListReading(this.bloc, this.reading,
-      {this.isWater = false, this.isElectric = false})
-      : this.streamMonthly = isWater
+  ListReading(
+    this.bloc,
+    this.reading, {
+    this.isWater = false,
+    this.isElectric = false,
+  })  : streamMonthly = isWater
             ? bloc.rmw$
             : isElectric
                 ? bloc.rme$
                 : null,
-        this.streamDaily = isWater
+        streamDaily = isWater
             ? bloc.rdw$
             : isElectric
                 ? bloc.rde$
@@ -41,14 +44,10 @@ class ListReading extends StatelessWidget {
         appBar: AppBar(
           title: Text("${reading.meterLocation} : Daily Reading"),
           backgroundColor: Colors.white,
+          // Uncomment below to enable a tab bar if needed.
           // bottom: TabBar(
           //   indicatorColor: colorTheme2,
           //   tabs: [
-          //     // Tab(
-          //     //     child: Text(
-          //     //   "Monthly",
-          //     //   style: TextStyle(color: Colors.black),
-          //     // )),
           //     Tab(
           //         child: Text(
           //       "Daily",
@@ -57,51 +56,31 @@ class ListReading extends StatelessWidget {
           //   ],
           // ),
         ),
-        body:
-            // TabBarView(
-            //   children: [
-            // StreamBuilder<List<Reading>>(
-            //     stream: streamMonthly,
-            //     builder: (_, s) {
-            //       if (s.hasData == false)
-            //         return Center(child: CircularProgressIndicator());
-            //       return RefreshIndicator(
-            //         onRefresh: () => isWater
-            //             ? bloc.fetch(api.ReadingMW)
-            //             : bloc.fetch(api.ReadingME),
-            //         child: ListView.separated(
-            //           padding: EdgeInsets.symmetric(vertical: 12),
-            //           itemBuilder: (_, i) => TileMonthly(
-            //             bloc,
-            //             s.data[i] ?? null,
-            //             isWater: isWater,
-            //             isElectric: isElectric,
-            //           ),
-            //           itemCount: s.data?.length ?? 0,
-            //           separatorBuilder: (_, __) =>
-            //               Divider(color: colorTheme3.withOpacity(0.7)),
-            //         ),
-            //       );
-            //     }),
-            StreamBuilder<List<Reading>>(
-                stream: streamDaily,
-                builder: (_, s) {
-                  return RefreshIndicator(
-                    onRefresh: () => isWater
-                        ? bloc.fetch(api.ReadingDW)
-                        : bloc.fetch(api.ReadingDE),
-                    child: ListView.separated(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      itemBuilder: (_, i) =>
-                          TileDaily(s.data[i] ?? null, isWater: isWater),
-                      itemCount: s.data?.length ?? 0,
-                      separatorBuilder: (_, __) =>
-                          Divider(color: colorTheme3.withOpacity(0.7)),
-                    ),
-                  );
-                }),
-        // ],
-        // ),
+        body: StreamBuilder<List<Reading>>(
+          stream: streamDaily,
+          builder: (context, s) {
+            if (!s.hasData) {
+              return Center(child: CircularProgressIndicator());
+            }
+            final List<Reading> data = s.data!;
+            return RefreshIndicator(
+              onRefresh: () async {
+                if (isWater) {
+                  bloc.fetch(api.ReadingDW);
+                } else {
+                  bloc.fetch(api.ReadingDE);
+                }
+              },
+              child: ListView.separated(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                itemCount: data.length,
+                itemBuilder: (context, i) => TileDaily(data[i], isWater: isWater),
+                separatorBuilder: (context, index) =>
+                    Divider(color: colorTheme3.withOpacity(0.7)),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -113,14 +92,18 @@ class TileMonthly extends StatelessWidget {
   final bool isWater;
   final bool isElectric;
 
-  TileMonthly(this.bloc, this.value,
-      {this.isElectric = false, this.isWater = false});
+  TileMonthly(
+    this.bloc,
+    this.value, {
+    this.isElectric = false,
+    this.isWater = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(
-        "Amount : RM " + value.utilityTotalRm,
+        "Amount : RM " + (value.utilityTotalRm ?? "0.00"),
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
       subtitle: Padding(
@@ -128,9 +111,9 @@ class TileMonthly extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Total(kWh) : " + value.utilityReading),
+            Text("Total(kWh) : " + (value.utilityReading ?? "N/A")),
             SizedBox(height: 6),
-            Text("Max Demand : " + value.utilityMaxDemand),
+            Text("Max Demand : " + (value.utilityMaxDemand ?? "N/A")),
           ],
         ),
       ),
@@ -145,21 +128,9 @@ class TileMonthly extends StatelessWidget {
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
-      // onTap: () {
-      //   bloc.sDay = value;
-      //   Navigator.push(
-      //       context,
-      //       MaterialPageRoute(
-      //           builder: (_) => page.ListReading(
-      //                 bloc,
-      //                 value,
-      //                 isWater: isWater,
-      //                 isElectric: isElectric,
-      //               )));
-      // },
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => ViewImage(url: value.utilityImage),
+          builder: (_) => ViewImage(url: value.utilityImage ?? ''),
         ),
       ),
     );
@@ -175,7 +146,7 @@ class TileDaily extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(
-        "Consumption : " + value.utilityReading,
+        "Consumption : " + (value.utilityReading ?? "N/A"),
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
       subtitle: Padding(
@@ -185,10 +156,9 @@ class TileDaily extends StatelessWidget {
           children: [
             Text("Timestamp : " + value.time),
             SizedBox(height: 6),
-            Text("By : " + value.utilityRecordedBy),
+            Text("By : " + (value.utilityRecordedBy ?? "Unknown")),
             if (isWater) SizedBox(height: 6),
-            if (isWater)
-              Text("Submission Shift : " + (value.utilityShift ?? "")),
+            if (isWater) Text("Submission Shift : " + (value.utilityShift ?? "")),
           ],
         ),
       ),
@@ -205,7 +175,7 @@ class TileDaily extends StatelessWidget {
       ),
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => ViewImage(url: value.utilityImage),
+          builder: (_) => ViewImage(url: value.utilityImage ?? ''),
         ),
       ),
     );
@@ -215,10 +185,13 @@ class TileDaily extends StatelessWidget {
 class ViewImage extends StatelessWidget {
   final String url;
 
-  const ViewImage({Key key, this.url}) : super(key: key);
+  const ViewImage({Key? key, required this.url}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(child: PhotoView(imageProvider: NetworkImage(url)));
+    return Scaffold(
+      appBar: AppBar(title: Text("View Image")),
+      body: Container(child: PhotoView(imageProvider: NetworkImage(url))),
+    );
   }
 }

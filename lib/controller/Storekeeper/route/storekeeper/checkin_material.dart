@@ -40,7 +40,7 @@ class _ListMaterial extends StatelessWidget {
           return Column(
             children: snapshot.data == null
                 ? []
-                : snapshot.data.map((e) => Text(e.itemId)).toList(),
+                : snapshot.data?.map((e) => Text(e.itemId)).toList() ?? [],
           );
         });
   }
@@ -62,7 +62,7 @@ class Controller {
 
   Controller() {
     SharedPreferences.getInstance().then((value) {
-      final List<String> list = value.getStringList("material_checkin");
+      final List<String> list = value.getStringList("material_checkin") ?? [];
       return list.map((e) => Item.fromString(jsonDecode(e))).toList();
     }).then((value) => setItems(value));
   }

@@ -53,7 +53,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
     final Provider _providerMeter = Provider(fetchURL: "/utility_meter/Water");
     _providerMeter.context = context;
 
-    _providerMeter.getJson().then((value) {
+    _providerMeter.getJson(url: "/utility_meter/Water").then((value) {
       final values = deserializeListOf<Meter>(value).toList();
       setState(() {
         list = values;
@@ -125,12 +125,15 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
     bool checkEmpty = false;
     List<TextEditingController> tempCtrl = [];
 
-    checkEmpty = _controllers.firstWhere((element) => element.text.isEmpty,
-            orElse: () => null) !=
-        null;
+    try {
+      _controllers.firstWhere((element) => element.text.isEmpty);
+      checkEmpty = true;
+    } catch (e) {
+      checkEmpty = false;
+    }
     if (checkEmpty) {
       Toast.show("Please check all fields");
-      return "Please check all fields";
+      return;
     }
 
     if (widget.isDaily) {
@@ -146,7 +149,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
         final _ = double.parse(ctrl.text);
       } catch (err) {
         Toast.show("Please check all fields must be numerical");
-        return "Please check all fields must be numerical";
+        return;
       }
     }
 
@@ -154,7 +157,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
 
     if (checkEmpty) {
       Toast.show("Please insert image");
-      return "Please insert image";
+      return;
     }
 
     showDialog(
@@ -162,7 +165,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
       builder: (_) => Center(child: CircularProgressIndicator()),
     );
 
-    final Provider _provider = Provider();
+    final Provider _provider = Provider(fetchURL: "/utility/Water/");
     _provider.context = context;
 
     File file = listItem.first;
@@ -180,7 +183,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
     image.image
         .resolve(ImageConfiguration())
         .completer
-        .addListener(ImageStreamListener((info, _) async {
+        ?.addListener(ImageStreamListener((info, _) async {
       String height = info.image.height.toString();
       String width = info.image.width.toString();
 
@@ -238,7 +241,11 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
           underline: Container(),
           value: snapshot.data,
           hint: Text("Select Location"),
-          onChanged: (Meter newValue) => dropdownValue.sink.add(newValue),
+          onChanged: (Meter? newValue) {
+            if (newValue != null) {
+              dropdownValue.sink.add(newValue);
+            }
+          },
           items: values.map<DropdownMenuItem<Meter>>((Meter value) {
             return DropdownMenuItem<Meter>(
               value: value,

@@ -12,28 +12,25 @@ class LeaderboardView extends StatefulWidget {
 
 class _LeaderboardViewState extends State<LeaderboardView>
     with TickerProviderStateMixin {
-  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  TabController _tabController;
-  _Controller _controller;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  late TabController _tabController;
+  late _Controller _controller;
 
-  final now;
-  int month;
-  int year;
+  final DateTime now = DateTime.now();
+  int month = DateTime.now().month;
+  int year = DateTime.now().year;
 
   String selectedIndividual = "Monthly";
   String selectedProjects = "Monthly";
 
   List<IndividualGamification> _individuals = [];
   List<ProjectGamification> _projects = [];
-  GamificationInfo _score;
+  GamificationInfo? _score;
   List<Widget> _individualTiles = [];
   List<Widget> _projectsTiles = [];
 
-  _LeaderboardViewState()
-      : this.now = DateTime.now(),
-        this.month = DateTime.now().month,
-        this.year = DateTime.now().year {
-    _controller = _Controller(this.month, this.year);
+  _LeaderboardViewState() {
+    _controller = _Controller(month, year);
     refresh();
   }
 
@@ -68,9 +65,8 @@ class _LeaderboardViewState extends State<LeaderboardView>
       lastDate: lastDate,
     );
     if (selected != null) {
-      this.month = selected.month;
-      this.year = selected.year;
-
+      month = selected.month;
+      year = selected.year;
       _controller.month = selected.month;
       _controller.year = selected.year;
       refresh();
@@ -78,63 +74,69 @@ class _LeaderboardViewState extends State<LeaderboardView>
   }
 
   @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          title: Text("Leaderboard", style: TextStyle(color: colorTheme3)),
-          backgroundColor: Colors.white,
-          centerTitle: true,
-          leading: new IconButton(
-              icon: new Image.asset("assets/icon_trans.png", width: 30.0),
-              color: Colors.black,
-              onPressed: () {
-                _scaffoldKey.currentState.openDrawer();
-              }),
-          bottom: TabBar(
-            controller: _tabController,
-            indicatorColor: colorTheme2,
-            labelColor: colorTheme3,
-            tabs: [
-              Tab(text: "Individual"),
-              Tab(text: "Projects"),
-            ],
-          ),
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        title: Text("Leaderboard", style: TextStyle(color: colorTheme3)),
+        backgroundColor: Colors.white,
+        centerTitle: true,
+        leading: IconButton(
+          icon: Image.asset("assets/icon_trans.png", width: 30.0),
+          color: Colors.black,
+          onPressed: () {
+            _scaffoldKey.currentState!.openDrawer();
+          },
         ),
-        drawer: BuildDrawer(() => Navigator.pop(context)),
-        body: TabBarView(
+        bottom: TabBar(
           controller: _tabController,
-          children: [
-            RefreshIndicator(
-                onRefresh: refresh,
-                child: ListView(children: _individualTiles)),
-            RefreshIndicator(
-                onRefresh: refresh, child: ListView(children: _projectsTiles)),
+          indicatorColor: colorTheme2,
+          labelColor: colorTheme3,
+          tabs: [
+            Tab(text: "Individual"),
+            Tab(text: "Projects"),
           ],
         ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: null,
-          label: Text("Current Scoring Point : ${_score.gmiPointTotal ?? 0}"),
-          backgroundColor: colorTheme1,
-        ),
+      ),
+      drawer: BuildDrawer(() => Navigator.pop(context)),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          RefreshIndicator(
+              onRefresh: refresh, child: ListView(children: _individualTiles)),
+          RefreshIndicator(
+              onRefresh: refresh, child: ListView(children: _projectsTiles)),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: null,
+        label: Text(
+            "Current Scoring Point : ${_score?.gmiPointTotal ?? 0}"),
+        backgroundColor: colorTheme1,
       ),
     );
   }
 
-  individual(String value) => setState(() => selectedIndividual = value);
-  project(String value) => setState(() => selectedProjects = value);
+  void individual(String value) => setState(() => selectedIndividual = value);
+  void project(String value) => setState(() => selectedProjects = value);
 
-  Widget getDropdown(Function(String) onChange, String item) {
+  Widget getDropdown(VoidCallback onChange(String), String item) {
     return DropdownButton<String>(
-      underline: new Container(),
+      underline: Container(),
       value: item,
-      items: [
-        "Yearly",
-        "Monthly",
-        "Weekly",
-      ]
+      items: ["Yearly", "Monthly", "Weekly"]
           .map<DropdownMenuItem<String>>((e) => DropdownMenuItem(
                 child: Text(e),
                 value: e,
@@ -151,13 +153,6 @@ class _LeaderboardViewState extends State<LeaderboardView>
         padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: Text(place.toUpperCase()),
       ),
-      // Padding(
-      //   padding: EdgeInsets.all(4),
-      //   child: Column(
-      //     crossAxisAlignment: CrossAxisAlignment.start,
-      //     children: [Text(place), SizedBox(height: 6), Text(type)],
-      //   ),
-      // ),
       trailing: Container(
         padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         decoration: BoxDecoration(
@@ -183,7 +178,7 @@ class _LeaderboardViewState extends State<LeaderboardView>
     );
   }
 
-  Widget _header(int index, Function onTap) {
+  Widget _header(int index, VoidCallback onTap) {
     List<String> months = [
       'January',
       'February',
@@ -208,9 +203,6 @@ class _LeaderboardViewState extends State<LeaderboardView>
           ),
           trailing: Icon(Icons.calendar_month, color: colorTheme2),
           onTap: onTap,
-          // index == 0
-          //     ? getDropdown(individual, selectedIndividual)
-          //     : getDropdown(project, selectedProjects),
         ),
         Container(
           width: double.infinity,
@@ -238,24 +230,28 @@ class _Controller {
   int year;
 
   _Controller(this.month, this.year);
+
   Future<List<IndividualGamification>> get individuals =>
       Provider(fetchURL: "/gamification/gmi_monthly_top_5_m/$year/$month")
-          .getJson()
+          .getJson(url: "/gamification/gmi_monthly_top_5_m/$year/$month")
           .then((value) => value
               .map<IndividualGamification>(
                   (v) => IndividualGamification.fromJson(v))
               .toList());
-  Future<List<ProjectGamification>> get projects => Provider(
-          fetchURL: "/gamification/gmi_monthly_top_5_project_m/$year/$month")
-      .getJson()
-      .then((value) => value
-          .map<ProjectGamification>((v) => ProjectGamification.fromJson(v))
-          .toList());
+
+  Future<List<ProjectGamification>> get projects =>
+      Provider(fetchURL: "/gamification/gmi_monthly_top_5_project_m/$year/$month")
+          .getJson(url: "/gamification/gmi_monthly_top_5_project_m/$year/$month")
+          .then((value) => value
+              .map<ProjectGamification>((v) => ProjectGamification.fromJson(v))
+              .toList());
+
   Future<GamificationInfo> get score =>
       Provider(fetchURL: "/gamification/current_score")
-          .getJson()
+          .getJson(url: "/gamification/current_score")
           .then((value) => GamificationInfo.fromJson(value))
           .catchError((e) {
         print(e);
+        throw e;
       });
 }

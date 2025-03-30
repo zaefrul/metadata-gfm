@@ -38,10 +38,10 @@ class _$ComplaintDSerializer implements StructuredSerializer<ComplaintD> {
   final String wireName = 'ComplaintD';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, ComplaintD object,
+  Iterable<Object?> serialize(Serializers serializers, ComplaintD object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[];
-    Object value;
+    final result = <Object?>[];
+    Object? value;
     value = object.woTaskPartsId;
     if (value != null) {
       result
@@ -124,61 +124,61 @@ class _$ComplaintDSerializer implements StructuredSerializer<ComplaintD> {
   }
 
   @override
-  ComplaintD deserialize(Serializers serializers, Iterable<Object> serialized,
+  ComplaintD deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new ComplaintDBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'woTaskPartsId':
           result.woTaskPartsId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'woTaskRequestId':
           result.woTaskRequestId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partId':
           result.partId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'woTaskPartsQuantity':
           result.woTaskPartsQuantity = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'woTaskPartsRemark':
           result.woTaskPartsRemark = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'woTaskPartsStatus':
           result.woTaskPartsStatus = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'itemDescription':
           result.itemDescription = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'itemTypeDesc':
           result.itemTypeDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'assetGroupName':
           result.assetGroupName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'statusDesc':
           result.statusDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'images':
           result.images.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
-                      BuiltList, const [const FullType(ComplaintDImage)]))
-              as BuiltList<Object>);
+                      BuiltList, const [const FullType(ComplaintDImage)]))!
+              as BuiltList<Object?>);
           break;
       }
     }
@@ -195,10 +195,10 @@ class _$ComplaintDStoreSerializer
   final String wireName = 'ComplaintDStore';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, ComplaintDStore object,
+  Iterable<Object?> serialize(Serializers serializers, ComplaintDStore object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[];
-    Object value;
+    final result = <Object?>[];
+    Object? value;
     value = object.itemId;
     if (value != null) {
       result
@@ -218,23 +218,23 @@ class _$ComplaintDStoreSerializer
 
   @override
   ComplaintDStore deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new ComplaintDStoreBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'storeId':
           result.itemId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'storeName':
           result.itemName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
       }
     }
@@ -254,11 +254,11 @@ class _$ComplaintDGroupStoreSerializer
   final String wireName = 'ComplaintDGroupStore';
 
   @override
-  Iterable<Object> serialize(
+  Iterable<Object?> serialize(
       Serializers serializers, ComplaintDGroupStore object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[];
-    Object value;
+    final result = <Object?>[];
+    Object? value;
     value = object.itemId;
     if (value != null) {
       result
@@ -286,29 +286,29 @@ class _$ComplaintDGroupStoreSerializer
 
   @override
   ComplaintDGroupStore deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new ComplaintDGroupStoreBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'assetGroupId':
           result.itemId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'assetGroupName':
           result.itemName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'itemTypes':
           result.itemTypes.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
-                      BuiltList, const [const FullType(ComplaintDType)]))
-              as BuiltList<Object>);
+                      BuiltList, const [const FullType(ComplaintDType)]))!
+              as BuiltList<Object?>);
           break;
       }
     }
@@ -325,10 +325,10 @@ class _$ComplaintDGroupSerializer
   final String wireName = 'ComplaintDGroup';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, ComplaintDGroup object,
+  Iterable<Object?> serialize(Serializers serializers, ComplaintDGroup object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[];
-    Object value;
+    final result = <Object?>[];
+    Object? value;
     value = object.itemId;
     if (value != null) {
       result
@@ -362,31 +362,31 @@ class _$ComplaintDGroupSerializer
 
   @override
   ComplaintDGroup deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new ComplaintDGroupBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'asset_group_id':
           result.itemId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'asset_group_name':
           result.itemName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'assetGroupDesc':
           result.itemDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'assetGroupStatus':
           result.itemStatus = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
       }
     }
@@ -403,10 +403,10 @@ class _$ComplaintDTypeSerializer
   final String wireName = 'ComplaintDType';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, ComplaintDType object,
+  Iterable<Object?> serialize(Serializers serializers, ComplaintDType object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[];
-    Object value;
+    final result = <Object?>[];
+    Object? value;
     value = object.itemId;
     if (value != null) {
       result
@@ -455,41 +455,41 @@ class _$ComplaintDTypeSerializer
 
   @override
   ComplaintDType deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new ComplaintDTypeBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'item_type_id':
           result.itemId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'assetGroupId':
           result.itemGroupId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'item_type_desc':
           result.itemName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'itemTypeDesc':
           result.itemTypeDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'itemTypeStatus':
           result.itemStatus = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'parts':
           result.parts.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
-                      BuiltList, const [const FullType(ComplaintMaterial)]))
-              as BuiltList<Object>);
+                      BuiltList, const [const FullType(ComplaintMaterial)]))!
+              as BuiltList<Object?>);
           break;
       }
     }
@@ -509,11 +509,11 @@ class _$ComplaintDStoreTypeSerializer
   final String wireName = 'ComplaintDStoreType';
 
   @override
-  Iterable<Object> serialize(
+  Iterable<Object?> serialize(
       Serializers serializers, ComplaintDStoreType object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[];
-    Object value;
+    final result = <Object?>[];
+    Object? value;
     value = object.itemId;
     if (value != null) {
       result
@@ -541,29 +541,29 @@ class _$ComplaintDStoreTypeSerializer
 
   @override
   ComplaintDStoreType deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new ComplaintDStoreTypeBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'itemTypeId':
           result.itemId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'itemTypeDesc':
           result.itemName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'parts':
           result.parts.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
-                      BuiltList, const [const FullType(ComplaintMaterial)]))
-              as BuiltList<Object>);
+                      BuiltList, const [const FullType(ComplaintMaterial)]))!
+              as BuiltList<Object?>);
           break;
       }
     }
@@ -580,10 +580,10 @@ class _$ComplaintDPartSerializer
   final String wireName = 'ComplaintDPart';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, ComplaintDPart object,
+  Iterable<Object?> serialize(Serializers serializers, ComplaintDPart object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[];
-    Object value;
+    final result = <Object?>[];
+    Object? value;
     value = object.itemId;
     if (value != null) {
       result
@@ -645,47 +645,47 @@ class _$ComplaintDPartSerializer
 
   @override
   ComplaintDPart deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new ComplaintDPartBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'item_id':
           result.itemId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'item_description':
           result.itemName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partCounts':
           result.itemQuantity = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'itemTypeDesc':
           result.itemTypeDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partLocked':
           result.partLocked = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partMaxOrder':
           result.partMaxOrder = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partMinOrder':
           result.partMinOrder = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partRemark':
           result.partRemark = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
       }
     }
@@ -702,10 +702,10 @@ class _$MaterialStorePartSerializer
   final String wireName = 'MaterialStorePart';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, MaterialStorePart object,
+  Iterable<Object?> serialize(Serializers serializers, MaterialStorePart object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[];
-    Object value;
+    final result = <Object?>[];
+    Object? value;
     value = object.itemDescription;
     if (value != null) {
       result
@@ -767,47 +767,47 @@ class _$MaterialStorePartSerializer
 
   @override
   MaterialStorePart deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new MaterialStorePartBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'itemDescription':
           result.itemDescription = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partAvailable':
           result.partAvailable = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partCount':
           result.partCount = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partId':
           result.partId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partLocked':
           result.partLocked = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partMaxOrder':
           result.partMaxOrder = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partMinOrder':
           result.partMinOrder = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partRemark':
           result.partRemark = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
       }
     }
@@ -824,10 +824,10 @@ class _$ComplaintDImageSerializer
   final String wireName = 'ComplaintDImage';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, ComplaintDImage object,
+  Iterable<Object?> serialize(Serializers serializers, ComplaintDImage object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[];
-    Object value;
+    final result = <Object?>[];
+    Object? value;
     value = object.file;
     if (value != null) {
       result
@@ -861,31 +861,31 @@ class _$ComplaintDImageSerializer
 
   @override
   ComplaintDImage deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new ComplaintDImageBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'file':
           result.file = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'title':
           result.title = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'width':
           result.width = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'height':
           result.height = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
       }
     }
@@ -901,10 +901,10 @@ class _$RequestTaskSerializer implements StructuredSerializer<RequestTask> {
   final String wireName = 'RequestTask';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, RequestTask object,
+  Iterable<Object?> serialize(Serializers serializers, RequestTask object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[];
-    Object value;
+    final result = <Object?>[];
+    Object? value;
     value = object.requestBy;
     if (value != null) {
       result
@@ -1000,67 +1000,67 @@ class _$RequestTaskSerializer implements StructuredSerializer<RequestTask> {
   }
 
   @override
-  RequestTask deserialize(Serializers serializers, Iterable<Object> serialized,
+  RequestTask deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new RequestTaskBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'requestBy':
           result.requestBy = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'requestTime':
           result.requestTime = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'statusDesc':
           result.statusDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'statusId':
           result.statusId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'taskFrom':
           result.taskFrom = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'taskReceivedTime':
           result.taskReceivedTime = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'woSeverityDesc':
           result.woSeverityDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'woTaskNo':
           result.woTaskNo = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'woTaskRequestId':
           result.woTaskRequestId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'woTaskRequestNo':
           result.woTaskRequestNo = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'woTypeDesc':
           result.woTypeDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'collectTime':
           result.collectTime = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'siteName':
           result.siteName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
       }
     }
@@ -1077,10 +1077,10 @@ class _$ComplaintMaterialSerializer
   final String wireName = 'ComplaintMaterial';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, ComplaintMaterial object,
+  Iterable<Object?> serialize(Serializers serializers, ComplaintMaterial object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[];
-    Object value;
+    final result = <Object?>[];
+    Object? value;
     value = object.assetGroupId;
     if (value != null) {
       result
@@ -1200,83 +1200,83 @@ class _$ComplaintMaterialSerializer
 
   @override
   ComplaintMaterial deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new ComplaintMaterialBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'assetGroupId':
           result.assetGroupId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'assetGroupName':
           result.assetGroupName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'itemDescription':
           result.itemDescription = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'itemId':
           result.itemId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'itemTypeDesc':
           result.itemTypeDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'itemTypeId':
           result.itemTypeId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partAvailable':
           result.partAvailable = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partCount':
           result.partCount = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partId':
           result.partId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partLocked':
           result.partLocked = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partMaxOrder':
           result.partMaxOrder = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partMinOrder':
           result.partMinOrder = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partRemark':
           result.partRemark = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partThreshold':
           result.partThreshold = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'itemGrouped':
           result.itemGrouped.replace(serializers.deserialize(value,
               specifiedType: const FullType(BuiltList, const [
                 const FullType(ComplaintMaterialGrouped)
-              ])) as BuiltList<Object>);
+              ]))! as BuiltList<Object?>);
           break;
         case 'images':
           result.images.replace(serializers.deserialize(value,
               specifiedType: const FullType(BuiltList, const [
                 const FullType(ComplaintMaterialImage)
-              ])) as BuiltList<Object>);
+              ]))! as BuiltList<Object?>);
           break;
       }
     }
@@ -1296,10 +1296,10 @@ class _$ComplaintMaterialGroupedSerializer
   final String wireName = 'ComplaintMaterialGrouped';
 
   @override
-  Iterable<Object> serialize(
+  Iterable<Object?> serialize(
       Serializers serializers, ComplaintMaterialGrouped object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'dateCheckIn',
       serializers.serialize(object.dateCheckIn,
           specifiedType: const FullType(String)),
@@ -1330,47 +1330,47 @@ class _$ComplaintMaterialGroupedSerializer
 
   @override
   ComplaintMaterialGrouped deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new ComplaintMaterialGroupedBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'dateCheckIn':
           result.dateCheckIn = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'doNo':
           result.doNo = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'partSubCost':
           result.partSubCost = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'partSubLocation':
           result.partSubLocation = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'partSubValidity':
           result.partSubValidity = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'partSubWarranty':
           result.partSubWarranty = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'supplierName':
           result.supplierName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'total':
           result.total = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
       }
     }
@@ -1390,11 +1390,11 @@ class _$ComplaintMaterialImageSerializer
   final String wireName = 'ComplaintMaterialImage';
 
   @override
-  Iterable<Object> serialize(
+  Iterable<Object?> serialize(
       Serializers serializers, ComplaintMaterialImage object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[];
-    Object value;
+    final result = <Object?>[];
+    Object? value;
     value = object.file;
     if (value != null) {
       result
@@ -1428,31 +1428,31 @@ class _$ComplaintMaterialImageSerializer
 
   @override
   ComplaintMaterialImage deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new ComplaintMaterialImageBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'file':
           result.file = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'height':
           result.height = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'width':
           result.width = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'title':
           result.title = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
       }
     }
@@ -1463,29 +1463,29 @@ class _$ComplaintMaterialImageSerializer
 
 class _$ComplaintD extends ComplaintD {
   @override
-  final String woTaskPartsId;
+  final String? woTaskPartsId;
   @override
-  final String woTaskRequestId;
+  final String? woTaskRequestId;
   @override
-  final String partId;
+  final String? partId;
   @override
-  final String woTaskPartsQuantity;
+  final String? woTaskPartsQuantity;
   @override
-  final String woTaskPartsRemark;
+  final String? woTaskPartsRemark;
   @override
-  final String woTaskPartsStatus;
+  final String? woTaskPartsStatus;
   @override
-  final String itemDescription;
+  final String? itemDescription;
   @override
-  final String itemTypeDesc;
+  final String? itemTypeDesc;
   @override
-  final String assetGroupName;
+  final String? assetGroupName;
   @override
-  final String statusDesc;
+  final String? statusDesc;
   @override
-  final BuiltList<ComplaintDImage> images;
+  final BuiltList<ComplaintDImage>? images;
 
-  factory _$ComplaintD([void Function(ComplaintDBuilder) updates]) =>
+  factory _$ComplaintD([void Function(ComplaintDBuilder)? updates]) =>
       (new ComplaintDBuilder()..update(updates))._build();
 
   _$ComplaintD._(
@@ -1528,26 +1528,20 @@ class _$ComplaintD extends ComplaintD {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc(
-                            $jc(
-                                $jc(
-                                    $jc(
-                                        $jc($jc(0, woTaskPartsId.hashCode),
-                                            woTaskRequestId.hashCode),
-                                        partId.hashCode),
-                                    woTaskPartsQuantity.hashCode),
-                                woTaskPartsRemark.hashCode),
-                            woTaskPartsStatus.hashCode),
-                        itemDescription.hashCode),
-                    itemTypeDesc.hashCode),
-                assetGroupName.hashCode),
-            statusDesc.hashCode),
-        images.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, woTaskPartsId.hashCode);
+    _$hash = $jc(_$hash, woTaskRequestId.hashCode);
+    _$hash = $jc(_$hash, partId.hashCode);
+    _$hash = $jc(_$hash, woTaskPartsQuantity.hashCode);
+    _$hash = $jc(_$hash, woTaskPartsRemark.hashCode);
+    _$hash = $jc(_$hash, woTaskPartsStatus.hashCode);
+    _$hash = $jc(_$hash, itemDescription.hashCode);
+    _$hash = $jc(_$hash, itemTypeDesc.hashCode);
+    _$hash = $jc(_$hash, assetGroupName.hashCode);
+    _$hash = $jc(_$hash, statusDesc.hashCode);
+    _$hash = $jc(_$hash, images.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -1569,59 +1563,59 @@ class _$ComplaintD extends ComplaintD {
 }
 
 class ComplaintDBuilder implements Builder<ComplaintD, ComplaintDBuilder> {
-  _$ComplaintD _$v;
+  _$ComplaintD? _$v;
 
-  String _woTaskPartsId;
-  String get woTaskPartsId => _$this._woTaskPartsId;
-  set woTaskPartsId(String woTaskPartsId) =>
+  String? _woTaskPartsId;
+  String? get woTaskPartsId => _$this._woTaskPartsId;
+  set woTaskPartsId(String? woTaskPartsId) =>
       _$this._woTaskPartsId = woTaskPartsId;
 
-  String _woTaskRequestId;
-  String get woTaskRequestId => _$this._woTaskRequestId;
-  set woTaskRequestId(String woTaskRequestId) =>
+  String? _woTaskRequestId;
+  String? get woTaskRequestId => _$this._woTaskRequestId;
+  set woTaskRequestId(String? woTaskRequestId) =>
       _$this._woTaskRequestId = woTaskRequestId;
 
-  String _partId;
-  String get partId => _$this._partId;
-  set partId(String partId) => _$this._partId = partId;
+  String? _partId;
+  String? get partId => _$this._partId;
+  set partId(String? partId) => _$this._partId = partId;
 
-  String _woTaskPartsQuantity;
-  String get woTaskPartsQuantity => _$this._woTaskPartsQuantity;
-  set woTaskPartsQuantity(String woTaskPartsQuantity) =>
+  String? _woTaskPartsQuantity;
+  String? get woTaskPartsQuantity => _$this._woTaskPartsQuantity;
+  set woTaskPartsQuantity(String? woTaskPartsQuantity) =>
       _$this._woTaskPartsQuantity = woTaskPartsQuantity;
 
-  String _woTaskPartsRemark;
-  String get woTaskPartsRemark => _$this._woTaskPartsRemark;
-  set woTaskPartsRemark(String woTaskPartsRemark) =>
+  String? _woTaskPartsRemark;
+  String? get woTaskPartsRemark => _$this._woTaskPartsRemark;
+  set woTaskPartsRemark(String? woTaskPartsRemark) =>
       _$this._woTaskPartsRemark = woTaskPartsRemark;
 
-  String _woTaskPartsStatus;
-  String get woTaskPartsStatus => _$this._woTaskPartsStatus;
-  set woTaskPartsStatus(String woTaskPartsStatus) =>
+  String? _woTaskPartsStatus;
+  String? get woTaskPartsStatus => _$this._woTaskPartsStatus;
+  set woTaskPartsStatus(String? woTaskPartsStatus) =>
       _$this._woTaskPartsStatus = woTaskPartsStatus;
 
-  String _itemDescription;
-  String get itemDescription => _$this._itemDescription;
-  set itemDescription(String itemDescription) =>
+  String? _itemDescription;
+  String? get itemDescription => _$this._itemDescription;
+  set itemDescription(String? itemDescription) =>
       _$this._itemDescription = itemDescription;
 
-  String _itemTypeDesc;
-  String get itemTypeDesc => _$this._itemTypeDesc;
-  set itemTypeDesc(String itemTypeDesc) => _$this._itemTypeDesc = itemTypeDesc;
+  String? _itemTypeDesc;
+  String? get itemTypeDesc => _$this._itemTypeDesc;
+  set itemTypeDesc(String? itemTypeDesc) => _$this._itemTypeDesc = itemTypeDesc;
 
-  String _assetGroupName;
-  String get assetGroupName => _$this._assetGroupName;
-  set assetGroupName(String assetGroupName) =>
+  String? _assetGroupName;
+  String? get assetGroupName => _$this._assetGroupName;
+  set assetGroupName(String? assetGroupName) =>
       _$this._assetGroupName = assetGroupName;
 
-  String _statusDesc;
-  String get statusDesc => _$this._statusDesc;
-  set statusDesc(String statusDesc) => _$this._statusDesc = statusDesc;
+  String? _statusDesc;
+  String? get statusDesc => _$this._statusDesc;
+  set statusDesc(String? statusDesc) => _$this._statusDesc = statusDesc;
 
-  ListBuilder<ComplaintDImage> _images;
+  ListBuilder<ComplaintDImage>? _images;
   ListBuilder<ComplaintDImage> get images =>
       _$this._images ??= new ListBuilder<ComplaintDImage>();
-  set images(ListBuilder<ComplaintDImage> images) => _$this._images = images;
+  set images(ListBuilder<ComplaintDImage>? images) => _$this._images = images;
 
   ComplaintDBuilder();
 
@@ -1651,7 +1645,7 @@ class ComplaintDBuilder implements Builder<ComplaintD, ComplaintDBuilder> {
   }
 
   @override
-  void update(void Function(ComplaintDBuilder) updates) {
+  void update(void Function(ComplaintDBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -1663,19 +1657,20 @@ class ComplaintDBuilder implements Builder<ComplaintD, ComplaintDBuilder> {
     try {
       _$result = _$v ??
           new _$ComplaintD._(
-              woTaskPartsId: woTaskPartsId,
-              woTaskRequestId: woTaskRequestId,
-              partId: partId,
-              woTaskPartsQuantity: woTaskPartsQuantity,
-              woTaskPartsRemark: woTaskPartsRemark,
-              woTaskPartsStatus: woTaskPartsStatus,
-              itemDescription: itemDescription,
-              itemTypeDesc: itemTypeDesc,
-              assetGroupName: assetGroupName,
-              statusDesc: statusDesc,
-              images: _images?.build());
+            woTaskPartsId: woTaskPartsId,
+            woTaskRequestId: woTaskRequestId,
+            partId: partId,
+            woTaskPartsQuantity: woTaskPartsQuantity,
+            woTaskPartsRemark: woTaskPartsRemark,
+            woTaskPartsStatus: woTaskPartsStatus,
+            itemDescription: itemDescription,
+            itemTypeDesc: itemTypeDesc,
+            assetGroupName: assetGroupName,
+            statusDesc: statusDesc,
+            images: _images?.build(),
+          );
     } catch (_) {
-      String _$failedField;
+      late String _$failedField;
       try {
         _$failedField = 'images';
         _images?.build();
@@ -1692,11 +1687,11 @@ class ComplaintDBuilder implements Builder<ComplaintD, ComplaintDBuilder> {
 
 class _$ComplaintDStore extends ComplaintDStore {
   @override
-  final String itemId;
+  final String? itemId;
   @override
-  final String itemName;
+  final String? itemName;
 
-  factory _$ComplaintDStore([void Function(ComplaintDStoreBuilder) updates]) =>
+  factory _$ComplaintDStore([void Function(ComplaintDStoreBuilder)? updates]) =>
       (new ComplaintDStoreBuilder()..update(updates))._build();
 
   _$ComplaintDStore._({this.itemId, this.itemName}) : super._();
@@ -1719,7 +1714,11 @@ class _$ComplaintDStore extends ComplaintDStore {
 
   @override
   int get hashCode {
-    return $jf($jc($jc(0, itemId.hashCode), itemName.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, itemId.hashCode);
+    _$hash = $jc(_$hash, itemName.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -1733,15 +1732,15 @@ class _$ComplaintDStore extends ComplaintDStore {
 
 class ComplaintDStoreBuilder
     implements Builder<ComplaintDStore, ComplaintDStoreBuilder> {
-  _$ComplaintDStore _$v;
+  _$ComplaintDStore? _$v;
 
-  String _itemId;
-  String get itemId => _$this._itemId;
-  set itemId(String itemId) => _$this._itemId = itemId;
+  String? _itemId;
+  String? get itemId => _$this._itemId;
+  set itemId(String? itemId) => _$this._itemId = itemId;
 
-  String _itemName;
-  String get itemName => _$this._itemName;
-  set itemName(String itemName) => _$this._itemName = itemName;
+  String? _itemName;
+  String? get itemName => _$this._itemName;
+  set itemName(String? itemName) => _$this._itemName = itemName;
 
   ComplaintDStoreBuilder();
 
@@ -1762,7 +1761,7 @@ class ComplaintDStoreBuilder
   }
 
   @override
-  void update(void Function(ComplaintDStoreBuilder) updates) {
+  void update(void Function(ComplaintDStoreBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -1770,8 +1769,11 @@ class ComplaintDStoreBuilder
   ComplaintDStore build() => _build();
 
   _$ComplaintDStore _build() {
-    final _$result =
-        _$v ?? new _$ComplaintDStore._(itemId: itemId, itemName: itemName);
+    final _$result = _$v ??
+        new _$ComplaintDStore._(
+          itemId: itemId,
+          itemName: itemName,
+        );
     replace(_$result);
     return _$result;
   }
@@ -1779,14 +1781,14 @@ class ComplaintDStoreBuilder
 
 class _$ComplaintDGroupStore extends ComplaintDGroupStore {
   @override
-  final String itemId;
+  final String? itemId;
   @override
-  final String itemName;
+  final String? itemName;
   @override
-  final BuiltList<ComplaintDType> itemTypes;
+  final BuiltList<ComplaintDType>? itemTypes;
 
   factory _$ComplaintDGroupStore(
-          [void Function(ComplaintDGroupStoreBuilder) updates]) =>
+          [void Function(ComplaintDGroupStoreBuilder)? updates]) =>
       (new ComplaintDGroupStoreBuilder()..update(updates))._build();
 
   _$ComplaintDGroupStore._({this.itemId, this.itemName, this.itemTypes})
@@ -1812,8 +1814,12 @@ class _$ComplaintDGroupStore extends ComplaintDGroupStore {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc($jc(0, itemId.hashCode), itemName.hashCode), itemTypes.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, itemId.hashCode);
+    _$hash = $jc(_$hash, itemName.hashCode);
+    _$hash = $jc(_$hash, itemTypes.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -1828,20 +1834,20 @@ class _$ComplaintDGroupStore extends ComplaintDGroupStore {
 
 class ComplaintDGroupStoreBuilder
     implements Builder<ComplaintDGroupStore, ComplaintDGroupStoreBuilder> {
-  _$ComplaintDGroupStore _$v;
+  _$ComplaintDGroupStore? _$v;
 
-  String _itemId;
-  String get itemId => _$this._itemId;
-  set itemId(String itemId) => _$this._itemId = itemId;
+  String? _itemId;
+  String? get itemId => _$this._itemId;
+  set itemId(String? itemId) => _$this._itemId = itemId;
 
-  String _itemName;
-  String get itemName => _$this._itemName;
-  set itemName(String itemName) => _$this._itemName = itemName;
+  String? _itemName;
+  String? get itemName => _$this._itemName;
+  set itemName(String? itemName) => _$this._itemName = itemName;
 
-  ListBuilder<ComplaintDType> _itemTypes;
+  ListBuilder<ComplaintDType>? _itemTypes;
   ListBuilder<ComplaintDType> get itemTypes =>
       _$this._itemTypes ??= new ListBuilder<ComplaintDType>();
-  set itemTypes(ListBuilder<ComplaintDType> itemTypes) =>
+  set itemTypes(ListBuilder<ComplaintDType>? itemTypes) =>
       _$this._itemTypes = itemTypes;
 
   ComplaintDGroupStoreBuilder();
@@ -1864,7 +1870,7 @@ class ComplaintDGroupStoreBuilder
   }
 
   @override
-  void update(void Function(ComplaintDGroupStoreBuilder) updates) {
+  void update(void Function(ComplaintDGroupStoreBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -1876,11 +1882,12 @@ class ComplaintDGroupStoreBuilder
     try {
       _$result = _$v ??
           new _$ComplaintDGroupStore._(
-              itemId: itemId,
-              itemName: itemName,
-              itemTypes: _itemTypes?.build());
+            itemId: itemId,
+            itemName: itemName,
+            itemTypes: _itemTypes?.build(),
+          );
     } catch (_) {
-      String _$failedField;
+      late String _$failedField;
       try {
         _$failedField = 'itemTypes';
         _itemTypes?.build();
@@ -1897,15 +1904,15 @@ class ComplaintDGroupStoreBuilder
 
 class _$ComplaintDGroup extends ComplaintDGroup {
   @override
-  final String itemId;
+  final String? itemId;
   @override
-  final String itemName;
+  final String? itemName;
   @override
-  final String itemDesc;
+  final String? itemDesc;
   @override
-  final String itemStatus;
+  final String? itemStatus;
 
-  factory _$ComplaintDGroup([void Function(ComplaintDGroupBuilder) updates]) =>
+  factory _$ComplaintDGroup([void Function(ComplaintDGroupBuilder)? updates]) =>
       (new ComplaintDGroupBuilder()..update(updates))._build();
 
   _$ComplaintDGroup._(
@@ -1932,9 +1939,13 @@ class _$ComplaintDGroup extends ComplaintDGroup {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc($jc($jc(0, itemId.hashCode), itemName.hashCode), itemDesc.hashCode),
-        itemStatus.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, itemId.hashCode);
+    _$hash = $jc(_$hash, itemName.hashCode);
+    _$hash = $jc(_$hash, itemDesc.hashCode);
+    _$hash = $jc(_$hash, itemStatus.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -1950,23 +1961,23 @@ class _$ComplaintDGroup extends ComplaintDGroup {
 
 class ComplaintDGroupBuilder
     implements Builder<ComplaintDGroup, ComplaintDGroupBuilder> {
-  _$ComplaintDGroup _$v;
+  _$ComplaintDGroup? _$v;
 
-  String _itemId;
-  String get itemId => _$this._itemId;
-  set itemId(String itemId) => _$this._itemId = itemId;
+  String? _itemId;
+  String? get itemId => _$this._itemId;
+  set itemId(String? itemId) => _$this._itemId = itemId;
 
-  String _itemName;
-  String get itemName => _$this._itemName;
-  set itemName(String itemName) => _$this._itemName = itemName;
+  String? _itemName;
+  String? get itemName => _$this._itemName;
+  set itemName(String? itemName) => _$this._itemName = itemName;
 
-  String _itemDesc;
-  String get itemDesc => _$this._itemDesc;
-  set itemDesc(String itemDesc) => _$this._itemDesc = itemDesc;
+  String? _itemDesc;
+  String? get itemDesc => _$this._itemDesc;
+  set itemDesc(String? itemDesc) => _$this._itemDesc = itemDesc;
 
-  String _itemStatus;
-  String get itemStatus => _$this._itemStatus;
-  set itemStatus(String itemStatus) => _$this._itemStatus = itemStatus;
+  String? _itemStatus;
+  String? get itemStatus => _$this._itemStatus;
+  set itemStatus(String? itemStatus) => _$this._itemStatus = itemStatus;
 
   ComplaintDGroupBuilder();
 
@@ -1989,7 +2000,7 @@ class ComplaintDGroupBuilder
   }
 
   @override
-  void update(void Function(ComplaintDGroupBuilder) updates) {
+  void update(void Function(ComplaintDGroupBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -1999,10 +2010,11 @@ class ComplaintDGroupBuilder
   _$ComplaintDGroup _build() {
     final _$result = _$v ??
         new _$ComplaintDGroup._(
-            itemId: itemId,
-            itemName: itemName,
-            itemDesc: itemDesc,
-            itemStatus: itemStatus);
+          itemId: itemId,
+          itemName: itemName,
+          itemDesc: itemDesc,
+          itemStatus: itemStatus,
+        );
     replace(_$result);
     return _$result;
   }
@@ -2010,19 +2022,19 @@ class ComplaintDGroupBuilder
 
 class _$ComplaintDType extends ComplaintDType {
   @override
-  final String itemId;
+  final String? itemId;
   @override
-  final String itemGroupId;
+  final String? itemGroupId;
   @override
-  final String itemName;
+  final String? itemName;
   @override
-  final String itemTypeDesc;
+  final String? itemTypeDesc;
   @override
-  final String itemStatus;
+  final String? itemStatus;
   @override
-  final BuiltList<ComplaintMaterial> parts;
+  final BuiltList<ComplaintMaterial>? parts;
 
-  factory _$ComplaintDType([void Function(ComplaintDTypeBuilder) updates]) =>
+  factory _$ComplaintDType([void Function(ComplaintDTypeBuilder)? updates]) =>
       (new ComplaintDTypeBuilder()..update(updates))._build();
 
   _$ComplaintDType._(
@@ -2056,14 +2068,15 @@ class _$ComplaintDType extends ComplaintDType {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc($jc($jc(0, itemId.hashCode), itemGroupId.hashCode),
-                    itemName.hashCode),
-                itemTypeDesc.hashCode),
-            itemStatus.hashCode),
-        parts.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, itemId.hashCode);
+    _$hash = $jc(_$hash, itemGroupId.hashCode);
+    _$hash = $jc(_$hash, itemName.hashCode);
+    _$hash = $jc(_$hash, itemTypeDesc.hashCode);
+    _$hash = $jc(_$hash, itemStatus.hashCode);
+    _$hash = $jc(_$hash, parts.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -2081,32 +2094,32 @@ class _$ComplaintDType extends ComplaintDType {
 
 class ComplaintDTypeBuilder
     implements Builder<ComplaintDType, ComplaintDTypeBuilder> {
-  _$ComplaintDType _$v;
+  _$ComplaintDType? _$v;
 
-  String _itemId;
-  String get itemId => _$this._itemId;
-  set itemId(String itemId) => _$this._itemId = itemId;
+  String? _itemId;
+  String? get itemId => _$this._itemId;
+  set itemId(String? itemId) => _$this._itemId = itemId;
 
-  String _itemGroupId;
-  String get itemGroupId => _$this._itemGroupId;
-  set itemGroupId(String itemGroupId) => _$this._itemGroupId = itemGroupId;
+  String? _itemGroupId;
+  String? get itemGroupId => _$this._itemGroupId;
+  set itemGroupId(String? itemGroupId) => _$this._itemGroupId = itemGroupId;
 
-  String _itemName;
-  String get itemName => _$this._itemName;
-  set itemName(String itemName) => _$this._itemName = itemName;
+  String? _itemName;
+  String? get itemName => _$this._itemName;
+  set itemName(String? itemName) => _$this._itemName = itemName;
 
-  String _itemTypeDesc;
-  String get itemTypeDesc => _$this._itemTypeDesc;
-  set itemTypeDesc(String itemTypeDesc) => _$this._itemTypeDesc = itemTypeDesc;
+  String? _itemTypeDesc;
+  String? get itemTypeDesc => _$this._itemTypeDesc;
+  set itemTypeDesc(String? itemTypeDesc) => _$this._itemTypeDesc = itemTypeDesc;
 
-  String _itemStatus;
-  String get itemStatus => _$this._itemStatus;
-  set itemStatus(String itemStatus) => _$this._itemStatus = itemStatus;
+  String? _itemStatus;
+  String? get itemStatus => _$this._itemStatus;
+  set itemStatus(String? itemStatus) => _$this._itemStatus = itemStatus;
 
-  ListBuilder<ComplaintMaterial> _parts;
+  ListBuilder<ComplaintMaterial>? _parts;
   ListBuilder<ComplaintMaterial> get parts =>
       _$this._parts ??= new ListBuilder<ComplaintMaterial>();
-  set parts(ListBuilder<ComplaintMaterial> parts) => _$this._parts = parts;
+  set parts(ListBuilder<ComplaintMaterial>? parts) => _$this._parts = parts;
 
   ComplaintDTypeBuilder();
 
@@ -2131,7 +2144,7 @@ class ComplaintDTypeBuilder
   }
 
   @override
-  void update(void Function(ComplaintDTypeBuilder) updates) {
+  void update(void Function(ComplaintDTypeBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -2143,14 +2156,15 @@ class ComplaintDTypeBuilder
     try {
       _$result = _$v ??
           new _$ComplaintDType._(
-              itemId: itemId,
-              itemGroupId: itemGroupId,
-              itemName: itemName,
-              itemTypeDesc: itemTypeDesc,
-              itemStatus: itemStatus,
-              parts: _parts?.build());
+            itemId: itemId,
+            itemGroupId: itemGroupId,
+            itemName: itemName,
+            itemTypeDesc: itemTypeDesc,
+            itemStatus: itemStatus,
+            parts: _parts?.build(),
+          );
     } catch (_) {
-      String _$failedField;
+      late String _$failedField;
       try {
         _$failedField = 'parts';
         _parts?.build();
@@ -2167,14 +2181,14 @@ class ComplaintDTypeBuilder
 
 class _$ComplaintDStoreType extends ComplaintDStoreType {
   @override
-  final String itemId;
+  final String? itemId;
   @override
-  final String itemName;
+  final String? itemName;
   @override
-  final BuiltList<ComplaintMaterial> parts;
+  final BuiltList<ComplaintMaterial>? parts;
 
   factory _$ComplaintDStoreType(
-          [void Function(ComplaintDStoreTypeBuilder) updates]) =>
+          [void Function(ComplaintDStoreTypeBuilder)? updates]) =>
       (new ComplaintDStoreTypeBuilder()..update(updates))._build();
 
   _$ComplaintDStoreType._({this.itemId, this.itemName, this.parts}) : super._();
@@ -2199,8 +2213,12 @@ class _$ComplaintDStoreType extends ComplaintDStoreType {
 
   @override
   int get hashCode {
-    return $jf(
-        $jc($jc($jc(0, itemId.hashCode), itemName.hashCode), parts.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, itemId.hashCode);
+    _$hash = $jc(_$hash, itemName.hashCode);
+    _$hash = $jc(_$hash, parts.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -2215,20 +2233,20 @@ class _$ComplaintDStoreType extends ComplaintDStoreType {
 
 class ComplaintDStoreTypeBuilder
     implements Builder<ComplaintDStoreType, ComplaintDStoreTypeBuilder> {
-  _$ComplaintDStoreType _$v;
+  _$ComplaintDStoreType? _$v;
 
-  String _itemId;
-  String get itemId => _$this._itemId;
-  set itemId(String itemId) => _$this._itemId = itemId;
+  String? _itemId;
+  String? get itemId => _$this._itemId;
+  set itemId(String? itemId) => _$this._itemId = itemId;
 
-  String _itemName;
-  String get itemName => _$this._itemName;
-  set itemName(String itemName) => _$this._itemName = itemName;
+  String? _itemName;
+  String? get itemName => _$this._itemName;
+  set itemName(String? itemName) => _$this._itemName = itemName;
 
-  ListBuilder<ComplaintMaterial> _parts;
+  ListBuilder<ComplaintMaterial>? _parts;
   ListBuilder<ComplaintMaterial> get parts =>
       _$this._parts ??= new ListBuilder<ComplaintMaterial>();
-  set parts(ListBuilder<ComplaintMaterial> parts) => _$this._parts = parts;
+  set parts(ListBuilder<ComplaintMaterial>? parts) => _$this._parts = parts;
 
   ComplaintDStoreTypeBuilder();
 
@@ -2250,7 +2268,7 @@ class ComplaintDStoreTypeBuilder
   }
 
   @override
-  void update(void Function(ComplaintDStoreTypeBuilder) updates) {
+  void update(void Function(ComplaintDStoreTypeBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -2262,9 +2280,12 @@ class ComplaintDStoreTypeBuilder
     try {
       _$result = _$v ??
           new _$ComplaintDStoreType._(
-              itemId: itemId, itemName: itemName, parts: _parts?.build());
+            itemId: itemId,
+            itemName: itemName,
+            parts: _parts?.build(),
+          );
     } catch (_) {
-      String _$failedField;
+      late String _$failedField;
       try {
         _$failedField = 'parts';
         _parts?.build();
@@ -2281,23 +2302,23 @@ class ComplaintDStoreTypeBuilder
 
 class _$ComplaintDPart extends ComplaintDPart {
   @override
-  final String itemId;
+  final String? itemId;
   @override
-  final String itemName;
+  final String? itemName;
   @override
-  final String itemQuantity;
+  final String? itemQuantity;
   @override
-  final String itemTypeDesc;
+  final String? itemTypeDesc;
   @override
-  final String partLocked;
+  final String? partLocked;
   @override
-  final String partMaxOrder;
+  final String? partMaxOrder;
   @override
-  final String partMinOrder;
+  final String? partMinOrder;
   @override
-  final String partRemark;
+  final String? partRemark;
 
-  factory _$ComplaintDPart([void Function(ComplaintDPartBuilder) updates]) =>
+  factory _$ComplaintDPart([void Function(ComplaintDPartBuilder)? updates]) =>
       (new ComplaintDPartBuilder()..update(updates))._build();
 
   _$ComplaintDPart._(
@@ -2335,18 +2356,17 @@ class _$ComplaintDPart extends ComplaintDPart {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc($jc($jc(0, itemId.hashCode), itemName.hashCode),
-                            itemQuantity.hashCode),
-                        itemTypeDesc.hashCode),
-                    partLocked.hashCode),
-                partMaxOrder.hashCode),
-            partMinOrder.hashCode),
-        partRemark.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, itemId.hashCode);
+    _$hash = $jc(_$hash, itemName.hashCode);
+    _$hash = $jc(_$hash, itemQuantity.hashCode);
+    _$hash = $jc(_$hash, itemTypeDesc.hashCode);
+    _$hash = $jc(_$hash, partLocked.hashCode);
+    _$hash = $jc(_$hash, partMaxOrder.hashCode);
+    _$hash = $jc(_$hash, partMinOrder.hashCode);
+    _$hash = $jc(_$hash, partRemark.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -2366,39 +2386,39 @@ class _$ComplaintDPart extends ComplaintDPart {
 
 class ComplaintDPartBuilder
     implements Builder<ComplaintDPart, ComplaintDPartBuilder> {
-  _$ComplaintDPart _$v;
+  _$ComplaintDPart? _$v;
 
-  String _itemId;
-  String get itemId => _$this._itemId;
-  set itemId(String itemId) => _$this._itemId = itemId;
+  String? _itemId;
+  String? get itemId => _$this._itemId;
+  set itemId(String? itemId) => _$this._itemId = itemId;
 
-  String _itemName;
-  String get itemName => _$this._itemName;
-  set itemName(String itemName) => _$this._itemName = itemName;
+  String? _itemName;
+  String? get itemName => _$this._itemName;
+  set itemName(String? itemName) => _$this._itemName = itemName;
 
-  String _itemQuantity;
-  String get itemQuantity => _$this._itemQuantity;
-  set itemQuantity(String itemQuantity) => _$this._itemQuantity = itemQuantity;
+  String? _itemQuantity;
+  String? get itemQuantity => _$this._itemQuantity;
+  set itemQuantity(String? itemQuantity) => _$this._itemQuantity = itemQuantity;
 
-  String _itemTypeDesc;
-  String get itemTypeDesc => _$this._itemTypeDesc;
-  set itemTypeDesc(String itemTypeDesc) => _$this._itemTypeDesc = itemTypeDesc;
+  String? _itemTypeDesc;
+  String? get itemTypeDesc => _$this._itemTypeDesc;
+  set itemTypeDesc(String? itemTypeDesc) => _$this._itemTypeDesc = itemTypeDesc;
 
-  String _partLocked;
-  String get partLocked => _$this._partLocked;
-  set partLocked(String partLocked) => _$this._partLocked = partLocked;
+  String? _partLocked;
+  String? get partLocked => _$this._partLocked;
+  set partLocked(String? partLocked) => _$this._partLocked = partLocked;
 
-  String _partMaxOrder;
-  String get partMaxOrder => _$this._partMaxOrder;
-  set partMaxOrder(String partMaxOrder) => _$this._partMaxOrder = partMaxOrder;
+  String? _partMaxOrder;
+  String? get partMaxOrder => _$this._partMaxOrder;
+  set partMaxOrder(String? partMaxOrder) => _$this._partMaxOrder = partMaxOrder;
 
-  String _partMinOrder;
-  String get partMinOrder => _$this._partMinOrder;
-  set partMinOrder(String partMinOrder) => _$this._partMinOrder = partMinOrder;
+  String? _partMinOrder;
+  String? get partMinOrder => _$this._partMinOrder;
+  set partMinOrder(String? partMinOrder) => _$this._partMinOrder = partMinOrder;
 
-  String _partRemark;
-  String get partRemark => _$this._partRemark;
-  set partRemark(String partRemark) => _$this._partRemark = partRemark;
+  String? _partRemark;
+  String? get partRemark => _$this._partRemark;
+  set partRemark(String? partRemark) => _$this._partRemark = partRemark;
 
   ComplaintDPartBuilder();
 
@@ -2425,7 +2445,7 @@ class ComplaintDPartBuilder
   }
 
   @override
-  void update(void Function(ComplaintDPartBuilder) updates) {
+  void update(void Function(ComplaintDPartBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -2435,14 +2455,15 @@ class ComplaintDPartBuilder
   _$ComplaintDPart _build() {
     final _$result = _$v ??
         new _$ComplaintDPart._(
-            itemId: itemId,
-            itemName: itemName,
-            itemQuantity: itemQuantity,
-            itemTypeDesc: itemTypeDesc,
-            partLocked: partLocked,
-            partMaxOrder: partMaxOrder,
-            partMinOrder: partMinOrder,
-            partRemark: partRemark);
+          itemId: itemId,
+          itemName: itemName,
+          itemQuantity: itemQuantity,
+          itemTypeDesc: itemTypeDesc,
+          partLocked: partLocked,
+          partMaxOrder: partMaxOrder,
+          partMinOrder: partMinOrder,
+          partRemark: partRemark,
+        );
     replace(_$result);
     return _$result;
   }
@@ -2450,24 +2471,24 @@ class ComplaintDPartBuilder
 
 class _$MaterialStorePart extends MaterialStorePart {
   @override
-  final String itemDescription;
+  final String? itemDescription;
   @override
-  final String partAvailable;
+  final String? partAvailable;
   @override
-  final String partCount;
+  final String? partCount;
   @override
-  final String partId;
+  final String? partId;
   @override
-  final String partLocked;
+  final String? partLocked;
   @override
-  final String partMaxOrder;
+  final String? partMaxOrder;
   @override
-  final String partMinOrder;
+  final String? partMinOrder;
   @override
-  final String partRemark;
+  final String? partRemark;
 
   factory _$MaterialStorePart(
-          [void Function(MaterialStorePartBuilder) updates]) =>
+          [void Function(MaterialStorePartBuilder)? updates]) =>
       (new MaterialStorePartBuilder()..update(updates))._build();
 
   _$MaterialStorePart._(
@@ -2505,20 +2526,17 @@ class _$MaterialStorePart extends MaterialStorePart {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc(
-                            $jc($jc(0, itemDescription.hashCode),
-                                partAvailable.hashCode),
-                            partCount.hashCode),
-                        partId.hashCode),
-                    partLocked.hashCode),
-                partMaxOrder.hashCode),
-            partMinOrder.hashCode),
-        partRemark.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, itemDescription.hashCode);
+    _$hash = $jc(_$hash, partAvailable.hashCode);
+    _$hash = $jc(_$hash, partCount.hashCode);
+    _$hash = $jc(_$hash, partId.hashCode);
+    _$hash = $jc(_$hash, partLocked.hashCode);
+    _$hash = $jc(_$hash, partMaxOrder.hashCode);
+    _$hash = $jc(_$hash, partMinOrder.hashCode);
+    _$hash = $jc(_$hash, partRemark.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -2538,41 +2556,41 @@ class _$MaterialStorePart extends MaterialStorePart {
 
 class MaterialStorePartBuilder
     implements Builder<MaterialStorePart, MaterialStorePartBuilder> {
-  _$MaterialStorePart _$v;
+  _$MaterialStorePart? _$v;
 
-  String _itemDescription;
-  String get itemDescription => _$this._itemDescription;
-  set itemDescription(String itemDescription) =>
+  String? _itemDescription;
+  String? get itemDescription => _$this._itemDescription;
+  set itemDescription(String? itemDescription) =>
       _$this._itemDescription = itemDescription;
 
-  String _partAvailable;
-  String get partAvailable => _$this._partAvailable;
-  set partAvailable(String partAvailable) =>
+  String? _partAvailable;
+  String? get partAvailable => _$this._partAvailable;
+  set partAvailable(String? partAvailable) =>
       _$this._partAvailable = partAvailable;
 
-  String _partCount;
-  String get partCount => _$this._partCount;
-  set partCount(String partCount) => _$this._partCount = partCount;
+  String? _partCount;
+  String? get partCount => _$this._partCount;
+  set partCount(String? partCount) => _$this._partCount = partCount;
 
-  String _partId;
-  String get partId => _$this._partId;
-  set partId(String partId) => _$this._partId = partId;
+  String? _partId;
+  String? get partId => _$this._partId;
+  set partId(String? partId) => _$this._partId = partId;
 
-  String _partLocked;
-  String get partLocked => _$this._partLocked;
-  set partLocked(String partLocked) => _$this._partLocked = partLocked;
+  String? _partLocked;
+  String? get partLocked => _$this._partLocked;
+  set partLocked(String? partLocked) => _$this._partLocked = partLocked;
 
-  String _partMaxOrder;
-  String get partMaxOrder => _$this._partMaxOrder;
-  set partMaxOrder(String partMaxOrder) => _$this._partMaxOrder = partMaxOrder;
+  String? _partMaxOrder;
+  String? get partMaxOrder => _$this._partMaxOrder;
+  set partMaxOrder(String? partMaxOrder) => _$this._partMaxOrder = partMaxOrder;
 
-  String _partMinOrder;
-  String get partMinOrder => _$this._partMinOrder;
-  set partMinOrder(String partMinOrder) => _$this._partMinOrder = partMinOrder;
+  String? _partMinOrder;
+  String? get partMinOrder => _$this._partMinOrder;
+  set partMinOrder(String? partMinOrder) => _$this._partMinOrder = partMinOrder;
 
-  String _partRemark;
-  String get partRemark => _$this._partRemark;
-  set partRemark(String partRemark) => _$this._partRemark = partRemark;
+  String? _partRemark;
+  String? get partRemark => _$this._partRemark;
+  set partRemark(String? partRemark) => _$this._partRemark = partRemark;
 
   MaterialStorePartBuilder();
 
@@ -2599,7 +2617,7 @@ class MaterialStorePartBuilder
   }
 
   @override
-  void update(void Function(MaterialStorePartBuilder) updates) {
+  void update(void Function(MaterialStorePartBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -2609,14 +2627,15 @@ class MaterialStorePartBuilder
   _$MaterialStorePart _build() {
     final _$result = _$v ??
         new _$MaterialStorePart._(
-            itemDescription: itemDescription,
-            partAvailable: partAvailable,
-            partCount: partCount,
-            partId: partId,
-            partLocked: partLocked,
-            partMaxOrder: partMaxOrder,
-            partMinOrder: partMinOrder,
-            partRemark: partRemark);
+          itemDescription: itemDescription,
+          partAvailable: partAvailable,
+          partCount: partCount,
+          partId: partId,
+          partLocked: partLocked,
+          partMaxOrder: partMaxOrder,
+          partMinOrder: partMinOrder,
+          partRemark: partRemark,
+        );
     replace(_$result);
     return _$result;
   }
@@ -2624,15 +2643,15 @@ class MaterialStorePartBuilder
 
 class _$ComplaintDImage extends ComplaintDImage {
   @override
-  final String file;
+  final String? file;
   @override
-  final String title;
+  final String? title;
   @override
-  final String width;
+  final String? width;
   @override
-  final String height;
+  final String? height;
 
-  factory _$ComplaintDImage([void Function(ComplaintDImageBuilder) updates]) =>
+  factory _$ComplaintDImage([void Function(ComplaintDImageBuilder)? updates]) =>
       (new ComplaintDImageBuilder()..update(updates))._build();
 
   _$ComplaintDImage._({this.file, this.title, this.width, this.height})
@@ -2658,9 +2677,13 @@ class _$ComplaintDImage extends ComplaintDImage {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc($jc($jc(0, file.hashCode), title.hashCode), width.hashCode),
-        height.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, file.hashCode);
+    _$hash = $jc(_$hash, title.hashCode);
+    _$hash = $jc(_$hash, width.hashCode);
+    _$hash = $jc(_$hash, height.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -2676,23 +2699,23 @@ class _$ComplaintDImage extends ComplaintDImage {
 
 class ComplaintDImageBuilder
     implements Builder<ComplaintDImage, ComplaintDImageBuilder> {
-  _$ComplaintDImage _$v;
+  _$ComplaintDImage? _$v;
 
-  String _file;
-  String get file => _$this._file;
-  set file(String file) => _$this._file = file;
+  String? _file;
+  String? get file => _$this._file;
+  set file(String? file) => _$this._file = file;
 
-  String _title;
-  String get title => _$this._title;
-  set title(String title) => _$this._title = title;
+  String? _title;
+  String? get title => _$this._title;
+  set title(String? title) => _$this._title = title;
 
-  String _width;
-  String get width => _$this._width;
-  set width(String width) => _$this._width = width;
+  String? _width;
+  String? get width => _$this._width;
+  set width(String? width) => _$this._width = width;
 
-  String _height;
-  String get height => _$this._height;
-  set height(String height) => _$this._height = height;
+  String? _height;
+  String? get height => _$this._height;
+  set height(String? height) => _$this._height = height;
 
   ComplaintDImageBuilder();
 
@@ -2715,7 +2738,7 @@ class ComplaintDImageBuilder
   }
 
   @override
-  void update(void Function(ComplaintDImageBuilder) updates) {
+  void update(void Function(ComplaintDImageBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -2725,7 +2748,11 @@ class ComplaintDImageBuilder
   _$ComplaintDImage _build() {
     final _$result = _$v ??
         new _$ComplaintDImage._(
-            file: file, title: title, width: width, height: height);
+          file: file,
+          title: title,
+          width: width,
+          height: height,
+        );
     replace(_$result);
     return _$result;
   }
@@ -2733,33 +2760,33 @@ class ComplaintDImageBuilder
 
 class _$RequestTask extends RequestTask {
   @override
-  final String requestBy;
+  final String? requestBy;
   @override
-  final String requestTime;
+  final String? requestTime;
   @override
-  final String statusDesc;
+  final String? statusDesc;
   @override
-  final String statusId;
+  final String? statusId;
   @override
-  final String taskFrom;
+  final String? taskFrom;
   @override
-  final String taskReceivedTime;
+  final String? taskReceivedTime;
   @override
-  final String woSeverityDesc;
+  final String? woSeverityDesc;
   @override
-  final String woTaskNo;
+  final String? woTaskNo;
   @override
-  final String woTaskRequestId;
+  final String? woTaskRequestId;
   @override
-  final String woTaskRequestNo;
+  final String? woTaskRequestNo;
   @override
-  final String woTypeDesc;
+  final String? woTypeDesc;
   @override
-  final String collectTime;
+  final String? collectTime;
   @override
-  final String siteName;
+  final String? siteName;
 
-  factory _$RequestTask([void Function(RequestTaskBuilder) updates]) =>
+  factory _$RequestTask([void Function(RequestTaskBuilder)? updates]) =>
       (new RequestTaskBuilder()..update(updates))._build();
 
   _$RequestTask._(
@@ -2806,30 +2833,22 @@ class _$RequestTask extends RequestTask {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc(
-                            $jc(
-                                $jc(
-                                    $jc(
-                                        $jc(
-                                            $jc(
-                                                $jc($jc(0, requestBy.hashCode),
-                                                    requestTime.hashCode),
-                                                statusDesc.hashCode),
-                                            statusId.hashCode),
-                                        taskFrom.hashCode),
-                                    taskReceivedTime.hashCode),
-                                woSeverityDesc.hashCode),
-                            woTaskNo.hashCode),
-                        woTaskRequestId.hashCode),
-                    woTaskRequestNo.hashCode),
-                woTypeDesc.hashCode),
-            collectTime.hashCode),
-        siteName.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, requestBy.hashCode);
+    _$hash = $jc(_$hash, requestTime.hashCode);
+    _$hash = $jc(_$hash, statusDesc.hashCode);
+    _$hash = $jc(_$hash, statusId.hashCode);
+    _$hash = $jc(_$hash, taskFrom.hashCode);
+    _$hash = $jc(_$hash, taskReceivedTime.hashCode);
+    _$hash = $jc(_$hash, woSeverityDesc.hashCode);
+    _$hash = $jc(_$hash, woTaskNo.hashCode);
+    _$hash = $jc(_$hash, woTaskRequestId.hashCode);
+    _$hash = $jc(_$hash, woTaskRequestNo.hashCode);
+    _$hash = $jc(_$hash, woTypeDesc.hashCode);
+    _$hash = $jc(_$hash, collectTime.hashCode);
+    _$hash = $jc(_$hash, siteName.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -2853,63 +2872,63 @@ class _$RequestTask extends RequestTask {
 }
 
 class RequestTaskBuilder implements Builder<RequestTask, RequestTaskBuilder> {
-  _$RequestTask _$v;
+  _$RequestTask? _$v;
 
-  String _requestBy;
-  String get requestBy => _$this._requestBy;
-  set requestBy(String requestBy) => _$this._requestBy = requestBy;
+  String? _requestBy;
+  String? get requestBy => _$this._requestBy;
+  set requestBy(String? requestBy) => _$this._requestBy = requestBy;
 
-  String _requestTime;
-  String get requestTime => _$this._requestTime;
-  set requestTime(String requestTime) => _$this._requestTime = requestTime;
+  String? _requestTime;
+  String? get requestTime => _$this._requestTime;
+  set requestTime(String? requestTime) => _$this._requestTime = requestTime;
 
-  String _statusDesc;
-  String get statusDesc => _$this._statusDesc;
-  set statusDesc(String statusDesc) => _$this._statusDesc = statusDesc;
+  String? _statusDesc;
+  String? get statusDesc => _$this._statusDesc;
+  set statusDesc(String? statusDesc) => _$this._statusDesc = statusDesc;
 
-  String _statusId;
-  String get statusId => _$this._statusId;
-  set statusId(String statusId) => _$this._statusId = statusId;
+  String? _statusId;
+  String? get statusId => _$this._statusId;
+  set statusId(String? statusId) => _$this._statusId = statusId;
 
-  String _taskFrom;
-  String get taskFrom => _$this._taskFrom;
-  set taskFrom(String taskFrom) => _$this._taskFrom = taskFrom;
+  String? _taskFrom;
+  String? get taskFrom => _$this._taskFrom;
+  set taskFrom(String? taskFrom) => _$this._taskFrom = taskFrom;
 
-  String _taskReceivedTime;
-  String get taskReceivedTime => _$this._taskReceivedTime;
-  set taskReceivedTime(String taskReceivedTime) =>
+  String? _taskReceivedTime;
+  String? get taskReceivedTime => _$this._taskReceivedTime;
+  set taskReceivedTime(String? taskReceivedTime) =>
       _$this._taskReceivedTime = taskReceivedTime;
 
-  String _woSeverityDesc;
-  String get woSeverityDesc => _$this._woSeverityDesc;
-  set woSeverityDesc(String woSeverityDesc) =>
+  String? _woSeverityDesc;
+  String? get woSeverityDesc => _$this._woSeverityDesc;
+  set woSeverityDesc(String? woSeverityDesc) =>
       _$this._woSeverityDesc = woSeverityDesc;
 
-  String _woTaskNo;
-  String get woTaskNo => _$this._woTaskNo;
-  set woTaskNo(String woTaskNo) => _$this._woTaskNo = woTaskNo;
+  String? _woTaskNo;
+  String? get woTaskNo => _$this._woTaskNo;
+  set woTaskNo(String? woTaskNo) => _$this._woTaskNo = woTaskNo;
 
-  String _woTaskRequestId;
-  String get woTaskRequestId => _$this._woTaskRequestId;
-  set woTaskRequestId(String woTaskRequestId) =>
+  String? _woTaskRequestId;
+  String? get woTaskRequestId => _$this._woTaskRequestId;
+  set woTaskRequestId(String? woTaskRequestId) =>
       _$this._woTaskRequestId = woTaskRequestId;
 
-  String _woTaskRequestNo;
-  String get woTaskRequestNo => _$this._woTaskRequestNo;
-  set woTaskRequestNo(String woTaskRequestNo) =>
+  String? _woTaskRequestNo;
+  String? get woTaskRequestNo => _$this._woTaskRequestNo;
+  set woTaskRequestNo(String? woTaskRequestNo) =>
       _$this._woTaskRequestNo = woTaskRequestNo;
 
-  String _woTypeDesc;
-  String get woTypeDesc => _$this._woTypeDesc;
-  set woTypeDesc(String woTypeDesc) => _$this._woTypeDesc = woTypeDesc;
+  String? _woTypeDesc;
+  String? get woTypeDesc => _$this._woTypeDesc;
+  set woTypeDesc(String? woTypeDesc) => _$this._woTypeDesc = woTypeDesc;
 
-  String _collectTime;
-  String get collectTime => _$this._collectTime;
-  set collectTime(String collectTime) => _$this._collectTime = collectTime;
+  String? _collectTime;
+  String? get collectTime => _$this._collectTime;
+  set collectTime(String? collectTime) => _$this._collectTime = collectTime;
 
-  String _siteName;
-  String get siteName => _$this._siteName;
-  set siteName(String siteName) => _$this._siteName = siteName;
+  String? _siteName;
+  String? get siteName => _$this._siteName;
+  set siteName(String? siteName) => _$this._siteName = siteName;
 
   RequestTaskBuilder();
 
@@ -2941,7 +2960,7 @@ class RequestTaskBuilder implements Builder<RequestTask, RequestTaskBuilder> {
   }
 
   @override
-  void update(void Function(RequestTaskBuilder) updates) {
+  void update(void Function(RequestTaskBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -2951,19 +2970,20 @@ class RequestTaskBuilder implements Builder<RequestTask, RequestTaskBuilder> {
   _$RequestTask _build() {
     final _$result = _$v ??
         new _$RequestTask._(
-            requestBy: requestBy,
-            requestTime: requestTime,
-            statusDesc: statusDesc,
-            statusId: statusId,
-            taskFrom: taskFrom,
-            taskReceivedTime: taskReceivedTime,
-            woSeverityDesc: woSeverityDesc,
-            woTaskNo: woTaskNo,
-            woTaskRequestId: woTaskRequestId,
-            woTaskRequestNo: woTaskRequestNo,
-            woTypeDesc: woTypeDesc,
-            collectTime: collectTime,
-            siteName: siteName);
+          requestBy: requestBy,
+          requestTime: requestTime,
+          statusDesc: statusDesc,
+          statusId: statusId,
+          taskFrom: taskFrom,
+          taskReceivedTime: taskReceivedTime,
+          woSeverityDesc: woSeverityDesc,
+          woTaskNo: woTaskNo,
+          woTaskRequestId: woTaskRequestId,
+          woTaskRequestNo: woTaskRequestNo,
+          woTypeDesc: woTypeDesc,
+          collectTime: collectTime,
+          siteName: siteName,
+        );
     replace(_$result);
     return _$result;
   }
@@ -2971,40 +2991,40 @@ class RequestTaskBuilder implements Builder<RequestTask, RequestTaskBuilder> {
 
 class _$ComplaintMaterial extends ComplaintMaterial {
   @override
-  final String assetGroupId;
+  final String? assetGroupId;
   @override
-  final String assetGroupName;
+  final String? assetGroupName;
   @override
-  final String itemDescription;
+  final String? itemDescription;
   @override
-  final String itemId;
+  final String? itemId;
   @override
-  final String itemTypeDesc;
+  final String? itemTypeDesc;
   @override
-  final String itemTypeId;
+  final String? itemTypeId;
   @override
-  final String partAvailable;
+  final String? partAvailable;
   @override
-  final String partCount;
+  final String? partCount;
   @override
-  final String partId;
+  final String? partId;
   @override
-  final String partLocked;
+  final String? partLocked;
   @override
-  final String partMaxOrder;
+  final String? partMaxOrder;
   @override
-  final String partMinOrder;
+  final String? partMinOrder;
   @override
-  final String partRemark;
+  final String? partRemark;
   @override
-  final String partThreshold;
+  final String? partThreshold;
   @override
-  final BuiltList<ComplaintMaterialGrouped> itemGrouped;
+  final BuiltList<ComplaintMaterialGrouped>? itemGrouped;
   @override
-  final BuiltList<ComplaintMaterialImage> images;
+  final BuiltList<ComplaintMaterialImage>? images;
 
   factory _$ComplaintMaterial(
-          [void Function(ComplaintMaterialBuilder) updates]) =>
+          [void Function(ComplaintMaterialBuilder)? updates]) =>
       (new ComplaintMaterialBuilder()..update(updates))._build();
 
   _$ComplaintMaterial._(
@@ -3058,42 +3078,25 @@ class _$ComplaintMaterial extends ComplaintMaterial {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc(
-                            $jc(
-                                $jc(
-                                    $jc(
-                                        $jc(
-                                            $jc(
-                                                $jc(
-                                                    $jc(
-                                                        $jc(
-                                                            $jc(
-                                                                $jc(
-                                                                    0,
-                                                                    assetGroupId
-                                                                        .hashCode),
-                                                                assetGroupName
-                                                                    .hashCode),
-                                                            itemDescription
-                                                                .hashCode),
-                                                        itemId.hashCode),
-                                                    itemTypeDesc.hashCode),
-                                                itemTypeId.hashCode),
-                                            partAvailable.hashCode),
-                                        partCount.hashCode),
-                                    partId.hashCode),
-                                partLocked.hashCode),
-                            partMaxOrder.hashCode),
-                        partMinOrder.hashCode),
-                    partRemark.hashCode),
-                partThreshold.hashCode),
-            itemGrouped.hashCode),
-        images.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, assetGroupId.hashCode);
+    _$hash = $jc(_$hash, assetGroupName.hashCode);
+    _$hash = $jc(_$hash, itemDescription.hashCode);
+    _$hash = $jc(_$hash, itemId.hashCode);
+    _$hash = $jc(_$hash, itemTypeDesc.hashCode);
+    _$hash = $jc(_$hash, itemTypeId.hashCode);
+    _$hash = $jc(_$hash, partAvailable.hashCode);
+    _$hash = $jc(_$hash, partCount.hashCode);
+    _$hash = $jc(_$hash, partId.hashCode);
+    _$hash = $jc(_$hash, partLocked.hashCode);
+    _$hash = $jc(_$hash, partMaxOrder.hashCode);
+    _$hash = $jc(_$hash, partMinOrder.hashCode);
+    _$hash = $jc(_$hash, partRemark.hashCode);
+    _$hash = $jc(_$hash, partThreshold.hashCode);
+    _$hash = $jc(_$hash, itemGrouped.hashCode);
+    _$hash = $jc(_$hash, images.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -3121,78 +3124,78 @@ class _$ComplaintMaterial extends ComplaintMaterial {
 
 class ComplaintMaterialBuilder
     implements Builder<ComplaintMaterial, ComplaintMaterialBuilder> {
-  _$ComplaintMaterial _$v;
+  _$ComplaintMaterial? _$v;
 
-  String _assetGroupId;
-  String get assetGroupId => _$this._assetGroupId;
-  set assetGroupId(String assetGroupId) => _$this._assetGroupId = assetGroupId;
+  String? _assetGroupId;
+  String? get assetGroupId => _$this._assetGroupId;
+  set assetGroupId(String? assetGroupId) => _$this._assetGroupId = assetGroupId;
 
-  String _assetGroupName;
-  String get assetGroupName => _$this._assetGroupName;
-  set assetGroupName(String assetGroupName) =>
+  String? _assetGroupName;
+  String? get assetGroupName => _$this._assetGroupName;
+  set assetGroupName(String? assetGroupName) =>
       _$this._assetGroupName = assetGroupName;
 
-  String _itemDescription;
-  String get itemDescription => _$this._itemDescription;
-  set itemDescription(String itemDescription) =>
+  String? _itemDescription;
+  String? get itemDescription => _$this._itemDescription;
+  set itemDescription(String? itemDescription) =>
       _$this._itemDescription = itemDescription;
 
-  String _itemId;
-  String get itemId => _$this._itemId;
-  set itemId(String itemId) => _$this._itemId = itemId;
+  String? _itemId;
+  String? get itemId => _$this._itemId;
+  set itemId(String? itemId) => _$this._itemId = itemId;
 
-  String _itemTypeDesc;
-  String get itemTypeDesc => _$this._itemTypeDesc;
-  set itemTypeDesc(String itemTypeDesc) => _$this._itemTypeDesc = itemTypeDesc;
+  String? _itemTypeDesc;
+  String? get itemTypeDesc => _$this._itemTypeDesc;
+  set itemTypeDesc(String? itemTypeDesc) => _$this._itemTypeDesc = itemTypeDesc;
 
-  String _itemTypeId;
-  String get itemTypeId => _$this._itemTypeId;
-  set itemTypeId(String itemTypeId) => _$this._itemTypeId = itemTypeId;
+  String? _itemTypeId;
+  String? get itemTypeId => _$this._itemTypeId;
+  set itemTypeId(String? itemTypeId) => _$this._itemTypeId = itemTypeId;
 
-  String _partAvailable;
-  String get partAvailable => _$this._partAvailable;
-  set partAvailable(String partAvailable) =>
+  String? _partAvailable;
+  String? get partAvailable => _$this._partAvailable;
+  set partAvailable(String? partAvailable) =>
       _$this._partAvailable = partAvailable;
 
-  String _partCount;
-  String get partCount => _$this._partCount;
-  set partCount(String partCount) => _$this._partCount = partCount;
+  String? _partCount;
+  String? get partCount => _$this._partCount;
+  set partCount(String? partCount) => _$this._partCount = partCount;
 
-  String _partId;
-  String get partId => _$this._partId;
-  set partId(String partId) => _$this._partId = partId;
+  String? _partId;
+  String? get partId => _$this._partId;
+  set partId(String? partId) => _$this._partId = partId;
 
-  String _partLocked;
-  String get partLocked => _$this._partLocked;
-  set partLocked(String partLocked) => _$this._partLocked = partLocked;
+  String? _partLocked;
+  String? get partLocked => _$this._partLocked;
+  set partLocked(String? partLocked) => _$this._partLocked = partLocked;
 
-  String _partMaxOrder;
-  String get partMaxOrder => _$this._partMaxOrder;
-  set partMaxOrder(String partMaxOrder) => _$this._partMaxOrder = partMaxOrder;
+  String? _partMaxOrder;
+  String? get partMaxOrder => _$this._partMaxOrder;
+  set partMaxOrder(String? partMaxOrder) => _$this._partMaxOrder = partMaxOrder;
 
-  String _partMinOrder;
-  String get partMinOrder => _$this._partMinOrder;
-  set partMinOrder(String partMinOrder) => _$this._partMinOrder = partMinOrder;
+  String? _partMinOrder;
+  String? get partMinOrder => _$this._partMinOrder;
+  set partMinOrder(String? partMinOrder) => _$this._partMinOrder = partMinOrder;
 
-  String _partRemark;
-  String get partRemark => _$this._partRemark;
-  set partRemark(String partRemark) => _$this._partRemark = partRemark;
+  String? _partRemark;
+  String? get partRemark => _$this._partRemark;
+  set partRemark(String? partRemark) => _$this._partRemark = partRemark;
 
-  String _partThreshold;
-  String get partThreshold => _$this._partThreshold;
-  set partThreshold(String partThreshold) =>
+  String? _partThreshold;
+  String? get partThreshold => _$this._partThreshold;
+  set partThreshold(String? partThreshold) =>
       _$this._partThreshold = partThreshold;
 
-  ListBuilder<ComplaintMaterialGrouped> _itemGrouped;
+  ListBuilder<ComplaintMaterialGrouped>? _itemGrouped;
   ListBuilder<ComplaintMaterialGrouped> get itemGrouped =>
       _$this._itemGrouped ??= new ListBuilder<ComplaintMaterialGrouped>();
-  set itemGrouped(ListBuilder<ComplaintMaterialGrouped> itemGrouped) =>
+  set itemGrouped(ListBuilder<ComplaintMaterialGrouped>? itemGrouped) =>
       _$this._itemGrouped = itemGrouped;
 
-  ListBuilder<ComplaintMaterialImage> _images;
+  ListBuilder<ComplaintMaterialImage>? _images;
   ListBuilder<ComplaintMaterialImage> get images =>
       _$this._images ??= new ListBuilder<ComplaintMaterialImage>();
-  set images(ListBuilder<ComplaintMaterialImage> images) =>
+  set images(ListBuilder<ComplaintMaterialImage>? images) =>
       _$this._images = images;
 
   ComplaintMaterialBuilder();
@@ -3228,7 +3231,7 @@ class ComplaintMaterialBuilder
   }
 
   @override
-  void update(void Function(ComplaintMaterialBuilder) updates) {
+  void update(void Function(ComplaintMaterialBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -3240,24 +3243,25 @@ class ComplaintMaterialBuilder
     try {
       _$result = _$v ??
           new _$ComplaintMaterial._(
-              assetGroupId: assetGroupId,
-              assetGroupName: assetGroupName,
-              itemDescription: itemDescription,
-              itemId: itemId,
-              itemTypeDesc: itemTypeDesc,
-              itemTypeId: itemTypeId,
-              partAvailable: partAvailable,
-              partCount: partCount,
-              partId: partId,
-              partLocked: partLocked,
-              partMaxOrder: partMaxOrder,
-              partMinOrder: partMinOrder,
-              partRemark: partRemark,
-              partThreshold: partThreshold,
-              itemGrouped: _itemGrouped?.build(),
-              images: _images?.build());
+            assetGroupId: assetGroupId,
+            assetGroupName: assetGroupName,
+            itemDescription: itemDescription,
+            itemId: itemId,
+            itemTypeDesc: itemTypeDesc,
+            itemTypeId: itemTypeId,
+            partAvailable: partAvailable,
+            partCount: partCount,
+            partId: partId,
+            partLocked: partLocked,
+            partMaxOrder: partMaxOrder,
+            partMinOrder: partMinOrder,
+            partRemark: partRemark,
+            partThreshold: partThreshold,
+            itemGrouped: _itemGrouped?.build(),
+            images: _images?.build(),
+          );
     } catch (_) {
-      String _$failedField;
+      late String _$failedField;
       try {
         _$failedField = 'itemGrouped';
         _itemGrouped?.build();
@@ -3293,18 +3297,18 @@ class _$ComplaintMaterialGrouped extends ComplaintMaterialGrouped {
   final String total;
 
   factory _$ComplaintMaterialGrouped(
-          [void Function(ComplaintMaterialGroupedBuilder) updates]) =>
+          [void Function(ComplaintMaterialGroupedBuilder)? updates]) =>
       (new ComplaintMaterialGroupedBuilder()..update(updates))._build();
 
   _$ComplaintMaterialGrouped._(
-      {this.dateCheckIn,
-      this.doNo,
-      this.partSubCost,
-      this.partSubLocation,
-      this.partSubValidity,
-      this.partSubWarranty,
-      this.supplierName,
-      this.total})
+      {required this.dateCheckIn,
+      required this.doNo,
+      required this.partSubCost,
+      required this.partSubLocation,
+      required this.partSubValidity,
+      required this.partSubWarranty,
+      required this.supplierName,
+      required this.total})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         dateCheckIn, r'ComplaintMaterialGrouped', 'dateCheckIn');
@@ -3349,18 +3353,17 @@ class _$ComplaintMaterialGrouped extends ComplaintMaterialGrouped {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc($jc($jc(0, dateCheckIn.hashCode), doNo.hashCode),
-                            partSubCost.hashCode),
-                        partSubLocation.hashCode),
-                    partSubValidity.hashCode),
-                partSubWarranty.hashCode),
-            supplierName.hashCode),
-        total.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, dateCheckIn.hashCode);
+    _$hash = $jc(_$hash, doNo.hashCode);
+    _$hash = $jc(_$hash, partSubCost.hashCode);
+    _$hash = $jc(_$hash, partSubLocation.hashCode);
+    _$hash = $jc(_$hash, partSubValidity.hashCode);
+    _$hash = $jc(_$hash, partSubWarranty.hashCode);
+    _$hash = $jc(_$hash, supplierName.hashCode);
+    _$hash = $jc(_$hash, total.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -3381,42 +3384,42 @@ class _$ComplaintMaterialGrouped extends ComplaintMaterialGrouped {
 class ComplaintMaterialGroupedBuilder
     implements
         Builder<ComplaintMaterialGrouped, ComplaintMaterialGroupedBuilder> {
-  _$ComplaintMaterialGrouped _$v;
+  _$ComplaintMaterialGrouped? _$v;
 
-  String _dateCheckIn;
-  String get dateCheckIn => _$this._dateCheckIn;
-  set dateCheckIn(String dateCheckIn) => _$this._dateCheckIn = dateCheckIn;
+  String? _dateCheckIn;
+  String? get dateCheckIn => _$this._dateCheckIn;
+  set dateCheckIn(String? dateCheckIn) => _$this._dateCheckIn = dateCheckIn;
 
-  String _doNo;
-  String get doNo => _$this._doNo;
-  set doNo(String doNo) => _$this._doNo = doNo;
+  String? _doNo;
+  String? get doNo => _$this._doNo;
+  set doNo(String? doNo) => _$this._doNo = doNo;
 
-  String _partSubCost;
-  String get partSubCost => _$this._partSubCost;
-  set partSubCost(String partSubCost) => _$this._partSubCost = partSubCost;
+  String? _partSubCost;
+  String? get partSubCost => _$this._partSubCost;
+  set partSubCost(String? partSubCost) => _$this._partSubCost = partSubCost;
 
-  String _partSubLocation;
-  String get partSubLocation => _$this._partSubLocation;
-  set partSubLocation(String partSubLocation) =>
+  String? _partSubLocation;
+  String? get partSubLocation => _$this._partSubLocation;
+  set partSubLocation(String? partSubLocation) =>
       _$this._partSubLocation = partSubLocation;
 
-  String _partSubValidity;
-  String get partSubValidity => _$this._partSubValidity;
-  set partSubValidity(String partSubValidity) =>
+  String? _partSubValidity;
+  String? get partSubValidity => _$this._partSubValidity;
+  set partSubValidity(String? partSubValidity) =>
       _$this._partSubValidity = partSubValidity;
 
-  String _partSubWarranty;
-  String get partSubWarranty => _$this._partSubWarranty;
-  set partSubWarranty(String partSubWarranty) =>
+  String? _partSubWarranty;
+  String? get partSubWarranty => _$this._partSubWarranty;
+  set partSubWarranty(String? partSubWarranty) =>
       _$this._partSubWarranty = partSubWarranty;
 
-  String _supplierName;
-  String get supplierName => _$this._supplierName;
-  set supplierName(String supplierName) => _$this._supplierName = supplierName;
+  String? _supplierName;
+  String? get supplierName => _$this._supplierName;
+  set supplierName(String? supplierName) => _$this._supplierName = supplierName;
 
-  String _total;
-  String get total => _$this._total;
-  set total(String total) => _$this._total = total;
+  String? _total;
+  String? get total => _$this._total;
+  set total(String? total) => _$this._total = total;
 
   ComplaintMaterialGroupedBuilder();
 
@@ -3443,7 +3446,7 @@ class ComplaintMaterialGroupedBuilder
   }
 
   @override
-  void update(void Function(ComplaintMaterialGroupedBuilder) updates) {
+  void update(void Function(ComplaintMaterialGroupedBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -3453,22 +3456,23 @@ class ComplaintMaterialGroupedBuilder
   _$ComplaintMaterialGrouped _build() {
     final _$result = _$v ??
         new _$ComplaintMaterialGrouped._(
-            dateCheckIn: BuiltValueNullFieldError.checkNotNull(
-                dateCheckIn, r'ComplaintMaterialGrouped', 'dateCheckIn'),
-            doNo: BuiltValueNullFieldError.checkNotNull(
-                doNo, r'ComplaintMaterialGrouped', 'doNo'),
-            partSubCost: BuiltValueNullFieldError.checkNotNull(
-                partSubCost, r'ComplaintMaterialGrouped', 'partSubCost'),
-            partSubLocation: BuiltValueNullFieldError.checkNotNull(
-                partSubLocation, r'ComplaintMaterialGrouped', 'partSubLocation'),
-            partSubValidity: BuiltValueNullFieldError.checkNotNull(
-                partSubValidity, r'ComplaintMaterialGrouped', 'partSubValidity'),
-            partSubWarranty: BuiltValueNullFieldError.checkNotNull(
-                partSubWarranty, r'ComplaintMaterialGrouped', 'partSubWarranty'),
-            supplierName: BuiltValueNullFieldError.checkNotNull(
-                supplierName, r'ComplaintMaterialGrouped', 'supplierName'),
-            total: BuiltValueNullFieldError.checkNotNull(
-                total, r'ComplaintMaterialGrouped', 'total'));
+          dateCheckIn: BuiltValueNullFieldError.checkNotNull(
+              dateCheckIn, r'ComplaintMaterialGrouped', 'dateCheckIn'),
+          doNo: BuiltValueNullFieldError.checkNotNull(
+              doNo, r'ComplaintMaterialGrouped', 'doNo'),
+          partSubCost: BuiltValueNullFieldError.checkNotNull(
+              partSubCost, r'ComplaintMaterialGrouped', 'partSubCost'),
+          partSubLocation: BuiltValueNullFieldError.checkNotNull(
+              partSubLocation, r'ComplaintMaterialGrouped', 'partSubLocation'),
+          partSubValidity: BuiltValueNullFieldError.checkNotNull(
+              partSubValidity, r'ComplaintMaterialGrouped', 'partSubValidity'),
+          partSubWarranty: BuiltValueNullFieldError.checkNotNull(
+              partSubWarranty, r'ComplaintMaterialGrouped', 'partSubWarranty'),
+          supplierName: BuiltValueNullFieldError.checkNotNull(
+              supplierName, r'ComplaintMaterialGrouped', 'supplierName'),
+          total: BuiltValueNullFieldError.checkNotNull(
+              total, r'ComplaintMaterialGrouped', 'total'),
+        );
     replace(_$result);
     return _$result;
   }
@@ -3476,16 +3480,16 @@ class ComplaintMaterialGroupedBuilder
 
 class _$ComplaintMaterialImage extends ComplaintMaterialImage {
   @override
-  final String file;
+  final String? file;
   @override
-  final String height;
+  final String? height;
   @override
-  final String width;
+  final String? width;
   @override
-  final String title;
+  final String? title;
 
   factory _$ComplaintMaterialImage(
-          [void Function(ComplaintMaterialImageBuilder) updates]) =>
+          [void Function(ComplaintMaterialImageBuilder)? updates]) =>
       (new ComplaintMaterialImageBuilder()..update(updates))._build();
 
   _$ComplaintMaterialImage._({this.file, this.height, this.width, this.title})
@@ -3512,9 +3516,13 @@ class _$ComplaintMaterialImage extends ComplaintMaterialImage {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc($jc($jc(0, file.hashCode), height.hashCode), width.hashCode),
-        title.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, file.hashCode);
+    _$hash = $jc(_$hash, height.hashCode);
+    _$hash = $jc(_$hash, width.hashCode);
+    _$hash = $jc(_$hash, title.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -3530,23 +3538,23 @@ class _$ComplaintMaterialImage extends ComplaintMaterialImage {
 
 class ComplaintMaterialImageBuilder
     implements Builder<ComplaintMaterialImage, ComplaintMaterialImageBuilder> {
-  _$ComplaintMaterialImage _$v;
+  _$ComplaintMaterialImage? _$v;
 
-  String _file;
-  String get file => _$this._file;
-  set file(String file) => _$this._file = file;
+  String? _file;
+  String? get file => _$this._file;
+  set file(String? file) => _$this._file = file;
 
-  String _height;
-  String get height => _$this._height;
-  set height(String height) => _$this._height = height;
+  String? _height;
+  String? get height => _$this._height;
+  set height(String? height) => _$this._height = height;
 
-  String _width;
-  String get width => _$this._width;
-  set width(String width) => _$this._width = width;
+  String? _width;
+  String? get width => _$this._width;
+  set width(String? width) => _$this._width = width;
 
-  String _title;
-  String get title => _$this._title;
-  set title(String title) => _$this._title = title;
+  String? _title;
+  String? get title => _$this._title;
+  set title(String? title) => _$this._title = title;
 
   ComplaintMaterialImageBuilder();
 
@@ -3569,7 +3577,7 @@ class ComplaintMaterialImageBuilder
   }
 
   @override
-  void update(void Function(ComplaintMaterialImageBuilder) updates) {
+  void update(void Function(ComplaintMaterialImageBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -3579,10 +3587,14 @@ class ComplaintMaterialImageBuilder
   _$ComplaintMaterialImage _build() {
     final _$result = _$v ??
         new _$ComplaintMaterialImage._(
-            file: file, height: height, width: width, title: title);
+          file: file,
+          height: height,
+          width: width,
+          title: title,
+        );
     replace(_$result);
     return _$result;
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,no_leading_underscores_for_local_identifiers,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new,unnecessary_lambdas
+// ignore_for_file: deprecated_member_use_from_same_package,type=lint

@@ -5,34 +5,25 @@ import 'package:gfm_gems/model/serializers.dart';
 part 'eventDetail.g.dart';
 
 abstract class EventDetail implements Built<EventDetail, EventDetailBuilder> {
-  @nullable
-  String get date;
-  @nullable
-  String get currentTime;
-  @nullable
-  String get currentShift;
-  @nullable
-  String get status;
-  @nullable
-  String get shiftStart;
-  @nullable
-  String get shiftEnd;
-  @nullable
-  String get timeClockIn;
-  @nullable
-  String get timeClockOut;
-  @nullable
-  String get duration;
+  String? get date;
+  String? get currentTime;
+  String? get currentShift;
+  String? get status;
+  String? get shiftStart;
+  String? get shiftEnd;
+  String? get timeClockIn;
+  String? get timeClockOut;
+  String? get duration;
 
   EventDetail._();
-  factory EventDetail([void Function(EventDetailBuilder) updates]) =
-      _$EventDetail;
+  factory EventDetail([void Function(EventDetailBuilder) updates]) = _$EventDetail;
 
   Map<String, dynamic> toJson() {
-    return serializers.serializeWith(EventDetail.serializer, this);
+    return serializers.serializeWith(EventDetail.serializer, this)
+        as Map<String, dynamic>;
   }
 
-  static EventDetail fromJson(Map<String, dynamic> json) {
+  static EventDetail? fromJson(Map<String, dynamic> json) {
     return serializers.deserializeWith(EventDetail.serializer, json);
   }
 
