@@ -4,7 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc_technician.dart';
-import 'controller/Attendance/attendance.dart';
+import 'controller/Attendance/attendance.dart' as mainAttendance;
 import 'controller/Homepage/signature.dart';
 import 'controller/Leaderboard/leaderboard.dart';
 import 'controller/PPM/PMaintenance.dart';
@@ -24,7 +24,7 @@ import 'controller/WorkOrder/complaintSearch.dart';
 import 'controller/WorkOrder/workorder.dart';
 import 'controller/Storekeeper/route/engineer/route_engineer.dart';
 import 'controller/Storekeeper/route/procurement/route_procurement.dart';
-import 'controller/Storekeeper/route/storekeeper/homepage.dart';
+import 'controller/Storekeeper/route/storekeeper/homepage.dart' as storeKeeperHome;
 import 'controller/Storekeeper/route/storekeeper/route_MR.dart';
 import 'controller/Storekeeper/route/procurement/route_PO.dart';
 import 'controller/Storekeeper/route/storekeeper/route_PR.dart';
@@ -277,13 +277,13 @@ class MyApp extends StatelessWidget {
             builder: (ctx) => RouteEngineer(value: value), settings: settings);
       case routeInventory:
         return MaterialPageRoute(
-            builder: (ctx) => utilitiesHome.Homepage(), settings: settings);
+            builder: (ctx) => storeKeeperHome.Homepage(), settings: settings);
       case routeCheckIn:
         return MaterialPageRoute(
-            builder: (ctx) => Homepage(), settings: settings);
+            builder: (ctx) => storeKeeperHome.Homepage(), settings: settings);
       case routeCheckOut:
         return MaterialPageRoute(
-            builder: (ctx) => Homepage(), settings: settings);
+            builder: (ctx) => storeKeeperHome.Homepage(), settings: settings);
       case routeMaterialInfo:
         return MaterialPageRoute(
             builder: (ctx) => MaterialInfo(value: settings.arguments as ComplaintDType), settings: settings);
@@ -318,7 +318,7 @@ class MyApp extends StatelessWidget {
             builder: (ctx) => MaterialRequest(value: settings.arguments as dynamic), settings: settings);
       case routeDashboard:
         return MaterialPageRoute(
-            builder: (ctx) => Homepage(), settings: settings);
+            builder: (ctx) => storeKeeperHome.Homepage(), settings: settings);
       case routeDetails:
         return MaterialPageRoute(
             builder: (ctx) => MaterialDetails(id: settings.arguments as String), settings: settings);
@@ -333,7 +333,7 @@ class MyApp extends StatelessWidget {
             builder: (ctx) => CheckinAdd(), settings: settings);
       case routeUtilities:
         return MaterialPageRoute(
-            builder: (_) => utilitiesHome.Homepage(), settings: settings);
+            builder: (_) => utilitiesHome.UtilitiesHome(), settings: settings);
       case routeSignature:
         return MaterialPageRoute(
           builder: (_) => SignatureView(
@@ -348,7 +348,8 @@ class MyApp extends StatelessWidget {
             builder: (_) => LeaderboardView(), settings: settings);
       case routeAttendance:
         return MaterialPageRoute(
-            builder: (_) => Placeholder(), settings: settings); // Replace Placeholder with the correct widget if known
+            builder: (_) => mainAttendance.Dashboard(), settings: settings);
+            // builder: (_) => Placeholder(), settings: settings); // Replace Placeholder with the correct widget if known
       default:
         return MaterialPageRoute(builder: (ctx) => ProcumentHomepage());
     }
