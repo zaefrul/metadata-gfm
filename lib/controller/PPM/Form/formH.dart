@@ -12,7 +12,7 @@ import 'package:gfm_gems/view/dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_native_image_v2/flutter_native_image_v2.dart';
+import 'package:gfm_gems/utils/image_compressor.dart';
 
 class FormH extends StatefulWidget {
   final String id;
@@ -321,7 +321,16 @@ class _FormHState extends State<FormH> {
         DateFormat('kk:mm:ss EEE d MMM').format(DateTime.now());
 
     void createObject(File file) async {
-      final bytes = await compressFile(file);
+      final bytes = await compressFile(file, settings: {
+        'quality': Platform.isIOS ? 60 : 100,
+        'minWidth': 540,
+        'minHeight': 720
+      });
+      if (bytes == null) {
+        setState(() => _loading = false);
+        _alert("Unable to compress image");
+        return;
+      }
       String size = bytes.length.toString();
       String base64Image = base64Encode(bytes);
       String desc = "${file.path}.jpg";
@@ -356,19 +365,6 @@ class _FormHState extends State<FormH> {
     } else {
       setState(() => _loading = true);
     }
-  }
-
-  Future<List<int>> compressFile(File file) async {
-    File compressedFile = await FlutterNativeImage.compressImage(
-      file.absolute.path,
-      quality: Platform.isIOS ? 60 : 100,
-      targetWidth: 540,
-      targetHeight: 720,
-    );
-    final bytes = await compressedFile.readAsBytes();
-    print("Original file size: ${file.lengthSync()}");
-    print("Compressed file size: ${bytes.length}");
-    return bytes;
   }
 
   Widget _bottomSheet({required String latitude, required String longitude, required String src}) {

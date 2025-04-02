@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/PPM/Form/openImage.dart';
 import 'package:gfm_gems/model/meter.dart';
 import 'package:gfm_gems/model/serializers.dart';
+import 'package:gfm_gems/utils/image_compressor.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:image_picker/image_picker.dart';
@@ -12,7 +14,6 @@ import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:toast/toast.dart';
 // Removed flutter_image_compress import
-import 'package:flutter_native_image_v2/flutter_native_image_v2.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class WaterBillScreen extends StatefulWidget {
@@ -174,7 +175,11 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
     String max = "";
     String amount = '';
 
-    final bytes = await compressFile(File(file.path));
+    final bytes = await compressFile(File(file.path), settings: {
+      'quality': Platform.isIOS ? 20 : 60,
+      'minWidth': 480,
+      'minHeight': 640,
+    }) ?? Uint8List(0);
     String size = bytes.length.toString();
     String base64Image = base64Encode(bytes);
     String name =
@@ -218,20 +223,6 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
         Navigator.pop(context);
       });
     }));
-  }
-
-  /// Updated compressFile function using flutter_native_image.
-  Future<List<int>> compressFile(File file) async {
-    File compressedFile = await FlutterNativeImage.compressImage(
-      file.absolute.path,
-      quality: Platform.isIOS ? 20 : 60,
-      targetWidth: 480,
-      targetHeight: 640,
-    );
-    final result = await compressedFile.readAsBytes();
-    print("Original file size: ${file.lengthSync()}");
-    print("Compressed file size: ${result.length}");
-    return result;
   }
 
   Widget _filter(List<Meter> values) => StreamBuilder<Meter>(

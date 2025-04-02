@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_native_image_v2/flutter_native_image_v2.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:gfm_gems/model/form.dart';
 import 'package:gfm_gems/utils/network.dart';
@@ -11,6 +11,7 @@ import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/dialog.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:gfm_gems/utils/image_compressor.dart';
 
 import 'openImage.dart';
 
@@ -239,7 +240,11 @@ class _FormFState extends State<FormF> {
     if (file == null) {
       throw Exception("No file selected");
     }
-    Uint8List? bytes = await compressFile(File(file.path));
+    Uint8List? bytes = await compressFile(File(file.path), settings: {
+      "quality": Platform.isIOS ? 60 : 100,
+      "minWidth": 540,
+      "minHeight": 720,
+    });
     if (bytes == null) {
       throw Exception("Failed to compress image");
     }
@@ -291,23 +296,19 @@ class _FormFState extends State<FormF> {
       MaterialPageRoute(
           builder: (context) => ImageViewer(path: path, url: src)));
 
-  Future<Uint8List?> compressFile(File file) async {
-    try {
-      // Use flutter_native_image_v2 package for compression.
-      File compressedFile = await FlutterNativeImage.compressImage(
-        file.path,
-        quality: Platform.isIOS ? 60 : 100,
-        targetWidth: 540,
-        targetHeight: 720,
-      );
-      print("Original size: ${file.lengthSync()}");
-      print("Compressed size: ${await compressedFile.length()}");
-      return await compressedFile.readAsBytes();
-    } catch (e) {
-      print("Compression error: $e");
-      return null;
-    }
-  }
+  // Future<Uint8List?> compressFile(File file) async {
+  //   final compressedBytes = await FlutterImageCompress.compressWithFile(
+  //     file.absolute.path,
+  //     quality: Platform.isIOS ? 60 : 100,
+  //     minWidth: 540,
+  //     minHeight: 720,
+  //   );
+    
+  //   if (compressedBytes == null) {
+  //     return null;
+  //   }
+  //   return Uint8List.fromList(compressedBytes);
+  // }
 }
 
 class UploadItem extends Upload {

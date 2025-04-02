@@ -1,14 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_native_image_v2/flutter_native_image_v2.dart';
+import 'package:gfm_gems/utils/image_compressor.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:gfm_gems/controller/PPM/Form/openImage.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/dialog.dart';
+import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -259,13 +261,13 @@ class _FormComplaintState extends State<FormComplaint> {
 
     void _openViewer() {
       Navigator.push(
-          context,
+          context as BuildContext,
           MaterialPageRoute(
               builder: (context) => ImageViewer(file: src)));
     }
 
     showModalBottomSheet(
-        context: context,
+        context: context as BuildContext,
         builder: (BuildContext bc) => Container(
               child: Wrap(
                 children: <Widget>[
@@ -295,20 +297,6 @@ class _FormComplaintState extends State<FormComplaint> {
       return null;
     }
 
-    // Updated compressFile using flutter_native_image.
-    Future<List<int>> compressFile(File file) async {
-      File compressedFile = await FlutterNativeImage.compressImage(
-        file.absolute.path,
-        quality: Platform.isIOS ? 20 : 60,
-        targetWidth: 480,
-        targetHeight: 640,
-      );
-      final result = await compressedFile.readAsBytes();
-      print("Original file size: ${file.lengthSync()}");
-      print("Compressed file size: ${result.length}");
-      return result;
-    }
-
     Future<bool> openLocationSetting() async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       latitude = prefs.getString(prefsLATITUDE) ?? "0.0";
@@ -321,7 +309,11 @@ class _FormComplaintState extends State<FormComplaint> {
     String date() => DateFormat('kk:mm:ss EEE d MMM').format(DateTime.now());
 
     void createObject(File file) async {
-      final bytes = await compressFile(file);
+      final bytes = await compressFile(file, settings: {
+        'quality': Platform.isIOS ? 20 : 60,
+        'minWidth': 480,
+        'minHeight': 640,
+      }) ?? Uint8List(0);
       String size = bytes.length.toString();
       String base64Image = base64Encode(bytes);
       String name = "${date()}.jpg";
@@ -394,7 +386,7 @@ class _FormComplaintState extends State<FormComplaint> {
       setState(() => loading = true);
 
       Provider provider = Provider(fetchURL: "/api/m_wo.php");
-      provider.context = context;
+      provider.context = context as BuildContext;
 
       provider.post(url: "/api/m_wo.php", body: body).then((value) {
         setState(() => loading = false);
@@ -410,7 +402,7 @@ class _FormComplaintState extends State<FormComplaint> {
 
   void alert({String? txt, String? err}) {
     showDialog(
-        context: context,
+        context: context as BuildContext,
         builder: (BuildContext context) => CustomDialog(
             rootPage: err != null ? "" : "/workorder",
             description: err != null ? err : txt!,

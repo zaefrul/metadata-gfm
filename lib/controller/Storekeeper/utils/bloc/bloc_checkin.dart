@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 // Removed flutter_image_compress and replaced with flutter_native_image:
-import 'package:flutter_native_image_v2/flutter_native_image_v2.dart';
 import 'package:gfm_gems/model/complaint.dart';
 import 'package:gfm_gems/model/serializers.dart';
+import 'package:gfm_gems/utils/image_compressor.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_size_getter/file_input.dart';
@@ -209,7 +210,11 @@ class BlocCheckin extends Bloc {
       final width = getter.width;
       final type = 'data:image/jpg:base64';
       final filename = "DO";
-      final bytes = await compressFile(item);
+      final bytes = await compressFile(item, settings: {
+        'quality': Platform.isIOS ? 20 : 60,
+        'minWidth': 480,
+        'minHeight': 640,
+      }) ?? Uint8List(0);
       final size = bytes.length.toString();
       String name =
           DateFormat('kk:mm:ss EEE d MMM').format(DateTime.now()) + ".jpg";
@@ -225,20 +230,6 @@ class BlocCheckin extends Bloc {
     }
 
     return value;
-  }
-
-  /// Updated compressFile function using flutter_native_image.
-  Future<List<int>> compressFile(File file) async {
-    File compressedFile = await FlutterNativeImage.compressImage(
-      file.absolute.path,
-      quality: Platform.isIOS ? 20 : 60,
-      targetWidth: 480,
-      targetHeight: 640,
-    );
-    final result = await compressedFile.readAsBytes();
-    print("Original file size: ${file.lengthSync()}");
-    print("Compressed file size: ${result.length}");
-    return result;
   }
 
   void createUploadItem(BuildContext context) async {

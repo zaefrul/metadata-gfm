@@ -7,7 +7,7 @@ import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/view/dialog.dart';
 import 'package:toast/toast.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_native_image_v2/flutter_native_image_v2.dart';
+import 'package:gfm_gems/utils/image_compressor.dart';
 
 import '../../utils/reference.dart';
 import '../../view/button.dart';
@@ -205,19 +205,6 @@ class _EditState extends State<Edit> {
     );
   }
 
-  Future<File?> getCompressedImage(ImageSource source) async {
-    final picked = await ImagePicker().pickImage(source: source, maxWidth: 480, maxHeight: 640);
-    if (picked == null) return null;
-    File originalFile = File(picked.path);
-    File compressedFile = await FlutterNativeImage.compressImage(
-      originalFile.path,
-      quality: 60,
-      targetWidth: 480,
-      targetHeight: 640,
-    );
-    return compressedFile;
-  }
-
   Future<File?> getImageCamera() async {
     return getCompressedImage(ImageSource.camera);
   }
@@ -271,22 +258,13 @@ class _EditState extends State<Edit> {
     setState(() {
       path = file.path;
     });
-    bytes = await compressFile(File(file.path));
+    bytes = await compressFile(File(file.path), settings: {
+      'quality': Platform.isIOS ? 60 : 100,
+      'minWidth': 480,
+      'minHeight': 640
+    });
     size = bytes!.length.toString();
     base64Image = base64Encode(bytes!);
     desc = "${file.path}.jpg";
-  }
-
-  Future<List<int>> compressFile(File file) async {
-    File compressedFile = await FlutterNativeImage.compressImage(
-      file.absolute.path,
-      quality: 60,
-      targetWidth: 480,
-      targetHeight: 640,
-    );
-    final compressedBytes = await compressedFile.readAsBytes();
-    print("Original file size: ${file.lengthSync()}");
-    print("Compressed file size: ${compressedBytes.length}");
-    return compressedBytes;
   }
 }
