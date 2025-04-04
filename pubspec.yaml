@@ -68,7 +68,11 @@ dependencies:
   cupertino_icons: ^1.0.5
   month_year_picker: ^0.4.0+1
 
-  custom_searchable_dropdown: ^2.1.1
+  # custom_searchable_dropdown: ^2.1.1
+  custom_searchable_dropdown:
+    git:
+      url: https://github.com/zaefrul/custom_searchable_dropdown.git
+      ref: master
   dropdown_search: ^6.0.2
 
   built_collection: any

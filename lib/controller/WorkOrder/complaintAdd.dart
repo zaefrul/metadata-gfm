@@ -183,17 +183,18 @@ class _ComplaintAddState extends State<ComplaintAdd> {
                 label: _hint,
                 decoration: BoxDecoration(
                     border: Border(
-                  bottom: BorderSide(
-                    color: Colors.black,
-                    width: 0.4,
+                        bottom: BorderSide(
+                        color: Colors.black,
+                        width: 0.4,
+                      ),
+                    )
                   ),
-                )),
                 prefixIcon: const Padding(
                   padding: EdgeInsets.all(0.0),
                   child: Icon(Icons.search),
                 ),
                 dropDownMenuItems:
-                    list.map((e) => (e is ComplaintDGroup)
+                  list.map((e) => (e is ComplaintDGroup)
                             ? e.itemName
                             : (e is ComplaintDType)
                                 ? e.itemName
