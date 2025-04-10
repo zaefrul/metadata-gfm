@@ -202,7 +202,11 @@ class _ComplaintAddState extends State<ComplaintAdd> {
                                     ? e.itemName
                                     : "")
                         .toList(),
-                onChanged: (item) => enable ? sink(item) : {},
+                onChanged: (item) {
+                  if (enable && item != null) {
+                    sink(item);
+                  }
+                },
               );
             }));
   }

@@ -171,6 +171,10 @@ class MainBloc {
         name: named,
       );
     } else if (named == "D") {
+      debugPrint("Checkpoint: $checkpoint");
+      debugPrint("View Only: $viewOnly");
+      debugPrint("Status: $_status");
+      debugPrint("Section Status: ${order.sectionStatus}");
       object = ComplaintSectionC(_id, viewOnly ? true : (checkpoint == 1));
     } else if (named == "E" && desc == "Asset No") {
       object = ComplaintSectionD(

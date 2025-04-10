@@ -214,23 +214,29 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
       _children.add(SizedBox(height: 20.0));
       _children.add(_getTitle(_sectionName[i], bold: true));
       var item = sectionItem[i];
-      if (item is TechnicianImageRepair) {
+      if (item == null) {
+        // Add an empty section if the item is null
+        _children.add(_emptySection(i));
+      } else if (item is TechnicianImageRepair) {
+        // Add a single section if the item is a TechnicianImageRepair
         _children.add(_section(item));
       } else if (item is List) {
-        List<TechnicianImageRepair> duringList = item.cast<TechnicianImageRepair>();
-        if (duringList.isNotEmpty) {
-          for (var j = 0; j < duringList.length; j++) {
-            _children.add(_section(duringList[j]));
-          }
-          if (duringList.length < 1) {
-            _children.add(_emptySection(i));
-          }
-        } else {
+        // Handle lists of TechnicianImageRepair
+        if (item.isEmpty || item.every((element) => element == null)) {
           _children.add(_emptySection(i));
+        } else {
+          for (var j = 0; j < item.length; j++) {
+            if (item[j] != null) {
+              _children.add(_section(item[j]));
+            }
+          }
         }
       } else {
+        // Fallback to an empty section for unexpected cases
         _children.add(_emptySection(i));
       }
+
+      debugPrint("User is disable: ${widget.disable}");
     }
   }
 

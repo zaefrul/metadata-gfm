@@ -105,6 +105,7 @@ class _ComplaintSectionDMaterialState extends State<ComplaintSectionDMaterial> {
       );
 
   Widget get _submitButton => FloatingActionButton.extended(
+        heroTag: "submit",
         backgroundColor: colorTheme2,
         label: const Text("Submit"),
         onPressed: () => _controller.submit(context),

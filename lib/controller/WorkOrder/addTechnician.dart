@@ -8,7 +8,7 @@ class AddTechnicianCheckList extends StatefulWidget {
   final String id;
   final bool viewer;
 
-  AddTechnicianCheckList({required this.id, required this.viewer});
+  AddTechnicianCheckList({super.key, required this.id, required this.viewer});
 
   @override
   _AddTechnicianCheckListState createState() =>
@@ -39,7 +39,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
     _controller.addListener(() {
       setState(() {
         listTechnicianSearch.clear();
-        if (_controller.text.length > 0) {
+        if (_controller.text.length > 0)
           listTechnicianSearch.addAll(
             listTechnician.where(
               (element) => element.userFullName.toLowerCase().contains(
@@ -47,9 +47,8 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
                   ),
             ),
           );
-        } else {
+        else
           listTechnicianSearch.addAll(listTechnician);
-        }
       });
     });
 
@@ -59,7 +58,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
       taskID: id,
     ).fetch().then((onValue) {
       var data = onValue.technicianAssign;
-      max = int.parse(data?.woTaskMaxAssistant ?? '0');
+      max = int.parse(data?.woTaskMaxAssistant ?? "0");
     });
   }
 
@@ -68,7 +67,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
     ToastContext().init(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text("Add Technician Assistant"),
+        title: new Text("Add Technician Assistant"),
         backgroundColor: Colors.white,
       ),
       body: Container(
@@ -89,7 +88,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
                 children: listTechnicianSearch
                     .map(
                       (f) => CheckboxListTile(
-                        title: Text(f.userFullName),
+                        title: new Text(f.userFullName),
                         value: listTechnicianSelected.contains(f),
                         onChanged: (value) {
                           if (widget.viewer) return;
@@ -98,18 +97,17 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
                           if (listTechnicianSelected.length == max) {
                             Toast.show("Assistant allowed $max!", duration: 2);
                           }
-                          if (value == true && listTechnicianSelected.length < max) {
+                          if (value != null && listTechnicianSelected.length < max) {
                             if (listTechnicianSelected.contains(f) == false) {
                               setState(() => listTechnicianSelected.add(f));
                               _provider.add(f);
                             }
-                          } else {
+                          } else
                             setState(() {
                               listTechnicianSelected
                                   .removeWhere((technician) => technician == f);
                               _provider.delete(f);
                             });
-                          }
                         },
                       ),
                     )
@@ -122,7 +120,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
       floatingActionButton: widget.viewer
           ? null
           : FloatingActionButton.extended(
-              label: Text("Done"),
+              label: new Text("Done"),
               onPressed: () async {
                 await _provider.submit();
                 Navigator.of(context).pop(listTechnicianSelected);
@@ -238,7 +236,7 @@ class _Controller {
 
       return [];
     } catch (e) {
-      return [];
+      rethrow;
     }
   }
 
@@ -253,13 +251,13 @@ class _Controller {
 
       return [];
     } catch (e) {
-      return [];
+      rethrow;
     }
   }
 
   Future<void> add(_Model model) async {
     final url = "/wo_task_assist";
-    final Provider _provider = Provider(fetchURL: url, taskID: id); 
+    final Provider _provider = Provider(fetchURL: url);
 
     final body = {
       "woTaskId": id,
@@ -270,8 +268,7 @@ class _Controller {
       final _ = await _provider.post(url: url, body: body);
       return;
     } catch (e) {
-      Toast.show(e.toString(), duration: 2);
-      // Handle the error (e.g., log it) without returning it
+      rethrow;
     }
   }
 
@@ -283,20 +280,19 @@ class _Controller {
 
       return;
     } catch (e) {
-      // Handle the error (e.g., log it) without returning it
-      Toast.show(e.toString(), duration: 2);
+      rethrow;
     }
   }
 
   Future<void> submit() async {
     final url = "/wo_v2/save_assistant_list/$id";
-    final Provider _provider = Provider(fetchURL: url, taskID: id);
+    final Provider _provider = Provider(fetchURL: url);
     try {
       final _ = await _provider.post(url: url);
 
       return;
     } catch (e) {
-      Toast.show(e.toString(), duration: 2);
+      rethrow;
     }
   }
 
@@ -317,5 +313,5 @@ class _Model {
   _Model(this.assistantId, this.userId, this.userFullName);
 
   factory _Model.fromJson(Map<String, dynamic> json) =>
-      _Model(json["woTaskAssistId"], json["userId"], json["userFullName"]);
+      _Model(json["woTaskAssistId"] ?? "", json["userId"] ?? "", json["userFullName"] ?? "");
 }

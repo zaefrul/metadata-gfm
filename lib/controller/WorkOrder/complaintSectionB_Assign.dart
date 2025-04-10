@@ -481,7 +481,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
   WorkOrderStatus _fetchuserId(List<WorkOrderStatus> listing, String id) =>
       listing.firstWhere((f) => f.userId == id);
   WorkOrderStatus _fetchStatus(List<WorkOrderStatus> listing, String id) =>
-      listing.firstWhere((f) => f.groupId == id);
+      listing.firstWhere((f) => f.groupName == id);
   WorkOrderStatus _fetchUserStatus(List<WorkOrderStatus> listing, String result) =>
       listing.firstWhere((f) => f.userName == result);
   WorkOrderStatus _fetchSeverityId(List<WorkOrderStatus> listing, String id) =>

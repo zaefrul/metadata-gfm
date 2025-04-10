@@ -39,9 +39,9 @@ class _FormComplaintState extends State<FormComplaint> {
         // _areaDropdown,
         _descComplaint,
         _addPhoto,
-        listItem.length >= 1 ? _section(listItem[0]) : Container(),
-        listItem.length >= 2 ? _section(listItem[1]) : Container(),
-        listItem.length >= 3 ? _section(listItem[2]) : Container(),
+        listItem.length >= 1 ? _section(listItem[0], context) : Container(),
+        listItem.length >= 2 ? _section(listItem[1], context) : Container(),
+        listItem.length >= 3 ? _section(listItem[2], context) : Container(),
       ],
     );
     return GestureDetector(
@@ -84,7 +84,7 @@ class _FormComplaintState extends State<FormComplaint> {
                         ),
                         okayTapped: () {
                           Navigator.pop(context);
-                          _upload();
+                          _upload(context);
                         },
                       ));
             }),
@@ -206,7 +206,7 @@ class _FormComplaintState extends State<FormComplaint> {
     );
   }
 
-  Widget _section(UploadItem item) {
+  Widget _section(UploadItem item, BuildContext context) {
     var iconButton = IconButton(
       icon: Icon(Icons.delete),
       color: Colors.red,
@@ -234,7 +234,7 @@ class _FormComplaintState extends State<FormComplaint> {
               ],
             ),
             onTap: () async => _bottomSheet(
-                latitude: _latitude, longitude: _longitude, src: src)),
+                latitude: _latitude, longitude: _longitude, src: src, context: context)),
         TextField(
           decoration: InputDecoration(hintText: "Remark"),
           onChanged: (text) {
@@ -245,7 +245,7 @@ class _FormComplaintState extends State<FormComplaint> {
     );
   }
 
-  void _bottomSheet({required String latitude, required String longitude, required File src}) {
+  void _bottomSheet({required String latitude, required String longitude, required File src, required BuildContext context}) {
     Future<void> _openMap() async {
       String googleUrl =
           'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
@@ -348,7 +348,7 @@ class _FormComplaintState extends State<FormComplaint> {
     }
   }
 
-  void _upload() async {
+  void _upload(BuildContext context) async {
     String? latitude;
     String? longitude;
 
@@ -386,23 +386,26 @@ class _FormComplaintState extends State<FormComplaint> {
       setState(() => loading = true);
 
       Provider provider = Provider(fetchURL: "/api/m_wo.php");
-      provider.context = context as BuildContext;
+      // provider.context = context;
 
       provider.post(url: "/api/m_wo.php", body: body).then((value) {
         setState(() => loading = false);
-        alert(txt: value);
+        alert(txt: "Form submitted successfully!", context: context); // Ensure dialog is shown here
       }).catchError((err) {
         print(err);
-        alert(err: err.toString());
-      }).whenComplete(() => setState(() => loading = false));
+        alert(err: err.toString(), context: context);
+      }).whenComplete(() {
+        setState(() => loading = false);
+        alert(txt: "Form submitted successfully!", context: context);
+      });
     } else {
       Toast.show("Please allow permission location for camera");
     }
   }
 
-  void alert({String? txt, String? err}) {
+  void alert({String? txt, String? err, required BuildContext context}) {
     showDialog(
-        context: context as BuildContext,
+        context: context,
         builder: (BuildContext context) => CustomDialog(
             rootPage: err != null ? "" : "/workorder",
             description: err != null ? err : txt!,

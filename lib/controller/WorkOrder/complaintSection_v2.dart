@@ -42,6 +42,11 @@ class _ComplaintSectionState extends State<ComplaintSection> {
     super.didChangeDependencies();
     // Initialize the bloc once, now that context is available.
     if (!_blocInitialized) {
+      debugPrint("Bloc initialized");
+      debugPrint("ID: ${widget.id}");
+      debugPrint("Status: ${widget.taskStatus}");
+      debugPrint("Task No: ${widget.taskNo}");
+      debugPrint("Viewer: ${widget.viewer}");
       _bloc = MainBloc(
         id: widget.id,
         status: widget.taskStatus,
@@ -177,7 +182,7 @@ class _buildTile extends StatelessWidget {
     return ListTile(
       title: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
         Text(
-          object.sectionName ?? '' + ". ",
+          object.sectionName != null ? "${object.sectionName}. " : "",
           style: TextStyle(fontWeight: FontWeight.normal, color: colorTheme3),
         ),
         Expanded(
