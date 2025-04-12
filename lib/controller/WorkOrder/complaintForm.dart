@@ -261,13 +261,13 @@ class _FormComplaintState extends State<FormComplaint> {
 
     void _openViewer() {
       Navigator.push(
-          context as BuildContext,
+          context,
           MaterialPageRoute(
               builder: (context) => ImageViewer(file: src)));
     }
 
     showModalBottomSheet(
-        context: context as BuildContext,
+        context: context, // Use the parent context directly
         builder: (BuildContext bc) => Container(
               child: Wrap(
                 children: <Widget>[
@@ -396,7 +396,6 @@ class _FormComplaintState extends State<FormComplaint> {
         alert(err: err.toString(), context: context);
       }).whenComplete(() {
         setState(() => loading = false);
-        alert(txt: "Form submitted successfully!", context: context);
       });
     } else {
       Toast.show("Please allow permission location for camera");
@@ -408,7 +407,7 @@ class _FormComplaintState extends State<FormComplaint> {
         context: context,
         builder: (BuildContext context) => CustomDialog(
             rootPage: err != null ? "" : "/workorder",
-            description: err != null ? err : txt!,
+            description: err ?? txt!,
             buttonText: "Okay",
             image: Image.asset(
               "assets/icon_trans.png",
