@@ -15,6 +15,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../main.dart';
+
 class FormComplaint extends StatefulWidget {
   @override
   _FormComplaintState createState() => _FormComplaintState();
@@ -388,15 +390,15 @@ class _FormComplaintState extends State<FormComplaint> {
       Provider provider = Provider(fetchURL: "/api/m_wo.php");
       // provider.context = context;
 
-      provider.post(url: "/api/m_wo.php", body: body).then((value) {
+      try
+      {
+        var response = await provider.post(url: "/api/m_wo.php", body: body);
         setState(() => loading = false);
-        alert(txt: "Form submitted successfully!", context: context); // Ensure dialog is shown here
-      }).catchError((err) {
-        print(err);
-        alert(err: err.toString(), context: context);
-      }).whenComplete(() {
+        alert(context: context, txt: response, err: null);
+      } catch (e) {
         setState(() => loading = false);
-      });
+        alert(context: context, txt: null, err: e.toString());
+      }
     } else {
       Toast.show("Please allow permission location for camera");
     }
@@ -404,7 +406,7 @@ class _FormComplaintState extends State<FormComplaint> {
 
   void alert({String? txt, String? err, required BuildContext context}) {
     showDialog(
-        context: context,
+        context: navigatorKey.currentContext!,
         builder: (BuildContext context) => CustomDialog(
             rootPage: err != null ? "" : "/workorder",
             description: err ?? txt!,

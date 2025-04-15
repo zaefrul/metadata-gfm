@@ -50,6 +50,8 @@ late AndroidNotificationChannel channel;
 bool isFlutterLocalNotificationsInitialized = false;
 int alertCount = 0;
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 late FirebaseMessaging _messaging;
 
 class MyHttpOverrides extends HttpOverrides {
@@ -63,7 +65,7 @@ class MyHttpOverrides extends HttpOverrides {
 
 Future<void> main() async {
   // Helper function to instantiate MyApp
-  MyApp material(String init) => const MyApp();
+  // MyApp material(String init) => const MyApp();
 
   HttpOverrides.global = MyHttpOverrides();
 
@@ -106,7 +108,7 @@ Future<void> main() async {
     await setupFlutterNotifications();
   }
 
-  runApp(material("/"));
+  runApp(MyApp(navigatorKey: navigatorKey));
 }
 
 Future<void> showNotification(RemoteMessage payload) async {
@@ -191,7 +193,8 @@ void showFlutterNotification(RemoteMessage message) {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final GlobalKey<NavigatorState> navigatorKey;
+  const MyApp({super.key, required this.navigatorKey});
 
   @override
   Widget build(BuildContext context) {
@@ -214,6 +217,7 @@ class MyApp extends StatelessWidget {
       initialRoute: "/",
       debugShowCheckedModeBanner: false,
       onGenerateRoute: generateRoute,
+      navigatorKey: navigatorKey,
     );
   }
 
