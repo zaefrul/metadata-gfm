@@ -315,7 +315,7 @@ class _BuildRejectButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
         heroTag: "reject_button",
-        label: new Text(label),
+        label: new Text(label, style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.red,
         onPressed: () => showDialog(context: context, builder: _buildDialog));
   }
@@ -360,7 +360,8 @@ class _BuildStandardButton extends StatelessWidget {
               label: StreamBuilder(
                 stream: bloc.loading$,
                 builder: (_, loadingSnapshot) => loadingSnapshot.data == false
-                    ? new Text(viewOnly ? "View Form" : "Submit")
+                    ? new Text(viewOnly ? "View Form" : "Submit", 
+                        style: TextStyle(color: Colors.white))
                     : new CircularProgressIndicator(),
               ),
               backgroundColor: (viewOnly || (snapshot.data ?? false))
