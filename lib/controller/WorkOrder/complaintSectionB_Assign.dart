@@ -89,6 +89,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
             ..groupId = v,
         )));
 
+    // Fetch severity list
     Provider(
             fetchURL: "/api/m_wo.php?type=wo_severity_list&woTaskId=",
             taskID: widget.id)
@@ -99,6 +100,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
       });
     });
 
+    // Fetch group list and other details
     _fetchGroup.then((value) {
       groupList = value.wostatusList?.toList() ?? [];
       Provider provider = Provider(
@@ -107,17 +109,22 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
       );
       return provider.fetch();
     }).then((onValue) {
+      debugPrint("onValue: $onValue");
       var data = onValue.technicianAssign;
       typeCategory = data?.userCategory ?? '';
       assistUserId = data?.assistUserId.toList() ?? [];
       dropdownAssist = data?.woTaskMaxAssistant;
+
+      // Check if there are existing values for fields
       if (data != null && data.userId != "" && data.groupId != "" && data.severity != "") {
         dropdownId1 = data.groupId;
         dropdownValue1 = _fetchStatus(groupList, dropdownId1!).groupName;
         dropdownId2 = data.userId;
         dropdownId3 = data.severity;
+        debugPrint("dropdownId3: $dropdownId3");
         dropdownValue3 =
-            _fetchSeverityStatus(severityList, data.severity).severityName;
+            _fetchSeverityId(severityList, data.severity).severityName;
+        debugPrint("dropdownValue3: $dropdownValue3");
         dropdownId4 = data.woTaskCategory;
         dropdownValue4 = _fetchStatus(
                 typeCategory == "Internal"
@@ -481,7 +488,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
   WorkOrderStatus _fetchuserId(List<WorkOrderStatus> listing, String id) =>
       listing.firstWhere((f) => f.userId == id);
   WorkOrderStatus _fetchStatus(List<WorkOrderStatus> listing, String id) =>
-      listing.firstWhere((f) => f.groupName == id);
+      listing.firstWhere((f) => f.groupId == id);
   WorkOrderStatus _fetchUserStatus(List<WorkOrderStatus> listing, String result) =>
       listing.firstWhere((f) => f.userName == result);
   WorkOrderStatus _fetchSeverityId(List<WorkOrderStatus> listing, String id) =>
