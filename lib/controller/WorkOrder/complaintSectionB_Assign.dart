@@ -121,10 +121,8 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
         dropdownValue1 = _fetchStatus(groupList, dropdownId1!).groupName;
         dropdownId2 = data.userId;
         dropdownId3 = data.severity;
-        debugPrint("dropdownId3: $dropdownId3");
         dropdownValue3 =
             _fetchSeverityId(severityList, data.severity).severityName;
-        debugPrint("dropdownValue3: $dropdownValue3");
         dropdownId4 = data.woTaskCategory;
         dropdownValue4 = _fetchStatus(
                 typeCategory == "Internal"

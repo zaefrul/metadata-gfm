@@ -72,7 +72,9 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
                         "woTaskId": widget.id,
                         "repairWork": remark
                       })
-                      .then((onValue) => alert(onValue))
+                      .then((onValue) {
+                        alert(onValue);
+                      })
                       .then((value) {
                         setState(() => loading = false);
                       })
@@ -112,11 +114,13 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
     showDialog(
         context: context,
         builder: (BuildContext context) => CustomDialog(
-            description: txt,
-            buttonText: "Okay",
-            image: Image.asset(
-              "assets/icon_trans.png",
-              height: 40,
-            )));
+              goBackOnDismiss: true,
+              description: txt,
+              buttonText: "Okay",
+              image: Image.asset(
+                "assets/icon_trans.png",
+                height: 40,
+              ),
+            ));
   }
 }

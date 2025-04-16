@@ -22,6 +22,7 @@ class CustomDialog extends StatelessWidget {
   final bool useDescription;
   final bool secondButton;
   final String? rootPage;
+  final bool? goBackOnDismiss;
   String remark;
   final Function? okayTapped;
   final Function? secondTapped;
@@ -39,6 +40,7 @@ class CustomDialog extends StatelessWidget {
     this.cancel = false,
     this.image,
     this.rootPage,
+    this.goBackOnDismiss,
     this.remarkTapped,
     this.okayTapped,
     this.secondButton = false,
@@ -132,6 +134,10 @@ class CustomDialog extends StatelessWidget {
                           context,
                           ModalRoute.withName(rootPage!),
                         );
+                      }
+                      if (goBackOnDismiss == true) {
+                        Navigator.of(context).pop(); // Dismiss the dialog
+                        Navigator.of(context).pop(); // Navigate back to the previous screen
                       }
                     },
                     color: colorTheme2,
