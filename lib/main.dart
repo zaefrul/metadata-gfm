@@ -51,6 +51,7 @@ bool isFlutterLocalNotificationsInitialized = false;
 int alertCount = 0;
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 late FirebaseMessaging _messaging;
 
@@ -218,6 +219,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       onGenerateRoute: generateRoute,
       navigatorKey: navigatorKey,
+      navigatorObservers: [routeObserver],
     );
   }
 

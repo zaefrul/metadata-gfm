@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/WorkOrder/complaintSearch.dart';
 import 'package:gfm_gems/controller/WorkOrder/complaintView.dart';
+import 'package:gfm_gems/main.dart';
 import 'package:gfm_gems/model/user.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/bar.dart';
@@ -14,8 +15,7 @@ class WorkOrderView extends StatefulWidget {
   _WorkOrderState createState() => _WorkOrderState();
 }
 
-class _WorkOrderState extends State<WorkOrderView>
-    with TickerProviderStateMixin {
+class _WorkOrderState extends State<WorkOrderView> with TickerProviderStateMixin, RouteAware {
   final String selfFindingURL = "/api/m_wo.php?type=submitted_wo";
   final String myTaskURL = "/api/m_wo.php?type=pending_task";
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -38,9 +38,37 @@ class _WorkOrderState extends State<WorkOrderView>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Subscribe to route observer
+    routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
+    
+    if (_tabController != null) {
+      _tabController!.addListener(() {
+        if (_tabController!.indexIsChanging) {
+          debugPrint("Tab changed to: ${_tabController!.index}");
+          setState(() {});
+        }
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _tabController?.dispose();
+    routeObserver.unsubscribe(this);
     super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    // Refresh the data here
+    _refreshWorkOrderList();
+  }
+
+  void _refreshWorkOrderList() {
+    setState(() {
+    });
   }
 
   @override

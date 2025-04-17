@@ -40,7 +40,7 @@ class _ComplaintSectionDMaterialState extends State<ComplaintSectionDMaterial> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("E. Spare Parts/ Material User"),
+        title: const Text("G. Spare Parts/ Material User"),
         centerTitle: true,
         backgroundColor: Colors.white,
         actions: [
@@ -100,14 +100,14 @@ class _ComplaintSectionDMaterialState extends State<ComplaintSectionDMaterial> {
 
   Widget get _addButton => FloatingActionButton(
         backgroundColor: colorTheme2,
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: Colors.white),
         onPressed: () => _controller.add(context, widget.id),
       );
 
   Widget get _submitButton => FloatingActionButton.extended(
         heroTag: "submit",
         backgroundColor: colorTheme2,
-        label: const Text("Submit"),
+        label: const Text("Submit", style: TextStyle(color: Colors.white)),
         onPressed: () => _controller.submit(context),
       );
 }
@@ -223,7 +223,6 @@ class Controller {
           .submit()
           .then((value) => Toast.show("Your Request has submitted"))
           .then((value) {
-        Navigator.pop(context);
         Navigator.pop(context);
       }).catchError((onError) => Toast.show(onError.toString()));
 }

@@ -65,12 +65,12 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
       ..add('values')
       ..add(serializers.serialize(object.taskList,
           specifiedType:
-              const FullType(BuiltList, const [const FullType(Task)])));
+              const FullType(BuiltList, [FullType(Task)])));
     result
       ..add('values')
       ..add(serializers.serialize(object.result,
           specifiedType:
-              const FullType(BuiltList, const [const FullType(String)])));
+              const FullType(BuiltList, [FullType(String)])));
     return result;
   }
 
@@ -131,52 +131,52 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
             if (tryTask(serializers, value)) {
               result.taskList.replace(serializers.deserialize(value,
                       specifiedType: const FullType(
-                          BuiltList, const [const FullType(Task)])) as BuiltList<Task>);
+                          BuiltList, [FullType(Task)])) as BuiltList<Task>);
             } else if (tryMonitorTask(serializers, value)) {
               result.monitorTaskList.replace(serializers.deserialize(value,
                       specifiedType: const FullType(
-                          BuiltList, const [const FullType(MonitorTask)])) as BuiltList<MonitorTask>);
+                          BuiltList, [FullType(MonitorTask)])) as BuiltList<MonitorTask>);
             } else if (tryWorkOrderTask(serializers, value)) {
               result.workorderTask.replace(serializers.deserialize(value,
                       specifiedType: const FullType(
-                          BuiltList, const [const FullType(WorkOrderTask)])) as BuiltList<WorkOrderTask>);
+                          BuiltList, [FullType(WorkOrderTask)])) as BuiltList<WorkOrderTask>);
             } else if (tryDot(serializers, value)) {
               result.dotList.replace(serializers.deserialize(value,
                       specifiedType: const FullType(
-                          BuiltList, const [const FullType(Dot)])) as BuiltList<Dot>);
+                          BuiltList, [FullType(Dot)])) as BuiltList<Dot>);
             } else if (tryForm(serializers, value)) {
               result.statusList.replace(serializers.deserialize(value,
                       specifiedType: const FullType(
-                          BuiltList, const [const FullType(Form)])) as BuiltList<Form>);
+                          BuiltList, [FullType(Form)])) as BuiltList<Form>);
             } else if (trySectionC(serializers, value)) {
               result.sectionCList.replace(serializers.deserialize(value,
                       specifiedType: const FullType(
-                          BuiltList, const [const FullType(FormCItem)])) as BuiltList<FormCItem>);
+                          BuiltList, [FullType(FormCItem)])) as BuiltList<FormCItem>);
             } else if (trySectionD(serializers, value)) {
               result.sectionDList.replace(serializers.deserialize(value,
                       specifiedType: const FullType(
-                          BuiltList, const [const FullType(FormDItem)])) as BuiltList<FormDItem>);
+                          BuiltList, [FullType(FormDItem)])) as BuiltList<FormDItem>);
             } else if (trySectionE(serializers, value)) {
               result.sectionEList.replace(serializers.deserialize(value,
                       specifiedType: const FullType(
-                          BuiltList, const [const FullType(FormEItem)])) as BuiltList<FormEItem>);
+                          BuiltList, [FullType(FormEItem)])) as BuiltList<FormEItem>);
             } else if (trySectionH(serializers, value)) {
               result.sectionHList.replace(serializers.deserialize(value,
                       specifiedType: const FullType(
-                          BuiltList, const [const FullType(FormHItem)])) as BuiltList<FormHItem>);
+                          BuiltList, [FullType(FormHItem)])) as BuiltList<FormHItem>);
             } else if (trySectionF(serializers, value)) {
               result.sectionFList.replace(serializers.deserialize(value,
                       specifiedType: const FullType(
-                          BuiltList, const [const FullType(FormFItem)])) as BuiltList<FormFItem>);
+                          BuiltList, [FullType(FormFItem)])) as BuiltList<FormFItem>);
             } else if (tryTechnicianImage(serializers, value)) {
               result.technicianImages.replace(serializers.deserialize(value,
-                      specifiedType: const FullType(BuiltList, const [
-                        const FullType(TechnicianImageRepair)
+                      specifiedType: const FullType(BuiltList, [
+                        FullType(TechnicianImageRepair)
                       ])) as BuiltList<TechnicianImageRepair>);
             } else if (tryWoStatus(serializers, value)) {
               result.wostatusList.replace(serializers.deserialize(value,
                       specifiedType: const FullType(
-                          BuiltList, const [const FullType(WorkOrderStatus)])) as BuiltList<WorkOrderStatus>);
+                          BuiltList, [FullType(WorkOrderStatus)])) as BuiltList<WorkOrderStatus>);
             }
           } else {
             result.result = serializers.deserialize(value.toString(),

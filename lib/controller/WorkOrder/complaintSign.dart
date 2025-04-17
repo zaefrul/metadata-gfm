@@ -166,6 +166,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
   Future<void> post(BuildContext context) async {
     if (_controller.isEmpty) {
       Toast.show("Please sign first before submit");
+      if (!mounted) return; // Ensure widget is still mounted
       setState(() => loading = false);
       return;
     }
@@ -173,6 +174,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
     final Uint8List? pngBytes = await _controller.toPngBytes();
     if (pngBytes == null) {
       Toast.show("Error generating signature");
+      if (!mounted) return; // Ensure widget is still mounted
       setState(() => loading = false);
       return;
     }
@@ -219,15 +221,21 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
 
   void ratingDialog(Map<String, dynamic> body) {
     void upload() {
+      if (!mounted) return; // Ensure widget is still mounted
       setState(() => loading = true);
       Provider provider = Provider(fetchURL: "/api/m_wo.php");
       provider.context = context;
       provider
           .post(url: "/api/m_wo.php", body: body)
           .then((value) {
-        setState(() => loading = false);
-        alert(value);
-      }).catchError((err) => alert(err.toString()));
+            if (!mounted) return; // Ensure widget is still mounted
+            setState(() => loading = false);
+            alert(value);
+          })
+          .catchError((err) {
+            if (!mounted) return; // Ensure widget is still mounted
+            alert(err.toString());
+          });
     }
 
     void dialogConfirmation() {
@@ -282,6 +290,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
               body["remark"] = text;
               body["isVerified"] = "1";
               withVerifierBody.addAll(body);
+              if (!mounted) return; // Ensure widget is still mounted
               setState(() => loading = false);
               Toast.show("Please Refill Signature field for verifier",
                   duration: 2);

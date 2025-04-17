@@ -128,6 +128,7 @@ class _ComplaintSectionDState extends State<ComplaintSectionD> {
     showDialog(
         context: context,
         builder: (BuildContext context) => CustomDialog(
+            goBackOnDismiss: true,
             description: txt,
             buttonText: "Okay",
             image: Image.asset(

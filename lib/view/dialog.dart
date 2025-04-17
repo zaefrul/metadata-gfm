@@ -139,6 +139,12 @@ class CustomDialog extends StatelessWidget {
                         Navigator.of(context).pop(); // Dismiss the dialog
                         Navigator.of(context).pop(); // Navigate back to the previous screen
                       }
+
+                      // if nothing else then
+                      // just dismiss the dialog
+                      if (rootPage == null && goBackOnDismiss != true) {
+                        Navigator.of(context).pop();
+                      }
                     },
                     color: colorTheme2,
                   ),

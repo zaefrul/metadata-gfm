@@ -333,7 +333,7 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
       setState(() {
         _loading = false;
       });
-      _alert(value);
+      _alert(value, backOneScreen: true);
       _fetchImages();
     }).catchError((err) {
       setState(() {
@@ -394,10 +394,11 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
             ));
   }
 
-  void _alert(String desc) {
+  void _alert(String desc, {bool? backOneScreen = false}) {
     showDialog(
         context: context,
         builder: (BuildContext context) => CustomDialog(
+            goBackOnDismiss: backOneScreen,
             description: desc,
             buttonText: "Okay",
             image: Image.asset(

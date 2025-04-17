@@ -36,7 +36,7 @@ class ComplaintPDF extends StatefulWidget {
 class _ComplaintPDFState extends State<ComplaintPDF> {
   String assetPDFPath = "";
   bool pdfReady = false;
-  late CustomDialog dialog;
+  late CustomDialog dialog; // Initialize with a default value
   late String src;
 
   @override
@@ -48,6 +48,7 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
     provider.context = context;
 
     provider.fetch().then((value) {
+      debugPrint(value.toString());
       src = "http:" + (value.result ?? "");
       return createFileOfPdfUrl(src);
     }).then((file) {
@@ -55,6 +56,18 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
     }).catchError((err) {
       print(err);
     });
+
+    // Initialize dialog with a default value to avoid LateInitializationError
+    dialog = CustomDialog(
+      rootPage: "/workorder",
+      title: "",
+      description: "",
+      buttonText: "Okay",
+      image: Image.asset(
+        "assets/icon_trans.png",
+        height: 40,
+      ),
+    );
   }
 
   Future<File> createFileOfPdfUrl(String url) async {
@@ -70,8 +83,8 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
 
   @override
   void dispose() {
-    // Dispose dialog's controller if it was created.
-    dialog.controller.dispose();
+    // Dispose dialog's controller only if it has been initialized
+    dialog.controller?.dispose();
     super.dispose();
   }
 

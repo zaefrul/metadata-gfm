@@ -13,8 +13,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
 
-// final String netDomain = "https://gems.metadatasystem.my";
-final String netDomain = "https://gems.globalfm.com.my";
+final String netDomain = "https://gems.metadatasystem.my";
+// final String netDomain = "https://gems.globalfm.com.my";
 final String netLogin = "/api/m_login.php";
 final String netLogout = "";
 
@@ -107,11 +107,11 @@ class Provider {
         alert("Your session already expired, please relogin.");
       }
       
-      debugPrint("trying to decode as list");
       // Branch based on type of decode["result"].
       if (decode["result"] is List) {
         // In case it's a List and not empty…
         if ((decode["result"] as List).isNotEmpty) {
+          debugPrint("List is not empty, $decode");
           ResponseValue responseValue = serializers.deserializeWith(
               ResponseValue.serializer, decode)!;
           if (responseValue.success == true) {

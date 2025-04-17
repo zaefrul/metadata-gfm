@@ -394,17 +394,17 @@ class _FormComplaintState extends State<FormComplaint> {
       {
         var response = await provider.post(url: "/api/m_wo.php", body: body);
         setState(() => loading = false);
-        alert(context: context, txt: response, err: null);
+        alert(txt: response, err: null);
       } catch (e) {
         setState(() => loading = false);
-        alert(context: context, txt: null, err: e.toString());
+        alert(txt: null, err: e.toString());
       }
     } else {
       Toast.show("Please allow permission location for camera");
     }
   }
 
-  void alert({String? txt, String? err, required BuildContext context}) {
+  void alert({String? txt, String? err}) {
     showDialog(
         context: navigatorKey.currentContext!,
         builder: (BuildContext context) => CustomDialog(

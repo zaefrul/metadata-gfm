@@ -39,7 +39,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
     _controller.addListener(() {
       setState(() {
         listTechnicianSearch.clear();
-        if (_controller.text.length > 0)
+        if (_controller.text.length > 0) {
           listTechnicianSearch.addAll(
             listTechnician.where(
               (element) => element.userFullName.toLowerCase().contains(
@@ -47,8 +47,9 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
                   ),
             ),
           );
-        else
+        } else {
           listTechnicianSearch.addAll(listTechnician);
+        }
       });
     });
 
@@ -67,7 +68,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
     ToastContext().init(context);
     return Scaffold(
       appBar: AppBar(
-        title: new Text("Add Technician Assistant"),
+        title: Text("F. Add Technician Assistant"),
         backgroundColor: Colors.white,
       ),
       body: Container(
@@ -87,29 +88,40 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
               child: ListView(
                 children: listTechnicianSearch
                     .map(
-                      (f) => CheckboxListTile(
-                        title: new Text(f.userFullName),
-                        value: listTechnicianSelected.contains(f),
-                        onChanged: (value) {
-                          if (widget.viewer) return;
-                          // if (value) showsheet();
-                          // print(value);
-                          if (listTechnicianSelected.length == max) {
-                            Toast.show("Assistant allowed $max!", duration: 2);
-                          }
-                          if (value != null && listTechnicianSelected.length < max) {
-                            if (listTechnicianSelected.contains(f) == false) {
-                              setState(() => listTechnicianSelected.add(f));
-                              _provider.add(f);
-                            }
-                          } else
-                            setState(() {
-                              listTechnicianSelected
-                                  .removeWhere((technician) => technician == f);
+                      (f) {
+                        bool isSelected = listTechnicianSelected
+                            .contains(f);
+                        debugPrint("f: ${f.toString()}");
+                        debugPrint("isSelected: $isSelected");
+                        debugPrint(
+                            "listTechnicianSelected: ${listTechnicianSelected.toString()}");
+                        return CheckboxListTile(
+                          title: Text(f.userFullName),
+                          value: isSelected,
+                          onChanged: (bool? value) {
+                            if (value == true) {
+                              if (listTechnicianSelected.length < max) {
+                                setState(() {
+                                  listTechnicianSelected.add(f);
+                                });
+                                _provider.add(f);
+                              } else {
+                                Toast.show(
+                                  "Max $max technician(s) allowed",
+                                  duration: Toast.lengthLong,
+                                  gravity: Toast.bottom,
+                                );
+                              }
+                            } else {
+                              debugPrint("Unselected: ${f.toString()}");
+                              setState(() {
+                                listTechnicianSelected.remove(f);
+                              });
                               _provider.delete(f);
-                            });
-                        },
-                      ),
+                            }
+                          },
+                        );
+                      }
                     )
                     .toList(),
               ),
@@ -120,7 +132,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
       floatingActionButton: widget.viewer
           ? null
           : FloatingActionButton.extended(
-              label: new Text("Done"),
+              label: Text("Done"),
               onPressed: () async {
                 await _provider.submit();
                 Navigator.of(context).pop(listTechnicianSelected);
@@ -277,7 +289,7 @@ class _Controller {
     final Provider _provider = Provider(fetchURL: url, taskID: id);
     try {
       final _ = await _provider.delete(url: url);
-
+      debugPrint("Delete: ${_.toString()}");
       return;
     } catch (e) {
       rethrow;
@@ -312,6 +324,24 @@ class _Model {
 
   _Model(this.assistantId, this.userId, this.userFullName);
 
-  factory _Model.fromJson(Map<String, dynamic> json) =>
-      _Model(json["woTaskAssistId"] ?? "", json["userId"] ?? "", json["userFullName"] ?? "");
+  factory _Model.fromJson(Map<String, dynamic> json) => _Model(
+      json["woTaskAssistId"] ?? "", 
+      json["userId"] ?? "", 
+      json["userFullName"] ?? ""
+  );
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is _Model &&
+           other.userId == userId;
+  }
+
+  @override
+  String toString() {
+    return 'Model(assistantId: $assistantId, userId: $userId, userFullName: $userFullName)';
+  }
+
+  @override
+  int get hashCode => assistantId.hashCode ^ userId.hashCode;
 }

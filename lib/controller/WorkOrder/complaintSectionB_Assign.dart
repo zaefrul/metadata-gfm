@@ -121,8 +121,10 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
         dropdownValue1 = _fetchStatus(groupList, dropdownId1!).groupName;
         dropdownId2 = data.userId;
         dropdownId3 = data.severity;
+        debugPrint("dropdownId3: $dropdownId3");
         dropdownValue3 =
             _fetchSeverityId(severityList, data.severity).severityName;
+        debugPrint("dropdownValue3: $dropdownValue3");
         dropdownId4 = data.woTaskCategory;
         dropdownValue4 = _fetchStatus(
                 typeCategory == "Internal"
@@ -243,7 +245,10 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
                     .post(
                         url: "/wo_v2/save_assigned_technician/${widget.id}",
                         body: body)
-                    .then((value) => Toast.show("Assignation Saved"))
+                    .then((value) { 
+                      Toast.show("Assignation Saved");
+                      Navigator.pop(context, value);
+                    })
                     .catchError((err) => Toast.show(err))
                     .whenComplete(() => setState(() => loading = false));
               },
@@ -312,14 +317,23 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
       child: TypeAheadFormField<WorkOrderStatus>(
         getImmediateSuggestions: true,
         textFieldConfiguration: TextFieldConfiguration(
-            controller: _controller,
-            decoration: InputDecoration(labelText: 'Executor')),
+          controller: _controller,
+          decoration: InputDecoration(labelText: 'Executor'),
+        ),
         suggestionsCallback: (pattern) {
           return Future.value(executorList);
         },
-        itemBuilder: (context, WorkOrderStatus suggestion) => ListTile(
-          title: Text(suggestion.userName ?? ''),
-        ),
+        itemBuilder: (context, WorkOrderStatus suggestion) {
+          final hasParentheses = suggestion.userName?.contains('(') ?? false;
+          return ListTile(
+            title: Text(
+              suggestion.userName ?? '',
+              style: TextStyle(
+                color: hasParentheses ? Colors.red : Colors.black,
+              ),
+            ),
+          );
+        },
         transitionBuilder: (context, suggestionsBox, controller) {
           return suggestionsBox;
         },
@@ -486,7 +500,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
   WorkOrderStatus _fetchuserId(List<WorkOrderStatus> listing, String id) =>
       listing.firstWhere((f) => f.userId == id);
   WorkOrderStatus _fetchStatus(List<WorkOrderStatus> listing, String id) =>
-      listing.firstWhere((f) => f.groupId == id);
+      listing.firstWhere((f) => f.groupId == id || f.groupName == id);
   WorkOrderStatus _fetchUserStatus(List<WorkOrderStatus> listing, String result) =>
       listing.firstWhere((f) => f.userName == result);
   WorkOrderStatus _fetchSeverityId(List<WorkOrderStatus> listing, String id) =>
