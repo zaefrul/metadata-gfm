@@ -83,17 +83,26 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
+      backgroundColor: Colors.white,                          // ← white background
       drawer: BuildDrawer(() => Navigator.pop(context), isHome: true),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.white),
+          icon: Icon(Icons.menu, color: Colors.black87),      // ← black menu icon
           onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+        ),
+        title: Text(
+          "GEMS",
+          style: GoogleFonts.poppins(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications, color: Colors.white),
+            icon: Icon(Icons.notifications, color: Colors.black87), // ← black notif icon
             onPressed: () => Navigator.pushNamed(context, "/notifications"),
           ),
         ],
@@ -101,40 +110,15 @@ class _HomepageState extends State<Homepage> {
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          // Background gradient
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.blue.shade900,
-                    Colors.blue.shade800,
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // Decorative circles
-          const DecorCircle(
-            alignment: Alignment(-0.8, -0.9),
-            size: 150,
-            color: Colors.white10,
-          ),
-          const DecorCircle(
-            alignment: Alignment(0.8, 1.1),
-            size: 200,
-            color: Colors.white10,
-          ),
+          // remove the blue gradient background
+          // Positioned.fill(child: your old gradient), 
 
           SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (_user != null) _buildHeader(_user!),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Text(
@@ -142,11 +126,11 @@ class _HomepageState extends State<Homepage> {
                     style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.black87,               // ← black text
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 Expanded(child: _buildGrid(context)),
               ],
             ),
@@ -158,32 +142,30 @@ class _HomepageState extends State<Homepage> {
 
   Widget _buildHeader(User user) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Row(
         children: [
           _buildProfileImage(user),
           const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Welcome back,",
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: Colors.white.withOpacity(0.8),
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Welcome back,",
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: Colors.black54,                // ← softer black
                 ),
-                Text(
-                  user.username.split('@').first,
-                  style: GoogleFonts.poppins(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
+              ),
+              Text(
+                user.username.split('@').first,
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,               // ← darker black
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
@@ -230,13 +212,13 @@ class _HomepageState extends State<Homepage> {
 
   Widget _buildGrid(BuildContext context) {
     final features = <_Feature>[
-      _Feature("Preventive Maintenance", Icons.build, Colors.cyan, "/ppm"),
-      _Feature("Work Order", Icons.assignment, Colors.cyan, "/workorder"),
-      _Feature("StoreKeeper", Icons.inventory, Colors.orange, routeDashboard, enabled: _isStorekeeper),
-      _Feature("Utilities", Icons.folder, Colors.green, routeUtilities, enabled: _isUtilities),
-      _Feature("Leaderboard", Icons.bar_chart, Colors.black, routeLeaderboard),
-      _Feature("Attendance", Icons.calendar_today, Colors.black, routeAttendance, onTap: _openForm),
-      _Feature("Suggestion", Icons.feedback, Color(0xFF99C24C), null, onTap: _openForm),
+      _Feature("Preventive Maintenance", Icons.build, "/ppm"),
+      _Feature("Work Order", Icons.assignment, "/workorder"),
+      _Feature("StoreKeeper", Icons.inventory, routeDashboard, enabled: _isStorekeeper),
+      _Feature("Utilities", Icons.folder, routeUtilities, enabled: _isUtilities),
+      _Feature("Leaderboard", Icons.bar_chart, routeLeaderboard),
+      _Feature("Attendance", Icons.calendar_today, routeAttendance, onTap: _openForm),
+      _Feature("Suggestion", Icons.feedback, null, onTap: _openForm),
     ];
 
     final crossCount = MediaQuery.of(context).size.width > 600 ? 4 : 2;
@@ -253,63 +235,64 @@ class _HomepageState extends State<Homepage> {
   }
 
   Widget _buildFeatureTile(_Feature f) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: f.enabled
-            ? () {
-                if (f.onTap != null) f.onTap!();
-                else if (f.route != null) Navigator.pushNamed(context, f.route!);
-              }
-            : null,
-        borderRadius: BorderRadius.circular(20),
+    return PressScaleWidget(
+      onTap: f.enabled
+          ? () {
+              if (f.onTap != null) f.onTap!();
+              else if (f.route != null) Navigator.pushNamed(context, f.route!);
+            }
+          : null,
+      child: Material(
+        color: Colors.transparent,
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white24),
-            boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0,5))],
             gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Colors.white24, Colors.white10],
+              colors: [Colors.blue.shade300, Colors.blue.shade700],
             ),
-          ),
-          child: ClipRRect(
             borderRadius: BorderRadius.circular(20),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircleAvatar(
-                      radius: 24,
-                      backgroundColor: f.color,
-                      child: Icon(f.icon, size: 28, color: Colors.white),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      f.title,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: f.enabled ? Colors.white : Colors.white60,
-                      ),
-                    ),
-                    if (!f.enabled)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Text(
-                          "Coming soon",
-                          style: GoogleFonts.poppins(fontSize: 10, color: Colors.white60),
-                        ),
-                      ),
-                  ],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 6,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Hero around the icon
+              Hero(
+                tag: 'tile-icon-${f.title}',
+                child: CircleAvatar(
+                  radius: 24,
+                  backgroundColor: Colors.transparent,
+                  child: Icon(f.icon, size: 28, color: Colors.white),
                 ),
               ),
-            ),
+              const SizedBox(height: 12),
+              Text(
+                f.title,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+              if (!f.enabled)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    "Coming soon",
+                    style: GoogleFonts.poppins(
+                      fontSize: 10,
+                      color: Colors.white60,
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ),
@@ -322,50 +305,10 @@ class _HomepageState extends State<Homepage> {
   }
 }
 
-// Decorative background circle
-class DecorCircle extends StatelessWidget {
-  final Alignment alignment;
-  final double size;
-  final Color color;
-
-  const DecorCircle({
-    Key? key,
-    required this.alignment,
-    required this.size,
-    this.color = Colors.white10,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: alignment,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(shape: BoxShape.circle, color: color),
-      ),
-    );
-  }
-}
-
-// Feature descriptor
-class _Feature {
-  final String title;
-  final IconData icon;
-  final Color color;
-  final String? route;
-  final bool enabled;
-  final VoidCallback? onTap;
-
-  _Feature(this.title, this.icon, this.color, this.route,
-      {this.enabled = true, this.onTap});
-}
-
 // Simple scale‑up animation
 class _AnimatedFeatureTile extends StatelessWidget {
   final Widget child;
-  const _AnimatedFeatureTile({Key? key, required this.child})
-      : super(key: key);
+  const _AnimatedFeatureTile({ Key? key, required this.child }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -378,6 +321,65 @@ class _AnimatedFeatureTile extends StatelessWidget {
     );
   }
 }
+
+class PressScaleWidget extends StatefulWidget {
+  final Widget child;
+  final VoidCallback? onTap;
+
+  const PressScaleWidget({Key? key, required this.child, this.onTap})
+      : super(key: key);
+
+  @override
+  _PressScaleWidgetState createState() => _PressScaleWidgetState();
+}
+
+class _PressScaleWidgetState extends State<PressScaleWidget>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+      lowerBound: 0.95,
+      upperBound: 1.0,
+      value: 1.0,
+    );
+  }
+
+  void _down(TapDownDetails _) => _ctrl.reverse();
+  void _up(TapUpDetails _) {
+    _ctrl.forward();
+    widget.onTap?.call();
+  }
+
+  void _cancel() => _ctrl.forward();
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: _down,
+      onTapUp: _up,
+      onTapCancel: _cancel,
+      child: ScaleTransition(scale: _ctrl, child: widget.child),
+    );
+  }
+}
+
+// Feature model
+class _Feature {
+  final String title;
+  final IconData icon;
+  final String? route;
+  final bool enabled;
+  final VoidCallback? onTap;
+  _Feature(this.title, this.icon, this.route,
+      {this.enabled = true, this.onTap});
+}
+
+// Signature helper omitted for brevity...
 
 // Signature helper
 class Request {
