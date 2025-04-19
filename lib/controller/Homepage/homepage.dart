@@ -61,7 +61,9 @@ class _HomepageState extends State<Homepage> {
       // First‑time password reset & signature flow
       final req = Request(context, user.userID);
       if (user.isFirstTime == "Yes") {
-        Navigator.pushNamed(context, ResetPassword.routeName,
+        Navigator.pushNamed(
+          context,
+          ResetPassword.routeName,
           arguments: ResetArguments(user.username),
         ).then((_) {
           user.updateFirstTime("No");
@@ -99,7 +101,7 @@ class _HomepageState extends State<Homepage> {
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          // Enhanced background with parallax effect
+          // Background gradient
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -114,32 +116,17 @@ class _HomepageState extends State<Homepage> {
               ),
             ),
           ),
-          
-          // Floating elements
-          Positioned(
-            top: -50,
-            right: -30,
-            child: Container(
-              width: 150,
-              height: 150,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.1),
-              ),
-            ),
+
+          // Decorative circles
+          const DecorCircle(
+            alignment: Alignment(-0.8, -0.9),
+            size: 150,
+            color: Colors.white10,
           ),
-          
-          Positioned(
-            bottom: -100,
-            left: -50,
-            child: Container(
-              width: 200,
-              height: 200,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.1),
-              ),
-            ),
+          const DecorCircle(
+            alignment: Alignment(0.8, 1.1),
+            size: 200,
+            color: Colors.white10,
           ),
 
           SafeArea(
@@ -170,15 +157,10 @@ class _HomepageState extends State<Homepage> {
   }
 
   Widget _buildHeader(User user) {
-    final initials = user.username.isNotEmpty
-        ? user.username[0].toUpperCase()
-        : "?";
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         children: [
-          // Profile image with fallback
           _buildProfileImage(user),
           const SizedBox(width: 16),
           Expanded(
@@ -209,9 +191,7 @@ class _HomepageState extends State<Homepage> {
   }
 
   Widget _buildProfileImage(User user) {
-  // If you have a profile image URL in your user model
     final imageUrl = user.imageUrl ?? '';
-    
     return Container(
       width: 48,
       height: 48,
@@ -226,7 +206,7 @@ class _HomepageState extends State<Homepage> {
               child: Image.network(
                 imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => _buildInitialsAvatar(user),
+                errorBuilder: (_, __, ___) => _buildInitialsAvatar(user),
               ),
             )
           : _buildInitialsAvatar(user),
@@ -234,10 +214,8 @@ class _HomepageState extends State<Homepage> {
   }
 
   Widget _buildInitialsAvatar(User user) {
-    final initials = user.username.isNotEmpty
-        ? user.username[0].toUpperCase()
-        : "?";
-    
+    final initials =
+        user.username.isNotEmpty ? user.username[0].toUpperCase() : "?";
     return Center(
       child: Text(
         initials,
@@ -252,82 +230,25 @@ class _HomepageState extends State<Homepage> {
 
   Widget _buildGrid(BuildContext context) {
     final features = <_Feature>[
-      _Feature(
-        title: "Preventive Maintenance",
-        icon: Icons.build,
-        color: Colors.cyan,
-        route: "/ppm",
-        enabled: true,
-      ),
-      _Feature(
-        title: "Work Order",
-        icon: Icons.assignment,
-        color: Colors.cyan,
-        route: "/workorder",
-        enabled: true,
-      ),
-      _Feature(
-        title: "StoreKeeper",
-        icon: Icons.inventory,
-        color: Colors.orange,
-        route: routeDashboard,
-        enabled: _isStorekeeper,
-      ),
-      _Feature(
-        title: "Utilities",
-        icon: Icons.folder,
-        color: Colors.green,
-        route: routeUtilities,
-        enabled: _isUtilities,
-      ),
-      _Feature(
-        title: "Leaderboard",
-        icon: Icons.bar_chart,
-        color: Colors.black,
-        route: routeLeaderboard,
-        enabled: true,
-      ),
-      _Feature(
-        title: "Attendance",
-        icon: Icons.calendar_today,
-        color: Colors.black,
-        route: routeAttendance,
-        enabled: true,
-        onTap: _openForm,
-      ),
-      _Feature(
-        title: "Suggestion",
-        icon: Icons.feedback,
-        color: Color(0xFF99C24C),
-        route: null,
-        enabled: true,
-        onTap: _openForm,
-      ),
+      _Feature("Preventive Maintenance", Icons.build, Colors.cyan, "/ppm"),
+      _Feature("Work Order", Icons.assignment, Colors.cyan, "/workorder"),
+      _Feature("StoreKeeper", Icons.inventory, Colors.orange, routeDashboard, enabled: _isStorekeeper),
+      _Feature("Utilities", Icons.folder, Colors.green, routeUtilities, enabled: _isUtilities),
+      _Feature("Leaderboard", Icons.bar_chart, Colors.black, routeLeaderboard),
+      _Feature("Attendance", Icons.calendar_today, Colors.black, routeAttendance, onTap: _openForm),
+      _Feature("Suggestion", Icons.feedback, Color(0xFF99C24C), null, onTap: _openForm),
     ];
 
     final crossCount = MediaQuery.of(context).size.width > 600 ? 4 : 2;
-
-    return NotificationListener<OverscrollIndicatorNotification>(
-      onNotification: (notification) {
-        notification.disallowIndicator();
-        return true;
-      },
-      child: GridView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: MediaQuery.of(context).size.width > 600 ? 4 : 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 0.85,
-        ),
-        itemCount: features.length,
-        itemBuilder: (ctx, i) {
-          final f = features[i];
-          return _AnimatedFeatureTile(
-            child: _buildFeatureTile(f),
-          );
-        },
-      ),
+    return GridView.count(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      crossAxisCount: crossCount,
+      crossAxisSpacing: 16,
+      mainAxisSpacing: 16,
+      childAspectRatio: 0.85,
+      children: features
+          .map((f) => _AnimatedFeatureTile(child: _buildFeatureTile(f)))
+          .toList(),
     );
   }
 
@@ -345,25 +266,12 @@ class _HomepageState extends State<Homepage> {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.2),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: Offset(0, 5),
-              )
-            ],
-            // Glassmorphism effect
+            border: Border.all(color: Colors.white24),
+            boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0,5))],
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                Colors.white.withOpacity(0.25),
-                Colors.white.withOpacity(0.15),
-              ],
+              colors: [Colors.white24, Colors.white10],
             ),
           ),
           child: ClipRRect(
@@ -375,26 +283,9 @@ class _HomepageState extends State<Homepage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: [
-                            f.color,
-                            Color.lerp(f.color, Colors.black, 0.2)!,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 5,
-                            offset: Offset(0, 3),
-                          )
-                        ],
-                      ),
+                    CircleAvatar(
+                      radius: 24,
+                      backgroundColor: f.color,
                       child: Icon(f.icon, size: 28, color: Colors.white),
                     ),
                     const SizedBox(height: 16),
@@ -404,7 +295,7 @@ class _HomepageState extends State<Homepage> {
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: f.enabled ? Colors.white : Colors.white.withOpacity(0.6),
+                        color: f.enabled ? Colors.white : Colors.white60,
                       ),
                     ),
                     if (!f.enabled)
@@ -412,10 +303,7 @@ class _HomepageState extends State<Homepage> {
                         padding: const EdgeInsets.only(top: 8),
                         child: Text(
                           "Coming soon",
-                          style: GoogleFonts.poppins(
-                            fontSize: 10,
-                            color: Colors.white.withOpacity(0.6),
-                          ),
+                          style: GoogleFonts.poppins(fontSize: 10, color: Colors.white60),
                         ),
                       ),
                   ],
@@ -434,7 +322,33 @@ class _HomepageState extends State<Homepage> {
   }
 }
 
-/// Small helper class to describe each tile
+// Decorative background circle
+class DecorCircle extends StatelessWidget {
+  final Alignment alignment;
+  final double size;
+  final Color color;
+
+  const DecorCircle({
+    Key? key,
+    required this.alignment,
+    required this.size,
+    this.color = Colors.white10,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: alignment,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+      ),
+    );
+  }
+}
+
+// Feature descriptor
 class _Feature {
   final String title;
   final IconData icon;
@@ -443,20 +357,15 @@ class _Feature {
   final bool enabled;
   final VoidCallback? onTap;
 
-  _Feature({
-    required this.title,
-    required this.icon,
-    required this.color,
-    this.route,
-    this.enabled = true,
-    this.onTap,
-  });
+  _Feature(this.title, this.icon, this.color, this.route,
+      {this.enabled = true, this.onTap});
 }
 
-/// A simple scale‑up animation for each tile
+// Simple scale‑up animation
 class _AnimatedFeatureTile extends StatelessWidget {
   final Widget child;
-  const _AnimatedFeatureTile({required this.child});
+  const _AnimatedFeatureTile({Key? key, required this.child})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -470,7 +379,7 @@ class _AnimatedFeatureTile extends StatelessWidget {
   }
 }
 
-/// Handles your signature check & opening dialog
+// Signature helper
 class Request {
   final Provider _checkSignature;
   final BuildContext _context;
