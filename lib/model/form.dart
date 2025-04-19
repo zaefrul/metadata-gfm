@@ -18,15 +18,14 @@ abstract class Form implements Built<Form, FormBuilder> {
 
   Form._();
 
-  factory Form([updates(FormBuilder b)]) = _$Form;
+  factory Form([void Function(FormBuilder) updates]) = _$Form;
 
   String toJson() {
     return json.encode(serializers.serializeWith(Form.serializer, this));
   }
 
   static Form fromJson(String jsonString) {
-    return serializers.deserializeWith(
-        Form.serializer, json.decode(jsonString));
+    return serializers.deserializeWith(Form.serializer, json.decode(jsonString))!;
   }
 
   static Serializer<Form> get serializer => _$formSerializer;
@@ -50,15 +49,14 @@ abstract class FormAItem implements Built<FormAItem, FormAItemBuilder> {
 
   FormAItem._();
 
-  factory FormAItem([updates(FormAItemBuilder b)]) = _$FormAItem;
+  factory FormAItem([void Function(FormAItemBuilder) updates]) = _$FormAItem;
 
   String toJson() {
     return json.encode(serializers.serializeWith(FormAItem.serializer, this));
   }
 
   static FormAItem fromJson(String jsonString) {
-    return serializers.deserializeWith(
-        FormAItem.serializer, json.decode(jsonString));
+    return serializers.deserializeWith(FormAItem.serializer, json.decode(jsonString))!;
   }
 
   static Serializer<FormAItem> get serializer => _$formAItemSerializer;
@@ -70,15 +68,14 @@ abstract class FormBItem implements Built<FormBItem, FormBItemBuilder> {
 
   FormBItem._();
 
-  factory FormBItem([updates(FormBItemBuilder b)]) = _$FormBItem;
+  factory FormBItem([void Function(FormBItemBuilder) updates]) = _$FormBItem;
 
   String toJson() {
     return json.encode(serializers.serializeWith(FormBItem.serializer, this));
   }
 
   static FormBItem fromJson(String jsonString) {
-    return serializers.deserializeWith(
-        FormBItem.serializer, json.decode(jsonString));
+    return serializers.deserializeWith(FormBItem.serializer, json.decode(jsonString))!;
   }
 
   static Serializer<FormBItem> get serializer => _$formBItemSerializer;
@@ -96,20 +93,20 @@ abstract class FormCItem implements Built<FormCItem, FormCItemBuilder> {
 
   FormCItem._();
 
-  factory FormCItem([updates(FormCItemBuilder b)]) = _$FormCItem;
+  factory FormCItem([void Function(FormCItemBuilder) updates]) = _$FormCItem;
 
   String toJson() {
     return json.encode(serializers.serializeWith(FormCItem.serializer, this));
   }
 
   static FormCItem fromJson(String jsonString) {
-    return serializers.deserializeWith(
-        FormCItem.serializer, json.decode(jsonString));
+    return serializers.deserializeWith(FormCItem.serializer, json.decode(jsonString))!;
   }
 
   static Serializer<FormCItem> get serializer => _$formCItemSerializer;
 
-  String get dropDownValue {
+  // Updated to return nullable string since some cases return null
+  String? get dropDownValue {
     switch (ppmTaskQualResult) {
       case "Pass":
         return "Passed";
@@ -143,15 +140,14 @@ abstract class FormDItem implements Built<FormDItem, FormDItemBuilder> {
 
   FormDItem._();
 
-  factory FormDItem([updates(FormDItemBuilder b)]) = _$FormDItem;
+  factory FormDItem([void Function(FormDItemBuilder) updates]) = _$FormDItem;
 
   String toJson() {
     return json.encode(serializers.serializeWith(FormDItem.serializer, this));
   }
 
   static FormDItem fromJson(String jsonString) {
-    return serializers.deserializeWith(
-        FormDItem.serializer, json.decode(jsonString));
+    return serializers.deserializeWith(FormDItem.serializer, json.decode(jsonString))!;
   }
 
   static Serializer<FormDItem> get serializer => _$formDItemSerializer;
@@ -164,15 +160,14 @@ abstract class FormEItem implements Built<FormEItem, FormEItemBuilder> {
 
   FormEItem._();
 
-  factory FormEItem([updates(FormEItemBuilder b)]) = _$FormEItem;
+  factory FormEItem([void Function(FormEItemBuilder) updates]) = _$FormEItem;
 
   String toJson() {
     return json.encode(serializers.serializeWith(FormEItem.serializer, this));
   }
 
   static FormEItem fromJson(String jsonString) {
-    return serializers.deserializeWith(
-        FormEItem.serializer, json.decode(jsonString));
+    return serializers.deserializeWith(FormEItem.serializer, json.decode(jsonString))!;
   }
 
   static Serializer<FormEItem> get serializer => _$formEItemSerializer;
@@ -190,15 +185,14 @@ abstract class FormFItem implements Built<FormFItem, FormFItemBuilder> {
 
   FormFItem._();
 
-  factory FormFItem([updates(FormFItemBuilder b)]) = _$FormFItem;
+  factory FormFItem([void Function(FormFItemBuilder) updates]) = _$FormFItem;
 
   String toJson() {
     return json.encode(serializers.serializeWith(FormFItem.serializer, this));
   }
 
   static FormFItem fromJson(String jsonString) {
-    return serializers.deserializeWith(
-        FormFItem.serializer, json.decode(jsonString));
+    return serializers.deserializeWith(FormFItem.serializer, json.decode(jsonString))!;
   }
 
   static Serializer<FormFItem> get serializer => _$formFItemSerializer;
@@ -210,15 +204,14 @@ abstract class FormGItem implements Built<FormGItem, FormGItemBuilder> {
 
   FormGItem._();
 
-  factory FormGItem([updates(FormGItemBuilder b)]) = _$FormGItem;
+  factory FormGItem([void Function(FormGItemBuilder) updates]) = _$FormGItem;
 
   String toJson() {
     return json.encode(serializers.serializeWith(FormGItem.serializer, this));
   }
 
   static FormGItem fromJson(String jsonString) {
-    return serializers.deserializeWith(
-        FormGItem.serializer, json.decode(jsonString));
+    return serializers.deserializeWith(FormGItem.serializer, json.decode(jsonString))!;
   }
 
   static Serializer<FormGItem> get serializer => _$formGItemSerializer;
@@ -232,8 +225,7 @@ abstract class FormHItem implements Built<FormHItem, FormHItemBuilder> {
   String get ppmTaskUploadTimestamp;
   String get ppmTaskUploadDesc;
   String get ppmTaskId;
-  @nullable
-  String get uploadId;
+  String? get uploadId;
   String get uploadName;
   String get documentDesc;
   String get documentFilename;
@@ -241,15 +233,14 @@ abstract class FormHItem implements Built<FormHItem, FormHItemBuilder> {
 
   FormHItem._();
 
-  factory FormHItem([updates(FormHItemBuilder b)]) = _$FormHItem;
+  factory FormHItem([void Function(FormHItemBuilder) updates]) = _$FormHItem;
 
   String toJson() {
     return json.encode(serializers.serializeWith(FormHItem.serializer, this));
   }
 
   static FormHItem fromJson(String jsonString) {
-    return serializers.deserializeWith(
-        FormHItem.serializer, json.decode(jsonString));
+    return serializers.deserializeWith(FormHItem.serializer, json.decode(jsonString))!;
   }
 
   static Serializer<FormHItem> get serializer => _$formHItemSerializer;

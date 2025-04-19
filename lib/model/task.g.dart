@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of task;
+part of 'task.dart';
 
 // **************************************************************************
 // BuiltValueGenerator
@@ -15,9 +15,9 @@ class _$TaskSerializer implements StructuredSerializer<Task> {
   final String wireName = 'Task';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, Task object,
+  Iterable<Object?> serialize(Serializers serializers, Task object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'taskId',
       serializers.serialize(object.taskId,
           specifiedType: const FullType(String)),
@@ -55,57 +55,57 @@ class _$TaskSerializer implements StructuredSerializer<Task> {
   }
 
   @override
-  Task deserialize(Serializers serializers, Iterable<Object> serialized,
+  Task deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new TaskBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'taskId':
           result.taskId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'ppmTaskId':
           result.ppmTaskId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'transactionNo':
           result.transactionNo = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'assetNo':
           result.assetNo = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'siteName':
           result.siteName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'assetTypeName':
           result.assetTypeName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'statusDesc':
           result.statusDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'taskDateDue':
           result.taskDateDue = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'technician':
           result.technician = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'frequency':
           result.frequency.replace(serializers.deserialize(value,
-                  specifiedType:
-                      const FullType(BuiltList, const [const FullType(String)]))
-              as BuiltList<Object>);
+                  specifiedType: const FullType(
+                      BuiltList, const [const FullType(String)]))!
+              as BuiltList<Object?>);
           break;
       }
     }
@@ -136,20 +136,20 @@ class _$Task extends Task {
   @override
   final BuiltList<String> frequency;
 
-  factory _$Task([void Function(TaskBuilder) updates]) =>
+  factory _$Task([void Function(TaskBuilder)? updates]) =>
       (new TaskBuilder()..update(updates))._build();
 
   _$Task._(
-      {this.taskId,
-      this.ppmTaskId,
-      this.transactionNo,
-      this.assetNo,
-      this.siteName,
-      this.assetTypeName,
-      this.statusDesc,
-      this.taskDateDue,
-      this.technician,
-      this.frequency})
+      {required this.taskId,
+      required this.ppmTaskId,
+      required this.transactionNo,
+      required this.assetNo,
+      required this.siteName,
+      required this.assetTypeName,
+      required this.statusDesc,
+      required this.taskDateDue,
+      required this.technician,
+      required this.frequency})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(taskId, r'Task', 'taskId');
     BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'Task', 'ppmTaskId');
@@ -190,24 +190,19 @@ class _$Task extends Task {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc(
-                            $jc(
-                                $jc(
-                                    $jc($jc(0, taskId.hashCode),
-                                        ppmTaskId.hashCode),
-                                    transactionNo.hashCode),
-                                assetNo.hashCode),
-                            siteName.hashCode),
-                        assetTypeName.hashCode),
-                    statusDesc.hashCode),
-                taskDateDue.hashCode),
-            technician.hashCode),
-        frequency.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, taskId.hashCode);
+    _$hash = $jc(_$hash, ppmTaskId.hashCode);
+    _$hash = $jc(_$hash, transactionNo.hashCode);
+    _$hash = $jc(_$hash, assetNo.hashCode);
+    _$hash = $jc(_$hash, siteName.hashCode);
+    _$hash = $jc(_$hash, assetTypeName.hashCode);
+    _$hash = $jc(_$hash, statusDesc.hashCode);
+    _$hash = $jc(_$hash, taskDateDue.hashCode);
+    _$hash = $jc(_$hash, technician.hashCode);
+    _$hash = $jc(_$hash, frequency.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -228,50 +223,51 @@ class _$Task extends Task {
 }
 
 class TaskBuilder implements Builder<Task, TaskBuilder> {
-  _$Task _$v;
+  _$Task? _$v;
 
-  String _taskId;
-  String get taskId => _$this._taskId;
-  set taskId(String taskId) => _$this._taskId = taskId;
+  String? _taskId;
+  String? get taskId => _$this._taskId;
+  set taskId(String? taskId) => _$this._taskId = taskId;
 
-  String _ppmTaskId;
-  String get ppmTaskId => _$this._ppmTaskId;
-  set ppmTaskId(String ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
+  String? _ppmTaskId;
+  String? get ppmTaskId => _$this._ppmTaskId;
+  set ppmTaskId(String? ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
 
-  String _transactionNo;
-  String get transactionNo => _$this._transactionNo;
-  set transactionNo(String transactionNo) =>
+  String? _transactionNo;
+  String? get transactionNo => _$this._transactionNo;
+  set transactionNo(String? transactionNo) =>
       _$this._transactionNo = transactionNo;
 
-  String _assetNo;
-  String get assetNo => _$this._assetNo;
-  set assetNo(String assetNo) => _$this._assetNo = assetNo;
+  String? _assetNo;
+  String? get assetNo => _$this._assetNo;
+  set assetNo(String? assetNo) => _$this._assetNo = assetNo;
 
-  String _siteName;
-  String get siteName => _$this._siteName;
-  set siteName(String siteName) => _$this._siteName = siteName;
+  String? _siteName;
+  String? get siteName => _$this._siteName;
+  set siteName(String? siteName) => _$this._siteName = siteName;
 
-  String _assetTypeName;
-  String get assetTypeName => _$this._assetTypeName;
-  set assetTypeName(String assetTypeName) =>
+  String? _assetTypeName;
+  String? get assetTypeName => _$this._assetTypeName;
+  set assetTypeName(String? assetTypeName) =>
       _$this._assetTypeName = assetTypeName;
 
-  String _statusDesc;
-  String get statusDesc => _$this._statusDesc;
-  set statusDesc(String statusDesc) => _$this._statusDesc = statusDesc;
+  String? _statusDesc;
+  String? get statusDesc => _$this._statusDesc;
+  set statusDesc(String? statusDesc) => _$this._statusDesc = statusDesc;
 
-  String _taskDateDue;
-  String get taskDateDue => _$this._taskDateDue;
-  set taskDateDue(String taskDateDue) => _$this._taskDateDue = taskDateDue;
+  String? _taskDateDue;
+  String? get taskDateDue => _$this._taskDateDue;
+  set taskDateDue(String? taskDateDue) => _$this._taskDateDue = taskDateDue;
 
-  String _technician;
-  String get technician => _$this._technician;
-  set technician(String technician) => _$this._technician = technician;
+  String? _technician;
+  String? get technician => _$this._technician;
+  set technician(String? technician) => _$this._technician = technician;
 
-  ListBuilder<String> _frequency;
+  ListBuilder<String>? _frequency;
   ListBuilder<String> get frequency =>
       _$this._frequency ??= new ListBuilder<String>();
-  set frequency(ListBuilder<String> frequency) => _$this._frequency = frequency;
+  set frequency(ListBuilder<String>? frequency) =>
+      _$this._frequency = frequency;
 
   TaskBuilder();
 
@@ -300,7 +296,7 @@ class TaskBuilder implements Builder<Task, TaskBuilder> {
   }
 
   @override
-  void update(void Function(TaskBuilder) updates) {
+  void update(void Function(TaskBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -312,27 +308,28 @@ class TaskBuilder implements Builder<Task, TaskBuilder> {
     try {
       _$result = _$v ??
           new _$Task._(
-              taskId: BuiltValueNullFieldError.checkNotNull(
-                  taskId, r'Task', 'taskId'),
-              ppmTaskId: BuiltValueNullFieldError.checkNotNull(
-                  ppmTaskId, r'Task', 'ppmTaskId'),
-              transactionNo: BuiltValueNullFieldError.checkNotNull(
-                  transactionNo, r'Task', 'transactionNo'),
-              assetNo: BuiltValueNullFieldError.checkNotNull(
-                  assetNo, r'Task', 'assetNo'),
-              siteName: BuiltValueNullFieldError.checkNotNull(
-                  siteName, r'Task', 'siteName'),
-              assetTypeName: BuiltValueNullFieldError.checkNotNull(
-                  assetTypeName, r'Task', 'assetTypeName'),
-              statusDesc: BuiltValueNullFieldError.checkNotNull(
-                  statusDesc, r'Task', 'statusDesc'),
-              taskDateDue: BuiltValueNullFieldError.checkNotNull(
-                  taskDateDue, r'Task', 'taskDateDue'),
-              technician: BuiltValueNullFieldError.checkNotNull(
-                  technician, r'Task', 'technician'),
-              frequency: frequency.build());
+            taskId: BuiltValueNullFieldError.checkNotNull(
+                taskId, r'Task', 'taskId'),
+            ppmTaskId: BuiltValueNullFieldError.checkNotNull(
+                ppmTaskId, r'Task', 'ppmTaskId'),
+            transactionNo: BuiltValueNullFieldError.checkNotNull(
+                transactionNo, r'Task', 'transactionNo'),
+            assetNo: BuiltValueNullFieldError.checkNotNull(
+                assetNo, r'Task', 'assetNo'),
+            siteName: BuiltValueNullFieldError.checkNotNull(
+                siteName, r'Task', 'siteName'),
+            assetTypeName: BuiltValueNullFieldError.checkNotNull(
+                assetTypeName, r'Task', 'assetTypeName'),
+            statusDesc: BuiltValueNullFieldError.checkNotNull(
+                statusDesc, r'Task', 'statusDesc'),
+            taskDateDue: BuiltValueNullFieldError.checkNotNull(
+                taskDateDue, r'Task', 'taskDateDue'),
+            technician: BuiltValueNullFieldError.checkNotNull(
+                technician, r'Task', 'technician'),
+            frequency: frequency.build(),
+          );
     } catch (_) {
-      String _$failedField;
+      late String _$failedField;
       try {
         _$failedField = 'frequency';
         frequency.build();
@@ -347,4 +344,4 @@ class TaskBuilder implements Builder<Task, TaskBuilder> {
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,no_leading_underscores_for_local_identifiers,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new,unnecessary_lambdas
+// ignore_for_file: deprecated_member_use_from_same_package,type=lint

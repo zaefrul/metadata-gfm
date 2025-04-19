@@ -7,12 +7,13 @@ import 'package:flutter/services.dart';
 
 class SearchRIArguments {
   final int index;
-
-  SearchRIArguments({this.index = 0});
+  const SearchRIArguments({this.index = 0});
 }
 
 class SearchRI extends StatefulWidget {
   static const routeName = '/search_ri';
+
+  const SearchRI({Key? key}) : super(key: key);
 
   @override
   _SearchStateRI createState() => _SearchStateRI();
@@ -21,86 +22,101 @@ class SearchRI extends StatefulWidget {
 class _SearchStateRI extends State<SearchRI> {
   String keyword = "";
   String searchText = "";
-  final TextEditingController controller;
+  late final TextEditingController controller;
   final RITaskView taskView = RITaskView(index: 1);
   final RITaskView allTaskView = RITaskView(index: 0);
   int index = 0;
 
-  _SearchStateRI() : controller = TextEditingController();
+  _SearchStateRI() {
+    controller = TextEditingController();
+  }
 
-  Future scan() async {
+  Future<void> scan() async {
     try {
-      var barcode = await BarcodeScanner.scan();
-      keyword = "Success";
+      final ScanResult barcode = await BarcodeScanner.scan();
 
-      // if (index == 0)
-      //   allTaskView.updateQRAll(controller.text);
-      // else if (index == 1) taskView.updateQR(controller.text);
-
-      setState(() => controller.text = this.searchText = barcode.rawContent);
+      setState(() {
+        controller.text = searchText = barcode.rawContent;
+      });
 
       Toast.show("Loading", duration: 2);
 
-      if (index == 0)
+      if (index == 0) {
         allTaskView.updateAll(controller.text);
-      else if (index == 1) taskView.update(controller.text);
+      } else if (index == 1) {
+        taskView.update(controller.text);
+      }
     } on PlatformException catch (e) {
-      if (e.code == BarcodeScanner.cameraAccessDenied)
-        setState(() =>
-            this.keyword = 'The user did not grant the camera permission!');
-      else
-        setState(() => this.keyword = 'Unknown error: $e');
+      if (e.code == BarcodeScanner.cameraAccessDenied) {
+        setState(() {
+          keyword = 'The user did not grant camera permission!';
+        });
+      } else {
+        setState(() {
+          keyword = 'Unknown error: $e';
+        });
+      }
+      Toast.show(keyword);
     } on FormatException {
-      setState(() => this.keyword = 'Cancel');
+      setState(() {
+        keyword = 'Scan cancelled by user';
+      });
+      Toast.show(keyword);
     } catch (e) {
-      setState(() => this.keyword = 'Unknown error: $e');
+      setState(() {
+        keyword = 'Unknown error: $e';
+      });
+      Toast.show(keyword);
     }
+  }
 
-    Toast.show(this.keyword);
+  @override
+  void initState() {
+    super.initState();
+    ToastContext().init(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    ToastContext().init(context);
-    final SearchRIArguments args = ModalRoute.of(context).settings.arguments;
-    index = args.index;
+    final args =
+        ModalRoute.of(context)?.settings.arguments as SearchRIArguments?;
+    index = args?.index ?? 0;
 
-    var body = allTaskView;
-    if (index == 1) body = taskView;
+    Widget body = index == 1 ? taskView : allTaskView;
 
-    return new Scaffold(
+    return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(color: colorTheme3),
         backgroundColor: Colors.white,
-        title: new TextField(
+        title: TextField(
           controller: controller,
-          style: new TextStyle(fontFamily: 'Avenir', color: colorTheme3),
+          style: TextStyle(fontFamily: 'Avenir', color: colorTheme3),
           autofocus: true,
           decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: "Search",
-              hintStyle: TextStyle(color: Color(0xcc022c41))),
+            border: InputBorder.none,
+            hintText: "Search",
+            hintStyle: TextStyle(color: Color(0xcc022c41)),
+          ),
           onChanged: (text) => setState(() => keyword = text),
           textInputAction: TextInputAction.search,
           onSubmitted: (value) {
             Toast.show("Loading", duration: 2);
             if (controller.text != searchText) {
               searchText = controller.text;
-              if (index == 0)
+              if (index == 0) {
                 allTaskView.updateAll(controller.text);
-              else if (index == 1) taskView.update(controller.text);
+              } else if (index == 1) {
+                taskView.update(controller.text);
+              }
             }
           },
         ),
         actions: <Widget>[
-          new GestureDetector(
-              child: Icon(
-                Icons.camera,
-                color: colorTheme3,
-                size: 30,
-              ),
-              onTap: scan),
-          new SizedBox(width: 20),
+          GestureDetector(
+            child: Icon(Icons.camera, color: colorTheme3, size: 30),
+            onTap: scan,
+          ),
+          SizedBox(width: 20),
         ],
       ),
       body: body,
@@ -109,7 +125,7 @@ class _SearchStateRI extends State<SearchRI> {
 
   @override
   void dispose() {
-    super.dispose();
     controller.dispose();
+    super.dispose();
   }
 }

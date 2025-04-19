@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/widget/dialog.dart';
-
 import 'ElectricBill.dart';
 import 'WaterBill.dart';
 
 class UtilsBill {
-  final Function onRefresh;
+  final VoidCallback onRefresh;
 
   UtilsBill(this.onRefresh);
 
@@ -19,8 +18,9 @@ class UtilsBill {
         title: "Add Utilities",
         secondButton: true,
         okayTapped: () => showElectric(context, isDaily: true),
-        secondTapped: () => showWater(context, isDaily: true),
+        secondTapped: (String value) => showWater(context, isDaily: true),
         image: Image.asset("assets/icon_trans.png", height: 40),
+        rootPage: "false", // Add the required rootPage parameter
       ),
     );
   }
@@ -41,15 +41,13 @@ class UtilsBill {
           if (isWater) showWater(context, isDaily: true);
           if (isElectric) showElectric(context, isDaily: true);
         },
-        secondTapped: () {
+        secondTapped: (String value) {
           Navigator.pop(context);
           if (isWater) showWater(context, isMonthly: true);
           if (isElectric) showElectric(context, isMonthly: true);
         },
-        image: Image.asset(
-          "assets/icon_trans.png",
-          height: 40,
-        ),
+        image: Image.asset("assets/icon_trans.png", height: 40),
+        rootPage: "false", // Add the required rootPage parameter
       ),
     );
   }

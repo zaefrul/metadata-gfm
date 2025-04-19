@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/PPM/Form/form_view.dart';
 import 'package:gfm_gems/controller/WorkOrder/complaintSection_v2.dart';
 import 'package:gfm_gems/model/monitor.dart';
+import 'package:gfm_gems/model/responseValue.dart';
 import 'package:gfm_gems/model/task.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'dart:convert';
 
 class TaskInformation extends StatelessWidget {
   final MonitorTask task;
   final Provider _provider;
 
-  TaskInformation({this.task})
+  TaskInformation({super.key, required this.task})
       : _provider = Provider(
             fetchURL:
                 "/api/m_ppm.php?type=tnm_details&transactionId=${task.transactionId}");
@@ -20,111 +22,114 @@ class TaskInformation extends StatelessWidget {
   Widget build(BuildContext context) {
     _provider.context = context;
     return Scaffold(
-        appBar: AppBar(
-          title: new Text(
-            "Task Information",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: Colors.white,
-          centerTitle: true,
+      appBar: AppBar(
+        title: Text(
+          "Task Information",
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        body: FutureBuilder(
-          future: fetch,
-          builder: (context, AsyncSnapshot<MonitorDetail> snapshot) {
-            if (snapshot.error != null)
-              return Center(
-                child: new Text(snapshot.error.toString()),
-              );
-            return snapshot.data == null
-                ? Center(child: CircularProgressIndicator())
-                : body(snapshot.data, context);
-          },
-        ));
+        backgroundColor: Colors.white,
+        centerTitle: true,
+      ),
+      body: FutureBuilder<MonitorDetail>(
+        future: fetch,
+        builder: (context, AsyncSnapshot<MonitorDetail> snapshot) {
+          if (snapshot.error != null) {
+            return Center(child: Text(snapshot.error.toString()));
+          }
+          return snapshot.data == null
+              ? Center(child: CircularProgressIndicator())
+              : body(snapshot.data!, context);
+        },
+      ),
+    );
   }
 
-  Widget title(String text, {color = Colors.black}) => new Text(text,
-      style: TextStyle(fontWeight: FontWeight.bold, color: color));
-  Widget desc(String text) => new Text(text,
-      style: TextStyle(color: Colors.black, fontWeight: FontWeight.normal));
-  Widget info(String textTitle, String textDesc) =>
-      new Column(children: <Widget>[
-        title(textTitle),
-        SizedBox(height: 8.0),
-        desc(textDesc),
-        SizedBox(height: 16.0)
-      ], crossAxisAlignment: CrossAxisAlignment.start);
-  Widget padding(Widget child) => new Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.0), child: child);
-  Widget number(String num) => new Container(
+  // Helper widget methods
+  Widget title(String text, {Color color = Colors.black}) =>
+      Text(text, style: TextStyle(fontWeight: FontWeight.bold, color: color));
+  Widget desc(String text) =>
+      Text(text, style: TextStyle(color: Colors.black, fontWeight: FontWeight.normal));
+  Widget info(String textTitle, String textDesc) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          title(textTitle),
+          SizedBox(height: 8.0),
+          desc(textDesc),
+          SizedBox(height: 16.0)
+        ],
+      );
+  Widget padding(Widget child) =>
+      Padding(padding: EdgeInsets.symmetric(horizontal: 20.0), child: child);
+  Widget number(String num) => Container(
         decoration: BoxDecoration(
           color: colorTheme2,
           shape: BoxShape.circle,
         ),
-        child: Center(child: title(num, color: Colors.white)),
         height: 24.0,
         width: 24.0,
-      );
-  Widget openform(id, status, siteName, transactionNo, context) =>
-      GestureDetector(
-        child: new Container(
-            alignment: Alignment.center,
-            height: 30.0,
-            width: 100.0,
-            decoration: BoxDecoration(
-                color: colorTheme1,
-                borderRadius: new BorderRadius.circular(20.0)),
-            child:
-                new Text("Open Form", style: TextStyle(color: Colors.white))),
-        onTap: () {
-          Object page = new FormView(
-            id: id,
-            siteName: siteName,
-            taskNo: transactionNo,
-            taskStatus: status,
-            refresh: null,
-            viewer: true,
-          );
-          Navigator.of(context).push(new MaterialPageRoute(
-            builder: (BuildContext context) => page,
-          ));
-        },
+        child: Center(child: title(num, color: Colors.white)),
       );
 
-  Widget openWO(id, status, siteName, transactionNo, context) =>
-      GestureDetector(
-        child: new Container(
-            alignment: Alignment.center,
-            height: 30.0,
-            width: 100.0,
-            decoration: BoxDecoration(
-                color: colorTheme1,
-                borderRadius: new BorderRadius.circular(20.0)),
-            child:
-                new Text("Open Form", style: TextStyle(color: Colors.white))),
-        onTap: () {
-          Object page = new ComplaintSection(
-            id: id,
-            siteName: siteName,
-            taskNo: transactionNo,
-            taskStatus: status,
-            viewer: true,
-          );
-          Navigator.of(context).push(new MaterialPageRoute(
-            builder: (BuildContext context) => page,
-          ));
-        },
-      );
+  // openform now returns a Widget directly.
+  Widget openform(String id, String status, String siteName, String transactionNo, BuildContext context) {
+    return GestureDetector(
+      child: Container(
+          alignment: Alignment.center,
+          height: 30.0,
+          width: 100.0,
+          decoration: BoxDecoration(
+              color: colorTheme1,
+              borderRadius: BorderRadius.circular(20.0)),
+          child: Text("Open Form", style: TextStyle(color: Colors.white))),
+      onTap: () {
+        // Directly create a FormView widget.
+        Widget page = FormView(
+          id: id,
+          siteName: siteName,
+          taskNo: transactionNo,
+          taskStatus: status,
+          refresh: () {},
+          viewer: true,
+        );
+        Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => page));
+      },
+    );
+  }
 
-  Widget body(MonitorDetail data, context) {
-    var children = [
-      SizedBox(
-        height: 24.0,
-      ),
+  // openWO now returns a Widget directly.
+  Widget openWO(String id, String status, String siteName, String transactionNo, BuildContext context) {
+    return GestureDetector(
+      child: Container(
+          alignment: Alignment.center,
+          height: 30.0,
+          width: 100.0,
+          decoration: BoxDecoration(
+              color: colorTheme1,
+              borderRadius: BorderRadius.circular(20.0)),
+          child: Text("Open Form", style: TextStyle(color: Colors.white))),
+      onTap: () {
+        Widget page = ComplaintSection(
+          id: id,
+          siteName: siteName,
+          taskNo: transactionNo,
+          taskStatus: status,
+          viewer: true,
+        );
+        Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => page));
+      },
+    );
+  }
+
+  Widget body(MonitorDetail data, BuildContext context) {
+    List<Widget> children = [
+      SizedBox(height: 24.0),
       padding(info("Flow Name", data.flowName)),
       Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20.0),
         child: Row(
           children: <Widget>[
             Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 info("Task No", data.transactionNo),
                 info("Initiated By", data.initiateBy),
@@ -132,12 +137,10 @@ class TaskInformation extends StatelessWidget {
                 info("Current User", data.currentUser),
                 info("Flow Status", data.flowStatus),
               ],
-              crossAxisAlignment: CrossAxisAlignment.start,
             ),
-            SizedBox(
-              width: 12.0,
-            ),
+            SizedBox(width: 12.0),
             Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 info("Current Checkpoint", data.currentStatus),
                 info("Initiated By Group", data.initiateByGroup),
@@ -145,59 +148,47 @@ class TaskInformation extends StatelessWidget {
                 info("Received Time", data.receivedTime),
                 info("Flow Due Date", data.flowDueDate)
               ],
-              crossAxisAlignment: CrossAxisAlignment.start,
             )
           ],
         ),
-        padding: EdgeInsets.symmetric(horizontal: 20.0),
       ),
-      SizedBox(
-        height: 12.0,
-      ),
+      SizedBox(height: 12.0),
       data.ppmTaskId == null
-          ? new Container()
+          ? Container()
           : Padding(
               padding: const EdgeInsets.symmetric(horizontal: 120.0),
-              child: openform(data.ppmTaskId, data.taskStatus, data.siteName,
-                  data.transactionNo, context),
+              child: openform(data.ppmTaskId ?? '', data.taskStatus, data.siteName ?? '', data.transactionNo, context),
             ),
       data.woTaskId == null
-          ? new Container()
+          ? Container()
           : Padding(
               padding: const EdgeInsets.symmetric(horizontal: 120.0),
-              child: openWO(data.woTaskId, data.flowStatus, data.flowName,
-                  data.transactionNo, context),
+              child: openWO(data.woTaskId ?? '', data.flowStatus, data.flowName, data.transactionNo, context),
             ),
-      SizedBox(
-        height: 12.0,
-      ),
+      SizedBox(height: 12.0),
       Divider(),
-      padding(new Text("Transaction History",
+      padding(Text("Transaction History",
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24.0))),
       statusView(data.checkpointId, data.flowName == "Work Order"),
-      SizedBox(
-        height: 16.0,
-      ),
+      SizedBox(height: 16.0),
       Divider(),
     ];
 
-    var historyWidget = List.generate(data.taskHistory.length, (index) {
-      return taskView(data.taskHistory[index], (index + 1));
+    List<Widget> historyWidget = List.generate(data.taskHistory.length, (index) {
+      return taskView(data.taskHistory[index], index + 1);
     });
 
     children.addAll(historyWidget);
 
-    return new ListView(
-      children: children,
-    );
+    return ListView(children: children);
   }
 
   Widget statusView(String status, bool woModule) {
     int percentage = 0;
-    var imageDuring = "AssignPPM";
-    var imageCheck = "CheckPPM";
-    var imageVerify = "Complete";
-    var imageClosed = "VerifyPPM";
+    String imageDuring = "AssignPPM";
+    String imageCheck = "CheckPPM";
+    String imageVerify = "Complete";
+    String imageClosed = "VerifyPPM";
 
     if (status == "4" || status == "15") {
       imageDuring += "_after";
@@ -224,37 +215,36 @@ class TaskInformation extends StatelessWidget {
     imageVerify += ".png";
     imageClosed += ".png";
 
-    Widget statusView(Widget status, String textDesc) =>
-        new Column(children: <Widget>[
-          status,
-          SizedBox(height: 16.0),
-          Text(textDesc,
-              style: TextStyle(
-                  color: Colors.black, fontWeight: FontWeight.normal)),
-        ]);
+    Widget statusViewWidget(Widget statusWidget, String textDesc) => Column(
+          children: <Widget>[
+            statusWidget,
+            SizedBox(height: 16.0),
+            Text(textDesc,
+                style: TextStyle(
+                    color: Colors.black, fontWeight: FontWeight.normal)),
+          ],
+        );
 
-    Container row = Container(
-        // width: 200.0,
-        child: Padding(
+    Widget row = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
-            statusView(
-                Image.asset(
-                  "assets/" + imageDuring,
-                  height: 48,
-                ),
+            statusViewWidget(
+                Image.asset("assets/$imageDuring", height: 48),
                 woModule ? "Assign WO" : "Execute PPM"),
-            statusView(Image.asset("assets/" + imageCheck, height: 48),
+            statusViewWidget(
+                Image.asset("assets/$imageCheck", height: 48),
                 woModule ? "Execute WO" : "Check PPM"),
-            statusView(Image.asset("assets/" + imageVerify, height: 48),
+            statusViewWidget(
+                Image.asset("assets/$imageVerify", height: 48),
                 woModule ? "Verify WO" : "Verify PPM"),
-            statusView(Image.asset("assets/" + imageClosed, height: 48),
+            statusViewWidget(
+                Image.asset("assets/$imageClosed", height: 48),
                 woModule ? "Closed" : "Complete"),
           ]),
-    ));
+    );
 
     LinearPercentIndicator linearPercentIndicator = LinearPercentIndicator(
       lineHeight: 8.0,
@@ -263,25 +253,23 @@ class TaskInformation extends StatelessWidget {
       progressColor: colorTheme2,
     );
 
-    return Column(children: <Widget>[
-      SizedBox(
-        height: 16.0,
-      ),
-      row,
-      SizedBox(
-        height: 12.0,
-      ),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-        child: linearPercentIndicator,
-      )
-    ]);
+    return Column(
+      children: <Widget>[
+        SizedBox(height: 16.0),
+        row,
+        SizedBox(height: 12.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: linearPercentIndicator,
+        )
+      ],
+    );
   }
 
   Widget taskView(MonitorHistory task, int index) {
     Widget status(String value) {
-      var text = value;
-      var color = colorTheme1;
+      String text = value;
+      Color color = colorTheme1;
 
       if (text == "In Progress")
         color = colorTheme5;
@@ -291,74 +279,59 @@ class TaskInformation extends StatelessWidget {
         color = colorTheme2;
       else if (text == "Verify") color = colorTheme3;
 
-      return new Container(
+      return Container(
           alignment: Alignment.center,
           height: 30.0,
           width: 100.0,
           decoration: BoxDecoration(
-              color: color, borderRadius: new BorderRadius.circular(20.0)),
-          child: new Text(text, style: TextStyle(color: Colors.white)));
+              color: color, borderRadius: BorderRadius.circular(20.0)),
+          child: Text(text, style: TextStyle(color: Colors.white)));
     }
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Container(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 number(index.toString()),
-                SizedBox(
-                  width: 16.0,
+                SizedBox(width: 16.0),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      info("Checkpoint: ", task.checkpointId),
+                      info("Due Date: ", task.taskDateDue.isEmpty ? "null" : task.taskDateDue),
+                      info("Time Submitted:", task.taskTimeSubmit.isEmpty ? "None" : task.taskTimeSubmit),
+                    ],
+                  ),
                 ),
                 Expanded(
-                    child: Column(
-                  children: <Widget>[
-                    info("Checkpoint: ", task.checkpointId),
-                    info(
-                        "Due Date: ",
-                        task.taskDateDue.length == 0
-                            ? "null"
-                            : task.taskDateDue),
-                    info(
-                        "Time Submitted:",
-                        task.taskTimeSubmit == ""
-                            ? "None"
-                            : task.taskTimeSubmit),
-                  ],
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                )),
-                Expanded(
-                    child: Column(children: <Widget>[
-                  info("User:", task.taskClaimedUser),
-                  info(
-                      "Time Created:",
-                      task.taskTimeCreated == ""
-                          ? "None"
-                          : task.taskTimeCreated),
-                  status(task.taskStatus),
-                ], crossAxisAlignment: CrossAxisAlignment.start)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      info("User:", task.taskClaimedUser),
+                      info("Time Created:", task.taskTimeCreated.isEmpty ? "None" : task.taskTimeCreated),
+                      status(task.taskStatus),
+                    ],
+                  ),
+                ),
               ],
-              crossAxisAlignment: CrossAxisAlignment.start,
             ),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                SizedBox(
-                  height: 24.0,
-                  width: 24.0,
-                ),
-                SizedBox(
-                  width: 16.0,
-                ),
+                SizedBox(height: 24.0, width: 24.0),
+                SizedBox(width: 16.0),
                 Expanded(
-                  child: info("Remark:",
-                      task.taskRemark.length == 0 ? '-' : task.taskRemark),
+                  child: info("Remark:", task.taskRemark.isEmpty ? '-' : task.taskRemark),
                 ),
               ],
-              crossAxisAlignment: CrossAxisAlignment.start,
             ),
           ],
-          crossAxisAlignment: CrossAxisAlignment.start,
         ),
       ),
     );
@@ -366,8 +339,40 @@ class TaskInformation extends StatelessWidget {
 
   Future<MonitorDetail> get fetch async {
     try {
-      var response = await _provider.fetch();
-      return response.monitorDetail;
+      // Step 1: Fetch the raw response.
+      debugPrint("step 1. Fetching raw response");
+      var rawResponse = await _provider.fetch();
+      debugPrint("step 1. Raw response: $rawResponse");
+      if (rawResponse is! Map<String, dynamic> && rawResponse is! ResponseValue) {
+        throw Exception("Unexpected rawResponse type: ${rawResponse.runtimeType}");
+      }
+
+      // Step 2: Extract the 'monitorDetail' field from the response.
+      debugPrint("step 2. Extracting monitorDetail field");
+      var detailField = rawResponse.monitorDetail;
+      if (detailField == null) {
+        throw Exception("MonitorDetail is null");
+      }
+
+      if (detailField is! MonitorDetail) {
+        try
+        {
+          // Step 3: Convert the monitorDetail Map to a JSON string.
+          debugPrint("step 3. Converting monitorDetail to JSON string");
+          String jsonString = jsonEncode(detailField);
+
+          // Step 4: Parse the JSON string using MonitorDetail.fromJson.
+          debugPrint("step 4. Parsing JSON string to MonitorDetail object");
+          MonitorDetail detail = MonitorDetail.fromJson(jsonString);
+          return detail;
+        } catch (e) {
+          debugPrint("Error parsing monitorDetail: $e");
+          throw Exception("Expected monitorDetail as a Map but got ${detailField.runtimeType}");
+        }
+      }
+
+      return detailField;
+
     } catch (err) {
       return Future.error(err);
     }

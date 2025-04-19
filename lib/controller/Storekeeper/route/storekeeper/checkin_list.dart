@@ -7,7 +7,7 @@ import 'package:toast/toast.dart';
 class CheckinDetails extends StatelessWidget {
   final String id;
 
-  const CheckinDetails({Key key, @required this.id}) : super(key: key);
+  const CheckinDetails({required Key key, required this.id}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     final Provider _provider =
@@ -21,7 +21,7 @@ class CheckinDetails extends StatelessWidget {
         centerTitle: true,
       ),
       body: FutureBuilder<dynamic>(
-          future: _provider.getJson(),
+          future: _provider.getJson(url: "/do/check_in_mobile_details/"),
           builder: (context, snapshot) {
             if (snapshot.data == null)
               return Center(child: CircularProgressIndicator());
@@ -201,7 +201,7 @@ class _Material extends StatelessWidget {
     );
   }
 
-  Widget text({@required String value, double top = 3.0, Color color}) {
+  Widget text({required String value, double top = 3.0, Color? color}) {
     return Padding(
       padding: EdgeInsets.only(top: top),
       child: Text(
@@ -252,7 +252,10 @@ class AttachmentsDO extends StatelessWidget {
             (index) => TextButton(
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => ViewImage(url: items[index]["file"]),
+                  builder: (_) => ViewImage(
+                    key: Key(items[index]["file"]),
+                    url: items[index]["file"],
+                  ),
                 ),
               ),
               child: Text(
@@ -267,7 +270,7 @@ class AttachmentsDO extends StatelessWidget {
 class ViewImage extends StatelessWidget {
   final String url;
 
-  const ViewImage({Key key, this.url}) : super(key: key);
+  const ViewImage({required Key key, required this.url}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

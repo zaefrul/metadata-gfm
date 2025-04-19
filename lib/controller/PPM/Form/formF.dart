@@ -1,18 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:gfm_gems/view/dialog.dart';
-
-// import 'package:path/path.dart';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:gfm_gems/model/form.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
-// import 'package:file_picker/file_picker.dart';
+import 'package:gfm_gems/view/dialog.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:gfm_gems/utils/image_compressor.dart';
 
 import 'openImage.dart';
 
@@ -23,32 +22,28 @@ class FormF extends StatefulWidget {
   final bool disable;
   final String status;
 
-  FormF(this.id, this.verified, this.refreshStatus, this.disable, this.status);
+  const FormF(this.id, this.verified, this.refreshStatus, this.disable, this.status, {Key? key}) : super(key: key);
 
   @override
   _FormFState createState() => _FormFState();
 }
 
 class _FormFState extends State<FormF> {
-  Provider provider;
-  var items = List<ListTile>();
-  List<UploadItem> uploadItems = List<UploadItem>();
-  int groupValue;
+  late Provider provider;
+  List<Widget> items = [];
+  List<UploadItem> uploadItems = [];
+  int? groupValue;
   bool enableButton = false;
   bool loading = false;
 
   @override
   void initState() {
     super.initState();
-    if (widget.status.length == 0) {
-      groupValue = null;
-    } else if (widget.status == "N/A") {
+    if (widget.status.isEmpty || widget.status == "N/A") {
       groupValue = null;
     } else {
-      groupValue = int.parse(widget.status);
+      groupValue = int.tryParse(widget.status);
     }
-
-    groupValue = widget.status.length > 0 ? int.parse(widget.status) : null;
     enableButton = groupValue == 1;
 
     provider = Provider(
@@ -58,15 +53,19 @@ class _FormFState extends State<FormF> {
     fetch();
   }
 
-  fetch() {
+  void fetch() {
     provider.fetch().then((value) {
-      items = List<ListTile>();
-      for (var i = 0; i < value.sectionHList.length; i++) {
-        var item = value.sectionHList[i];
-        setState(() => items.add(getListTile(i + 1, item: item)));
+      setState(() {
+        items = [];
+      });
+      for (var i = 0; i < (value.sectionHList?.length ?? 0); i++) {
+        var item = value.sectionHList?[i];
+        setState(() {
+          items.add(getListTile(i + 1, item: item));
+        });
       }
     }).catchError((err) {
-      setState(() => items = List<ListTile>());
+      setState(() => items = []);
     }).whenComplete(() => setState(() => loading = false));
   }
 
@@ -74,6 +73,7 @@ class _FormFState extends State<FormF> {
   Widget build(BuildContext context) {
     ToastContext().init(context);
     provider.context = context;
+
     void alert(String txt) {
       showDialog(
           context: context,
@@ -86,33 +86,31 @@ class _FormFState extends State<FormF> {
               )));
     }
 
-    var children = [
+    var children = <Widget>[
       ListTile(
           title: widget.disable
-              ? new Container()
-              : new Row(
+              ? Container()
+              : Row(
                   children: <Widget>[
-                    new Radio(
+                    Radio<int>(
                       value: 1,
                       groupValue: groupValue,
                       activeColor: Colors.blueAccent,
-                      onChanged: (value) => onChange(value),
+                      onChanged: widget.disable ? null : (value) => onChange(value),
                     ),
-                    new Text(
+                    const Text(
                       'Yes',
-                      style: new TextStyle(
-                        fontSize: 16.0,
-                      ),
+                      style: TextStyle(fontSize: 16.0),
                     ),
-                    new Radio(
-                      groupValue: groupValue,
+                    Radio<int>(
                       value: 0,
+                      groupValue: groupValue,
                       activeColor: Colors.blueAccent,
-                      onChanged: (value) => onChange(value),
+                      onChanged: widget.disable ? null : (value) => onChange(value),
                     ),
-                    new Text(
+                    const Text(
                       'No',
-                      style: new TextStyle(fontSize: 16.0),
+                      style: TextStyle(fontSize: 16.0),
                     ),
                   ],
                 ))
@@ -130,86 +128,90 @@ class _FormFState extends State<FormF> {
       body: loading
           ? Stack(
               children: <Widget>[
-                new Container(
-                  padding: EdgeInsets.all(16.0),
-                  child: new ListView(
+                Container(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ListView(
                     children: children,
                   ),
                 ),
                 Container(
                   color: Colors.black.withOpacity(0.5),
-                  child: Center(
+                  child: const Center(
                     child: CircularProgressIndicator(),
                   ),
                 )
               ],
             )
-          : children.length == 0
-              ? Center(
+          : children.isEmpty
+              ? const Center(
                   child: CircularProgressIndicator(),
                 )
               : Container(
-                  padding: EdgeInsets.all(16.0),
-                  child: new ListView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ListView(
                     children: children,
                   ),
                 ),
       floatingActionButton: widget.disable
           ? null
           : FloatingActionButton.extended(
-              label: new Text("Upload Image"),
-              onPressed: () {
+              label: const Text("Upload Image"),
+              onPressed: () async {
                 if (widget.verified) {
-                  enableButton == true
-                      ? uploadFile
-                          .then((value) => alert(value))
-                          .catchError((err) {
-                          setState(() => loading = false);
-                          alert(err);
-                        })
-                      : Toast.show("Please select 'yes' to continue");
+                  if (enableButton == true) {
+                    try {
+                      var result = await uploadFile;
+                      alert(result.toString());
+                    } catch (err) {
+                      setState(() => loading = false);
+                      alert(err.toString());
+                    }
+                  } else {
+                    Toast.show("Please select 'yes' to continue", duration: Toast.lengthShort, gravity: Toast.bottom);
+                  }
                 } else {
-                  Toast.show("Please verified this task.");
+                  Toast.show("Please verified this task.", duration: Toast.lengthShort, gravity: Toast.bottom);
                 }
               }),
     );
   }
 
-  Widget getTitle(String text, {bold = false}) => new Container(
+  Widget getTitle(String text, {bool bold = false}) => Container(
         alignment: Alignment.centerLeft,
-        child: new Text(text,
+        child: Text(text,
             style: TextStyle(
                 fontWeight: bold ? FontWeight.bold : FontWeight.normal,
                 color: colorTheme3)),
       );
 
-  Widget getListTile(int index, {FormHItem item, UploadItem unsaveItem}) {
+  Widget getListTile(int index, {FormHItem? item, UploadItem? unsaveItem}) {
     return ListTile(
-      title: new Text(
-          "$index. " + (item != null ? item.uploadName : unsaveItem.name)),
+      title: Text("$index. " + (item != null ? item.uploadName : unsaveItem!.name)),
       trailing: Container(
-        child: new Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
             GestureDetector(
-              child: new Icon(
+              child: const Icon(
                 Icons.image,
                 color: Colors.blueAccent,
               ),
               onTap: () {
-                unsaveItem == null
-                    ? _openViewer(src: "http:" + item.documentSrc)
-                    : _openViewer(path: unsaveItem.path);
+                if (unsaveItem == null) {
+                  _openViewer(src: "http:" + item!.documentSrc);
+                } else {
+                  _openViewer(path: unsaveItem.path);
+                }
               },
             ),
-            SizedBox(
+            const SizedBox(
               width: 20,
             ),
             widget.disable
-                ? new Container()
+                ? Container()
                 : GestureDetector(
-                    child: new Icon(
+                    child: const Icon(
                       Icons.delete,
                       color: Colors.red,
                     ),
@@ -218,7 +220,7 @@ class _FormFState extends State<FormF> {
                       provider
                           .delete(
                               url:
-                                  "/api/m_ppm.php?action=delete_ppm_additional_report&ppmTaskUploadId=${item.ppmTaskUploadId}")
+                                  "/api/m_ppm.php?action=delete_ppm_additional_report&ppmTaskUploadId=${item!.ppmTaskUploadId}")
                           .then((value) {
                         print(value);
                       }).whenComplete(() {
@@ -233,61 +235,21 @@ class _FormFState extends State<FormF> {
     );
   }
 
-  // Future<dynamic> get uploadFile async {
-  //   setState(() {
-  //     loading = true;
-  //   });
-  //   String basename(String path) => context.basename(path);
-
-  //   var path = await FilePicker.getFilePath(
-  //       type: FileType.CUSTOM, fileExtension: 'pdf');
-
-  //   if (path.length == 0) {
-  //     return Future.error("no file selected");
-  //   }
-
-  //   var file = File(path);
-  //   var bytes = await file.readAsBytes();
-  //   String size = bytes.length.toString();
-  //   String base64Image = base64Encode(bytes);
-  //   String fileName = basename(path);
-
-  //   if (int.parse(size) > 600000)
-  //     return Future.error("file selected too big");
-
-  //   var item = UploadItem("upload_additional_report", widget.id,
-  //       path: path,
-  //       name: fileName,
-  //       fileName: fileName,
-  //       size: size,
-  //       data: base64Image,
-  //       index: uploadItems.length.toString());
-
-  //   uploadItems.add(item);
-
-  //   var tile = getListTile(items.length + 1, unsaveItem: item);
-  //   setState(() => items.add(tile));
-
-  // try {
-  //   var result = await provider.post(url: "/api/m_ppm.php", body: item.body);
-  //   fetch();
-  //     widget.refreshStatus();
-  //   return result;
-  // } catch (err){
-  //   setState(() => loading = false);
-  //     widget.refreshStatus();
-  //   return err;
-  // }
-
-  // }
-
   Future<dynamic> get uploadFile async {
-    var file = await ImagePicker().pickImage(source: ImageSource.camera);
-
-    final bytes = await compressFile(File(file.path));
+    final XFile? file = await ImagePicker().pickImage(source: ImageSource.camera);
+    if (file == null) {
+      throw Exception("No file selected");
+    }
+    Uint8List? bytes = await compressFile(File(file.path), settings: {
+      "quality": Platform.isIOS ? 60 : 100,
+      "minWidth": 540,
+      "minHeight": 720,
+    });
+    if (bytes == null) {
+      throw Exception("Failed to compress image");
+    }
     String size = bytes.length.toString();
     String base64Image = base64Encode(bytes);
-
     String desc = "${file.path}.jpg";
 
     var item = UploadItem("upload_additional_report", widget.id,
@@ -297,7 +259,6 @@ class _FormFState extends State<FormF> {
         size: size,
         data: base64Image,
         index: uploadItems.length.toString());
-
     uploadItems.add(item);
 
     var tile = getListTile(items.length + 1, unsaveItem: item);
@@ -315,12 +276,12 @@ class _FormFState extends State<FormF> {
     }
   }
 
-  void onChange(int value) {
+  void onChange(int? value) {
+    if (value == null) return;
     setState(() {
       enableButton = value == 1;
       groupValue = value;
     });
-
     provider.post(url: "/api/m_ppm.php", body: {
       "action": "check_additional_report",
       "ppmTaskId": widget.id,
@@ -330,22 +291,24 @@ class _FormFState extends State<FormF> {
     });
   }
 
-  _openViewer({path, src}) => Navigator.push(
+  void _openViewer({String? path, String? src}) => Navigator.push(
       context,
       MaterialPageRoute(
           builder: (context) => ImageViewer(path: path, url: src)));
 
-  Future<List<int>> compressFile(File file) async {
-    var result = await FlutterImageCompress.compressWithFile(
-      file.absolute.path,
-      quality: Platform.isIOS ? 60 : 100,
-      minWidth: 540,
-      minHeight: 720,
-    );
-    print(file.lengthSync());
-    print(result.length);
-    return result;
-  }
+  // Future<Uint8List?> compressFile(File file) async {
+  //   final compressedBytes = await FlutterImageCompress.compressWithFile(
+  //     file.absolute.path,
+  //     quality: Platform.isIOS ? 60 : 100,
+  //     minWidth: 540,
+  //     minHeight: 720,
+  //   );
+    
+  //   if (compressedBytes == null) {
+  //     return null;
+  //   }
+  //   return Uint8List.fromList(compressedBytes);
+  // }
 }
 
 class UploadItem extends Upload {
@@ -357,8 +320,13 @@ class UploadItem extends Upload {
   final String data;
   final String index;
 
-  UploadItem(action, ppmTaskId,
-      {this.path, this.name, this.fileName, this.size, this.data, this.index})
+  UploadItem(String action, String ppmTaskId,
+      {required this.path,
+      required this.name,
+      required this.fileName,
+      required this.size,
+      required this.data,
+      required this.index})
       : super(action: action, ppmTaskId: ppmTaskId);
 
   @override

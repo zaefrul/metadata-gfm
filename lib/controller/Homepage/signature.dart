@@ -1,25 +1,28 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'dart:typed_data';
 import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/widget/dialog.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:toast/toast.dart';
-
 import 'package:signature/signature.dart';
 
 class SignatureView extends StatefulWidget {
   final String id;
 
-  SignatureView({this.id});
-  SignatureViewState createState() => new SignatureViewState();
+  const SignatureView({required this.id, Key? key}) : super(key: key);
+
+  @override
+  SignatureViewState createState() => SignatureViewState();
 }
 
 class SignatureViewState extends State<SignatureView> {
   bool loading = false;
 
   final SignatureController _controller;
-  Signature _signatureCanvas;
+  late Signature _signatureCanvas;
+
   SignatureViewState() : _controller = SignatureController() {
     _signatureCanvas = Signature(
       controller: _controller,
@@ -34,6 +37,7 @@ class SignatureViewState extends State<SignatureView> {
     super.dispose();
   }
 
+  @override
   Widget build(BuildContext context) {
     ToastContext().init(context);
 
@@ -50,7 +54,7 @@ class SignatureViewState extends State<SignatureView> {
               onTap: _controller.clear,
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: new BorderRadius.all(new Radius.circular(6.0)),
+                  borderRadius: BorderRadius.all(Radius.circular(6.0)),
                   color: Colors.redAccent,
                 ),
                 width: 80,
@@ -64,7 +68,7 @@ class SignatureViewState extends State<SignatureView> {
               onTap: submitDialog,
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: new BorderRadius.all(new Radius.circular(6.0)),
+                  borderRadius: BorderRadius.all(Radius.circular(6.0)),
                   color: colorTheme2,
                 ),
                 width: 80,
@@ -84,12 +88,12 @@ class SignatureViewState extends State<SignatureView> {
                 )
               ],
             )
-          : new Center(child: _signatureCanvas),
+          : Center(child: _signatureCanvas),
     );
   }
 
-  Widget title(text, {bold = true}) {
-    return new Text(
+  Widget title(String text, {bool bold = true}) {
+    return Text(
       text,
       textAlign: TextAlign.center,
       style: TextStyle(
@@ -99,8 +103,8 @@ class SignatureViewState extends State<SignatureView> {
     );
   }
 
-  Widget titleSign(text) {
-    return new Text(
+  Widget titleSign(String text) {
+    return Text(
       text,
       textAlign: TextAlign.left,
       style: TextStyle(
@@ -113,7 +117,7 @@ class SignatureViewState extends State<SignatureView> {
     );
   }
 
-  post(BuildContext context) async {
+  Future<void> post(BuildContext context) async {
     if (_controller.isEmpty) {
       Toast.show("Please sign first before submit");
       setState(() => loading = false);
@@ -123,14 +127,13 @@ class SignatureViewState extends State<SignatureView> {
     setState(() => loading = true);
 
     var pngBytes = await _controller.toPngBytes();
-    String size = pngBytes.length.toString();
-    String base64Image = base64Encode(pngBytes);
+    String size = (pngBytes?.length ?? 0).toString();
+    String base64Image = base64Encode(pngBytes ?? Uint8List(0));
 
     var body = UploadItem(size: size, data: base64Image);
 
-    Provider provider = Provider();
-
-    if (context != null) provider.context = context;
+    Provider provider = Provider(fetchURL: "/user_signature/${widget.id}");
+    provider.context = context;
 
     provider
         .post(url: "/user_signature/${widget.id}", body: body.body)
@@ -156,13 +159,11 @@ class SignatureViewState extends State<SignatureView> {
     showDialog(
       context: context,
       builder: (context) => CustomDialog(
+        rootPage: "/homepage",
         cancel: true,
         description: "Do you confirm want to submit?",
         buttonText: "Yes",
-        image: Image.asset(
-          "assets/icon_trans.png",
-          height: 40,
-        ),
+        image: Image.asset("assets/icon_trans.png", height: 40),
         okayTapped: () {
           Navigator.pop(context);
           post(context);
@@ -181,12 +182,8 @@ class UploadItem {
   final String data;
   final String size;
 
-  UploadItem({
-    this.size,
-    this.data,
-  });
+  UploadItem({required this.size, required this.data});
 
-  @override
   Map<String, dynamic> get body => {
         "name": name,
         "filename": filename,

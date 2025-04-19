@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc_technician.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
 // import 'package:searchable_dropdown/searchable_dropdown.dart';
 
 class RegisterItem extends StatelessWidget {
@@ -115,7 +114,11 @@ class _Dropdown extends StatelessWidget {
             enabled: false,
           );
 
-        return builder(snapshot.data);
+        if (snapshot.data != null) {
+          return builder(snapshot.data as T);
+        } else {
+          return SizedBox.shrink(); // Return an empty widget if data is null
+        }
       },
     );
   }

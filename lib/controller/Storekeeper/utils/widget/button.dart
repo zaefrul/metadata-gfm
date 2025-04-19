@@ -1,14 +1,12 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../constant.dart';
 
 class Button extends StatelessWidget {
   final GestureTapCallback onPressed;
   final String text;
   final Color color;
 
-  Button({@required this.onPressed, this.text, this.color});
+  Button({required this.onPressed, required this.text, required this.color});
 
   @override
   Widget build(BuildContext context) {

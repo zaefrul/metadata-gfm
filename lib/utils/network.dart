@@ -1,4 +1,4 @@
-import 'package:device_info/device_info.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/model/complaint.dart';
 import 'package:gfm_gems/model/complaintResponse.dart';
@@ -13,12 +13,12 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
 
-// final String netDomain = "http://gems2.metadatasyst.com";
-final String netDomain = "https://gems.globalfm.com.my";
+final String netDomain = "https://gems.metadatasystem.my";
+// final String netDomain = "https://gems.globalfm.com.my";
 final String netLogin = "/api/m_login.php";
 final String netLogout = "";
 
-Future<User> login(username, password) async {
+Future<User> login(String username, String password) async {
   var deviceId = await getDeviceDetails();
 
   var body = {
@@ -29,7 +29,6 @@ Future<User> login(username, password) async {
   };
   try {
     final response = await http.post(Uri.parse(netDomain + netLogin),
-        // headers: {"Content-Type": 'multipart/form-data'},
         headers: {
           HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded',
         },
@@ -40,10 +39,8 @@ Future<User> login(username, password) async {
     if (result["success"] == true) {
       var user = User.fromMap(response.body);
       user.responseJSON = response.body;
-
       return user;
     }
-
     return Future.error(result["errmsg"]);
   } catch (err) {
     print(err);
@@ -52,41 +49,38 @@ Future<User> login(username, password) async {
 }
 
 Future<String> getDeviceDetails() async {
-  String deviceVersion;
-
-  final DeviceInfoPlugin deviceInfoPlugin = new DeviceInfoPlugin();
+  String deviceVersion = "";
+  final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
   try {
     if (Platform.isAndroid) {
       var build = await deviceInfoPlugin.androidInfo;
-      deviceVersion = build.androidId;
+      deviceVersion = build.id;
     } else if (Platform.isIOS) {
       var data = await deviceInfoPlugin.iosInfo;
-      deviceVersion = data.identifierForVendor;
+      deviceVersion = data.identifierForVendor ?? "";
     }
   } catch (_) {
     print('Failed to get platform version');
   }
-
   return deviceVersion;
 }
 
 class Provider {
-  var item;
+  dynamic item;
 
-  final String taskID;
+  final String? taskID;
   final String fetchURL;
-  BuildContext context;
-  String deviceID;
-  String token;
+  late BuildContext context;
+  late String deviceID;
+  late String token;
 
-  Provider({this.fetchURL, this.taskID});
+  Provider({required this.fetchURL, this.taskID});
 
   Future init() async {
     deviceID = await getDeviceDetails();
 
     var pref = await User.getPrefUser;
     var user = User.fromMap(pref);
-
     token = "Bearer " + user.token;
   }
 
@@ -95,192 +89,236 @@ class Provider {
 
     print(fetchURL);
 
-    var response = await http.get(
-      Uri.parse(
-          netDomain + fetchURL + (this.taskID == null ? "" : this.taskID)),
-      headers: {"Authorization": token, "Deviceid": deviceID},
-    );
+    final uri = Uri.parse(netDomain +
+        fetchURL +
+        (taskID == null ? "" : taskID!));
+    var response = await http.get(uri, headers: {
+      "Authorization": token,
+      "Deviceid": deviceID,
+    });
 
     if (response.statusCode == 200) {
-      var body = response.body;
-      var decode = json.decode(body);
-
+      var decode = json.decode(response.body);
+      debugPrint(decode["resultS"]);
+      debugPrint(decode["error"]);
       if (decode["error"] == "Signature verification failed" ||
           decode["error"] == "Device ID invalid with this login" ||
           decode["error"] == "Expired token") {
         alert("Your session already expired, please relogin.");
       }
-
-      if (decode["result"].length > 0) {
-        ResponseValue responseValue =
-            serializers.deserializeWith(ResponseValue.serializer, decode);
-
-        if (responseValue.success == true)
+      
+      // Branch based on type of decode["result"].
+      if (decode["result"] is List) {
+        // In case it's a List and not empty…
+        if ((decode["result"] as List).isNotEmpty) {
+          debugPrint("List is not empty, $decode");
+          ResponseValue responseValue = serializers.deserializeWith(
+              ResponseValue.serializer, decode)!;
+          if (responseValue.success == true) {
+            return responseValue;
+          } else {
+            return Future.error(responseValue.errmsg);
+          }
+        } else {
+          return Future.error("Empty result list");
+        }
+      } else if (decode["result"] is Map<String, dynamic>) {
+        // When the response returns a Map instead of a List:
+        ResponseValue responseValue = serializers.deserializeWith(
+            ResponseValue.serializer, decode)!;
+        if (responseValue.success == true) {
           return responseValue;
-        else
+        } else {
           return Future.error(responseValue.errmsg);
+        }
+      } else if (decode["result"] is String) {
+        // You could attempt to decode the string if it should be JSON,
+          // or handle it in a different way.
+          try {
+            var decodedResult = json.decode(decode["result"]);
+            // Now, if decodedResult is a List:
+            if (decodedResult is List && decodedResult.isNotEmpty) {
+              decode["result"] = decodedResult;
+              ResponseValue responseValue = serializers.deserializeWith(
+                  ResponseValue.serializer, decode)!;
+              if (responseValue.success == true) {
+                return responseValue;
+              } else {
+                return Future.error(responseValue.errmsg);
+              }
+            }
+          } catch (_) {
+            // If decoding fails, handle the string directly or throw an error.
+            ResponseValue responseValue = serializers.deserializeWith(
+                ResponseValue.serializer, decode)!;
+            if (responseValue.success == true) {
+              return responseValue;
+            } else {
+              return Future.error(responseValue.errmsg);
+            }
+          }
+      } else {
+        debugPrint(response.body);
+        return Future.error("Unexpected type for result: ${decode["result"].runtimeType}");
       }
     }
-
     return Future.error("Please try again.");
   }
 
-  Future<List> fetchComplaint(
-      {String additionalParam,
-      bool store = false,
-      bool storePart = false,
-      bool group = false,
-      bool groupStore = false,
-      bool type = false,
-      bool storeType = false,
-      bool part = false}) async {
+  Future<List> fetchComplaint({
+    String? additionalParam,
+    bool store = false,
+    bool storePart = false,
+    bool group = false,
+    bool groupStore = false,
+    bool type = false,
+    bool storeType = false,
+    bool part = false,
+  }) async {
     await init();
 
     print(fetchURL);
     print(additionalParam);
 
-    var response = await http.get(
-      Uri.parse(netDomain +
-          fetchURL +
-          (this.taskID == null ? "" : this.taskID) +
-          (additionalParam == null ? "" : additionalParam)),
-      headers: {"Authorization": token, "Deviceid": deviceID},
-    );
+    final uri = Uri.parse(netDomain +
+        fetchURL +
+        (taskID == null ? "" : taskID!) +
+        (additionalParam ?? ""));
+    var response = await http.get(uri, headers: {
+      "Authorization": token,
+      "Deviceid": deviceID,
+    });
 
     if (response.statusCode == 200) {
-      var body = response.body;
-      var decode = json.decode(body);
-
+      var decode = json.decode(response.body);
       if (decode["error"] == "Signature verification failed" ||
           decode["error"] == "Device ID invalid with this login" ||
           decode["error"] == "Expired token") {
         alert("Your session already expired, please relogin.");
-
         throw "Your session already expired, please relogin.";
       }
 
-      if (decode["result"].length > 0) {
-        if (group)
+      if ((decode["result"] as List).isNotEmpty) {
+        if (group) {
           return deserializeListOf<ComplaintDGroup>(decode["result"]).toList();
-        else if (type)
+        } else if (type) {
           return deserializeListOf<ComplaintDType>(decode["result"]).toList();
-        else if (part)
+        } else if (part) {
           return deserializeListOf<ComplaintDPart>(decode["result"]).toList();
-        else if (store)
+        } else if (store) {
           return deserializeListOf<ComplaintDStore>(decode["result"]).toList();
-        else if (groupStore)
+        } else if (groupStore) {
           return deserializeListOf<ComplaintDGroupStore>(decode["result"])
               .toList();
-        else if (storePart)
+        } else if (storePart) {
           return deserializeListOf<MaterialStorePart>(decode["result"])
               .toList();
-        else if (storeType)
+        } else if (storeType) {
           return deserializeListOf<ComplaintDStoreType>(decode["result"])
               .toList();
-        else {
-          ComplaintResponse responseValue =
-              serializers.deserializeWith(ComplaintResponse.serializer, decode);
-          return responseValue.items.toList();
+        } else {
+          ComplaintResponse responseValue = serializers.deserializeWith(
+              ComplaintResponse.serializer, decode)!;
+          return responseValue.items!.toList();
         }
       } else {
+        debugPrint("Empty result");
         return [];
       }
     }
-
     return Future.error("Please try again.");
   }
 
   Future<List> fetchUtilities({
     bool meter = false,
     bool reading = false,
-    String id,
+    String? id,
+  }) async {
+    await init();
+
+    final uri = Uri.parse(netDomain + fetchURL + (id == null ? "" : "/$id"));
+    print(fetchURL);
+
+    var response = await http.get(uri, headers: {
+      "Authorization": token,
+      "Deviceid": deviceID,
+    });
+
+    if (response.statusCode == 200) {
+      var decode = json.decode(response.body);
+      if (decode["error"] == "Signature verification failed" ||
+          decode["error"] == "Device ID invalid with this login" ||
+          decode["error"] == "Expired token") {
+        alert("Your session already expired, please relogin.");
+        throw "Your session already expired, please relogin.";
+      }
+      if ((decode["result"] as List).isNotEmpty) {
+        if (meter) {
+          return deserializeListOf<Meter>(decode["result"]).toList();
+        } else if (reading) {
+          return deserializeListOf<Reading>(decode["result"]).toList();
+        }
+        return [];
+      } else {
+        return [];
+      }
+    }
+    return Future.error("Please try again.");
+  }
+
+  Future<dynamic> getJson({
+    required String url,
+    dynamic body,
+    bool includedHeader = true,
   }) async {
     await init();
 
     print(fetchURL);
 
-    var response = await http.get(
-      Uri.parse(netDomain + fetchURL + (id == null ? "" : "/$id")),
-      headers: {"Authorization": token, "Deviceid": deviceID},
-    );
+    final uri = Uri.parse(netDomain + fetchURL + (taskID == null ? "" : taskID!));
+    var response = await http.get(uri, headers: {
+      "Authorization": token,
+      "Deviceid": deviceID,
+    });
+
+    debugPrint("GET request to: $uri");
+    debugPrint(response.body);
+    debugPrint(response.statusCode.toString());
 
     if (response.statusCode == 200) {
-      var body = response.body;
-      var decode = json.decode(body);
-
-      if (decode["error"] == "Signature verification failed" ||
-          decode["error"] == "Device ID invalid with this login" ||
-          decode["error"] == "Expired token") {
-        alert("Your session already expired, please relogin.");
-
-        throw "Your session already expired, please relogin.";
-      }
-
-      try {
-        if (decode["result"].length > 0) {
-          if (meter)
-            return deserializeListOf<Meter>(decode["result"]).toList();
-          else if (reading)
-            return deserializeListOf<Reading>(decode["result"]).toList();
-          return [];
-        } else {
-          return [];
-        }
-      } catch (e) {
-        throw e;
-      }
-    }
-
-    return Future.error("Please try again.");
-  }
-
-  Future<dynamic> getJson(
-      {String url, dynamic body, bool includedHeader = true}) async {
-    await init();
-
-    print(fetchURL);
-
-    var response = await http.get(
-      Uri.parse(
-          netDomain + fetchURL + (this.taskID == null ? "" : this.taskID)),
-      headers: {"Authorization": token, "Deviceid": deviceID},
-    );
-
-    if (response.statusCode == 200) {
-      var body = response.body;
-      var decode = json.decode(body);
+      var decode = json.decode(response.body);
       if (decode["error"] == "Signature verification failed" ||
           decode["error"] == "Device ID invalid with this login" ||
           decode["error"] == "Expired token") {
         alert("Your session already expired, please relogin.");
       }
-
       if (decode['success'] == true) {
         return decode["result"];
-      } else
+      } else {
         return Future.error(decode['errmsg']);
+      }
     }
-
     return Future.error("Please try again.");
   }
 
-  Future<dynamic> post(
-      {String url, dynamic body, bool includedHeader = true}) async {
+  Future<dynamic> post({
+    required String url,
+    dynamic body,
+    bool includedHeader = true,
+  }) async {
     var action = "";
-    if (body != null) if (body["action"] != null) action = body["action"];
-    if (includedHeader == true) await init();
+    if (body != null && body["action"] != null) action = body["action"];
+    if (includedHeader) await init();
 
     final response = await http.post(Uri.parse(netDomain + url),
-        headers: includedHeader == true
+        headers: includedHeader
             ? {
-                HttpHeaders.contentTypeHeader:
-                    'application/x-www-form-urlencoded',
-                "authorization": token,
-                "deviceid": deviceID
+                HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded',
+                "Authorization": token,
+                "Deviceid": deviceID
               }
             : {
-                HttpHeaders.contentTypeHeader:
-                    'application/x-www-form-urlencoded',
+                HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded',
               },
         body: body);
 
@@ -288,8 +326,7 @@ class Provider {
     print(response.body);
 
     if (response.statusCode == 200) {
-      var body = response.body;
-      var decode = json.decode(body);
+      var decode = json.decode(response.body);
       if (decode["error"] == "Signature verification failed" ||
           decode["error"] == "Device ID invalid with this login" ||
           decode["error"] == "Expired token") {
@@ -297,28 +334,32 @@ class Provider {
       }
 
       ResponseValue responseValue = serializers.deserializeWith(
-          ResponseValue.serializer, json.decode(response.body));
+          ResponseValue.serializer, json.decode(response.body))!;
 
       if (responseValue.success == true) {
-        if (action == "edit_profile")
+        if (action == "edit_profile") {
           return responseValue;
-        else
+        } else {
           return responseValue.errmsg;
-      } else
+        }
+      } else {
         return Future.error(responseValue.errmsg);
+      }
     }
-
     return Future.error("Please try again.");
   }
 
-  Future<dynamic> postUtilities({String url, dynamic body}) async {
+  Future<dynamic> postUtilities({ // For utility posts.
+    required String url,
+    dynamic body,
+  }) async {
     await init();
 
     final response = await http.post(Uri.parse(netDomain + url),
         headers: {
           HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded',
-          "authorization": token,
-          "deviceid": deviceID,
+          "Authorization": token,
+          "Deviceid": deviceID,
         },
         body: body);
 
@@ -326,8 +367,7 @@ class Provider {
     print(response.body);
 
     if (response.statusCode == 200) {
-      var body = response.body;
-      var decode = json.decode(body);
+      var decode = json.decode(response.body);
       if (decode["error"] == "Signature verification failed" ||
           decode["error"] == "Device ID invalid with this login" ||
           decode["error"] == "Expired token") {
@@ -335,32 +375,31 @@ class Provider {
       }
       if (decode['success'] == true) {
         return true;
-      } else
+      } else {
         return Future.error(decode['errmsg']);
+      }
     }
-
     return Future.error("Please try again.");
   }
 
-  Future<dynamic> put(
-      {dynamic body = const {}, bool includedHeader = true}) async {
+  Future<dynamic> put({
+    dynamic body = const {},
+    bool includedHeader = true,
+  }) async {
     var action = "";
     if (body["action"] != null) action = body["action"];
-    if (includedHeader == true) await init();
+    if (includedHeader) await init();
 
     final response = await http.put(
-        Uri.parse(
-            netDomain + fetchURL + (this.taskID == null ? "" : this.taskID)),
-        headers: includedHeader == true
+        Uri.parse(netDomain + fetchURL + (taskID == null ? "" : taskID!)),
+        headers: includedHeader
             ? {
-                HttpHeaders.contentTypeHeader:
-                    'application/x-www-form-urlencoded',
-                "authorization": token,
-                "deviceid": deviceID
+                HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded',
+                "Authorization": token,
+                "Deviceid": deviceID
               }
             : {
-                HttpHeaders.contentTypeHeader:
-                    'application/x-www-form-urlencoded',
+                HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded',
               },
         body: body);
 
@@ -368,8 +407,7 @@ class Provider {
     print(response.body);
 
     if (response.statusCode == 200) {
-      var body = response.body;
-      var decode = json.decode(body);
+      var decode = json.decode(response.body);
       if (decode["error"] == "Signature verification failed" ||
           decode["error"] == "Device ID invalid with this login" ||
           decode["error"] == "Expired token") {
@@ -377,21 +415,22 @@ class Provider {
       }
 
       ResponseValue responseValue = serializers.deserializeWith(
-          ResponseValue.serializer, json.decode(response.body));
+          ResponseValue.serializer, json.decode(response.body))!;
 
       if (responseValue.success == true) {
-        if (action == "edit_profile")
+        if (action == "edit_profile") {
           return responseValue;
-        else
+        } else {
           return responseValue.errmsg;
-      } else
+        }
+      } else {
         return Future.error(responseValue.errmsg);
+      }
     }
-
     return Future.error("Please try again.");
   }
 
-  Future<String> delete({String url}) async {
+  Future<String> delete({required String url}) async {
     await init();
 
     final response = await http.delete(Uri.parse(netDomain + url), headers: {
@@ -402,14 +441,13 @@ class Provider {
 
     if (response.statusCode == 200) {
       ResponseValue responseValue = serializers.deserializeWith(
-          ResponseValue.serializer, json.decode(response.body));
-
-      if (responseValue.success == true)
+          ResponseValue.serializer, json.decode(response.body))!;
+      if (responseValue.success == true) {
         return responseValue.errmsg;
-      else
+      } else {
         return Future.error(responseValue.errmsg);
+      }
     }
-
     return Future.error("Please try again.");
   }
 
@@ -429,10 +467,7 @@ class Provider {
       var user = User.fromMap(userPref);
       user.removeUser();
       Navigator.pop(context);
-      Navigator.pushReplacementNamed(
-        context,
-        "/",
-      );
+      Navigator.pushReplacementNamed(context, "/");
     });
   }
 }

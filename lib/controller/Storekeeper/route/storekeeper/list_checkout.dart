@@ -5,7 +5,8 @@ import 'package:gfm_gems/utils/network.dart';
 import 'package:rxdart/subjects.dart';
 
 class CheckOutList extends StatelessWidget {
-  final BehaviorSubject<List> _data = BehaviorSubject<List>.seeded([]);
+  final BehaviorSubject<List<Map<String, dynamic>>> _data =
+    BehaviorSubject<List<Map<String, dynamic>>>.seeded([]);
 
   CheckOutList() {
     refresh();
@@ -13,13 +14,14 @@ class CheckOutList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<Object>(
+    return StreamBuilder<List<Map<String, dynamic>>>(
       stream: _data.stream,
       builder: (context, snapshot) {
-        if (snapshot.data == null)
+        if (!snapshot.hasData || snapshot.data == null) {
           return Center(child: CircularProgressIndicator());
+        }
 
-        final data = snapshot.data as List;
+        final data = snapshot.data!;
 
         return RefreshIndicator(
           onRefresh: () => refresh(context: context),
@@ -34,47 +36,56 @@ class CheckOutList extends StatelessWidget {
     );
   }
 
-  Future<void> refresh({BuildContext context}) {
+  Future<void> refresh({BuildContext? context}) async {
     final Provider _provider =
         Provider(fetchURL: "/wo_request/list_mobile_check_out");
-    if (context != null) _provider.context = context;
-    return _provider.getJson().then((value) {
-      // final List values = value as List;
-      // values.sort((a, b) => b["checkOutTime"].compareTo(a["checkOutTime"]));
-      _data.sink.add(value);
-    });
+    if (context != null) {
+      _provider.context = context;
+    }
+    final value = await _provider.getJson(url: "/wo_request/list_mobile_check_out");
+    if (value is List) {
+      _data.sink.add(value.cast<Map<String, dynamic>>());
+    }
   }
 }
 
 class _Tile extends StatelessWidget {
-  final Map value;
+  final Map<String, dynamic> value;
 
   _Tile(this.value);
 
   @override
   Widget build(BuildContext context) {
-    final checkoutBy = value["checkOutBy"];
-    final checkoutTime = value["checkOutTime"];
-    final total = value["total"];
-    final woTaskNo = value["woTaskNo"];
+    final checkoutBy = value["checkOutBy"] ?? "Unknown";
+    final checkoutTime = value["checkOutTime"] ?? "Unknown";
+    final total = value["total"] ?? 0;
+    final woTaskNo = value["woTaskNo"] ?? "N/A";
     final woTaskRequestId = value["woTaskRequestId"];
-    final woTaskRequestNo = value["woTaskRequestNo"];
+    final woTaskRequestNo = value["woTaskRequestNo"] ?? "N/A";
 
     return ListTile(
-        title: Text(woTaskRequestNo,
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        onTap: () => Navigator.pushNamed(context, routeMaterialRequestView,
-            arguments: RequestTask.fromJson(value)),
-        subtitle:
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      title: Text(
+        woTaskRequestNo,
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      onTap: () => Navigator.pushNamed(
+        context,
+        routeMaterialRequestView,
+        arguments: RequestTask.fromJson(value),
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           text(value: checkoutBy, top: 8.0),
           text(value: checkoutTime),
           text(value: "Total Item : $total"),
-        ]),
-        trailing: state(woTaskNo));
+        ],
+      ),
+      trailing: state(woTaskNo),
+    );
   }
 
-  Widget text({@required String value, double top = 3.0}) {
+  Widget text({required String value, double top = 3.0}) {
     return Padding(
       padding: EdgeInsets.only(top: top),
       child: Text(

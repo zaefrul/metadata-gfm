@@ -8,7 +8,7 @@ class AddTechnicianCheckList extends StatefulWidget {
   final String id;
   final bool viewer;
 
-  AddTechnicianCheckList({this.id, this.viewer});
+  AddTechnicianCheckList({super.key, required this.id, required this.viewer});
 
   @override
   _AddTechnicianCheckListState createState() =>
@@ -22,7 +22,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
   final List<_Model> listTechnicianSearch = [];
   final List<_Model> listTechnicianSelected = [];
   final _Controller _provider;
-  int max;
+  late int max;
 
   _AddTechnicianCheckListState(String id) : _provider = _Controller(id) {
     _provider.list.then(
@@ -39,7 +39,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
     _controller.addListener(() {
       setState(() {
         listTechnicianSearch.clear();
-        if (_controller.text.length > 0)
+        if (_controller.text.length > 0) {
           listTechnicianSearch.addAll(
             listTechnician.where(
               (element) => element.userFullName.toLowerCase().contains(
@@ -47,8 +47,9 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
                   ),
             ),
           );
-        else
+        } else {
           listTechnicianSearch.addAll(listTechnician);
+        }
       });
     });
 
@@ -58,7 +59,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
       taskID: id,
     ).fetch().then((onValue) {
       var data = onValue.technicianAssign;
-      max = int.parse(data.woTaskMaxAssistant);
+      max = int.parse(data?.woTaskMaxAssistant ?? "0");
     });
   }
 
@@ -67,7 +68,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
     ToastContext().init(context);
     return Scaffold(
       appBar: AppBar(
-        title: new Text("Add Technician Assistant"),
+        title: Text("F. Add Technician Assistant"),
         backgroundColor: Colors.white,
       ),
       body: Container(
@@ -87,29 +88,40 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
               child: ListView(
                 children: listTechnicianSearch
                     .map(
-                      (f) => new CheckboxListTile(
-                        title: new Text(f.userFullName),
-                        value: listTechnicianSelected.contains(f),
-                        onChanged: (value) {
-                          if (widget.viewer) return;
-                          // if (value) showsheet();
-                          // print(value);
-                          if (listTechnicianSelected.length == max) {
-                            Toast.show("Assistant allowed $max!", duration: 2);
-                          }
-                          if (value && listTechnicianSelected.length < max) {
-                            if (listTechnicianSelected.contains(f) == false) {
-                              setState(() => listTechnicianSelected.add(f));
-                              _provider.add(f);
-                            }
-                          } else
-                            setState(() {
-                              listTechnicianSelected
-                                  .removeWhere((technician) => technician == f);
+                      (f) {
+                        bool isSelected = listTechnicianSelected
+                            .contains(f);
+                        debugPrint("f: ${f.toString()}");
+                        debugPrint("isSelected: $isSelected");
+                        debugPrint(
+                            "listTechnicianSelected: ${listTechnicianSelected.toString()}");
+                        return CheckboxListTile(
+                          title: Text(f.userFullName),
+                          value: isSelected,
+                          onChanged: (bool? value) {
+                            if (value == true) {
+                              if (listTechnicianSelected.length < max) {
+                                setState(() {
+                                  listTechnicianSelected.add(f);
+                                });
+                                _provider.add(f);
+                              } else {
+                                Toast.show(
+                                  "Max $max technician(s) allowed",
+                                  duration: Toast.lengthLong,
+                                  gravity: Toast.bottom,
+                                );
+                              }
+                            } else {
+                              debugPrint("Unselected: ${f.toString()}");
+                              setState(() {
+                                listTechnicianSelected.remove(f);
+                              });
                               _provider.delete(f);
-                            });
-                        },
-                      ),
+                            }
+                          },
+                        );
+                      }
                     )
                     .toList(),
               ),
@@ -120,7 +132,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
       floatingActionButton: widget.viewer
           ? null
           : FloatingActionButton.extended(
-              label: new Text("Done"),
+              label: Text("Done"),
               onPressed: () async {
                 await _provider.submit();
                 Navigator.of(context).pop(listTechnicianSelected);
@@ -229,14 +241,14 @@ class _Controller {
     final Provider _provider = Provider(fetchURL: url, taskID: id);
 
     try {
-      final result = await _provider.getJson();
+      final result = await _provider.getJson(url: url);
       if (result.length > 0) {
         return result.map<_Model>((v) => _Model.fromJson(v)).toList();
       }
 
       return [];
     } catch (e) {
-      return e;
+      rethrow;
     }
   }
 
@@ -244,20 +256,20 @@ class _Controller {
     final url = "/wo_task_assist/assistant_list/";
     final Provider _provider = Provider(fetchURL: url, taskID: id);
     try {
-      final result = await _provider.getJson();
+      final result = await _provider.getJson(url: url);
       if (result.length > 0) {
         return result.map<_Model>((v) => _Model.fromJson(v)).toList();
       }
 
       return [];
     } catch (e) {
-      return e;
+      rethrow;
     }
   }
 
   Future<void> add(_Model model) async {
     final url = "/wo_task_assist";
-    final Provider _provider = Provider();
+    final Provider _provider = Provider(fetchURL: url);
 
     final body = {
       "woTaskId": id,
@@ -268,7 +280,7 @@ class _Controller {
       final _ = await _provider.post(url: url, body: body);
       return;
     } catch (e) {
-      return e;
+      rethrow;
     }
   }
 
@@ -277,22 +289,22 @@ class _Controller {
     final Provider _provider = Provider(fetchURL: url, taskID: id);
     try {
       final _ = await _provider.delete(url: url);
-
+      debugPrint("Delete: ${_.toString()}");
       return;
     } catch (e) {
-      return e;
+      rethrow;
     }
   }
 
   Future<void> submit() async {
     final url = "/wo_v2/save_assistant_list/$id";
-    final Provider _provider = Provider();
+    final Provider _provider = Provider(fetchURL: url);
     try {
       final _ = await _provider.post(url: url);
 
       return;
     } catch (e) {
-      return e;
+      rethrow;
     }
   }
 
@@ -312,6 +324,24 @@ class _Model {
 
   _Model(this.assistantId, this.userId, this.userFullName);
 
-  factory _Model.fromJson(Map<String, dynamic> json) =>
-      _Model(json["woTaskAssistId"], json["userId"], json["userFullName"]);
+  factory _Model.fromJson(Map<String, dynamic> json) => _Model(
+      json["woTaskAssistId"] ?? "", 
+      json["userId"] ?? "", 
+      json["userFullName"] ?? ""
+  );
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is _Model &&
+           other.userId == userId;
+  }
+
+  @override
+  String toString() {
+    return 'Model(assistantId: $assistantId, userId: $userId, userFullName: $userFullName)';
+  }
+
+  @override
+  int get hashCode => assistantId.hashCode ^ userId.hashCode;
 }

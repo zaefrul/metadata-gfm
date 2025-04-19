@@ -62,7 +62,7 @@ class _SearchState extends State<Search> {
   @override
   Widget build(BuildContext context) {
     ToastContext().init(context);
-    final SearchArguments args = ModalRoute.of(context).settings.arguments;
+    final SearchArguments args = ModalRoute.of(context)?.settings.arguments as SearchArguments;
     index = args.index;
 
     var body = allTaskView;

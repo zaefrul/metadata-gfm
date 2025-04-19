@@ -15,14 +15,13 @@ abstract class Dot implements Built<Dot, DotBuilder> {
   BuiltList<String> get status;
 
   Dot._();
-
-  factory Dot([updates(DotBuilder b)]) = _$Dot;
+  factory Dot([void Function(DotBuilder) updates]) = _$Dot;
 
   String toJson() {
     return json.encode(serializers.serializeWith(Dot.serializer, this));
   }
 
-  static fromJson(String jsonString) {
+  static Dot? fromJson(String jsonString) {
     return serializers.deserializeWith(Dot.serializer, json.decode(jsonString));
   }
 

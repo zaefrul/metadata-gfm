@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:rxdart/subjects.dart';
 
 enum ScreenType {
   forTechnician,
@@ -78,11 +77,11 @@ class BlocTechnicianDetails extends Bloc {
       BehaviorSubject<List<String>>();
   final BehaviorSubject<bool> _controllerLoading = BehaviorSubject<bool>();
 
-  int _quantity;
-  String _desc;
-  String _name;
-  String _group;
-  String _subgroup;
+  int _quantity = 0;
+  String _desc = '';
+  String _name = '';
+  String _group = '';
+  String _subgroup = '';
 
   final List<String> listGroup = ['Group A', 'Group B', 'Group C'];
   final List<String> listSubGroup = ['SubGroup A', 'SubGroup B', 'SubGroup C'];
@@ -190,11 +189,11 @@ class Item {
   int quantity;
 
   Item(
-      {@required this.group,
-      @required this.subgroup,
-      @required this.name,
-      @required this.desc,
-      @required this.quantity});
+      {required this.group,
+      required this.subgroup,
+      required this.name,
+      required this.desc,
+      required this.quantity});
 
   void addQuantity() {
     quantity += 1;

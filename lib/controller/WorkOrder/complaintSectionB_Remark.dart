@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/model/responseValue.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/dialog.dart';
@@ -12,8 +11,8 @@ class ComplaintSectionB extends StatefulWidget {
 
   ComplaintSectionB({
     this.name = "B",
-    this.id,
-    this.viewer,
+    required this.id,
+    required this.viewer,
   });
 
   @override
@@ -23,14 +22,14 @@ class ComplaintSectionB extends StatefulWidget {
 class _ComplaintSectionBState extends State<ComplaintSectionB> {
   bool loading = true;
   String remark = "";
-  Provider provider;
+  late Provider provider;
 
   _ComplaintSectionBState(String id) {
     provider = Provider(
         taskID: id, fetchURL: "/api/m_wo.php?type=wo_repair_work&woTaskId=");
     provider
         .fetch()
-        .then((value) => setState(() => remark = value.result))
+        .then((value) => setState(() => remark = value.result ?? ""))
         .catchError((err) => print(err))
         .whenComplete(() => setState(() => loading = false));
   }
@@ -39,7 +38,7 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
   Widget build(BuildContext context) {
     ToastContext().init(context);
 
-    if (provider != null) provider.context = context;
+    provider.context = context;
 
     return Scaffold(
       appBar: AppBar(
@@ -73,7 +72,9 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
                         "woTaskId": widget.id,
                         "repairWork": remark
                       })
-                      .then((onValue) => alert(onValue))
+                      .then((onValue) {
+                        alert(onValue);
+                      })
                       .then((value) {
                         setState(() => loading = false);
                       })
@@ -113,11 +114,13 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
     showDialog(
         context: context,
         builder: (BuildContext context) => CustomDialog(
-            description: txt,
-            buttonText: "Okay",
-            image: Image.asset(
-              "assets/icon_trans.png",
-              height: 40,
-            )));
+              goBackOnDismiss: true,
+              description: txt,
+              buttonText: "Okay",
+              image: Image.asset(
+                "assets/icon_trans.png",
+                height: 40,
+              ),
+            ));
   }
 }

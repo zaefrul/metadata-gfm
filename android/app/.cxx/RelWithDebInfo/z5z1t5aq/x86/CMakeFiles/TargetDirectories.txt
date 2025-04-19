@@ -1,0 +1,2 @@
+C:/Projects/metadata/Flutter/GEMS/gfm/android/app/.cxx/RelWithDebInfo/z5z1t5aq/x86/CMakeFiles/edit_cache.dir
+C:/Projects/metadata/Flutter/GEMS/gfm/android/app/.cxx/RelWithDebInfo/z5z1t5aq/x86/CMakeFiles/rebuild_cache.dir

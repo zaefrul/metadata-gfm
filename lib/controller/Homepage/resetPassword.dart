@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:toast/toast.dart';
 import '../../utils/network.dart';
-
 import '../../utils/reference.dart';
 import '../../view/button.dart';
 import '../../view/field.dart';
@@ -23,7 +22,7 @@ class ResetPassword extends StatefulWidget {
 }
 
 class _ResetPasswordState extends State<ResetPassword> {
-  final noticeTxt =
+  final String noticeTxt =
       "Enter your new password below, we're just being extra safe";
 
   String newPassword = "";
@@ -36,33 +35,33 @@ class _ResetPasswordState extends State<ResetPassword> {
   Widget build(BuildContext context) {
     ToastContext().init(context);
 
-    pressed() {
+    void pressed() {
       String p =
           "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})";
       RegExp regExp = RegExp(p);
 
       var text = "Password Updating";
-      if (newPassword.length == 0 || confirmPassword.length == 0)
+      if (newPassword.isEmpty || confirmPassword.isEmpty)
         text = "Fill all field!";
       else if (newPassword.length < 8 || confirmPassword.length < 8)
         text = "Passwords must be at least 8 characters long";
       else if (newPassword.length > 20 || confirmPassword.length > 20)
-        text = "Password must be lest than 20 character!";
+        text = "Password must be less than 20 characters!";
       else if (newPassword != confirmPassword)
         text = "Password not match!";
-      else if (regExp.hasMatch(newPassword) == false)
+      else if (!regExp.hasMatch(newPassword))
         text =
-            " Password must be a combination of alphanumeric, symbol and capital letter.";
+            "Password must be a combination of alphanumeric, symbol and capital letter.";
       else
         action(newPassword);
 
       Toast.show(text, backgroundColor: colorTheme3);
     }
 
-    var body = new Column(
+    var body = Column(
       children: <Widget>[
         SizedBox(height: 40),
-        new Image.asset(
+        Image.asset(
           "assets/changepassword.png",
           height: 100,
         ),
@@ -97,7 +96,7 @@ class _ResetPasswordState extends State<ResetPassword> {
               },
             )),
         SizedBox(height: 80),
-        new Container(
+        Container(
             width: 200,
             height: 50,
             child: Button(
@@ -116,10 +115,10 @@ class _ResetPasswordState extends State<ResetPassword> {
             centerTitle: true,
             iconTheme: IconThemeData(color: colorTheme3)),
         body: loading
-            ? new Stack(
+            ? Stack(
                 children: <Widget>[
                   body,
-                  new Container(
+                  Container(
                     child: Center(
                       child: CircularProgressIndicator(),
                     ),
@@ -130,15 +129,19 @@ class _ResetPasswordState extends State<ResetPassword> {
             : body);
   }
 
-  Widget title(text, {double size = 30.0}) => new Text(text,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        color: colorTheme3,
-        fontWeight: FontWeight.bold,
-      ));
+  Widget title(String text, {double size = 30.0}) => Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: colorTheme3,
+          fontWeight: FontWeight.bold,
+          fontSize: size,
+        ),
+      );
 
-  Future<void> action(password) async {
-    final ResetArguments args = ModalRoute.of(context).settings.arguments;
+  Future<void> action(String password) async {
+    final ResetArguments args =
+        ModalRoute.of(context)!.settings.arguments as ResetArguments;
 
     setState(() => loading = true);
 
@@ -151,7 +154,7 @@ class _ResetPasswordState extends State<ResetPassword> {
       "deviceId": deviceId
     };
 
-    Provider provider = Provider();
+    Provider provider = Provider(fetchURL: "/api/m_login.php");
 
     provider
         .post(

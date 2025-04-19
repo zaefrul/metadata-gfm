@@ -19,24 +19,17 @@ abstract class MonitorTask implements Built<MonitorTask, MonitorTaskBuilder> {
   String get transactionStatus;
 
   // PPM
-  @nullable
-  String get userFullName;
-  @nullable
-  String get assetNo;
+  String? get userFullName;
+  String? get assetNo;
 
-  // WO
-  @nullable
-  String get currentTaskOwner;
-  @nullable
-  String get woTaskType;
-  @nullable
-  String get woTaskSeverity;
-  @nullable
-  String get assignedTo;
+  // WO  
+  String? get currentTaskOwner;
+  String? get woTaskType;
+  String? get woTaskSeverity;
+  String? get assignedTo;
 
   MonitorTask._();
-
-  factory MonitorTask([updates(MonitorTaskBuilder b)]) = _$MonitorTask;
+  factory MonitorTask([void Function(MonitorTaskBuilder) updates]) = _$MonitorTask;
 
   String toJson() {
     return json.encode(serializers.serializeWith(MonitorTask.serializer, this));
@@ -44,14 +37,13 @@ abstract class MonitorTask implements Built<MonitorTask, MonitorTaskBuilder> {
 
   static MonitorTask fromJson(String jsonString) {
     return serializers.deserializeWith(
-        MonitorTask.serializer, json.decode(jsonString));
+        MonitorTask.serializer, json.decode(jsonString))!;
   }
 
   static Serializer<MonitorTask> get serializer => _$monitorTaskSerializer;
 }
 
-abstract class MonitorDetail
-    implements Built<MonitorDetail, MonitorDetailBuilder> {
+abstract class MonitorDetail implements Built<MonitorDetail, MonitorDetailBuilder> {
   String get flowName;
   String get transactionNo;
   String get initiateBy;
@@ -63,45 +55,39 @@ abstract class MonitorDetail
   String get flowStatus;
   String get flowDueDate;
   String get checkpointId;
-  @nullable
-  String get woTaskId;
-  @nullable
-  String get ppmTaskId;
-  @nullable
-  String get siteName;
+  String? get woTaskId;
+  String? get ppmTaskId;
+  String? get siteName;
   BuiltList<MonitorHistory> get taskHistory;
 
   String get currentStatus {
     var status = "Execute";
-
-    if (checkpointId == "2")
+    if (checkpointId == "2") {
       status = "Check";
-    else if (checkpointId == "3")
+    } else if (checkpointId == "3") {
       status = "Verify";
-    else if (checkpointId == "4") status = "Completed";
-
+    } else if (checkpointId == "4") {
+      status = "Completed";
+    }
     return status;
   }
 
   MonitorDetail._();
-
-  factory MonitorDetail([updates(MonitorDetailBuilder b)]) = _$MonitorDetail;
+  factory MonitorDetail([void Function(MonitorDetailBuilder) updates]) = _$MonitorDetail;
 
   String toJson() {
-    return json
-        .encode(serializers.serializeWith(MonitorDetail.serializer, this));
+    return json.encode(serializers.serializeWith(MonitorDetail.serializer, this));
   }
 
   static MonitorDetail fromJson(String jsonString) {
     return serializers.deserializeWith(
-        MonitorDetail.serializer, json.decode(jsonString));
+        MonitorDetail.serializer, json.decode(jsonString))!;
   }
 
   static Serializer<MonitorDetail> get serializer => _$monitorDetailSerializer;
 }
 
-abstract class MonitorHistory
-    implements Built<MonitorHistory, MonitorHistoryBuilder> {
+abstract class MonitorHistory implements Built<MonitorHistory, MonitorHistoryBuilder> {
   String get checkpointId;
   String get roleId;
   String get taskClaimedUser;
@@ -112,19 +98,16 @@ abstract class MonitorHistory
   String get taskStatus;
 
   MonitorHistory._();
-
-  factory MonitorHistory([updates(MonitorHistoryBuilder b)]) = _$MonitorHistory;
+  factory MonitorHistory([void Function(MonitorHistoryBuilder) updates]) = _$MonitorHistory;
 
   String toJson() {
-    return json
-        .encode(serializers.serializeWith(MonitorHistory.serializer, this));
+    return json.encode(serializers.serializeWith(MonitorHistory.serializer, this));
   }
 
   static MonitorHistory fromJson(String jsonString) {
     return serializers.deserializeWith(
-        MonitorHistory.serializer, json.decode(jsonString));
+        MonitorHistory.serializer, json.decode(jsonString))!;
   }
 
-  static Serializer<MonitorHistory> get serializer =>
-      _$monitorHistorySerializer;
+  static Serializer<MonitorHistory> get serializer => _$monitorHistorySerializer;
 }

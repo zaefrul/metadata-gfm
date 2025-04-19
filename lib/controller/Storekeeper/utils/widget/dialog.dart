@@ -10,36 +10,47 @@ class Consts {
   static const double avatarRadius = 40.0;
 }
 
-typedef void VoidCallback(String text);
+typedef RemarkCallback = void Function(String text);
+typedef VoidCallbackNoParam = void Function();
 
 class CustomDialog extends StatelessWidget {
-  final VoidCallback remarkTapped;
-  final String title, description, buttonText, buttonText2;
-  final Image image;
-  final bool cancel, useDescription;
+  final RemarkCallback? remarkTapped;
+  final String? title;
+  final String description;
+  final String buttonText;
+  final String? buttonText2;
+  final Image? image;
+  final bool cancel;
+  final bool useDescription;
   final bool secondButton;
   final String rootPage;
-  String remark;
-  final Function okayTapped;
-  final Function secondTapped;
+  String remark = '';
+  final VoidCallbackNoParam? okayTapped;
+  final RemarkCallback? secondTapped;
   final bool showError = false;
 
-  var controller = TextEditingController();
+  final TextEditingController controller = TextEditingController();
 
-  CustomDialog(
-      {this.title,
-      @required this.description,
-      @required this.buttonText,
-      this.useDescription = false,
-      this.buttonText2,
-      this.cancel = false,
-      this.image,
-      this.rootPage,
-      this.remarkTapped,
-      this.okayTapped,
-      this.secondButton,
-      this.secondTapped}) {
+  CustomDialog({
+    this.title,
+    required this.description,
+    required this.buttonText,
+    this.useDescription = false,
+    this.buttonText2,
+    this.cancel = false,
+    this.image,
+    required this.rootPage,
+    this.remarkTapped,
+    this.okayTapped,
+    this.secondButton = false,
+    this.secondTapped,
+    Key? key,
+  }) : super(key: key) {
     controller.addListener(_updateRemark);
+  }
+
+  void _updateRemark() {
+    remark = controller.text;
   }
 
   @override
@@ -56,7 +67,7 @@ class CustomDialog extends StatelessWidget {
     );
   }
 
-  dialogContent(BuildContext context) {
+  Widget dialogContent(BuildContext context) {
     return Stack(
       children: <Widget>[
         Container(
@@ -67,7 +78,7 @@ class CustomDialog extends StatelessWidget {
             right: Consts.padding,
           ),
           margin: EdgeInsets.only(top: Consts.avatarRadius),
-          decoration: new BoxDecoration(
+          decoration: BoxDecoration(
             color: Colors.white,
             shape: BoxShape.rectangle,
             borderRadius: BorderRadius.circular(Consts.padding),
@@ -85,61 +96,59 @@ class CustomDialog extends StatelessWidget {
               title == null
                   ? Container()
                   : Text(
-                      title,
+                      title!,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 24.0,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               Text(
                 description,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16.0,
                 ),
               ),
-              SizedBox(height: 24.0),
-              new Row(
+              const SizedBox(height: 24.0),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  cancel == false
-                      ? Container()
-                      : TextButton(
+                  cancel
+                      ? TextButton(
                           onPressed: () {
-                            print("keluar");
                             Navigator.of(context).pop(); // To close the dialog
                           },
-                          child: Text(
+                          child: const Text(
                             "Cancel",
                             style: TextStyle(
                               color: Colors.red,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
+                        )
+                      : Container(),
                   Button(
                     text: buttonText,
                     onPressed: () {
                       if (okayTapped != null) {
-                        return okayTapped();
+                        okayTapped!();
                       }
-                      if (rootPage == null)
-                        Navigator.of(context).pop();
-                      else
-                        Navigator.popUntil(
-                            context,
-                            ModalRoute.withName(
-                                rootPage)); // To close the dialog
+                      Navigator.popUntil(
+                          context, ModalRoute.withName(rootPage));
                     },
                     color: colorTheme2,
                   ),
-                  if (secondButton ?? false) SizedBox(width: 12),
-                  if (secondButton ?? false)
+                  if (secondButton) const SizedBox(width: 12),
+                  if (secondButton)
                     Button(
-                      text: buttonText2,
-                      onPressed: secondTapped,
+                      text: buttonText2 ?? '',
+                      onPressed: () {
+                        if (secondTapped != null) {
+                          secondTapped!(remark);
+                        }
+                      },
                       color: colorTheme3,
                     ),
                 ],
@@ -152,23 +161,19 @@ class CustomDialog extends StatelessWidget {
           right: Consts.padding,
           child: Material(
             elevation: 6.0,
+            shape: const CircleBorder(),
+            color: Colors.white,
             child: Padding(
               padding: const EdgeInsets.all(Consts.padding),
               child: image,
             ),
-            shape: CircleBorder(),
-            color: Colors.white,
           ),
         ),
       ],
     );
   }
 
-  _updateRemark() {
-    remark = controller.text;
-  }
-
-  remarkDialogContent(BuildContext context) {
+  Widget remarkDialogContent(BuildContext context) {
     return Stack(
       children: <Widget>[
         Container(
@@ -179,7 +184,7 @@ class CustomDialog extends StatelessWidget {
             right: Consts.padding,
           ),
           margin: EdgeInsets.only(top: Consts.avatarRadius),
-          decoration: new BoxDecoration(
+          decoration: BoxDecoration(
             color: Colors.white,
             shape: BoxShape.rectangle,
             borderRadius: BorderRadius.circular(Consts.padding),
@@ -194,22 +199,22 @@ class CustomDialog extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min, // To make the card compact
             children: <Widget>[
-              title == null || useDescription
+              useDescription
                   ? Container()
                   : Text(
-                      title,
+                      title ?? "",
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 24.0,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               useDescription
                   ? Text(
                       description,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16.0,
                       ),
                     )
@@ -217,56 +222,60 @@ class CustomDialog extends StatelessWidget {
                       maxLength: 60,
                       controller: controller,
                     ),
-              SizedBox(height: 24.0),
-              new Row(
+              const SizedBox(height: 24.0),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  cancel == false
-                      ? Container()
-                      : TextButton(
+                  cancel
+                      ? TextButton(
                           onPressed: () {
                             Navigator.of(context).pop(); // To close the dialog
                           },
-                          child: Text(
+                          child: const Text(
                             "Cancel",
                             style: TextStyle(
                               color: Colors.red,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
-                  secondButton == false
-                      ? Container()
-                      : TextButton(
+                        )
+                      : Container(),
+                  secondButton
+                      ? TextButton(
                           onPressed: () {
-                            if (useDescription)
-                              secondTapped();
-                            else if (controller.text.length == 0)
+                            if (useDescription) {
+                              if (secondTapped != null) secondTapped!("");
+                            } else if (controller.text.isEmpty) {
                               Toast.show("Please enter remark before submit.");
-                            else if (controller.text.length <= 60)
-                              secondTapped(controller.text);
-                            else
-                              Toast.show("Maximum 60 character");
+                            } else if (controller.text.length <= 60) {
+                              if (secondTapped != null)
+                                secondTapped!(controller.text);
+                            } else {
+                              Toast.show("Maximum 60 characters");
+                            }
                           },
                           child: Text(
-                            buttonText2,
-                            style: TextStyle(
+                            buttonText2 ?? "",
+                            style: const TextStyle(
                               color: Colors.red,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
+                        )
+                      : Container(),
                   Button(
                     text: buttonText,
                     onPressed: () {
-                      if (useDescription)
-                        remarkTapped("");
-                      else if (controller.text.length == 0)
+                      if (useDescription) {
+                        if (remarkTapped != null) remarkTapped!("");
+                      } else if (controller.text.isEmpty) {
                         Toast.show("Please enter remark before submit.");
-                      else if (controller.text.length <= 60)
-                        remarkTapped(controller.text);
-                      else
-                        Toast.show("Maximum 60 character");
+                      } else if (controller.text.length <= 60) {
+                        if (remarkTapped != null)
+                          remarkTapped!(controller.text);
+                      } else {
+                        Toast.show("Maximum 60 characters");
+                      }
                     },
                     color: colorTheme2,
                   ),
@@ -280,12 +289,12 @@ class CustomDialog extends StatelessWidget {
           right: Consts.padding,
           child: Material(
             elevation: 6.0,
+            shape: const CircleBorder(),
+            color: Colors.white,
             child: Padding(
               padding: const EdgeInsets.all(Consts.padding),
               child: image,
             ),
-            shape: CircleBorder(),
-            color: Colors.white,
           ),
         ),
       ],

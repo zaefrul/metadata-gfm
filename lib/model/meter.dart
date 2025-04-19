@@ -11,57 +11,56 @@ abstract class Meter implements Built<Meter, MeterBuilder> {
   String get meterStatus;
   String get meterType;
   String get siteId;
-  @nullable
-  String get dailyLatestDate;
-  @nullable
-  String get dailyLatestReading;
-  @nullable
-  String get dailyTotal;
-  @nullable
-  String get monthlyTotalRm;
+  String? get dailyLatestDate;
+  String? get dailyLatestReading;
+  String? get dailyTotal;
+  String? get monthlyTotalRm;
 
   Meter._();
   factory Meter([void Function(MeterBuilder) updates]) = _$Meter;
 
   static Serializer<Meter> get serializer => _$meterSerializer;
+
+  // helper class to check if meter is empty
+  static Meter empty() {
+    return Meter((b) => b
+      ..meterId = ""
+      ..meterLocation = ""
+      ..meterName = ""
+      ..meterStatus = ""
+      ..meterType = ""
+      ..siteId = ""
+      ..dailyLatestDate = ""
+      ..dailyLatestReading = ""
+      ..dailyTotal = ""
+      ..monthlyTotalRm = "");
+  }
 }
 
 abstract class Reading implements Built<Reading, ReadingBuilder> {
-  @nullable
-  String get utilityId;
-  @nullable
-  String get utilityType;
-  @nullable
-  String get utilityReadingType;
-  @nullable
-  String get utilityReading;
-  @nullable
-  String get utilityDate;
-  @nullable
-  String get utilityTotalRm;
-  @nullable
-  String get utilityMaxDemand;
-  @nullable
-  String get utilityTimestamp;
-  @nullable
-  String get meterName;
-  @nullable
-  String get meterLocation;
-  @nullable
-  String get utilityRecordedBy;
-  @nullable
-  String get utilityImage;
-  @nullable
-  String get utilityShift;
+  String? get utilityId;
+  String? get utilityType;
+  String? get utilityReadingType;
+  String? get utilityReading;
+  String? get utilityDate;
+  String? get utilityTotalRm;
+  String? get utilityMaxDemand;
+  String? get utilityTimestamp;
+  String? get meterName;
+  String? get meterLocation;
+  String? get utilityRecordedBy;
+  String? get utilityImage;
+  String? get utilityShift;
 
+  // These getters assume that utilityDate and utilityTimestamp are not null at usage.
   String get month => DateFormat.MMMM()
-      .format(DateTime.parse(utilityDate))
+      .format(DateTime.parse(utilityDate!))
       .substring(0, 3)
       .toUpperCase();
-  String get day => DateTime.parse(utilityDate).day.toString();
-  String get year => DateTime.parse(utilityDate).year.toString();
+  String get day => DateTime.parse(utilityDate!).day.toString();
+  String get year => DateTime.parse(utilityDate!).year.toString();
   String get time =>
-      DateFormat("hh:ss a").format(DateTime.parse(utilityTimestamp));
+      DateFormat("hh:ss a").format(DateTime.parse(utilityTimestamp!));
 
   Reading._();
   factory Reading([void Function(ReadingBuilder) updates]) = _$Reading;

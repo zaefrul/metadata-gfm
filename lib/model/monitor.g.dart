@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of monitor;
+part of 'monitor.dart';
 
 // **************************************************************************
 // BuiltValueGenerator
@@ -19,9 +19,9 @@ class _$MonitorTaskSerializer implements StructuredSerializer<MonitorTask> {
   final String wireName = 'MonitorTask';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, MonitorTask object,
+  Iterable<Object?> serialize(Serializers serializers, MonitorTask object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'transactionId',
       serializers.serialize(object.transactionId,
           specifiedType: const FullType(String)),
@@ -44,7 +44,7 @@ class _$MonitorTaskSerializer implements StructuredSerializer<MonitorTask> {
       serializers.serialize(object.transactionStatus,
           specifiedType: const FullType(String)),
     ];
-    Object value;
+    Object? value;
     value = object.userFullName;
     if (value != null) {
       result
@@ -91,67 +91,67 @@ class _$MonitorTaskSerializer implements StructuredSerializer<MonitorTask> {
   }
 
   @override
-  MonitorTask deserialize(Serializers serializers, Iterable<Object> serialized,
+  MonitorTask deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new MonitorTaskBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'transactionId':
           result.transactionId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'transactionNo':
           result.transactionNo = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'transactionTimeCreated':
           result.transactionTimeCreated = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'flowId':
           result.flowId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'flowName':
           result.flowName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'checkpointName':
           result.checkpointName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'transactionStatus':
           result.transactionStatus = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'userFullName':
           result.userFullName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'assetNo':
           result.assetNo = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'currentTaskOwner':
           result.currentTaskOwner = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'woTaskType':
           result.woTaskType = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'woTaskSeverity':
           result.woTaskSeverity = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'assignedTo':
           result.assignedTo = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
       }
     }
@@ -167,9 +167,9 @@ class _$MonitorDetailSerializer implements StructuredSerializer<MonitorDetail> {
   final String wireName = 'MonitorDetail';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, MonitorDetail object,
+  Iterable<Object?> serialize(Serializers serializers, MonitorDetail object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'flowName',
       serializers.serialize(object.flowName,
           specifiedType: const FullType(String)),
@@ -208,7 +208,7 @@ class _$MonitorDetailSerializer implements StructuredSerializer<MonitorDetail> {
           specifiedType: const FullType(
               BuiltList, const [const FullType(MonitorHistory)])),
     ];
-    Object value;
+    Object? value;
     value = object.woTaskId;
     if (value != null) {
       result
@@ -235,77 +235,77 @@ class _$MonitorDetailSerializer implements StructuredSerializer<MonitorDetail> {
 
   @override
   MonitorDetail deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new MonitorDetailBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'flowName':
           result.flowName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'transactionNo':
           result.transactionNo = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'initiateBy':
           result.initiateBy = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'initiateByGroup':
           result.initiateByGroup = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'initiateTimeCreated':
           result.initiateTimeCreated = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'taskStatus':
           result.taskStatus = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'currentUser':
           result.currentUser = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'receivedTime':
           result.receivedTime = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'flowStatus':
           result.flowStatus = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'flowDueDate':
           result.flowDueDate = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'checkpointId':
           result.checkpointId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskId':
           result.woTaskId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'ppmTaskId':
           result.ppmTaskId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'siteName':
           result.siteName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'taskHistory':
           result.taskHistory.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
-                      BuiltList, const [const FullType(MonitorHistory)]))
-              as BuiltList<Object>);
+                      BuiltList, const [const FullType(MonitorHistory)]))!
+              as BuiltList<Object?>);
           break;
       }
     }
@@ -322,9 +322,9 @@ class _$MonitorHistorySerializer
   final String wireName = 'MonitorHistory';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, MonitorHistory object,
+  Iterable<Object?> serialize(Serializers serializers, MonitorHistory object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'checkpointId',
       serializers.serialize(object.checkpointId,
           specifiedType: const FullType(String)),
@@ -356,47 +356,47 @@ class _$MonitorHistorySerializer
 
   @override
   MonitorHistory deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new MonitorHistoryBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'checkpointId':
           result.checkpointId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'roleId':
           result.roleId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'taskClaimedUser':
           result.taskClaimedUser = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'taskRemark':
           result.taskRemark = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'taskDateDue':
           result.taskDateDue = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'taskTimeCreated':
           result.taskTimeCreated = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'taskTimeSubmit':
           result.taskTimeSubmit = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'taskStatus':
           result.taskStatus = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
       }
     }
@@ -421,29 +421,29 @@ class _$MonitorTask extends MonitorTask {
   @override
   final String transactionStatus;
   @override
-  final String userFullName;
+  final String? userFullName;
   @override
-  final String assetNo;
+  final String? assetNo;
   @override
-  final String currentTaskOwner;
+  final String? currentTaskOwner;
   @override
-  final String woTaskType;
+  final String? woTaskType;
   @override
-  final String woTaskSeverity;
+  final String? woTaskSeverity;
   @override
-  final String assignedTo;
+  final String? assignedTo;
 
-  factory _$MonitorTask([void Function(MonitorTaskBuilder) updates]) =>
+  factory _$MonitorTask([void Function(MonitorTaskBuilder)? updates]) =>
       (new MonitorTaskBuilder()..update(updates))._build();
 
   _$MonitorTask._(
-      {this.transactionId,
-      this.transactionNo,
-      this.transactionTimeCreated,
-      this.flowId,
-      this.flowName,
-      this.checkpointName,
-      this.transactionStatus,
+      {required this.transactionId,
+      required this.transactionNo,
+      required this.transactionTimeCreated,
+      required this.flowId,
+      required this.flowName,
+      required this.checkpointName,
+      required this.transactionStatus,
       this.userFullName,
       this.assetNo,
       this.currentTaskOwner,
@@ -493,33 +493,22 @@ class _$MonitorTask extends MonitorTask {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc(
-                            $jc(
-                                $jc(
-                                    $jc(
-                                        $jc(
-                                            $jc(
-                                                $jc(
-                                                    $jc(0,
-                                                        transactionId.hashCode),
-                                                    transactionNo.hashCode),
-                                                transactionTimeCreated
-                                                    .hashCode),
-                                            flowId.hashCode),
-                                        flowName.hashCode),
-                                    checkpointName.hashCode),
-                                transactionStatus.hashCode),
-                            userFullName.hashCode),
-                        assetNo.hashCode),
-                    currentTaskOwner.hashCode),
-                woTaskType.hashCode),
-            woTaskSeverity.hashCode),
-        assignedTo.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, transactionId.hashCode);
+    _$hash = $jc(_$hash, transactionNo.hashCode);
+    _$hash = $jc(_$hash, transactionTimeCreated.hashCode);
+    _$hash = $jc(_$hash, flowId.hashCode);
+    _$hash = $jc(_$hash, flowName.hashCode);
+    _$hash = $jc(_$hash, checkpointName.hashCode);
+    _$hash = $jc(_$hash, transactionStatus.hashCode);
+    _$hash = $jc(_$hash, userFullName.hashCode);
+    _$hash = $jc(_$hash, assetNo.hashCode);
+    _$hash = $jc(_$hash, currentTaskOwner.hashCode);
+    _$hash = $jc(_$hash, woTaskType.hashCode);
+    _$hash = $jc(_$hash, woTaskSeverity.hashCode);
+    _$hash = $jc(_$hash, assignedTo.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -543,66 +532,66 @@ class _$MonitorTask extends MonitorTask {
 }
 
 class MonitorTaskBuilder implements Builder<MonitorTask, MonitorTaskBuilder> {
-  _$MonitorTask _$v;
+  _$MonitorTask? _$v;
 
-  String _transactionId;
-  String get transactionId => _$this._transactionId;
-  set transactionId(String transactionId) =>
+  String? _transactionId;
+  String? get transactionId => _$this._transactionId;
+  set transactionId(String? transactionId) =>
       _$this._transactionId = transactionId;
 
-  String _transactionNo;
-  String get transactionNo => _$this._transactionNo;
-  set transactionNo(String transactionNo) =>
+  String? _transactionNo;
+  String? get transactionNo => _$this._transactionNo;
+  set transactionNo(String? transactionNo) =>
       _$this._transactionNo = transactionNo;
 
-  String _transactionTimeCreated;
-  String get transactionTimeCreated => _$this._transactionTimeCreated;
-  set transactionTimeCreated(String transactionTimeCreated) =>
+  String? _transactionTimeCreated;
+  String? get transactionTimeCreated => _$this._transactionTimeCreated;
+  set transactionTimeCreated(String? transactionTimeCreated) =>
       _$this._transactionTimeCreated = transactionTimeCreated;
 
-  String _flowId;
-  String get flowId => _$this._flowId;
-  set flowId(String flowId) => _$this._flowId = flowId;
+  String? _flowId;
+  String? get flowId => _$this._flowId;
+  set flowId(String? flowId) => _$this._flowId = flowId;
 
-  String _flowName;
-  String get flowName => _$this._flowName;
-  set flowName(String flowName) => _$this._flowName = flowName;
+  String? _flowName;
+  String? get flowName => _$this._flowName;
+  set flowName(String? flowName) => _$this._flowName = flowName;
 
-  String _checkpointName;
-  String get checkpointName => _$this._checkpointName;
-  set checkpointName(String checkpointName) =>
+  String? _checkpointName;
+  String? get checkpointName => _$this._checkpointName;
+  set checkpointName(String? checkpointName) =>
       _$this._checkpointName = checkpointName;
 
-  String _transactionStatus;
-  String get transactionStatus => _$this._transactionStatus;
-  set transactionStatus(String transactionStatus) =>
+  String? _transactionStatus;
+  String? get transactionStatus => _$this._transactionStatus;
+  set transactionStatus(String? transactionStatus) =>
       _$this._transactionStatus = transactionStatus;
 
-  String _userFullName;
-  String get userFullName => _$this._userFullName;
-  set userFullName(String userFullName) => _$this._userFullName = userFullName;
+  String? _userFullName;
+  String? get userFullName => _$this._userFullName;
+  set userFullName(String? userFullName) => _$this._userFullName = userFullName;
 
-  String _assetNo;
-  String get assetNo => _$this._assetNo;
-  set assetNo(String assetNo) => _$this._assetNo = assetNo;
+  String? _assetNo;
+  String? get assetNo => _$this._assetNo;
+  set assetNo(String? assetNo) => _$this._assetNo = assetNo;
 
-  String _currentTaskOwner;
-  String get currentTaskOwner => _$this._currentTaskOwner;
-  set currentTaskOwner(String currentTaskOwner) =>
+  String? _currentTaskOwner;
+  String? get currentTaskOwner => _$this._currentTaskOwner;
+  set currentTaskOwner(String? currentTaskOwner) =>
       _$this._currentTaskOwner = currentTaskOwner;
 
-  String _woTaskType;
-  String get woTaskType => _$this._woTaskType;
-  set woTaskType(String woTaskType) => _$this._woTaskType = woTaskType;
+  String? _woTaskType;
+  String? get woTaskType => _$this._woTaskType;
+  set woTaskType(String? woTaskType) => _$this._woTaskType = woTaskType;
 
-  String _woTaskSeverity;
-  String get woTaskSeverity => _$this._woTaskSeverity;
-  set woTaskSeverity(String woTaskSeverity) =>
+  String? _woTaskSeverity;
+  String? get woTaskSeverity => _$this._woTaskSeverity;
+  set woTaskSeverity(String? woTaskSeverity) =>
       _$this._woTaskSeverity = woTaskSeverity;
 
-  String _assignedTo;
-  String get assignedTo => _$this._assignedTo;
-  set assignedTo(String assignedTo) => _$this._assignedTo = assignedTo;
+  String? _assignedTo;
+  String? get assignedTo => _$this._assignedTo;
+  set assignedTo(String? assignedTo) => _$this._assignedTo = assignedTo;
 
   MonitorTaskBuilder();
 
@@ -634,7 +623,7 @@ class MonitorTaskBuilder implements Builder<MonitorTask, MonitorTaskBuilder> {
   }
 
   @override
-  void update(void Function(MonitorTaskBuilder) updates) {
+  void update(void Function(MonitorTaskBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -644,28 +633,27 @@ class MonitorTaskBuilder implements Builder<MonitorTask, MonitorTaskBuilder> {
   _$MonitorTask _build() {
     final _$result = _$v ??
         new _$MonitorTask._(
-            transactionId: BuiltValueNullFieldError.checkNotNull(
-                transactionId, r'MonitorTask', 'transactionId'),
-            transactionNo: BuiltValueNullFieldError.checkNotNull(
-                transactionNo, r'MonitorTask', 'transactionNo'),
-            transactionTimeCreated: BuiltValueNullFieldError.checkNotNull(
-                transactionTimeCreated,
-                r'MonitorTask',
-                'transactionTimeCreated'),
-            flowId: BuiltValueNullFieldError.checkNotNull(
-                flowId, r'MonitorTask', 'flowId'),
-            flowName: BuiltValueNullFieldError.checkNotNull(
-                flowName, r'MonitorTask', 'flowName'),
-            checkpointName: BuiltValueNullFieldError.checkNotNull(
-                checkpointName, r'MonitorTask', 'checkpointName'),
-            transactionStatus: BuiltValueNullFieldError.checkNotNull(
-                transactionStatus, r'MonitorTask', 'transactionStatus'),
-            userFullName: userFullName,
-            assetNo: assetNo,
-            currentTaskOwner: currentTaskOwner,
-            woTaskType: woTaskType,
-            woTaskSeverity: woTaskSeverity,
-            assignedTo: assignedTo);
+          transactionId: BuiltValueNullFieldError.checkNotNull(
+              transactionId, r'MonitorTask', 'transactionId'),
+          transactionNo: BuiltValueNullFieldError.checkNotNull(
+              transactionNo, r'MonitorTask', 'transactionNo'),
+          transactionTimeCreated: BuiltValueNullFieldError.checkNotNull(
+              transactionTimeCreated, r'MonitorTask', 'transactionTimeCreated'),
+          flowId: BuiltValueNullFieldError.checkNotNull(
+              flowId, r'MonitorTask', 'flowId'),
+          flowName: BuiltValueNullFieldError.checkNotNull(
+              flowName, r'MonitorTask', 'flowName'),
+          checkpointName: BuiltValueNullFieldError.checkNotNull(
+              checkpointName, r'MonitorTask', 'checkpointName'),
+          transactionStatus: BuiltValueNullFieldError.checkNotNull(
+              transactionStatus, r'MonitorTask', 'transactionStatus'),
+          userFullName: userFullName,
+          assetNo: assetNo,
+          currentTaskOwner: currentTaskOwner,
+          woTaskType: woTaskType,
+          woTaskSeverity: woTaskSeverity,
+          assignedTo: assignedTo,
+        );
     replace(_$result);
     return _$result;
   }
@@ -695,33 +683,33 @@ class _$MonitorDetail extends MonitorDetail {
   @override
   final String checkpointId;
   @override
-  final String woTaskId;
+  final String? woTaskId;
   @override
-  final String ppmTaskId;
+  final String? ppmTaskId;
   @override
-  final String siteName;
+  final String? siteName;
   @override
   final BuiltList<MonitorHistory> taskHistory;
 
-  factory _$MonitorDetail([void Function(MonitorDetailBuilder) updates]) =>
+  factory _$MonitorDetail([void Function(MonitorDetailBuilder)? updates]) =>
       (new MonitorDetailBuilder()..update(updates))._build();
 
   _$MonitorDetail._(
-      {this.flowName,
-      this.transactionNo,
-      this.initiateBy,
-      this.initiateByGroup,
-      this.initiateTimeCreated,
-      this.taskStatus,
-      this.currentUser,
-      this.receivedTime,
-      this.flowStatus,
-      this.flowDueDate,
-      this.checkpointId,
+      {required this.flowName,
+      required this.transactionNo,
+      required this.initiateBy,
+      required this.initiateByGroup,
+      required this.initiateTimeCreated,
+      required this.taskStatus,
+      required this.currentUser,
+      required this.receivedTime,
+      required this.flowStatus,
+      required this.flowDueDate,
+      required this.checkpointId,
       this.woTaskId,
       this.ppmTaskId,
       this.siteName,
-      this.taskHistory})
+      required this.taskHistory})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         flowName, r'MonitorDetail', 'flowName');
@@ -779,39 +767,24 @@ class _$MonitorDetail extends MonitorDetail {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc(
-                            $jc(
-                                $jc(
-                                    $jc(
-                                        $jc(
-                                            $jc(
-                                                $jc(
-                                                    $jc(
-                                                        $jc(
-                                                            $jc(
-                                                                0,
-                                                                flowName
-                                                                    .hashCode),
-                                                            transactionNo
-                                                                .hashCode),
-                                                        initiateBy.hashCode),
-                                                    initiateByGroup.hashCode),
-                                                initiateTimeCreated.hashCode),
-                                            taskStatus.hashCode),
-                                        currentUser.hashCode),
-                                    receivedTime.hashCode),
-                                flowStatus.hashCode),
-                            flowDueDate.hashCode),
-                        checkpointId.hashCode),
-                    woTaskId.hashCode),
-                ppmTaskId.hashCode),
-            siteName.hashCode),
-        taskHistory.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, flowName.hashCode);
+    _$hash = $jc(_$hash, transactionNo.hashCode);
+    _$hash = $jc(_$hash, initiateBy.hashCode);
+    _$hash = $jc(_$hash, initiateByGroup.hashCode);
+    _$hash = $jc(_$hash, initiateTimeCreated.hashCode);
+    _$hash = $jc(_$hash, taskStatus.hashCode);
+    _$hash = $jc(_$hash, currentUser.hashCode);
+    _$hash = $jc(_$hash, receivedTime.hashCode);
+    _$hash = $jc(_$hash, flowStatus.hashCode);
+    _$hash = $jc(_$hash, flowDueDate.hashCode);
+    _$hash = $jc(_$hash, checkpointId.hashCode);
+    _$hash = $jc(_$hash, woTaskId.hashCode);
+    _$hash = $jc(_$hash, ppmTaskId.hashCode);
+    _$hash = $jc(_$hash, siteName.hashCode);
+    _$hash = $jc(_$hash, taskHistory.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -838,71 +811,71 @@ class _$MonitorDetail extends MonitorDetail {
 
 class MonitorDetailBuilder
     implements Builder<MonitorDetail, MonitorDetailBuilder> {
-  _$MonitorDetail _$v;
+  _$MonitorDetail? _$v;
 
-  String _flowName;
-  String get flowName => _$this._flowName;
-  set flowName(String flowName) => _$this._flowName = flowName;
+  String? _flowName;
+  String? get flowName => _$this._flowName;
+  set flowName(String? flowName) => _$this._flowName = flowName;
 
-  String _transactionNo;
-  String get transactionNo => _$this._transactionNo;
-  set transactionNo(String transactionNo) =>
+  String? _transactionNo;
+  String? get transactionNo => _$this._transactionNo;
+  set transactionNo(String? transactionNo) =>
       _$this._transactionNo = transactionNo;
 
-  String _initiateBy;
-  String get initiateBy => _$this._initiateBy;
-  set initiateBy(String initiateBy) => _$this._initiateBy = initiateBy;
+  String? _initiateBy;
+  String? get initiateBy => _$this._initiateBy;
+  set initiateBy(String? initiateBy) => _$this._initiateBy = initiateBy;
 
-  String _initiateByGroup;
-  String get initiateByGroup => _$this._initiateByGroup;
-  set initiateByGroup(String initiateByGroup) =>
+  String? _initiateByGroup;
+  String? get initiateByGroup => _$this._initiateByGroup;
+  set initiateByGroup(String? initiateByGroup) =>
       _$this._initiateByGroup = initiateByGroup;
 
-  String _initiateTimeCreated;
-  String get initiateTimeCreated => _$this._initiateTimeCreated;
-  set initiateTimeCreated(String initiateTimeCreated) =>
+  String? _initiateTimeCreated;
+  String? get initiateTimeCreated => _$this._initiateTimeCreated;
+  set initiateTimeCreated(String? initiateTimeCreated) =>
       _$this._initiateTimeCreated = initiateTimeCreated;
 
-  String _taskStatus;
-  String get taskStatus => _$this._taskStatus;
-  set taskStatus(String taskStatus) => _$this._taskStatus = taskStatus;
+  String? _taskStatus;
+  String? get taskStatus => _$this._taskStatus;
+  set taskStatus(String? taskStatus) => _$this._taskStatus = taskStatus;
 
-  String _currentUser;
-  String get currentUser => _$this._currentUser;
-  set currentUser(String currentUser) => _$this._currentUser = currentUser;
+  String? _currentUser;
+  String? get currentUser => _$this._currentUser;
+  set currentUser(String? currentUser) => _$this._currentUser = currentUser;
 
-  String _receivedTime;
-  String get receivedTime => _$this._receivedTime;
-  set receivedTime(String receivedTime) => _$this._receivedTime = receivedTime;
+  String? _receivedTime;
+  String? get receivedTime => _$this._receivedTime;
+  set receivedTime(String? receivedTime) => _$this._receivedTime = receivedTime;
 
-  String _flowStatus;
-  String get flowStatus => _$this._flowStatus;
-  set flowStatus(String flowStatus) => _$this._flowStatus = flowStatus;
+  String? _flowStatus;
+  String? get flowStatus => _$this._flowStatus;
+  set flowStatus(String? flowStatus) => _$this._flowStatus = flowStatus;
 
-  String _flowDueDate;
-  String get flowDueDate => _$this._flowDueDate;
-  set flowDueDate(String flowDueDate) => _$this._flowDueDate = flowDueDate;
+  String? _flowDueDate;
+  String? get flowDueDate => _$this._flowDueDate;
+  set flowDueDate(String? flowDueDate) => _$this._flowDueDate = flowDueDate;
 
-  String _checkpointId;
-  String get checkpointId => _$this._checkpointId;
-  set checkpointId(String checkpointId) => _$this._checkpointId = checkpointId;
+  String? _checkpointId;
+  String? get checkpointId => _$this._checkpointId;
+  set checkpointId(String? checkpointId) => _$this._checkpointId = checkpointId;
 
-  String _woTaskId;
-  String get woTaskId => _$this._woTaskId;
-  set woTaskId(String woTaskId) => _$this._woTaskId = woTaskId;
+  String? _woTaskId;
+  String? get woTaskId => _$this._woTaskId;
+  set woTaskId(String? woTaskId) => _$this._woTaskId = woTaskId;
 
-  String _ppmTaskId;
-  String get ppmTaskId => _$this._ppmTaskId;
-  set ppmTaskId(String ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
+  String? _ppmTaskId;
+  String? get ppmTaskId => _$this._ppmTaskId;
+  set ppmTaskId(String? ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
 
-  String _siteName;
-  String get siteName => _$this._siteName;
-  set siteName(String siteName) => _$this._siteName = siteName;
+  String? _siteName;
+  String? get siteName => _$this._siteName;
+  set siteName(String? siteName) => _$this._siteName = siteName;
 
-  ListBuilder<MonitorHistory> _taskHistory;
+  ListBuilder<MonitorHistory>? _taskHistory;
   ListBuilder<MonitorHistory> get taskHistory =>
       _$this._taskHistory ??= new ListBuilder<MonitorHistory>();
-  set taskHistory(ListBuilder<MonitorHistory> taskHistory) =>
+  set taskHistory(ListBuilder<MonitorHistory>? taskHistory) =>
       _$this._taskHistory = taskHistory;
 
   MonitorDetailBuilder();
@@ -937,7 +910,7 @@ class MonitorDetailBuilder
   }
 
   @override
-  void update(void Function(MonitorDetailBuilder) updates) {
+  void update(void Function(MonitorDetailBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -949,31 +922,35 @@ class MonitorDetailBuilder
     try {
       _$result = _$v ??
           new _$MonitorDetail._(
-              flowName: BuiltValueNullFieldError.checkNotNull(
-                  flowName, r'MonitorDetail', 'flowName'),
-              transactionNo: BuiltValueNullFieldError.checkNotNull(
-                  transactionNo, r'MonitorDetail', 'transactionNo'),
-              initiateBy: BuiltValueNullFieldError.checkNotNull(
-                  initiateBy, r'MonitorDetail', 'initiateBy'),
-              initiateByGroup: BuiltValueNullFieldError.checkNotNull(
-                  initiateByGroup, r'MonitorDetail', 'initiateByGroup'),
-              initiateTimeCreated: BuiltValueNullFieldError.checkNotNull(
-                  initiateTimeCreated, r'MonitorDetail', 'initiateTimeCreated'),
-              taskStatus: BuiltValueNullFieldError.checkNotNull(
-                  taskStatus, r'MonitorDetail', 'taskStatus'),
-              currentUser: BuiltValueNullFieldError.checkNotNull(
-                  currentUser, r'MonitorDetail', 'currentUser'),
-              receivedTime: BuiltValueNullFieldError.checkNotNull(
-                  receivedTime, r'MonitorDetail', 'receivedTime'),
-              flowStatus: BuiltValueNullFieldError.checkNotNull(flowStatus, r'MonitorDetail', 'flowStatus'),
-              flowDueDate: BuiltValueNullFieldError.checkNotNull(flowDueDate, r'MonitorDetail', 'flowDueDate'),
-              checkpointId: BuiltValueNullFieldError.checkNotNull(checkpointId, r'MonitorDetail', 'checkpointId'),
-              woTaskId: woTaskId,
-              ppmTaskId: ppmTaskId,
-              siteName: siteName,
-              taskHistory: taskHistory.build());
+            flowName: BuiltValueNullFieldError.checkNotNull(
+                flowName, r'MonitorDetail', 'flowName'),
+            transactionNo: BuiltValueNullFieldError.checkNotNull(
+                transactionNo, r'MonitorDetail', 'transactionNo'),
+            initiateBy: BuiltValueNullFieldError.checkNotNull(
+                initiateBy, r'MonitorDetail', 'initiateBy'),
+            initiateByGroup: BuiltValueNullFieldError.checkNotNull(
+                initiateByGroup, r'MonitorDetail', 'initiateByGroup'),
+            initiateTimeCreated: BuiltValueNullFieldError.checkNotNull(
+                initiateTimeCreated, r'MonitorDetail', 'initiateTimeCreated'),
+            taskStatus: BuiltValueNullFieldError.checkNotNull(
+                taskStatus, r'MonitorDetail', 'taskStatus'),
+            currentUser: BuiltValueNullFieldError.checkNotNull(
+                currentUser, r'MonitorDetail', 'currentUser'),
+            receivedTime: BuiltValueNullFieldError.checkNotNull(
+                receivedTime, r'MonitorDetail', 'receivedTime'),
+            flowStatus: BuiltValueNullFieldError.checkNotNull(
+                flowStatus, r'MonitorDetail', 'flowStatus'),
+            flowDueDate: BuiltValueNullFieldError.checkNotNull(
+                flowDueDate, r'MonitorDetail', 'flowDueDate'),
+            checkpointId: BuiltValueNullFieldError.checkNotNull(
+                checkpointId, r'MonitorDetail', 'checkpointId'),
+            woTaskId: woTaskId,
+            ppmTaskId: ppmTaskId,
+            siteName: siteName,
+            taskHistory: taskHistory.build(),
+          );
     } catch (_) {
-      String _$failedField;
+      late String _$failedField;
       try {
         _$failedField = 'taskHistory';
         taskHistory.build();
@@ -1006,18 +983,18 @@ class _$MonitorHistory extends MonitorHistory {
   @override
   final String taskStatus;
 
-  factory _$MonitorHistory([void Function(MonitorHistoryBuilder) updates]) =>
+  factory _$MonitorHistory([void Function(MonitorHistoryBuilder)? updates]) =>
       (new MonitorHistoryBuilder()..update(updates))._build();
 
   _$MonitorHistory._(
-      {this.checkpointId,
-      this.roleId,
-      this.taskClaimedUser,
-      this.taskRemark,
-      this.taskDateDue,
-      this.taskTimeCreated,
-      this.taskTimeSubmit,
-      this.taskStatus})
+      {required this.checkpointId,
+      required this.roleId,
+      required this.taskClaimedUser,
+      required this.taskRemark,
+      required this.taskDateDue,
+      required this.taskTimeCreated,
+      required this.taskTimeSubmit,
+      required this.taskStatus})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         checkpointId, r'MonitorHistory', 'checkpointId');
@@ -1060,18 +1037,17 @@ class _$MonitorHistory extends MonitorHistory {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc($jc($jc(0, checkpointId.hashCode), roleId.hashCode),
-                            taskClaimedUser.hashCode),
-                        taskRemark.hashCode),
-                    taskDateDue.hashCode),
-                taskTimeCreated.hashCode),
-            taskTimeSubmit.hashCode),
-        taskStatus.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, checkpointId.hashCode);
+    _$hash = $jc(_$hash, roleId.hashCode);
+    _$hash = $jc(_$hash, taskClaimedUser.hashCode);
+    _$hash = $jc(_$hash, taskRemark.hashCode);
+    _$hash = $jc(_$hash, taskDateDue.hashCode);
+    _$hash = $jc(_$hash, taskTimeCreated.hashCode);
+    _$hash = $jc(_$hash, taskTimeSubmit.hashCode);
+    _$hash = $jc(_$hash, taskStatus.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -1091,42 +1067,42 @@ class _$MonitorHistory extends MonitorHistory {
 
 class MonitorHistoryBuilder
     implements Builder<MonitorHistory, MonitorHistoryBuilder> {
-  _$MonitorHistory _$v;
+  _$MonitorHistory? _$v;
 
-  String _checkpointId;
-  String get checkpointId => _$this._checkpointId;
-  set checkpointId(String checkpointId) => _$this._checkpointId = checkpointId;
+  String? _checkpointId;
+  String? get checkpointId => _$this._checkpointId;
+  set checkpointId(String? checkpointId) => _$this._checkpointId = checkpointId;
 
-  String _roleId;
-  String get roleId => _$this._roleId;
-  set roleId(String roleId) => _$this._roleId = roleId;
+  String? _roleId;
+  String? get roleId => _$this._roleId;
+  set roleId(String? roleId) => _$this._roleId = roleId;
 
-  String _taskClaimedUser;
-  String get taskClaimedUser => _$this._taskClaimedUser;
-  set taskClaimedUser(String taskClaimedUser) =>
+  String? _taskClaimedUser;
+  String? get taskClaimedUser => _$this._taskClaimedUser;
+  set taskClaimedUser(String? taskClaimedUser) =>
       _$this._taskClaimedUser = taskClaimedUser;
 
-  String _taskRemark;
-  String get taskRemark => _$this._taskRemark;
-  set taskRemark(String taskRemark) => _$this._taskRemark = taskRemark;
+  String? _taskRemark;
+  String? get taskRemark => _$this._taskRemark;
+  set taskRemark(String? taskRemark) => _$this._taskRemark = taskRemark;
 
-  String _taskDateDue;
-  String get taskDateDue => _$this._taskDateDue;
-  set taskDateDue(String taskDateDue) => _$this._taskDateDue = taskDateDue;
+  String? _taskDateDue;
+  String? get taskDateDue => _$this._taskDateDue;
+  set taskDateDue(String? taskDateDue) => _$this._taskDateDue = taskDateDue;
 
-  String _taskTimeCreated;
-  String get taskTimeCreated => _$this._taskTimeCreated;
-  set taskTimeCreated(String taskTimeCreated) =>
+  String? _taskTimeCreated;
+  String? get taskTimeCreated => _$this._taskTimeCreated;
+  set taskTimeCreated(String? taskTimeCreated) =>
       _$this._taskTimeCreated = taskTimeCreated;
 
-  String _taskTimeSubmit;
-  String get taskTimeSubmit => _$this._taskTimeSubmit;
-  set taskTimeSubmit(String taskTimeSubmit) =>
+  String? _taskTimeSubmit;
+  String? get taskTimeSubmit => _$this._taskTimeSubmit;
+  set taskTimeSubmit(String? taskTimeSubmit) =>
       _$this._taskTimeSubmit = taskTimeSubmit;
 
-  String _taskStatus;
-  String get taskStatus => _$this._taskStatus;
-  set taskStatus(String taskStatus) => _$this._taskStatus = taskStatus;
+  String? _taskStatus;
+  String? get taskStatus => _$this._taskStatus;
+  set taskStatus(String? taskStatus) => _$this._taskStatus = taskStatus;
 
   MonitorHistoryBuilder();
 
@@ -1153,7 +1129,7 @@ class MonitorHistoryBuilder
   }
 
   @override
-  void update(void Function(MonitorHistoryBuilder) updates) {
+  void update(void Function(MonitorHistoryBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -1163,25 +1139,26 @@ class MonitorHistoryBuilder
   _$MonitorHistory _build() {
     final _$result = _$v ??
         new _$MonitorHistory._(
-            checkpointId: BuiltValueNullFieldError.checkNotNull(
-                checkpointId, r'MonitorHistory', 'checkpointId'),
-            roleId: BuiltValueNullFieldError.checkNotNull(
-                roleId, r'MonitorHistory', 'roleId'),
-            taskClaimedUser: BuiltValueNullFieldError.checkNotNull(
-                taskClaimedUser, r'MonitorHistory', 'taskClaimedUser'),
-            taskRemark: BuiltValueNullFieldError.checkNotNull(
-                taskRemark, r'MonitorHistory', 'taskRemark'),
-            taskDateDue: BuiltValueNullFieldError.checkNotNull(
-                taskDateDue, r'MonitorHistory', 'taskDateDue'),
-            taskTimeCreated: BuiltValueNullFieldError.checkNotNull(
-                taskTimeCreated, r'MonitorHistory', 'taskTimeCreated'),
-            taskTimeSubmit: BuiltValueNullFieldError.checkNotNull(
-                taskTimeSubmit, r'MonitorHistory', 'taskTimeSubmit'),
-            taskStatus: BuiltValueNullFieldError.checkNotNull(
-                taskStatus, r'MonitorHistory', 'taskStatus'));
+          checkpointId: BuiltValueNullFieldError.checkNotNull(
+              checkpointId, r'MonitorHistory', 'checkpointId'),
+          roleId: BuiltValueNullFieldError.checkNotNull(
+              roleId, r'MonitorHistory', 'roleId'),
+          taskClaimedUser: BuiltValueNullFieldError.checkNotNull(
+              taskClaimedUser, r'MonitorHistory', 'taskClaimedUser'),
+          taskRemark: BuiltValueNullFieldError.checkNotNull(
+              taskRemark, r'MonitorHistory', 'taskRemark'),
+          taskDateDue: BuiltValueNullFieldError.checkNotNull(
+              taskDateDue, r'MonitorHistory', 'taskDateDue'),
+          taskTimeCreated: BuiltValueNullFieldError.checkNotNull(
+              taskTimeCreated, r'MonitorHistory', 'taskTimeCreated'),
+          taskTimeSubmit: BuiltValueNullFieldError.checkNotNull(
+              taskTimeSubmit, r'MonitorHistory', 'taskTimeSubmit'),
+          taskStatus: BuiltValueNullFieldError.checkNotNull(
+              taskStatus, r'MonitorHistory', 'taskStatus'),
+        );
     replace(_$result);
     return _$result;
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,no_leading_underscores_for_local_identifiers,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new,unnecessary_lambdas
+// ignore_for_file: deprecated_member_use_from_same_package,type=lint

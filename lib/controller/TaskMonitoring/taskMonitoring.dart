@@ -13,14 +13,14 @@ class TaskMonitoring extends StatefulWidget {
 }
 
 class _TaskMonitoringState extends State<TaskMonitoring> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  Provider _provider;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  late Provider _provider;
   bool _isOpened = false;
   bool _loading = true;
   String id = "1";
-  String dropdownValue;
-  List<MonitorTask> _tasks = List<MonitorTask>();
-  List<Widget> _children = List<Widget>();
+  late String dropdownValue;
+  List<MonitorTask> _tasks = [];
+  List<Widget> _children = [];
 
   @override
   void initState() {
@@ -33,38 +33,47 @@ class _TaskMonitoringState extends State<TaskMonitoring> {
   Widget build(BuildContext context) {
     _provider.context = context;
     return Scaffold(
-        key: _scaffoldKey,
-        appBar: bar(_scaffoldKey,
-            text: "Track Monitoring",
-            search: true,
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => SearchTaskMonitoring())),
-            dimmer: _isOpened),
-        drawer: BuildDrawer(() => Navigator.pop(context)),
-        body: _loading
-            ? Center(child: CircularProgressIndicator())
-            : Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: RefreshIndicator(
-                    onRefresh: tasks,
-                    child: ListView(
-                      children: _children,
-                    ))));
+      key: _scaffoldKey,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(kToolbarHeight),
+        child: bar(
+          _scaffoldKey,
+          text: "Track Monitoring",
+          search: true,
+          onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => SearchTaskMonitoring())),
+          dimmer: _isOpened,
+        ),
+      ),
+      drawer: BuildDrawer(() => Navigator.pop(context)),
+      body: _loading
+          ? Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: RefreshIndicator(
+                onRefresh: tasks,
+                child: ListView(
+                  children: _children,
+                ),
+              ),
+            ),
+    );
   }
 
-  Widget getTitle(String text, {bold = false}) => new Container(
+  Widget getTitle(String text, {bool bold = false}) => Container(
         alignment: Alignment.centerLeft,
-        child: new Text(text,
-            style: TextStyle(
-                fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
+        child: Text(
+          text,
+          style: TextStyle(
+              fontWeight: bold ? FontWeight.bold : FontWeight.normal),
+        ),
       );
 
   Widget status(String value) {
     var text = value;
     var color = colorTheme1;
-
     if (text == "In Progress")
       color = colorTheme5;
     else if (text == "Closed")
@@ -74,27 +83,27 @@ class _TaskMonitoringState extends State<TaskMonitoring> {
     else if (text == "Verify")
       color = colorTheme3;
     else if (text == "Rejected") color = colorTheme4;
-
-    return new Container(
+    return Container(
         alignment: Alignment.center,
         height: 30.0,
         width: 100.0,
-        decoration: BoxDecoration(
-            color: color, borderRadius: new BorderRadius.circular(20.0)),
-        child: new Text(text, style: TextStyle(color: Colors.white)));
+        decoration:
+            BoxDecoration(color: color, borderRadius: BorderRadius.circular(20.0)),
+        child: Text(text, style: const TextStyle(color: Colors.white)));
   }
 
-  ListTile tile(MonitorTask task) => new ListTile(
-        contentPadding: EdgeInsets.all(12),
-        title: new Row(
+  ListTile tile(MonitorTask task) => ListTile(
+        contentPadding: const EdgeInsets.all(12),
+        title: Row(
           children: <Widget>[
-            new Expanded(
-                child: new Column(
+            Expanded(
+                child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 getTitle(task.transactionNo, bold: true),
                 getTitle(task.flowName),
                 getTitle(task.checkpointName),
-                getTitle(id == "1" ? task.userFullName : task.currentTaskOwner),
+                getTitle(id == "1" ? (task.userFullName ?? 'Unknown') : (task.currentTaskOwner ?? 'Unknown')),
                 getTitle(task.transactionTimeCreated),
               ],
             )),
@@ -102,21 +111,27 @@ class _TaskMonitoringState extends State<TaskMonitoring> {
           ],
         ),
         onTap: () {
-          Navigator.of(context).push(new MaterialPageRoute(
+          Navigator.of(context).push(MaterialPageRoute(
             builder: (BuildContext context) => TaskInformation(task: task),
           ));
         },
       );
 
   Widget get _filter => DropdownButton<String>(
-        underline: new Container(),
+        underline: Container(),
         value: dropdownValue,
-        onChanged: (String newValue) {
-          dropdownValue = newValue;
-          tasks();
+        onChanged: (String? newValue) {
+          if (newValue != null) {
+            setState(() {
+              dropdownValue = newValue;
+              tasks();
+            });
+          }
         },
-        items: <String>["Planned Preventive Maintenance", "Work Order"]
-            .map<DropdownMenuItem<String>>((String value) {
+        items: <String>[
+          "Planned Preventive Maintenance",
+          "Work Order"
+        ].map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
             value: value,
             child: Text(value),
@@ -125,36 +140,30 @@ class _TaskMonitoringState extends State<TaskMonitoring> {
       );
 
   void generateTile(List<MonitorTask> tasks) {
-    _children = List<Widget>();
+    _children = [];
     _children.addAll(ListTile.divideTiles(
             context: context,
             tiles: List.generate(_tasks.length, (index) => tile(_tasks[index])))
         .toList());
     _children.insert(0, _filter);
-    _children.insert(
-        0,
-        SizedBox(
-          height: 16.0,
-        ));
-    setState(() => _loading = false);
+    _children.insert(0, const SizedBox(height: 16.0));
+    setState(() {
+      _loading = false;
+    });
   }
 
   Future<void> tasks() async {
     setState(() => _loading = true);
     id = dropdownValue == "Work Order" ? "2" : "1";
-    _provider =
-        new Provider(fetchURL: "/api/m_ppm.php?flowId=$id&type=tnm_list");
-
+    _provider = Provider(fetchURL: "/api/m_ppm.php?flowId=$id&type=tnm_list");
     try {
       var response = await _provider.fetch();
-      _tasks = response.monitorTaskList.toList();
+      _tasks = response.monitorTaskList?.toList() ?? [];
       generateTile(_tasks);
     } catch (err) {
-      _tasks = List<MonitorTask>();
+      _tasks = [];
       generateTile(_tasks);
       print(err);
     }
-
-    return Future.value();
   }
 }

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of workorder;
+part of 'workorder.dart';
 
 // **************************************************************************
 // BuiltValueGenerator
@@ -30,9 +30,9 @@ class _$WorkOrderTaskSerializer implements StructuredSerializer<WorkOrderTask> {
   final String wireName = 'WorkOrderTask';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, WorkOrderTask object,
+  Iterable<Object?> serialize(Serializers serializers, WorkOrderTask object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'woTaskId',
       serializers.serialize(object.woTaskId,
           specifiedType: const FullType(String)),
@@ -64,47 +64,47 @@ class _$WorkOrderTaskSerializer implements StructuredSerializer<WorkOrderTask> {
 
   @override
   WorkOrderTask deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new WorkOrderTaskBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'woTaskId':
           result.woTaskId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskNo':
           result.woTaskNo = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskLocation':
           result.woTaskLocation = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskType':
           result.woTaskType = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'reportedBy':
           result.reportedBy = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskTimeCreated':
           result.woTaskTimeCreated = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskStatus':
           result.woTaskStatus = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskSeverity':
           result.woTaskSeverity = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
       }
     }
@@ -121,10 +121,10 @@ class _$WorkOrderStatusSerializer
   final String wireName = 'WorkOrderStatus';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, WorkOrderStatus object,
+  Iterable<Object?> serialize(Serializers serializers, WorkOrderStatus object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[];
-    Object value;
+    final result = <Object?>[];
+    Object? value;
     value = object.sectionName;
     if (value != null) {
       result
@@ -221,67 +221,67 @@ class _$WorkOrderStatusSerializer
 
   @override
   WorkOrderStatus deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new WorkOrderStatusBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'sectionName':
           result.sectionName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'sectionDesc':
           result.sectionDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'sectionStatus':
           result.sectionStatus = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'sectionStatusMaterial':
           result.sectionStatusMaterial = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'sectionStatusMaterialId':
           result.sectionStatusMaterialId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'sectionComment':
           result.sectionComment = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'groupId':
           result.groupId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'groupName':
           result.groupName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'userId':
           result.userId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'userName':
           result.userName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'comment':
           result.comment = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'severityId':
           result.severityId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'severityName':
           result.severityName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
       }
     }
@@ -298,9 +298,9 @@ class _$WorkOrderDetailSerializer
   final String wireName = 'WorkOrderDetail';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, WorkOrderDetail object,
+  Iterable<Object?> serialize(Serializers serializers, WorkOrderDetail object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'woTaskId',
       serializers.serialize(object.woTaskId,
           specifiedType: const FullType(String)),
@@ -348,69 +348,69 @@ class _$WorkOrderDetailSerializer
 
   @override
   WorkOrderDetail deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new WorkOrderDetailBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'woTaskId':
           result.woTaskId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskNo':
           result.woTaskNo = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskRequestNo':
           result.woTaskRequestNo = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskReportedBy':
           result.woTaskReportedBy = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskTimeResponded':
           result.woTaskTimeResponded = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskCategory':
           result.woTaskCategory = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskClient':
           result.woTaskClient = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskLocation':
           result.woTaskLocation = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskComplaint':
           result.woTaskComplaint = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskStatus':
           result.woTaskStatus = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskPhoneNo':
           result.woTaskPhoneNo = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskEmail':
           result.woTaskEmail = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'complaintImages':
           result.complaintImages.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
-                      BuiltList, const [const FullType(ComplaintImage)]))
-              as BuiltList<Object>);
+                      BuiltList, const [const FullType(ComplaintImage)]))!
+              as BuiltList<Object?>);
           break;
       }
     }
@@ -427,9 +427,9 @@ class _$ComplaintImageSerializer
   final String wireName = 'ComplaintImage';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, ComplaintImage object,
+  Iterable<Object?> serialize(Serializers serializers, ComplaintImage object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'woTaskUploadId',
       serializers.serialize(object.woTaskUploadId,
           specifiedType: const FullType(String)),
@@ -473,63 +473,63 @@ class _$ComplaintImageSerializer
 
   @override
   ComplaintImage deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new ComplaintImageBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'woTaskUploadId':
           result.woTaskUploadId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskUploadType':
           result.woTaskUploadType = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskId':
           result.woTaskId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskUploadLongitude':
           result.woTaskUploadLongitude = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskUploadLatitude':
           result.woTaskUploadLatitude = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskUploadTimestamp':
           result.woTaskUploadTimestamp = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskUploadDesc':
           result.woTaskUploadDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'uploadId':
           result.uploadId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'uploadName':
           result.uploadName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'documentDesc':
           result.documentDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'documentFilename':
           result.documentFilename = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'documentSrc':
           result.documentSrc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
       }
     }
@@ -546,9 +546,9 @@ class _$TechnicianDetailsSerializer
   final String wireName = 'TechnicianDetails';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, TechnicianDetails object,
+  Iterable<Object?> serialize(Serializers serializers, TechnicianDetails object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'name',
       serializers.serialize(object.name, specifiedType: const FullType(String)),
       'phoneNo',
@@ -574,41 +574,41 @@ class _$TechnicianDetailsSerializer
 
   @override
   TechnicianDetails deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new TechnicianDetailsBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'name':
           result.name = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'phoneNo':
           result.phoneNo = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'email':
           result.email = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'group':
           result.group = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'totalCurrentTask':
           result.totalCurrentTask = serializers.deserialize(value,
-              specifiedType: const FullType(int)) as int;
+              specifiedType: const FullType(int))! as int;
           break;
         case 'currentTask':
           result.currentTask.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
-                      BuiltList, const [const FullType(TechnicianTask)]))
-              as BuiltList<Object>);
+                      BuiltList, const [const FullType(TechnicianTask)]))!
+              as BuiltList<Object?>);
           break;
       }
     }
@@ -625,9 +625,9 @@ class _$TechnicianTaskSerializer
   final String wireName = 'TechnicianTask';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, TechnicianTask object,
+  Iterable<Object?> serialize(Serializers serializers, TechnicianTask object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'woTaskNo',
       serializers.serialize(object.woTaskNo,
           specifiedType: const FullType(String)),
@@ -641,23 +641,23 @@ class _$TechnicianTaskSerializer
 
   @override
   TechnicianTask deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new TechnicianTaskBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'woTaskNo':
           result.woTaskNo = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'dateReceived':
           result.dateReceived = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
       }
     }
@@ -677,10 +677,10 @@ class _$TechnicianImageRepairSerializer
   final String wireName = 'TechnicianImageRepair';
 
   @override
-  Iterable<Object> serialize(
+  Iterable<Object?> serialize(
       Serializers serializers, TechnicianImageRepair object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'woTaskUploadId',
       serializers.serialize(object.woTaskUploadId,
           specifiedType: const FullType(String)),
@@ -724,63 +724,63 @@ class _$TechnicianImageRepairSerializer
 
   @override
   TechnicianImageRepair deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new TechnicianImageRepairBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'woTaskUploadId':
           result.woTaskUploadId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskUploadType':
           result.woTaskUploadType = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskId':
           result.woTaskId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskUploadLongitude':
           result.woTaskUploadLongitude = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskUploadLatitude':
           result.woTaskUploadLatitude = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskUploadTimestamp':
           result.woTaskUploadTimestamp = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskUploadDesc':
           result.woTaskUploadDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'uploadId':
           result.uploadId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'uploadName':
           result.uploadName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'documentDesc':
           result.documentDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'documentFilename':
           result.documentFilename = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'documentSrc':
           result.documentSrc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
       }
     }
@@ -797,9 +797,9 @@ class _$TechnicianAssignSerializer
   final String wireName = 'TechnicianAssign';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, TechnicianAssign object,
+  Iterable<Object?> serialize(Serializers serializers, TechnicianAssign object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[
+    final result = <Object?>[
       'userId',
       serializers.serialize(object.userId,
           specifiedType: const FullType(String)),
@@ -829,45 +829,45 @@ class _$TechnicianAssignSerializer
 
   @override
   TechnicianAssign deserialize(
-      Serializers serializers, Iterable<Object> serialized,
+      Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new TechnicianAssignBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'userId':
           result.userId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'severity':
           result.severity = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'groupId':
           result.groupId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskCategory':
           result.woTaskCategory = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'userCategory':
           result.userCategory = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskMaxAssistant':
           result.woTaskMaxAssistant = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String))! as String;
           break;
         case 'assistUserId':
           result.assistUserId.replace(serializers.deserialize(value,
-                  specifiedType:
-                      const FullType(BuiltList, const [const FullType(String)]))
-              as BuiltList<Object>);
+                  specifiedType: const FullType(
+                      BuiltList, const [const FullType(String)]))!
+              as BuiltList<Object?>);
           break;
       }
     }
@@ -894,18 +894,18 @@ class _$WorkOrderTask extends WorkOrderTask {
   @override
   final String woTaskSeverity;
 
-  factory _$WorkOrderTask([void Function(WorkOrderTaskBuilder) updates]) =>
+  factory _$WorkOrderTask([void Function(WorkOrderTaskBuilder)? updates]) =>
       (new WorkOrderTaskBuilder()..update(updates))._build();
 
   _$WorkOrderTask._(
-      {this.woTaskId,
-      this.woTaskNo,
-      this.woTaskLocation,
-      this.woTaskType,
-      this.reportedBy,
-      this.woTaskTimeCreated,
-      this.woTaskStatus,
-      this.woTaskSeverity})
+      {required this.woTaskId,
+      required this.woTaskNo,
+      required this.woTaskLocation,
+      required this.woTaskType,
+      required this.reportedBy,
+      required this.woTaskTimeCreated,
+      required this.woTaskStatus,
+      required this.woTaskSeverity})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         woTaskId, r'WorkOrderTask', 'woTaskId');
@@ -948,18 +948,17 @@ class _$WorkOrderTask extends WorkOrderTask {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc($jc($jc(0, woTaskId.hashCode), woTaskNo.hashCode),
-                            woTaskLocation.hashCode),
-                        woTaskType.hashCode),
-                    reportedBy.hashCode),
-                woTaskTimeCreated.hashCode),
-            woTaskStatus.hashCode),
-        woTaskSeverity.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, woTaskId.hashCode);
+    _$hash = $jc(_$hash, woTaskNo.hashCode);
+    _$hash = $jc(_$hash, woTaskLocation.hashCode);
+    _$hash = $jc(_$hash, woTaskType.hashCode);
+    _$hash = $jc(_$hash, reportedBy.hashCode);
+    _$hash = $jc(_$hash, woTaskTimeCreated.hashCode);
+    _$hash = $jc(_$hash, woTaskStatus.hashCode);
+    _$hash = $jc(_$hash, woTaskSeverity.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -979,41 +978,41 @@ class _$WorkOrderTask extends WorkOrderTask {
 
 class WorkOrderTaskBuilder
     implements Builder<WorkOrderTask, WorkOrderTaskBuilder> {
-  _$WorkOrderTask _$v;
+  _$WorkOrderTask? _$v;
 
-  String _woTaskId;
-  String get woTaskId => _$this._woTaskId;
-  set woTaskId(String woTaskId) => _$this._woTaskId = woTaskId;
+  String? _woTaskId;
+  String? get woTaskId => _$this._woTaskId;
+  set woTaskId(String? woTaskId) => _$this._woTaskId = woTaskId;
 
-  String _woTaskNo;
-  String get woTaskNo => _$this._woTaskNo;
-  set woTaskNo(String woTaskNo) => _$this._woTaskNo = woTaskNo;
+  String? _woTaskNo;
+  String? get woTaskNo => _$this._woTaskNo;
+  set woTaskNo(String? woTaskNo) => _$this._woTaskNo = woTaskNo;
 
-  String _woTaskLocation;
-  String get woTaskLocation => _$this._woTaskLocation;
-  set woTaskLocation(String woTaskLocation) =>
+  String? _woTaskLocation;
+  String? get woTaskLocation => _$this._woTaskLocation;
+  set woTaskLocation(String? woTaskLocation) =>
       _$this._woTaskLocation = woTaskLocation;
 
-  String _woTaskType;
-  String get woTaskType => _$this._woTaskType;
-  set woTaskType(String woTaskType) => _$this._woTaskType = woTaskType;
+  String? _woTaskType;
+  String? get woTaskType => _$this._woTaskType;
+  set woTaskType(String? woTaskType) => _$this._woTaskType = woTaskType;
 
-  String _reportedBy;
-  String get reportedBy => _$this._reportedBy;
-  set reportedBy(String reportedBy) => _$this._reportedBy = reportedBy;
+  String? _reportedBy;
+  String? get reportedBy => _$this._reportedBy;
+  set reportedBy(String? reportedBy) => _$this._reportedBy = reportedBy;
 
-  String _woTaskTimeCreated;
-  String get woTaskTimeCreated => _$this._woTaskTimeCreated;
-  set woTaskTimeCreated(String woTaskTimeCreated) =>
+  String? _woTaskTimeCreated;
+  String? get woTaskTimeCreated => _$this._woTaskTimeCreated;
+  set woTaskTimeCreated(String? woTaskTimeCreated) =>
       _$this._woTaskTimeCreated = woTaskTimeCreated;
 
-  String _woTaskStatus;
-  String get woTaskStatus => _$this._woTaskStatus;
-  set woTaskStatus(String woTaskStatus) => _$this._woTaskStatus = woTaskStatus;
+  String? _woTaskStatus;
+  String? get woTaskStatus => _$this._woTaskStatus;
+  set woTaskStatus(String? woTaskStatus) => _$this._woTaskStatus = woTaskStatus;
 
-  String _woTaskSeverity;
-  String get woTaskSeverity => _$this._woTaskSeverity;
-  set woTaskSeverity(String woTaskSeverity) =>
+  String? _woTaskSeverity;
+  String? get woTaskSeverity => _$this._woTaskSeverity;
+  set woTaskSeverity(String? woTaskSeverity) =>
       _$this._woTaskSeverity = woTaskSeverity;
 
   WorkOrderTaskBuilder();
@@ -1041,7 +1040,7 @@ class WorkOrderTaskBuilder
   }
 
   @override
-  void update(void Function(WorkOrderTaskBuilder) updates) {
+  void update(void Function(WorkOrderTaskBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -1051,22 +1050,23 @@ class WorkOrderTaskBuilder
   _$WorkOrderTask _build() {
     final _$result = _$v ??
         new _$WorkOrderTask._(
-            woTaskId: BuiltValueNullFieldError.checkNotNull(
-                woTaskId, r'WorkOrderTask', 'woTaskId'),
-            woTaskNo: BuiltValueNullFieldError.checkNotNull(
-                woTaskNo, r'WorkOrderTask', 'woTaskNo'),
-            woTaskLocation: BuiltValueNullFieldError.checkNotNull(
-                woTaskLocation, r'WorkOrderTask', 'woTaskLocation'),
-            woTaskType: BuiltValueNullFieldError.checkNotNull(
-                woTaskType, r'WorkOrderTask', 'woTaskType'),
-            reportedBy: BuiltValueNullFieldError.checkNotNull(
-                reportedBy, r'WorkOrderTask', 'reportedBy'),
-            woTaskTimeCreated: BuiltValueNullFieldError.checkNotNull(
-                woTaskTimeCreated, r'WorkOrderTask', 'woTaskTimeCreated'),
-            woTaskStatus: BuiltValueNullFieldError.checkNotNull(
-                woTaskStatus, r'WorkOrderTask', 'woTaskStatus'),
-            woTaskSeverity: BuiltValueNullFieldError.checkNotNull(
-                woTaskSeverity, r'WorkOrderTask', 'woTaskSeverity'));
+          woTaskId: BuiltValueNullFieldError.checkNotNull(
+              woTaskId, r'WorkOrderTask', 'woTaskId'),
+          woTaskNo: BuiltValueNullFieldError.checkNotNull(
+              woTaskNo, r'WorkOrderTask', 'woTaskNo'),
+          woTaskLocation: BuiltValueNullFieldError.checkNotNull(
+              woTaskLocation, r'WorkOrderTask', 'woTaskLocation'),
+          woTaskType: BuiltValueNullFieldError.checkNotNull(
+              woTaskType, r'WorkOrderTask', 'woTaskType'),
+          reportedBy: BuiltValueNullFieldError.checkNotNull(
+              reportedBy, r'WorkOrderTask', 'reportedBy'),
+          woTaskTimeCreated: BuiltValueNullFieldError.checkNotNull(
+              woTaskTimeCreated, r'WorkOrderTask', 'woTaskTimeCreated'),
+          woTaskStatus: BuiltValueNullFieldError.checkNotNull(
+              woTaskStatus, r'WorkOrderTask', 'woTaskStatus'),
+          woTaskSeverity: BuiltValueNullFieldError.checkNotNull(
+              woTaskSeverity, r'WorkOrderTask', 'woTaskSeverity'),
+        );
     replace(_$result);
     return _$result;
   }
@@ -1074,33 +1074,33 @@ class WorkOrderTaskBuilder
 
 class _$WorkOrderStatus extends WorkOrderStatus {
   @override
-  final String sectionName;
+  final String? sectionName;
   @override
-  final String sectionDesc;
+  final String? sectionDesc;
   @override
-  final String sectionStatus;
+  final String? sectionStatus;
   @override
-  final String sectionStatusMaterial;
+  final String? sectionStatusMaterial;
   @override
-  final String sectionStatusMaterialId;
+  final String? sectionStatusMaterialId;
   @override
-  final String sectionComment;
+  final String? sectionComment;
   @override
-  final String groupId;
+  final String? groupId;
   @override
-  final String groupName;
+  final String? groupName;
   @override
-  final String userId;
+  final String? userId;
   @override
-  final String userName;
+  final String? userName;
   @override
-  final String comment;
+  final String? comment;
   @override
-  final String severityId;
+  final String? severityId;
   @override
-  final String severityName;
+  final String? severityName;
 
-  factory _$WorkOrderStatus([void Function(WorkOrderStatusBuilder) updates]) =>
+  factory _$WorkOrderStatus([void Function(WorkOrderStatusBuilder)? updates]) =>
       (new WorkOrderStatusBuilder()..update(updates))._build();
 
   _$WorkOrderStatus._(
@@ -1148,32 +1148,22 @@ class _$WorkOrderStatus extends WorkOrderStatus {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc(
-                            $jc(
-                                $jc(
-                                    $jc(
-                                        $jc(
-                                            $jc(
-                                                $jc(
-                                                    $jc(0,
-                                                        sectionName.hashCode),
-                                                    sectionDesc.hashCode),
-                                                sectionStatus.hashCode),
-                                            sectionStatusMaterial.hashCode),
-                                        sectionStatusMaterialId.hashCode),
-                                    sectionComment.hashCode),
-                                groupId.hashCode),
-                            groupName.hashCode),
-                        userId.hashCode),
-                    userName.hashCode),
-                comment.hashCode),
-            severityId.hashCode),
-        severityName.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, sectionName.hashCode);
+    _$hash = $jc(_$hash, sectionDesc.hashCode);
+    _$hash = $jc(_$hash, sectionStatus.hashCode);
+    _$hash = $jc(_$hash, sectionStatusMaterial.hashCode);
+    _$hash = $jc(_$hash, sectionStatusMaterialId.hashCode);
+    _$hash = $jc(_$hash, sectionComment.hashCode);
+    _$hash = $jc(_$hash, groupId.hashCode);
+    _$hash = $jc(_$hash, groupName.hashCode);
+    _$hash = $jc(_$hash, userId.hashCode);
+    _$hash = $jc(_$hash, userName.hashCode);
+    _$hash = $jc(_$hash, comment.hashCode);
+    _$hash = $jc(_$hash, severityId.hashCode);
+    _$hash = $jc(_$hash, severityName.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -1198,63 +1188,63 @@ class _$WorkOrderStatus extends WorkOrderStatus {
 
 class WorkOrderStatusBuilder
     implements Builder<WorkOrderStatus, WorkOrderStatusBuilder> {
-  _$WorkOrderStatus _$v;
+  _$WorkOrderStatus? _$v;
 
-  String _sectionName;
-  String get sectionName => _$this._sectionName;
-  set sectionName(String sectionName) => _$this._sectionName = sectionName;
+  String? _sectionName;
+  String? get sectionName => _$this._sectionName;
+  set sectionName(String? sectionName) => _$this._sectionName = sectionName;
 
-  String _sectionDesc;
-  String get sectionDesc => _$this._sectionDesc;
-  set sectionDesc(String sectionDesc) => _$this._sectionDesc = sectionDesc;
+  String? _sectionDesc;
+  String? get sectionDesc => _$this._sectionDesc;
+  set sectionDesc(String? sectionDesc) => _$this._sectionDesc = sectionDesc;
 
-  String _sectionStatus;
-  String get sectionStatus => _$this._sectionStatus;
-  set sectionStatus(String sectionStatus) =>
+  String? _sectionStatus;
+  String? get sectionStatus => _$this._sectionStatus;
+  set sectionStatus(String? sectionStatus) =>
       _$this._sectionStatus = sectionStatus;
 
-  String _sectionStatusMaterial;
-  String get sectionStatusMaterial => _$this._sectionStatusMaterial;
-  set sectionStatusMaterial(String sectionStatusMaterial) =>
+  String? _sectionStatusMaterial;
+  String? get sectionStatusMaterial => _$this._sectionStatusMaterial;
+  set sectionStatusMaterial(String? sectionStatusMaterial) =>
       _$this._sectionStatusMaterial = sectionStatusMaterial;
 
-  String _sectionStatusMaterialId;
-  String get sectionStatusMaterialId => _$this._sectionStatusMaterialId;
-  set sectionStatusMaterialId(String sectionStatusMaterialId) =>
+  String? _sectionStatusMaterialId;
+  String? get sectionStatusMaterialId => _$this._sectionStatusMaterialId;
+  set sectionStatusMaterialId(String? sectionStatusMaterialId) =>
       _$this._sectionStatusMaterialId = sectionStatusMaterialId;
 
-  String _sectionComment;
-  String get sectionComment => _$this._sectionComment;
-  set sectionComment(String sectionComment) =>
+  String? _sectionComment;
+  String? get sectionComment => _$this._sectionComment;
+  set sectionComment(String? sectionComment) =>
       _$this._sectionComment = sectionComment;
 
-  String _groupId;
-  String get groupId => _$this._groupId;
-  set groupId(String groupId) => _$this._groupId = groupId;
+  String? _groupId;
+  String? get groupId => _$this._groupId;
+  set groupId(String? groupId) => _$this._groupId = groupId;
 
-  String _groupName;
-  String get groupName => _$this._groupName;
-  set groupName(String groupName) => _$this._groupName = groupName;
+  String? _groupName;
+  String? get groupName => _$this._groupName;
+  set groupName(String? groupName) => _$this._groupName = groupName;
 
-  String _userId;
-  String get userId => _$this._userId;
-  set userId(String userId) => _$this._userId = userId;
+  String? _userId;
+  String? get userId => _$this._userId;
+  set userId(String? userId) => _$this._userId = userId;
 
-  String _userName;
-  String get userName => _$this._userName;
-  set userName(String userName) => _$this._userName = userName;
+  String? _userName;
+  String? get userName => _$this._userName;
+  set userName(String? userName) => _$this._userName = userName;
 
-  String _comment;
-  String get comment => _$this._comment;
-  set comment(String comment) => _$this._comment = comment;
+  String? _comment;
+  String? get comment => _$this._comment;
+  set comment(String? comment) => _$this._comment = comment;
 
-  String _severityId;
-  String get severityId => _$this._severityId;
-  set severityId(String severityId) => _$this._severityId = severityId;
+  String? _severityId;
+  String? get severityId => _$this._severityId;
+  set severityId(String? severityId) => _$this._severityId = severityId;
 
-  String _severityName;
-  String get severityName => _$this._severityName;
-  set severityName(String severityName) => _$this._severityName = severityName;
+  String? _severityName;
+  String? get severityName => _$this._severityName;
+  set severityName(String? severityName) => _$this._severityName = severityName;
 
   WorkOrderStatusBuilder();
 
@@ -1286,7 +1276,7 @@ class WorkOrderStatusBuilder
   }
 
   @override
-  void update(void Function(WorkOrderStatusBuilder) updates) {
+  void update(void Function(WorkOrderStatusBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -1296,19 +1286,20 @@ class WorkOrderStatusBuilder
   _$WorkOrderStatus _build() {
     final _$result = _$v ??
         new _$WorkOrderStatus._(
-            sectionName: sectionName,
-            sectionDesc: sectionDesc,
-            sectionStatus: sectionStatus,
-            sectionStatusMaterial: sectionStatusMaterial,
-            sectionStatusMaterialId: sectionStatusMaterialId,
-            sectionComment: sectionComment,
-            groupId: groupId,
-            groupName: groupName,
-            userId: userId,
-            userName: userName,
-            comment: comment,
-            severityId: severityId,
-            severityName: severityName);
+          sectionName: sectionName,
+          sectionDesc: sectionDesc,
+          sectionStatus: sectionStatus,
+          sectionStatusMaterial: sectionStatusMaterial,
+          sectionStatusMaterialId: sectionStatusMaterialId,
+          sectionComment: sectionComment,
+          groupId: groupId,
+          groupName: groupName,
+          userId: userId,
+          userName: userName,
+          comment: comment,
+          severityId: severityId,
+          severityName: severityName,
+        );
     replace(_$result);
     return _$result;
   }
@@ -1342,23 +1333,23 @@ class _$WorkOrderDetail extends WorkOrderDetail {
   @override
   final BuiltList<ComplaintImage> complaintImages;
 
-  factory _$WorkOrderDetail([void Function(WorkOrderDetailBuilder) updates]) =>
+  factory _$WorkOrderDetail([void Function(WorkOrderDetailBuilder)? updates]) =>
       (new WorkOrderDetailBuilder()..update(updates))._build();
 
   _$WorkOrderDetail._(
-      {this.woTaskId,
-      this.woTaskNo,
-      this.woTaskRequestNo,
-      this.woTaskReportedBy,
-      this.woTaskTimeResponded,
-      this.woTaskCategory,
-      this.woTaskClient,
-      this.woTaskLocation,
-      this.woTaskComplaint,
-      this.woTaskStatus,
-      this.woTaskPhoneNo,
-      this.woTaskEmail,
-      this.complaintImages})
+      {required this.woTaskId,
+      required this.woTaskNo,
+      required this.woTaskRequestNo,
+      required this.woTaskReportedBy,
+      required this.woTaskTimeResponded,
+      required this.woTaskCategory,
+      required this.woTaskClient,
+      required this.woTaskLocation,
+      required this.woTaskComplaint,
+      required this.woTaskStatus,
+      required this.woTaskPhoneNo,
+      required this.woTaskEmail,
+      required this.complaintImages})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         woTaskId, r'WorkOrderDetail', 'woTaskId');
@@ -1417,30 +1408,22 @@ class _$WorkOrderDetail extends WorkOrderDetail {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc(
-                            $jc(
-                                $jc(
-                                    $jc(
-                                        $jc(
-                                            $jc(
-                                                $jc($jc(0, woTaskId.hashCode),
-                                                    woTaskNo.hashCode),
-                                                woTaskRequestNo.hashCode),
-                                            woTaskReportedBy.hashCode),
-                                        woTaskTimeResponded.hashCode),
-                                    woTaskCategory.hashCode),
-                                woTaskClient.hashCode),
-                            woTaskLocation.hashCode),
-                        woTaskComplaint.hashCode),
-                    woTaskStatus.hashCode),
-                woTaskPhoneNo.hashCode),
-            woTaskEmail.hashCode),
-        complaintImages.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, woTaskId.hashCode);
+    _$hash = $jc(_$hash, woTaskNo.hashCode);
+    _$hash = $jc(_$hash, woTaskRequestNo.hashCode);
+    _$hash = $jc(_$hash, woTaskReportedBy.hashCode);
+    _$hash = $jc(_$hash, woTaskTimeResponded.hashCode);
+    _$hash = $jc(_$hash, woTaskCategory.hashCode);
+    _$hash = $jc(_$hash, woTaskClient.hashCode);
+    _$hash = $jc(_$hash, woTaskLocation.hashCode);
+    _$hash = $jc(_$hash, woTaskComplaint.hashCode);
+    _$hash = $jc(_$hash, woTaskStatus.hashCode);
+    _$hash = $jc(_$hash, woTaskPhoneNo.hashCode);
+    _$hash = $jc(_$hash, woTaskEmail.hashCode);
+    _$hash = $jc(_$hash, complaintImages.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -1465,67 +1448,67 @@ class _$WorkOrderDetail extends WorkOrderDetail {
 
 class WorkOrderDetailBuilder
     implements Builder<WorkOrderDetail, WorkOrderDetailBuilder> {
-  _$WorkOrderDetail _$v;
+  _$WorkOrderDetail? _$v;
 
-  String _woTaskId;
-  String get woTaskId => _$this._woTaskId;
-  set woTaskId(String woTaskId) => _$this._woTaskId = woTaskId;
+  String? _woTaskId;
+  String? get woTaskId => _$this._woTaskId;
+  set woTaskId(String? woTaskId) => _$this._woTaskId = woTaskId;
 
-  String _woTaskNo;
-  String get woTaskNo => _$this._woTaskNo;
-  set woTaskNo(String woTaskNo) => _$this._woTaskNo = woTaskNo;
+  String? _woTaskNo;
+  String? get woTaskNo => _$this._woTaskNo;
+  set woTaskNo(String? woTaskNo) => _$this._woTaskNo = woTaskNo;
 
-  String _woTaskRequestNo;
-  String get woTaskRequestNo => _$this._woTaskRequestNo;
-  set woTaskRequestNo(String woTaskRequestNo) =>
+  String? _woTaskRequestNo;
+  String? get woTaskRequestNo => _$this._woTaskRequestNo;
+  set woTaskRequestNo(String? woTaskRequestNo) =>
       _$this._woTaskRequestNo = woTaskRequestNo;
 
-  String _woTaskReportedBy;
-  String get woTaskReportedBy => _$this._woTaskReportedBy;
-  set woTaskReportedBy(String woTaskReportedBy) =>
+  String? _woTaskReportedBy;
+  String? get woTaskReportedBy => _$this._woTaskReportedBy;
+  set woTaskReportedBy(String? woTaskReportedBy) =>
       _$this._woTaskReportedBy = woTaskReportedBy;
 
-  String _woTaskTimeResponded;
-  String get woTaskTimeResponded => _$this._woTaskTimeResponded;
-  set woTaskTimeResponded(String woTaskTimeResponded) =>
+  String? _woTaskTimeResponded;
+  String? get woTaskTimeResponded => _$this._woTaskTimeResponded;
+  set woTaskTimeResponded(String? woTaskTimeResponded) =>
       _$this._woTaskTimeResponded = woTaskTimeResponded;
 
-  String _woTaskCategory;
-  String get woTaskCategory => _$this._woTaskCategory;
-  set woTaskCategory(String woTaskCategory) =>
+  String? _woTaskCategory;
+  String? get woTaskCategory => _$this._woTaskCategory;
+  set woTaskCategory(String? woTaskCategory) =>
       _$this._woTaskCategory = woTaskCategory;
 
-  String _woTaskClient;
-  String get woTaskClient => _$this._woTaskClient;
-  set woTaskClient(String woTaskClient) => _$this._woTaskClient = woTaskClient;
+  String? _woTaskClient;
+  String? get woTaskClient => _$this._woTaskClient;
+  set woTaskClient(String? woTaskClient) => _$this._woTaskClient = woTaskClient;
 
-  String _woTaskLocation;
-  String get woTaskLocation => _$this._woTaskLocation;
-  set woTaskLocation(String woTaskLocation) =>
+  String? _woTaskLocation;
+  String? get woTaskLocation => _$this._woTaskLocation;
+  set woTaskLocation(String? woTaskLocation) =>
       _$this._woTaskLocation = woTaskLocation;
 
-  String _woTaskComplaint;
-  String get woTaskComplaint => _$this._woTaskComplaint;
-  set woTaskComplaint(String woTaskComplaint) =>
+  String? _woTaskComplaint;
+  String? get woTaskComplaint => _$this._woTaskComplaint;
+  set woTaskComplaint(String? woTaskComplaint) =>
       _$this._woTaskComplaint = woTaskComplaint;
 
-  String _woTaskStatus;
-  String get woTaskStatus => _$this._woTaskStatus;
-  set woTaskStatus(String woTaskStatus) => _$this._woTaskStatus = woTaskStatus;
+  String? _woTaskStatus;
+  String? get woTaskStatus => _$this._woTaskStatus;
+  set woTaskStatus(String? woTaskStatus) => _$this._woTaskStatus = woTaskStatus;
 
-  String _woTaskPhoneNo;
-  String get woTaskPhoneNo => _$this._woTaskPhoneNo;
-  set woTaskPhoneNo(String woTaskPhoneNo) =>
+  String? _woTaskPhoneNo;
+  String? get woTaskPhoneNo => _$this._woTaskPhoneNo;
+  set woTaskPhoneNo(String? woTaskPhoneNo) =>
       _$this._woTaskPhoneNo = woTaskPhoneNo;
 
-  String _woTaskEmail;
-  String get woTaskEmail => _$this._woTaskEmail;
-  set woTaskEmail(String woTaskEmail) => _$this._woTaskEmail = woTaskEmail;
+  String? _woTaskEmail;
+  String? get woTaskEmail => _$this._woTaskEmail;
+  set woTaskEmail(String? woTaskEmail) => _$this._woTaskEmail = woTaskEmail;
 
-  ListBuilder<ComplaintImage> _complaintImages;
+  ListBuilder<ComplaintImage>? _complaintImages;
   ListBuilder<ComplaintImage> get complaintImages =>
       _$this._complaintImages ??= new ListBuilder<ComplaintImage>();
-  set complaintImages(ListBuilder<ComplaintImage> complaintImages) =>
+  set complaintImages(ListBuilder<ComplaintImage>? complaintImages) =>
       _$this._complaintImages = complaintImages;
 
   WorkOrderDetailBuilder();
@@ -1558,7 +1541,7 @@ class WorkOrderDetailBuilder
   }
 
   @override
-  void update(void Function(WorkOrderDetailBuilder) updates) {
+  void update(void Function(WorkOrderDetailBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -1570,29 +1553,34 @@ class WorkOrderDetailBuilder
     try {
       _$result = _$v ??
           new _$WorkOrderDetail._(
-              woTaskId: BuiltValueNullFieldError.checkNotNull(
-                  woTaskId, r'WorkOrderDetail', 'woTaskId'),
-              woTaskNo: BuiltValueNullFieldError.checkNotNull(
-                  woTaskNo, r'WorkOrderDetail', 'woTaskNo'),
-              woTaskRequestNo: BuiltValueNullFieldError.checkNotNull(
-                  woTaskRequestNo, r'WorkOrderDetail', 'woTaskRequestNo'),
-              woTaskReportedBy: BuiltValueNullFieldError.checkNotNull(
-                  woTaskReportedBy, r'WorkOrderDetail', 'woTaskReportedBy'),
-              woTaskTimeResponded: BuiltValueNullFieldError.checkNotNull(
-                  woTaskTimeResponded, r'WorkOrderDetail', 'woTaskTimeResponded'),
-              woTaskCategory: BuiltValueNullFieldError.checkNotNull(
-                  woTaskCategory, r'WorkOrderDetail', 'woTaskCategory'),
-              woTaskClient: BuiltValueNullFieldError.checkNotNull(
-                  woTaskClient, r'WorkOrderDetail', 'woTaskClient'),
-              woTaskLocation: BuiltValueNullFieldError.checkNotNull(
-                  woTaskLocation, r'WorkOrderDetail', 'woTaskLocation'),
-              woTaskComplaint: BuiltValueNullFieldError.checkNotNull(woTaskComplaint, r'WorkOrderDetail', 'woTaskComplaint'),
-              woTaskStatus: BuiltValueNullFieldError.checkNotNull(woTaskStatus, r'WorkOrderDetail', 'woTaskStatus'),
-              woTaskPhoneNo: BuiltValueNullFieldError.checkNotNull(woTaskPhoneNo, r'WorkOrderDetail', 'woTaskPhoneNo'),
-              woTaskEmail: BuiltValueNullFieldError.checkNotNull(woTaskEmail, r'WorkOrderDetail', 'woTaskEmail'),
-              complaintImages: complaintImages.build());
+            woTaskId: BuiltValueNullFieldError.checkNotNull(
+                woTaskId, r'WorkOrderDetail', 'woTaskId'),
+            woTaskNo: BuiltValueNullFieldError.checkNotNull(
+                woTaskNo, r'WorkOrderDetail', 'woTaskNo'),
+            woTaskRequestNo: BuiltValueNullFieldError.checkNotNull(
+                woTaskRequestNo, r'WorkOrderDetail', 'woTaskRequestNo'),
+            woTaskReportedBy: BuiltValueNullFieldError.checkNotNull(
+                woTaskReportedBy, r'WorkOrderDetail', 'woTaskReportedBy'),
+            woTaskTimeResponded: BuiltValueNullFieldError.checkNotNull(
+                woTaskTimeResponded, r'WorkOrderDetail', 'woTaskTimeResponded'),
+            woTaskCategory: BuiltValueNullFieldError.checkNotNull(
+                woTaskCategory, r'WorkOrderDetail', 'woTaskCategory'),
+            woTaskClient: BuiltValueNullFieldError.checkNotNull(
+                woTaskClient, r'WorkOrderDetail', 'woTaskClient'),
+            woTaskLocation: BuiltValueNullFieldError.checkNotNull(
+                woTaskLocation, r'WorkOrderDetail', 'woTaskLocation'),
+            woTaskComplaint: BuiltValueNullFieldError.checkNotNull(
+                woTaskComplaint, r'WorkOrderDetail', 'woTaskComplaint'),
+            woTaskStatus: BuiltValueNullFieldError.checkNotNull(
+                woTaskStatus, r'WorkOrderDetail', 'woTaskStatus'),
+            woTaskPhoneNo: BuiltValueNullFieldError.checkNotNull(
+                woTaskPhoneNo, r'WorkOrderDetail', 'woTaskPhoneNo'),
+            woTaskEmail: BuiltValueNullFieldError.checkNotNull(
+                woTaskEmail, r'WorkOrderDetail', 'woTaskEmail'),
+            complaintImages: complaintImages.build(),
+          );
     } catch (_) {
-      String _$failedField;
+      late String _$failedField;
       try {
         _$failedField = 'complaintImages';
         complaintImages.build();
@@ -1633,22 +1621,22 @@ class _$ComplaintImage extends ComplaintImage {
   @override
   final String documentSrc;
 
-  factory _$ComplaintImage([void Function(ComplaintImageBuilder) updates]) =>
+  factory _$ComplaintImage([void Function(ComplaintImageBuilder)? updates]) =>
       (new ComplaintImageBuilder()..update(updates))._build();
 
   _$ComplaintImage._(
-      {this.woTaskUploadId,
-      this.woTaskUploadType,
-      this.woTaskId,
-      this.woTaskUploadLongitude,
-      this.woTaskUploadLatitude,
-      this.woTaskUploadTimestamp,
-      this.woTaskUploadDesc,
-      this.uploadId,
-      this.uploadName,
-      this.documentDesc,
-      this.documentFilename,
-      this.documentSrc})
+      {required this.woTaskUploadId,
+      required this.woTaskUploadType,
+      required this.woTaskId,
+      required this.woTaskUploadLongitude,
+      required this.woTaskUploadLatitude,
+      required this.woTaskUploadTimestamp,
+      required this.woTaskUploadDesc,
+      required this.uploadId,
+      required this.uploadName,
+      required this.documentDesc,
+      required this.documentFilename,
+      required this.documentSrc})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         woTaskUploadId, r'ComplaintImage', 'woTaskUploadId');
@@ -1704,28 +1692,21 @@ class _$ComplaintImage extends ComplaintImage {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc(
-                            $jc(
-                                $jc(
-                                    $jc(
-                                        $jc(
-                                            $jc($jc(0, woTaskUploadId.hashCode),
-                                                woTaskUploadType.hashCode),
-                                            woTaskId.hashCode),
-                                        woTaskUploadLongitude.hashCode),
-                                    woTaskUploadLatitude.hashCode),
-                                woTaskUploadTimestamp.hashCode),
-                            woTaskUploadDesc.hashCode),
-                        uploadId.hashCode),
-                    uploadName.hashCode),
-                documentDesc.hashCode),
-            documentFilename.hashCode),
-        documentSrc.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, woTaskUploadId.hashCode);
+    _$hash = $jc(_$hash, woTaskUploadType.hashCode);
+    _$hash = $jc(_$hash, woTaskId.hashCode);
+    _$hash = $jc(_$hash, woTaskUploadLongitude.hashCode);
+    _$hash = $jc(_$hash, woTaskUploadLatitude.hashCode);
+    _$hash = $jc(_$hash, woTaskUploadTimestamp.hashCode);
+    _$hash = $jc(_$hash, woTaskUploadDesc.hashCode);
+    _$hash = $jc(_$hash, uploadId.hashCode);
+    _$hash = $jc(_$hash, uploadName.hashCode);
+    _$hash = $jc(_$hash, documentDesc.hashCode);
+    _$hash = $jc(_$hash, documentFilename.hashCode);
+    _$hash = $jc(_$hash, documentSrc.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -1749,62 +1730,62 @@ class _$ComplaintImage extends ComplaintImage {
 
 class ComplaintImageBuilder
     implements Builder<ComplaintImage, ComplaintImageBuilder> {
-  _$ComplaintImage _$v;
+  _$ComplaintImage? _$v;
 
-  String _woTaskUploadId;
-  String get woTaskUploadId => _$this._woTaskUploadId;
-  set woTaskUploadId(String woTaskUploadId) =>
+  String? _woTaskUploadId;
+  String? get woTaskUploadId => _$this._woTaskUploadId;
+  set woTaskUploadId(String? woTaskUploadId) =>
       _$this._woTaskUploadId = woTaskUploadId;
 
-  String _woTaskUploadType;
-  String get woTaskUploadType => _$this._woTaskUploadType;
-  set woTaskUploadType(String woTaskUploadType) =>
+  String? _woTaskUploadType;
+  String? get woTaskUploadType => _$this._woTaskUploadType;
+  set woTaskUploadType(String? woTaskUploadType) =>
       _$this._woTaskUploadType = woTaskUploadType;
 
-  String _woTaskId;
-  String get woTaskId => _$this._woTaskId;
-  set woTaskId(String woTaskId) => _$this._woTaskId = woTaskId;
+  String? _woTaskId;
+  String? get woTaskId => _$this._woTaskId;
+  set woTaskId(String? woTaskId) => _$this._woTaskId = woTaskId;
 
-  String _woTaskUploadLongitude;
-  String get woTaskUploadLongitude => _$this._woTaskUploadLongitude;
-  set woTaskUploadLongitude(String woTaskUploadLongitude) =>
+  String? _woTaskUploadLongitude;
+  String? get woTaskUploadLongitude => _$this._woTaskUploadLongitude;
+  set woTaskUploadLongitude(String? woTaskUploadLongitude) =>
       _$this._woTaskUploadLongitude = woTaskUploadLongitude;
 
-  String _woTaskUploadLatitude;
-  String get woTaskUploadLatitude => _$this._woTaskUploadLatitude;
-  set woTaskUploadLatitude(String woTaskUploadLatitude) =>
+  String? _woTaskUploadLatitude;
+  String? get woTaskUploadLatitude => _$this._woTaskUploadLatitude;
+  set woTaskUploadLatitude(String? woTaskUploadLatitude) =>
       _$this._woTaskUploadLatitude = woTaskUploadLatitude;
 
-  String _woTaskUploadTimestamp;
-  String get woTaskUploadTimestamp => _$this._woTaskUploadTimestamp;
-  set woTaskUploadTimestamp(String woTaskUploadTimestamp) =>
+  String? _woTaskUploadTimestamp;
+  String? get woTaskUploadTimestamp => _$this._woTaskUploadTimestamp;
+  set woTaskUploadTimestamp(String? woTaskUploadTimestamp) =>
       _$this._woTaskUploadTimestamp = woTaskUploadTimestamp;
 
-  String _woTaskUploadDesc;
-  String get woTaskUploadDesc => _$this._woTaskUploadDesc;
-  set woTaskUploadDesc(String woTaskUploadDesc) =>
+  String? _woTaskUploadDesc;
+  String? get woTaskUploadDesc => _$this._woTaskUploadDesc;
+  set woTaskUploadDesc(String? woTaskUploadDesc) =>
       _$this._woTaskUploadDesc = woTaskUploadDesc;
 
-  String _uploadId;
-  String get uploadId => _$this._uploadId;
-  set uploadId(String uploadId) => _$this._uploadId = uploadId;
+  String? _uploadId;
+  String? get uploadId => _$this._uploadId;
+  set uploadId(String? uploadId) => _$this._uploadId = uploadId;
 
-  String _uploadName;
-  String get uploadName => _$this._uploadName;
-  set uploadName(String uploadName) => _$this._uploadName = uploadName;
+  String? _uploadName;
+  String? get uploadName => _$this._uploadName;
+  set uploadName(String? uploadName) => _$this._uploadName = uploadName;
 
-  String _documentDesc;
-  String get documentDesc => _$this._documentDesc;
-  set documentDesc(String documentDesc) => _$this._documentDesc = documentDesc;
+  String? _documentDesc;
+  String? get documentDesc => _$this._documentDesc;
+  set documentDesc(String? documentDesc) => _$this._documentDesc = documentDesc;
 
-  String _documentFilename;
-  String get documentFilename => _$this._documentFilename;
-  set documentFilename(String documentFilename) =>
+  String? _documentFilename;
+  String? get documentFilename => _$this._documentFilename;
+  set documentFilename(String? documentFilename) =>
       _$this._documentFilename = documentFilename;
 
-  String _documentSrc;
-  String get documentSrc => _$this._documentSrc;
-  set documentSrc(String documentSrc) => _$this._documentSrc = documentSrc;
+  String? _documentSrc;
+  String? get documentSrc => _$this._documentSrc;
+  set documentSrc(String? documentSrc) => _$this._documentSrc = documentSrc;
 
   ComplaintImageBuilder();
 
@@ -1835,7 +1816,7 @@ class ComplaintImageBuilder
   }
 
   @override
-  void update(void Function(ComplaintImageBuilder) updates) {
+  void update(void Function(ComplaintImageBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -1845,26 +1826,35 @@ class ComplaintImageBuilder
   _$ComplaintImage _build() {
     final _$result = _$v ??
         new _$ComplaintImage._(
-            woTaskUploadId: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadId, r'ComplaintImage', 'woTaskUploadId'),
-            woTaskUploadType: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadType, r'ComplaintImage', 'woTaskUploadType'),
-            woTaskId: BuiltValueNullFieldError.checkNotNull(
-                woTaskId, r'ComplaintImage', 'woTaskId'),
-            woTaskUploadLongitude: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadLongitude, r'ComplaintImage', 'woTaskUploadLongitude'),
-            woTaskUploadLatitude: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadLatitude, r'ComplaintImage', 'woTaskUploadLatitude'),
-            woTaskUploadTimestamp: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadTimestamp, r'ComplaintImage', 'woTaskUploadTimestamp'),
-            woTaskUploadDesc: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadDesc, r'ComplaintImage', 'woTaskUploadDesc'),
-            uploadId:
-                BuiltValueNullFieldError.checkNotNull(uploadId, r'ComplaintImage', 'uploadId'),
-            uploadName: BuiltValueNullFieldError.checkNotNull(uploadName, r'ComplaintImage', 'uploadName'),
-            documentDesc: BuiltValueNullFieldError.checkNotNull(documentDesc, r'ComplaintImage', 'documentDesc'),
-            documentFilename: BuiltValueNullFieldError.checkNotNull(documentFilename, r'ComplaintImage', 'documentFilename'),
-            documentSrc: BuiltValueNullFieldError.checkNotNull(documentSrc, r'ComplaintImage', 'documentSrc'));
+          woTaskUploadId: BuiltValueNullFieldError.checkNotNull(
+              woTaskUploadId, r'ComplaintImage', 'woTaskUploadId'),
+          woTaskUploadType: BuiltValueNullFieldError.checkNotNull(
+              woTaskUploadType, r'ComplaintImage', 'woTaskUploadType'),
+          woTaskId: BuiltValueNullFieldError.checkNotNull(
+              woTaskId, r'ComplaintImage', 'woTaskId'),
+          woTaskUploadLongitude: BuiltValueNullFieldError.checkNotNull(
+              woTaskUploadLongitude,
+              r'ComplaintImage',
+              'woTaskUploadLongitude'),
+          woTaskUploadLatitude: BuiltValueNullFieldError.checkNotNull(
+              woTaskUploadLatitude, r'ComplaintImage', 'woTaskUploadLatitude'),
+          woTaskUploadTimestamp: BuiltValueNullFieldError.checkNotNull(
+              woTaskUploadTimestamp,
+              r'ComplaintImage',
+              'woTaskUploadTimestamp'),
+          woTaskUploadDesc: BuiltValueNullFieldError.checkNotNull(
+              woTaskUploadDesc, r'ComplaintImage', 'woTaskUploadDesc'),
+          uploadId: BuiltValueNullFieldError.checkNotNull(
+              uploadId, r'ComplaintImage', 'uploadId'),
+          uploadName: BuiltValueNullFieldError.checkNotNull(
+              uploadName, r'ComplaintImage', 'uploadName'),
+          documentDesc: BuiltValueNullFieldError.checkNotNull(
+              documentDesc, r'ComplaintImage', 'documentDesc'),
+          documentFilename: BuiltValueNullFieldError.checkNotNull(
+              documentFilename, r'ComplaintImage', 'documentFilename'),
+          documentSrc: BuiltValueNullFieldError.checkNotNull(
+              documentSrc, r'ComplaintImage', 'documentSrc'),
+        );
     replace(_$result);
     return _$result;
   }
@@ -1885,16 +1875,16 @@ class _$TechnicianDetails extends TechnicianDetails {
   final BuiltList<TechnicianTask> currentTask;
 
   factory _$TechnicianDetails(
-          [void Function(TechnicianDetailsBuilder) updates]) =>
+          [void Function(TechnicianDetailsBuilder)? updates]) =>
       (new TechnicianDetailsBuilder()..update(updates))._build();
 
   _$TechnicianDetails._(
-      {this.name,
-      this.phoneNo,
-      this.email,
-      this.group,
-      this.totalCurrentTask,
-      this.currentTask})
+      {required this.name,
+      required this.phoneNo,
+      required this.email,
+      required this.group,
+      required this.totalCurrentTask,
+      required this.currentTask})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(name, r'TechnicianDetails', 'name');
     BuiltValueNullFieldError.checkNotNull(
@@ -1929,14 +1919,15 @@ class _$TechnicianDetails extends TechnicianDetails {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc($jc($jc(0, name.hashCode), phoneNo.hashCode),
-                    email.hashCode),
-                group.hashCode),
-            totalCurrentTask.hashCode),
-        currentTask.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, name.hashCode);
+    _$hash = $jc(_$hash, phoneNo.hashCode);
+    _$hash = $jc(_$hash, email.hashCode);
+    _$hash = $jc(_$hash, group.hashCode);
+    _$hash = $jc(_$hash, totalCurrentTask.hashCode);
+    _$hash = $jc(_$hash, currentTask.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -1954,33 +1945,33 @@ class _$TechnicianDetails extends TechnicianDetails {
 
 class TechnicianDetailsBuilder
     implements Builder<TechnicianDetails, TechnicianDetailsBuilder> {
-  _$TechnicianDetails _$v;
+  _$TechnicianDetails? _$v;
 
-  String _name;
-  String get name => _$this._name;
-  set name(String name) => _$this._name = name;
+  String? _name;
+  String? get name => _$this._name;
+  set name(String? name) => _$this._name = name;
 
-  String _phoneNo;
-  String get phoneNo => _$this._phoneNo;
-  set phoneNo(String phoneNo) => _$this._phoneNo = phoneNo;
+  String? _phoneNo;
+  String? get phoneNo => _$this._phoneNo;
+  set phoneNo(String? phoneNo) => _$this._phoneNo = phoneNo;
 
-  String _email;
-  String get email => _$this._email;
-  set email(String email) => _$this._email = email;
+  String? _email;
+  String? get email => _$this._email;
+  set email(String? email) => _$this._email = email;
 
-  String _group;
-  String get group => _$this._group;
-  set group(String group) => _$this._group = group;
+  String? _group;
+  String? get group => _$this._group;
+  set group(String? group) => _$this._group = group;
 
-  int _totalCurrentTask;
-  int get totalCurrentTask => _$this._totalCurrentTask;
-  set totalCurrentTask(int totalCurrentTask) =>
+  int? _totalCurrentTask;
+  int? get totalCurrentTask => _$this._totalCurrentTask;
+  set totalCurrentTask(int? totalCurrentTask) =>
       _$this._totalCurrentTask = totalCurrentTask;
 
-  ListBuilder<TechnicianTask> _currentTask;
+  ListBuilder<TechnicianTask>? _currentTask;
   ListBuilder<TechnicianTask> get currentTask =>
       _$this._currentTask ??= new ListBuilder<TechnicianTask>();
-  set currentTask(ListBuilder<TechnicianTask> currentTask) =>
+  set currentTask(ListBuilder<TechnicianTask>? currentTask) =>
       _$this._currentTask = currentTask;
 
   TechnicianDetailsBuilder();
@@ -2006,7 +1997,7 @@ class TechnicianDetailsBuilder
   }
 
   @override
-  void update(void Function(TechnicianDetailsBuilder) updates) {
+  void update(void Function(TechnicianDetailsBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -2018,19 +2009,20 @@ class TechnicianDetailsBuilder
     try {
       _$result = _$v ??
           new _$TechnicianDetails._(
-              name: BuiltValueNullFieldError.checkNotNull(
-                  name, r'TechnicianDetails', 'name'),
-              phoneNo: BuiltValueNullFieldError.checkNotNull(
-                  phoneNo, r'TechnicianDetails', 'phoneNo'),
-              email: BuiltValueNullFieldError.checkNotNull(
-                  email, r'TechnicianDetails', 'email'),
-              group: BuiltValueNullFieldError.checkNotNull(
-                  group, r'TechnicianDetails', 'group'),
-              totalCurrentTask: BuiltValueNullFieldError.checkNotNull(
-                  totalCurrentTask, r'TechnicianDetails', 'totalCurrentTask'),
-              currentTask: currentTask.build());
+            name: BuiltValueNullFieldError.checkNotNull(
+                name, r'TechnicianDetails', 'name'),
+            phoneNo: BuiltValueNullFieldError.checkNotNull(
+                phoneNo, r'TechnicianDetails', 'phoneNo'),
+            email: BuiltValueNullFieldError.checkNotNull(
+                email, r'TechnicianDetails', 'email'),
+            group: BuiltValueNullFieldError.checkNotNull(
+                group, r'TechnicianDetails', 'group'),
+            totalCurrentTask: BuiltValueNullFieldError.checkNotNull(
+                totalCurrentTask, r'TechnicianDetails', 'totalCurrentTask'),
+            currentTask: currentTask.build(),
+          );
     } catch (_) {
-      String _$failedField;
+      late String _$failedField;
       try {
         _$failedField = 'currentTask';
         currentTask.build();
@@ -2051,10 +2043,11 @@ class _$TechnicianTask extends TechnicianTask {
   @override
   final String dateReceived;
 
-  factory _$TechnicianTask([void Function(TechnicianTaskBuilder) updates]) =>
+  factory _$TechnicianTask([void Function(TechnicianTaskBuilder)? updates]) =>
       (new TechnicianTaskBuilder()..update(updates))._build();
 
-  _$TechnicianTask._({this.woTaskNo, this.dateReceived}) : super._() {
+  _$TechnicianTask._({required this.woTaskNo, required this.dateReceived})
+      : super._() {
     BuiltValueNullFieldError.checkNotNull(
         woTaskNo, r'TechnicianTask', 'woTaskNo');
     BuiltValueNullFieldError.checkNotNull(
@@ -2079,7 +2072,11 @@ class _$TechnicianTask extends TechnicianTask {
 
   @override
   int get hashCode {
-    return $jf($jc($jc(0, woTaskNo.hashCode), dateReceived.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, woTaskNo.hashCode);
+    _$hash = $jc(_$hash, dateReceived.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -2093,15 +2090,15 @@ class _$TechnicianTask extends TechnicianTask {
 
 class TechnicianTaskBuilder
     implements Builder<TechnicianTask, TechnicianTaskBuilder> {
-  _$TechnicianTask _$v;
+  _$TechnicianTask? _$v;
 
-  String _woTaskNo;
-  String get woTaskNo => _$this._woTaskNo;
-  set woTaskNo(String woTaskNo) => _$this._woTaskNo = woTaskNo;
+  String? _woTaskNo;
+  String? get woTaskNo => _$this._woTaskNo;
+  set woTaskNo(String? woTaskNo) => _$this._woTaskNo = woTaskNo;
 
-  String _dateReceived;
-  String get dateReceived => _$this._dateReceived;
-  set dateReceived(String dateReceived) => _$this._dateReceived = dateReceived;
+  String? _dateReceived;
+  String? get dateReceived => _$this._dateReceived;
+  set dateReceived(String? dateReceived) => _$this._dateReceived = dateReceived;
 
   TechnicianTaskBuilder();
 
@@ -2122,7 +2119,7 @@ class TechnicianTaskBuilder
   }
 
   @override
-  void update(void Function(TechnicianTaskBuilder) updates) {
+  void update(void Function(TechnicianTaskBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -2132,10 +2129,11 @@ class TechnicianTaskBuilder
   _$TechnicianTask _build() {
     final _$result = _$v ??
         new _$TechnicianTask._(
-            woTaskNo: BuiltValueNullFieldError.checkNotNull(
-                woTaskNo, r'TechnicianTask', 'woTaskNo'),
-            dateReceived: BuiltValueNullFieldError.checkNotNull(
-                dateReceived, r'TechnicianTask', 'dateReceived'));
+          woTaskNo: BuiltValueNullFieldError.checkNotNull(
+              woTaskNo, r'TechnicianTask', 'woTaskNo'),
+          dateReceived: BuiltValueNullFieldError.checkNotNull(
+              dateReceived, r'TechnicianTask', 'dateReceived'),
+        );
     replace(_$result);
     return _$result;
   }
@@ -2168,22 +2166,22 @@ class _$TechnicianImageRepair extends TechnicianImageRepair {
   final String documentSrc;
 
   factory _$TechnicianImageRepair(
-          [void Function(TechnicianImageRepairBuilder) updates]) =>
+          [void Function(TechnicianImageRepairBuilder)? updates]) =>
       (new TechnicianImageRepairBuilder()..update(updates))._build();
 
   _$TechnicianImageRepair._(
-      {this.woTaskUploadId,
-      this.woTaskUploadType,
-      this.woTaskId,
-      this.woTaskUploadLongitude,
-      this.woTaskUploadLatitude,
-      this.woTaskUploadTimestamp,
-      this.woTaskUploadDesc,
-      this.uploadId,
-      this.uploadName,
-      this.documentDesc,
-      this.documentFilename,
-      this.documentSrc})
+      {required this.woTaskUploadId,
+      required this.woTaskUploadType,
+      required this.woTaskId,
+      required this.woTaskUploadLongitude,
+      required this.woTaskUploadLatitude,
+      required this.woTaskUploadTimestamp,
+      required this.woTaskUploadDesc,
+      required this.uploadId,
+      required this.uploadName,
+      required this.documentDesc,
+      required this.documentFilename,
+      required this.documentSrc})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         woTaskUploadId, r'TechnicianImageRepair', 'woTaskUploadId');
@@ -2240,28 +2238,21 @@ class _$TechnicianImageRepair extends TechnicianImageRepair {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc(
-                            $jc(
-                                $jc(
-                                    $jc(
-                                        $jc(
-                                            $jc($jc(0, woTaskUploadId.hashCode),
-                                                woTaskUploadType.hashCode),
-                                            woTaskId.hashCode),
-                                        woTaskUploadLongitude.hashCode),
-                                    woTaskUploadLatitude.hashCode),
-                                woTaskUploadTimestamp.hashCode),
-                            woTaskUploadDesc.hashCode),
-                        uploadId.hashCode),
-                    uploadName.hashCode),
-                documentDesc.hashCode),
-            documentFilename.hashCode),
-        documentSrc.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, woTaskUploadId.hashCode);
+    _$hash = $jc(_$hash, woTaskUploadType.hashCode);
+    _$hash = $jc(_$hash, woTaskId.hashCode);
+    _$hash = $jc(_$hash, woTaskUploadLongitude.hashCode);
+    _$hash = $jc(_$hash, woTaskUploadLatitude.hashCode);
+    _$hash = $jc(_$hash, woTaskUploadTimestamp.hashCode);
+    _$hash = $jc(_$hash, woTaskUploadDesc.hashCode);
+    _$hash = $jc(_$hash, uploadId.hashCode);
+    _$hash = $jc(_$hash, uploadName.hashCode);
+    _$hash = $jc(_$hash, documentDesc.hashCode);
+    _$hash = $jc(_$hash, documentFilename.hashCode);
+    _$hash = $jc(_$hash, documentSrc.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -2285,62 +2276,62 @@ class _$TechnicianImageRepair extends TechnicianImageRepair {
 
 class TechnicianImageRepairBuilder
     implements Builder<TechnicianImageRepair, TechnicianImageRepairBuilder> {
-  _$TechnicianImageRepair _$v;
+  _$TechnicianImageRepair? _$v;
 
-  String _woTaskUploadId;
-  String get woTaskUploadId => _$this._woTaskUploadId;
-  set woTaskUploadId(String woTaskUploadId) =>
+  String? _woTaskUploadId;
+  String? get woTaskUploadId => _$this._woTaskUploadId;
+  set woTaskUploadId(String? woTaskUploadId) =>
       _$this._woTaskUploadId = woTaskUploadId;
 
-  String _woTaskUploadType;
-  String get woTaskUploadType => _$this._woTaskUploadType;
-  set woTaskUploadType(String woTaskUploadType) =>
+  String? _woTaskUploadType;
+  String? get woTaskUploadType => _$this._woTaskUploadType;
+  set woTaskUploadType(String? woTaskUploadType) =>
       _$this._woTaskUploadType = woTaskUploadType;
 
-  String _woTaskId;
-  String get woTaskId => _$this._woTaskId;
-  set woTaskId(String woTaskId) => _$this._woTaskId = woTaskId;
+  String? _woTaskId;
+  String? get woTaskId => _$this._woTaskId;
+  set woTaskId(String? woTaskId) => _$this._woTaskId = woTaskId;
 
-  String _woTaskUploadLongitude;
-  String get woTaskUploadLongitude => _$this._woTaskUploadLongitude;
-  set woTaskUploadLongitude(String woTaskUploadLongitude) =>
+  String? _woTaskUploadLongitude;
+  String? get woTaskUploadLongitude => _$this._woTaskUploadLongitude;
+  set woTaskUploadLongitude(String? woTaskUploadLongitude) =>
       _$this._woTaskUploadLongitude = woTaskUploadLongitude;
 
-  String _woTaskUploadLatitude;
-  String get woTaskUploadLatitude => _$this._woTaskUploadLatitude;
-  set woTaskUploadLatitude(String woTaskUploadLatitude) =>
+  String? _woTaskUploadLatitude;
+  String? get woTaskUploadLatitude => _$this._woTaskUploadLatitude;
+  set woTaskUploadLatitude(String? woTaskUploadLatitude) =>
       _$this._woTaskUploadLatitude = woTaskUploadLatitude;
 
-  String _woTaskUploadTimestamp;
-  String get woTaskUploadTimestamp => _$this._woTaskUploadTimestamp;
-  set woTaskUploadTimestamp(String woTaskUploadTimestamp) =>
+  String? _woTaskUploadTimestamp;
+  String? get woTaskUploadTimestamp => _$this._woTaskUploadTimestamp;
+  set woTaskUploadTimestamp(String? woTaskUploadTimestamp) =>
       _$this._woTaskUploadTimestamp = woTaskUploadTimestamp;
 
-  String _woTaskUploadDesc;
-  String get woTaskUploadDesc => _$this._woTaskUploadDesc;
-  set woTaskUploadDesc(String woTaskUploadDesc) =>
+  String? _woTaskUploadDesc;
+  String? get woTaskUploadDesc => _$this._woTaskUploadDesc;
+  set woTaskUploadDesc(String? woTaskUploadDesc) =>
       _$this._woTaskUploadDesc = woTaskUploadDesc;
 
-  String _uploadId;
-  String get uploadId => _$this._uploadId;
-  set uploadId(String uploadId) => _$this._uploadId = uploadId;
+  String? _uploadId;
+  String? get uploadId => _$this._uploadId;
+  set uploadId(String? uploadId) => _$this._uploadId = uploadId;
 
-  String _uploadName;
-  String get uploadName => _$this._uploadName;
-  set uploadName(String uploadName) => _$this._uploadName = uploadName;
+  String? _uploadName;
+  String? get uploadName => _$this._uploadName;
+  set uploadName(String? uploadName) => _$this._uploadName = uploadName;
 
-  String _documentDesc;
-  String get documentDesc => _$this._documentDesc;
-  set documentDesc(String documentDesc) => _$this._documentDesc = documentDesc;
+  String? _documentDesc;
+  String? get documentDesc => _$this._documentDesc;
+  set documentDesc(String? documentDesc) => _$this._documentDesc = documentDesc;
 
-  String _documentFilename;
-  String get documentFilename => _$this._documentFilename;
-  set documentFilename(String documentFilename) =>
+  String? _documentFilename;
+  String? get documentFilename => _$this._documentFilename;
+  set documentFilename(String? documentFilename) =>
       _$this._documentFilename = documentFilename;
 
-  String _documentSrc;
-  String get documentSrc => _$this._documentSrc;
-  set documentSrc(String documentSrc) => _$this._documentSrc = documentSrc;
+  String? _documentSrc;
+  String? get documentSrc => _$this._documentSrc;
+  set documentSrc(String? documentSrc) => _$this._documentSrc = documentSrc;
 
   TechnicianImageRepairBuilder();
 
@@ -2371,7 +2362,7 @@ class TechnicianImageRepairBuilder
   }
 
   @override
-  void update(void Function(TechnicianImageRepairBuilder) updates) {
+  void update(void Function(TechnicianImageRepairBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -2381,25 +2372,37 @@ class TechnicianImageRepairBuilder
   _$TechnicianImageRepair _build() {
     final _$result = _$v ??
         new _$TechnicianImageRepair._(
-            woTaskUploadId: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadId, r'TechnicianImageRepair', 'woTaskUploadId'),
-            woTaskUploadType: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadType, r'TechnicianImageRepair', 'woTaskUploadType'),
-            woTaskId: BuiltValueNullFieldError.checkNotNull(
-                woTaskId, r'TechnicianImageRepair', 'woTaskId'),
-            woTaskUploadLongitude: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadLongitude, r'TechnicianImageRepair', 'woTaskUploadLongitude'),
-            woTaskUploadLatitude: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadLatitude, r'TechnicianImageRepair', 'woTaskUploadLatitude'),
-            woTaskUploadTimestamp: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadTimestamp, r'TechnicianImageRepair', 'woTaskUploadTimestamp'),
-            woTaskUploadDesc: BuiltValueNullFieldError.checkNotNull(
-                woTaskUploadDesc, r'TechnicianImageRepair', 'woTaskUploadDesc'),
-            uploadId: BuiltValueNullFieldError.checkNotNull(uploadId, r'TechnicianImageRepair', 'uploadId'),
-            uploadName: BuiltValueNullFieldError.checkNotNull(uploadName, r'TechnicianImageRepair', 'uploadName'),
-            documentDesc: BuiltValueNullFieldError.checkNotNull(documentDesc, r'TechnicianImageRepair', 'documentDesc'),
-            documentFilename: BuiltValueNullFieldError.checkNotNull(documentFilename, r'TechnicianImageRepair', 'documentFilename'),
-            documentSrc: BuiltValueNullFieldError.checkNotNull(documentSrc, r'TechnicianImageRepair', 'documentSrc'));
+          woTaskUploadId: BuiltValueNullFieldError.checkNotNull(
+              woTaskUploadId, r'TechnicianImageRepair', 'woTaskUploadId'),
+          woTaskUploadType: BuiltValueNullFieldError.checkNotNull(
+              woTaskUploadType, r'TechnicianImageRepair', 'woTaskUploadType'),
+          woTaskId: BuiltValueNullFieldError.checkNotNull(
+              woTaskId, r'TechnicianImageRepair', 'woTaskId'),
+          woTaskUploadLongitude: BuiltValueNullFieldError.checkNotNull(
+              woTaskUploadLongitude,
+              r'TechnicianImageRepair',
+              'woTaskUploadLongitude'),
+          woTaskUploadLatitude: BuiltValueNullFieldError.checkNotNull(
+              woTaskUploadLatitude,
+              r'TechnicianImageRepair',
+              'woTaskUploadLatitude'),
+          woTaskUploadTimestamp: BuiltValueNullFieldError.checkNotNull(
+              woTaskUploadTimestamp,
+              r'TechnicianImageRepair',
+              'woTaskUploadTimestamp'),
+          woTaskUploadDesc: BuiltValueNullFieldError.checkNotNull(
+              woTaskUploadDesc, r'TechnicianImageRepair', 'woTaskUploadDesc'),
+          uploadId: BuiltValueNullFieldError.checkNotNull(
+              uploadId, r'TechnicianImageRepair', 'uploadId'),
+          uploadName: BuiltValueNullFieldError.checkNotNull(
+              uploadName, r'TechnicianImageRepair', 'uploadName'),
+          documentDesc: BuiltValueNullFieldError.checkNotNull(
+              documentDesc, r'TechnicianImageRepair', 'documentDesc'),
+          documentFilename: BuiltValueNullFieldError.checkNotNull(
+              documentFilename, r'TechnicianImageRepair', 'documentFilename'),
+          documentSrc: BuiltValueNullFieldError.checkNotNull(
+              documentSrc, r'TechnicianImageRepair', 'documentSrc'),
+        );
     replace(_$result);
     return _$result;
   }
@@ -2422,17 +2425,17 @@ class _$TechnicianAssign extends TechnicianAssign {
   final BuiltList<String> assistUserId;
 
   factory _$TechnicianAssign(
-          [void Function(TechnicianAssignBuilder) updates]) =>
+          [void Function(TechnicianAssignBuilder)? updates]) =>
       (new TechnicianAssignBuilder()..update(updates))._build();
 
   _$TechnicianAssign._(
-      {this.userId,
-      this.severity,
-      this.groupId,
-      this.woTaskCategory,
-      this.userCategory,
-      this.woTaskMaxAssistant,
-      this.assistUserId})
+      {required this.userId,
+      required this.severity,
+      required this.groupId,
+      required this.woTaskCategory,
+      required this.userCategory,
+      required this.woTaskMaxAssistant,
+      required this.assistUserId})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         userId, r'TechnicianAssign', 'userId');
@@ -2473,16 +2476,16 @@ class _$TechnicianAssign extends TechnicianAssign {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc($jc($jc(0, userId.hashCode), severity.hashCode),
-                        groupId.hashCode),
-                    woTaskCategory.hashCode),
-                userCategory.hashCode),
-            woTaskMaxAssistant.hashCode),
-        assistUserId.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, userId.hashCode);
+    _$hash = $jc(_$hash, severity.hashCode);
+    _$hash = $jc(_$hash, groupId.hashCode);
+    _$hash = $jc(_$hash, woTaskCategory.hashCode);
+    _$hash = $jc(_$hash, userCategory.hashCode);
+    _$hash = $jc(_$hash, woTaskMaxAssistant.hashCode);
+    _$hash = $jc(_$hash, assistUserId.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -2501,38 +2504,38 @@ class _$TechnicianAssign extends TechnicianAssign {
 
 class TechnicianAssignBuilder
     implements Builder<TechnicianAssign, TechnicianAssignBuilder> {
-  _$TechnicianAssign _$v;
+  _$TechnicianAssign? _$v;
 
-  String _userId;
-  String get userId => _$this._userId;
-  set userId(String userId) => _$this._userId = userId;
+  String? _userId;
+  String? get userId => _$this._userId;
+  set userId(String? userId) => _$this._userId = userId;
 
-  String _severity;
-  String get severity => _$this._severity;
-  set severity(String severity) => _$this._severity = severity;
+  String? _severity;
+  String? get severity => _$this._severity;
+  set severity(String? severity) => _$this._severity = severity;
 
-  String _groupId;
-  String get groupId => _$this._groupId;
-  set groupId(String groupId) => _$this._groupId = groupId;
+  String? _groupId;
+  String? get groupId => _$this._groupId;
+  set groupId(String? groupId) => _$this._groupId = groupId;
 
-  String _woTaskCategory;
-  String get woTaskCategory => _$this._woTaskCategory;
-  set woTaskCategory(String woTaskCategory) =>
+  String? _woTaskCategory;
+  String? get woTaskCategory => _$this._woTaskCategory;
+  set woTaskCategory(String? woTaskCategory) =>
       _$this._woTaskCategory = woTaskCategory;
 
-  String _userCategory;
-  String get userCategory => _$this._userCategory;
-  set userCategory(String userCategory) => _$this._userCategory = userCategory;
+  String? _userCategory;
+  String? get userCategory => _$this._userCategory;
+  set userCategory(String? userCategory) => _$this._userCategory = userCategory;
 
-  String _woTaskMaxAssistant;
-  String get woTaskMaxAssistant => _$this._woTaskMaxAssistant;
-  set woTaskMaxAssistant(String woTaskMaxAssistant) =>
+  String? _woTaskMaxAssistant;
+  String? get woTaskMaxAssistant => _$this._woTaskMaxAssistant;
+  set woTaskMaxAssistant(String? woTaskMaxAssistant) =>
       _$this._woTaskMaxAssistant = woTaskMaxAssistant;
 
-  ListBuilder<String> _assistUserId;
+  ListBuilder<String>? _assistUserId;
   ListBuilder<String> get assistUserId =>
       _$this._assistUserId ??= new ListBuilder<String>();
-  set assistUserId(ListBuilder<String> assistUserId) =>
+  set assistUserId(ListBuilder<String>? assistUserId) =>
       _$this._assistUserId = assistUserId;
 
   TechnicianAssignBuilder();
@@ -2559,7 +2562,7 @@ class TechnicianAssignBuilder
   }
 
   @override
-  void update(void Function(TechnicianAssignBuilder) updates) {
+  void update(void Function(TechnicianAssignBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -2571,23 +2574,22 @@ class TechnicianAssignBuilder
     try {
       _$result = _$v ??
           new _$TechnicianAssign._(
-              userId: BuiltValueNullFieldError.checkNotNull(
-                  userId, r'TechnicianAssign', 'userId'),
-              severity: BuiltValueNullFieldError.checkNotNull(
-                  severity, r'TechnicianAssign', 'severity'),
-              groupId: BuiltValueNullFieldError.checkNotNull(
-                  groupId, r'TechnicianAssign', 'groupId'),
-              woTaskCategory: BuiltValueNullFieldError.checkNotNull(
-                  woTaskCategory, r'TechnicianAssign', 'woTaskCategory'),
-              userCategory: BuiltValueNullFieldError.checkNotNull(
-                  userCategory, r'TechnicianAssign', 'userCategory'),
-              woTaskMaxAssistant: BuiltValueNullFieldError.checkNotNull(
-                  woTaskMaxAssistant,
-                  r'TechnicianAssign',
-                  'woTaskMaxAssistant'),
-              assistUserId: assistUserId.build());
+            userId: BuiltValueNullFieldError.checkNotNull(
+                userId, r'TechnicianAssign', 'userId'),
+            severity: BuiltValueNullFieldError.checkNotNull(
+                severity, r'TechnicianAssign', 'severity'),
+            groupId: BuiltValueNullFieldError.checkNotNull(
+                groupId, r'TechnicianAssign', 'groupId'),
+            woTaskCategory: BuiltValueNullFieldError.checkNotNull(
+                woTaskCategory, r'TechnicianAssign', 'woTaskCategory'),
+            userCategory: BuiltValueNullFieldError.checkNotNull(
+                userCategory, r'TechnicianAssign', 'userCategory'),
+            woTaskMaxAssistant: BuiltValueNullFieldError.checkNotNull(
+                woTaskMaxAssistant, r'TechnicianAssign', 'woTaskMaxAssistant'),
+            assistUserId: assistUserId.build(),
+          );
     } catch (_) {
-      String _$failedField;
+      late String _$failedField;
       try {
         _$failedField = 'assistUserId';
         assistUserId.build();
@@ -2602,4 +2604,4 @@ class TechnicianAssignBuilder
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,no_leading_underscores_for_local_identifiers,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new,unnecessary_lambdas
+// ignore_for_file: deprecated_member_use_from_same_package,type=lint

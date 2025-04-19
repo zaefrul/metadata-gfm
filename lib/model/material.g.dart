@@ -15,10 +15,10 @@ class _$MaterialSerializer implements StructuredSerializer<Material> {
   final String wireName = 'Material';
 
   @override
-  Iterable<Object> serialize(Serializers serializers, Material object,
+  Iterable<Object?> serialize(Serializers serializers, Material object,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = <Object>[];
-    Object value;
+    final result = <Object?>[];
+    Object? value;
     value = object.assetGroupName;
     if (value != null) {
       result
@@ -143,85 +143,85 @@ class _$MaterialSerializer implements StructuredSerializer<Material> {
   }
 
   @override
-  Material deserialize(Serializers serializers, Iterable<Object> serialized,
+  Material deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
     final result = new MaterialBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
-      final key = iterator.current as String;
+      final key = iterator.current! as String;
       iterator.moveNext();
-      final Object value = iterator.current;
+      final Object? value = iterator.current;
       switch (key) {
         case 'assetGroupName':
           result.assetGroupName = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'itemDescription':
           result.itemDescription = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'itemId':
           result.itemId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'itemTypeDesc':
           result.itemTypeDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partAvailable':
           result.partAvailable = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partCount':
           result.partCount = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partId':
           result.partId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partLocked':
           result.partLocked = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'partThreshold':
           result.partThreshold = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'statusDesc':
           result.statusDesc = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'statusStorekeeper':
           result.statusStorekeeper = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'woTaskPartsId':
           result.woTaskPartsId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'woTaskPartsQuantity':
           result.woTaskPartsQuantity = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'woTaskPartsRemark':
           result.woTaskPartsRemark = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'woTaskPartStatus':
           result.woTaskPartStatus = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'woTaskRequestId':
           result.woTaskRequestId = serializers.deserialize(value,
-              specifiedType: const FullType(String)) as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'images':
           result.images.replace(serializers.deserialize(value,
                   specifiedType: const FullType(
-                      BuiltList, const [const FullType(ComplaintDImage)]))
-              as BuiltList<Object>);
+                      BuiltList, const [const FullType(ComplaintDImage)]))!
+              as BuiltList<Object?>);
           break;
       }
     }
@@ -232,41 +232,41 @@ class _$MaterialSerializer implements StructuredSerializer<Material> {
 
 class _$Material extends Material {
   @override
-  final String assetGroupName;
+  final String? assetGroupName;
   @override
-  final String itemDescription;
+  final String? itemDescription;
   @override
-  final String itemId;
+  final String? itemId;
   @override
-  final String itemTypeDesc;
+  final String? itemTypeDesc;
   @override
-  final String partAvailable;
+  final String? partAvailable;
   @override
-  final String partCount;
+  final String? partCount;
   @override
-  final String partId;
+  final String? partId;
   @override
-  final String partLocked;
+  final String? partLocked;
   @override
-  final String partThreshold;
+  final String? partThreshold;
   @override
-  final String statusDesc;
+  final String? statusDesc;
   @override
-  final String statusStorekeeper;
+  final String? statusStorekeeper;
   @override
-  final String woTaskPartsId;
+  final String? woTaskPartsId;
   @override
-  final String woTaskPartsQuantity;
+  final String? woTaskPartsQuantity;
   @override
-  final String woTaskPartsRemark;
+  final String? woTaskPartsRemark;
   @override
-  final String woTaskPartStatus;
+  final String? woTaskPartStatus;
   @override
-  final String woTaskRequestId;
+  final String? woTaskRequestId;
   @override
-  final BuiltList<ComplaintDImage> images;
+  final BuiltList<ComplaintDImage>? images;
 
-  factory _$Material([void Function(MaterialBuilder) updates]) =>
+  factory _$Material([void Function(MaterialBuilder)? updates]) =>
       (new MaterialBuilder()..update(updates))._build();
 
   _$Material._(
@@ -321,45 +321,26 @@ class _$Material extends Material {
 
   @override
   int get hashCode {
-    return $jf($jc(
-        $jc(
-            $jc(
-                $jc(
-                    $jc(
-                        $jc(
-                            $jc(
-                                $jc(
-                                    $jc(
-                                        $jc(
-                                            $jc(
-                                                $jc(
-                                                    $jc(
-                                                        $jc(
-                                                            $jc(
-                                                                $jc(
-                                                                    $jc(
-                                                                        0,
-                                                                        assetGroupName
-                                                                            .hashCode),
-                                                                    itemDescription
-                                                                        .hashCode),
-                                                                itemId
-                                                                    .hashCode),
-                                                            itemTypeDesc
-                                                                .hashCode),
-                                                        partAvailable.hashCode),
-                                                    partCount.hashCode),
-                                                partId.hashCode),
-                                            partLocked.hashCode),
-                                        partThreshold.hashCode),
-                                    statusDesc.hashCode),
-                                statusStorekeeper.hashCode),
-                            woTaskPartsId.hashCode),
-                        woTaskPartsQuantity.hashCode),
-                    woTaskPartsRemark.hashCode),
-                woTaskPartStatus.hashCode),
-            woTaskRequestId.hashCode),
-        images.hashCode));
+    var _$hash = 0;
+    _$hash = $jc(_$hash, assetGroupName.hashCode);
+    _$hash = $jc(_$hash, itemDescription.hashCode);
+    _$hash = $jc(_$hash, itemId.hashCode);
+    _$hash = $jc(_$hash, itemTypeDesc.hashCode);
+    _$hash = $jc(_$hash, partAvailable.hashCode);
+    _$hash = $jc(_$hash, partCount.hashCode);
+    _$hash = $jc(_$hash, partId.hashCode);
+    _$hash = $jc(_$hash, partLocked.hashCode);
+    _$hash = $jc(_$hash, partThreshold.hashCode);
+    _$hash = $jc(_$hash, statusDesc.hashCode);
+    _$hash = $jc(_$hash, statusStorekeeper.hashCode);
+    _$hash = $jc(_$hash, woTaskPartsId.hashCode);
+    _$hash = $jc(_$hash, woTaskPartsQuantity.hashCode);
+    _$hash = $jc(_$hash, woTaskPartsRemark.hashCode);
+    _$hash = $jc(_$hash, woTaskPartStatus.hashCode);
+    _$hash = $jc(_$hash, woTaskRequestId.hashCode);
+    _$hash = $jc(_$hash, images.hashCode);
+    _$hash = $jf(_$hash);
+    return _$hash;
   }
 
   @override
@@ -387,86 +368,86 @@ class _$Material extends Material {
 }
 
 class MaterialBuilder implements Builder<Material, MaterialBuilder> {
-  _$Material _$v;
+  _$Material? _$v;
 
-  String _assetGroupName;
-  String get assetGroupName => _$this._assetGroupName;
-  set assetGroupName(String assetGroupName) =>
+  String? _assetGroupName;
+  String? get assetGroupName => _$this._assetGroupName;
+  set assetGroupName(String? assetGroupName) =>
       _$this._assetGroupName = assetGroupName;
 
-  String _itemDescription;
-  String get itemDescription => _$this._itemDescription;
-  set itemDescription(String itemDescription) =>
+  String? _itemDescription;
+  String? get itemDescription => _$this._itemDescription;
+  set itemDescription(String? itemDescription) =>
       _$this._itemDescription = itemDescription;
 
-  String _itemId;
-  String get itemId => _$this._itemId;
-  set itemId(String itemId) => _$this._itemId = itemId;
+  String? _itemId;
+  String? get itemId => _$this._itemId;
+  set itemId(String? itemId) => _$this._itemId = itemId;
 
-  String _itemTypeDesc;
-  String get itemTypeDesc => _$this._itemTypeDesc;
-  set itemTypeDesc(String itemTypeDesc) => _$this._itemTypeDesc = itemTypeDesc;
+  String? _itemTypeDesc;
+  String? get itemTypeDesc => _$this._itemTypeDesc;
+  set itemTypeDesc(String? itemTypeDesc) => _$this._itemTypeDesc = itemTypeDesc;
 
-  String _partAvailable;
-  String get partAvailable => _$this._partAvailable;
-  set partAvailable(String partAvailable) =>
+  String? _partAvailable;
+  String? get partAvailable => _$this._partAvailable;
+  set partAvailable(String? partAvailable) =>
       _$this._partAvailable = partAvailable;
 
-  String _partCount;
-  String get partCount => _$this._partCount;
-  set partCount(String partCount) => _$this._partCount = partCount;
+  String? _partCount;
+  String? get partCount => _$this._partCount;
+  set partCount(String? partCount) => _$this._partCount = partCount;
 
-  String _partId;
-  String get partId => _$this._partId;
-  set partId(String partId) => _$this._partId = partId;
+  String? _partId;
+  String? get partId => _$this._partId;
+  set partId(String? partId) => _$this._partId = partId;
 
-  String _partLocked;
-  String get partLocked => _$this._partLocked;
-  set partLocked(String partLocked) => _$this._partLocked = partLocked;
+  String? _partLocked;
+  String? get partLocked => _$this._partLocked;
+  set partLocked(String? partLocked) => _$this._partLocked = partLocked;
 
-  String _partThreshold;
-  String get partThreshold => _$this._partThreshold;
-  set partThreshold(String partThreshold) =>
+  String? _partThreshold;
+  String? get partThreshold => _$this._partThreshold;
+  set partThreshold(String? partThreshold) =>
       _$this._partThreshold = partThreshold;
 
-  String _statusDesc;
-  String get statusDesc => _$this._statusDesc;
-  set statusDesc(String statusDesc) => _$this._statusDesc = statusDesc;
+  String? _statusDesc;
+  String? get statusDesc => _$this._statusDesc;
+  set statusDesc(String? statusDesc) => _$this._statusDesc = statusDesc;
 
-  String _statusStorekeeper;
-  String get statusStorekeeper => _$this._statusStorekeeper;
-  set statusStorekeeper(String statusStorekeeper) =>
+  String? _statusStorekeeper;
+  String? get statusStorekeeper => _$this._statusStorekeeper;
+  set statusStorekeeper(String? statusStorekeeper) =>
       _$this._statusStorekeeper = statusStorekeeper;
 
-  String _woTaskPartsId;
-  String get woTaskPartsId => _$this._woTaskPartsId;
-  set woTaskPartsId(String woTaskPartsId) =>
+  String? _woTaskPartsId;
+  String? get woTaskPartsId => _$this._woTaskPartsId;
+  set woTaskPartsId(String? woTaskPartsId) =>
       _$this._woTaskPartsId = woTaskPartsId;
 
-  String _woTaskPartsQuantity;
-  String get woTaskPartsQuantity => _$this._woTaskPartsQuantity;
-  set woTaskPartsQuantity(String woTaskPartsQuantity) =>
+  String? _woTaskPartsQuantity;
+  String? get woTaskPartsQuantity => _$this._woTaskPartsQuantity;
+  set woTaskPartsQuantity(String? woTaskPartsQuantity) =>
       _$this._woTaskPartsQuantity = woTaskPartsQuantity;
 
-  String _woTaskPartsRemark;
-  String get woTaskPartsRemark => _$this._woTaskPartsRemark;
-  set woTaskPartsRemark(String woTaskPartsRemark) =>
+  String? _woTaskPartsRemark;
+  String? get woTaskPartsRemark => _$this._woTaskPartsRemark;
+  set woTaskPartsRemark(String? woTaskPartsRemark) =>
       _$this._woTaskPartsRemark = woTaskPartsRemark;
 
-  String _woTaskPartStatus;
-  String get woTaskPartStatus => _$this._woTaskPartStatus;
-  set woTaskPartStatus(String woTaskPartStatus) =>
+  String? _woTaskPartStatus;
+  String? get woTaskPartStatus => _$this._woTaskPartStatus;
+  set woTaskPartStatus(String? woTaskPartStatus) =>
       _$this._woTaskPartStatus = woTaskPartStatus;
 
-  String _woTaskRequestId;
-  String get woTaskRequestId => _$this._woTaskRequestId;
-  set woTaskRequestId(String woTaskRequestId) =>
+  String? _woTaskRequestId;
+  String? get woTaskRequestId => _$this._woTaskRequestId;
+  set woTaskRequestId(String? woTaskRequestId) =>
       _$this._woTaskRequestId = woTaskRequestId;
 
-  ListBuilder<ComplaintDImage> _images;
+  ListBuilder<ComplaintDImage>? _images;
   ListBuilder<ComplaintDImage> get images =>
       _$this._images ??= new ListBuilder<ComplaintDImage>();
-  set images(ListBuilder<ComplaintDImage> images) => _$this._images = images;
+  set images(ListBuilder<ComplaintDImage>? images) => _$this._images = images;
 
   MaterialBuilder();
 
@@ -502,7 +483,7 @@ class MaterialBuilder implements Builder<Material, MaterialBuilder> {
   }
 
   @override
-  void update(void Function(MaterialBuilder) updates) {
+  void update(void Function(MaterialBuilder)? updates) {
     if (updates != null) updates(this);
   }
 
@@ -514,25 +495,26 @@ class MaterialBuilder implements Builder<Material, MaterialBuilder> {
     try {
       _$result = _$v ??
           new _$Material._(
-              assetGroupName: assetGroupName,
-              itemDescription: itemDescription,
-              itemId: itemId,
-              itemTypeDesc: itemTypeDesc,
-              partAvailable: partAvailable,
-              partCount: partCount,
-              partId: partId,
-              partLocked: partLocked,
-              partThreshold: partThreshold,
-              statusDesc: statusDesc,
-              statusStorekeeper: statusStorekeeper,
-              woTaskPartsId: woTaskPartsId,
-              woTaskPartsQuantity: woTaskPartsQuantity,
-              woTaskPartsRemark: woTaskPartsRemark,
-              woTaskPartStatus: woTaskPartStatus,
-              woTaskRequestId: woTaskRequestId,
-              images: _images?.build());
+            assetGroupName: assetGroupName,
+            itemDescription: itemDescription,
+            itemId: itemId,
+            itemTypeDesc: itemTypeDesc,
+            partAvailable: partAvailable,
+            partCount: partCount,
+            partId: partId,
+            partLocked: partLocked,
+            partThreshold: partThreshold,
+            statusDesc: statusDesc,
+            statusStorekeeper: statusStorekeeper,
+            woTaskPartsId: woTaskPartsId,
+            woTaskPartsQuantity: woTaskPartsQuantity,
+            woTaskPartsRemark: woTaskPartsRemark,
+            woTaskPartStatus: woTaskPartStatus,
+            woTaskRequestId: woTaskRequestId,
+            images: _images?.build(),
+          );
     } catch (_) {
-      String _$failedField;
+      late String _$failedField;
       try {
         _$failedField = 'images';
         _images?.build();
@@ -547,4 +529,4 @@ class MaterialBuilder implements Builder<Material, MaterialBuilder> {
   }
 }
 
-// ignore_for_file: always_put_control_body_on_new_line,always_specify_types,annotate_overrides,avoid_annotating_with_dynamic,avoid_as,avoid_catches_without_on_clauses,avoid_returning_this,deprecated_member_use_from_same_package,lines_longer_than_80_chars,no_leading_underscores_for_local_identifiers,omit_local_variable_types,prefer_expression_function_bodies,sort_constructors_first,test_types_in_equals,unnecessary_const,unnecessary_new,unnecessary_lambdas
+// ignore_for_file: deprecated_member_use_from_same_package,type=lint

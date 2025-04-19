@@ -23,13 +23,13 @@ abstract class Task implements Built<Task, TaskBuilder> {
 
   Task._();
 
-  factory Task([updates(TaskBuilder b)]) = _$Task;
+  factory Task([void Function(TaskBuilder) updates]) = _$Task;
 
   String toJson() {
     return json.encode(serializers.serializeWith(Task.serializer, this));
   }
 
-  static fromJson(String jsonString) {
+  static Task? fromJson(String jsonString) {
     return serializers.deserializeWith(
         Task.serializer, json.decode(jsonString));
   }

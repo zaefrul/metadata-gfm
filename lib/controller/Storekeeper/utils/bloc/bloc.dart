@@ -19,7 +19,7 @@ abstract class Bloc {
   set errMsg(String value) => _errMsg.sink.add(value);
   void loading() => _loadingState.sink.add(true);
   void done() => _loadingState.sink.add(false);
-  void close() => _loadingState.sink.add(null);
+  void close() => _loadingState.sink.add(false);
 
   // METHOD
   Future checker(Future value) {

@@ -10,10 +10,10 @@ class RITaskView extends StatefulWidget {
 
   RITaskView({int index = 0}) : view = _TaskViewStateRI(index);
 
-  update(String text) => view.fetch(text);
-  updateQR(String text) => view.fetchQR(text);
-  updateQRAll(String text) => view.fetchQRAll(text);
-  updateAll(String text) => view.fetchAll(text);
+  void update(String text) => view.fetch(text);
+  void updateQR(String text) => view.fetchQR(text);
+  void updateQRAll(String text) => view.fetchQRAll(text);
+  void updateAll(String text) => view.fetchAll(text);
 
   @override
   _TaskViewStateRI createState() => view;
@@ -22,10 +22,10 @@ class RITaskView extends StatefulWidget {
 class _TaskViewStateRI extends State<RITaskView>
     with AutomaticKeepAliveClientMixin<RITaskView> {
   String dropdownValue = "All";
-  List<Widget> children = List<Widget>();
-  List<Task> _listTask = List<Task>();
-  List<Widget> tiles = List<Widget>();
-  Provider _provider;
+  List<Widget> children = [];
+  List<Task> _listTask = [];
+  List<Widget> tiles = [];
+  late Provider _provider;
   bool builded = false;
   final int index;
   bool viewer = true;
@@ -34,58 +34,64 @@ class _TaskViewStateRI extends State<RITaskView>
     _refresh();
   }
 
-  List<Widget> fetchGenerate(List<Task> _listTask) {
-    List<Widget> values = List<Widget>();
-    if (_listTask != null)
-      values = List.generate(_listTask.length, (item) => tile(_listTask[item]));
-
+  List<Widget> fetchGenerate(List<Task> listTask) {
+    List<Widget> values = [];
+    if (listTask.isNotEmpty) {
+      values = List.generate(listTask.length, (item) => tile(listTask[item]));
+    }
     values.insert(0, filter);
-
     return values;
   }
 
-  fetch(String text) {
+  void fetch(String? text) {
     String _url = "/api/m_ppm.php?type=pending_task";
-    if (text == null) _url += "&isRoutine=true";
-    if (text != null) _url += "_search&isRoutine=true&assetNo=$text";
-
+    if (text == null) {
+      _url += "&isRoutine=true";
+    } else {
+      _url += "_search&isRoutine=true&assetNo=$text";
+    }
     _fetch(_url);
   }
 
-  fetchQR(String text) {
+  void fetchQR(String? text) {
     String _url = "/api/m_ppm.php?type=pending_task";
-    if (text == null) _url += "&isRoutine=true";
-    if (text != null) _url += "_scan_asset&isRoutine=true&assetNo=$text";
-
+    if (text == null) {
+      _url += "&isRoutine=true";
+    } else {
+      _url += "_scan_asset&isRoutine=true&assetNo=$text";
+    }
     _fetch(_url);
   }
 
-  fetchQRAll(String text) {
+  void fetchQRAll(String? text) {
     String _url = "/api/m_ppm.php?type=all_task";
-    if (text == null) _url += "&isRoutine=true";
-    if (text != null) _url += "_scan_asse&isRoutine=truet&assetNo=$text";
-
+    if (text == null) {
+      _url += "&isRoutine=true";
+    } else {
+      _url += "_scan_asse&isRoutine=truet&assetNo=$text";
+    }
     _fetch(_url);
   }
 
-  fetchAll(String text) {
+  void fetchAll(String? text) {
     String _url = "/api/m_ppm.php?type=all_task";
-    if (text == null) _url += "&isRoutine=true";
-    if (text != null) _url += "_search&isRoutine=true&searchTxt=$text";
-
+    if (text == null) {
+      _url += "&isRoutine=true";
+    } else {
+      _url += "_search&isRoutine=true&searchTxt=$text";
+    }
     _fetch(_url);
   }
 
   void _fetch(String url) {
     _provider = Provider(fetchURL: url);
-
     _provider.fetch().then((value) {
-      _listTask = value.taskList.toList();
+      _listTask = (value.taskList?.toList() as List<Task>?) ?? [];
       tiles = fetchGenerate(_listTask);
       children = tiles;
       if (builded) setState(() {});
     }).catchError((err) {
-      tiles = fetchGenerate(null);
+      tiles = fetchGenerate([]);
       children = tiles;
       if (builded) setState(() {});
     });
@@ -98,7 +104,6 @@ class _TaskViewStateRI extends State<RITaskView>
       fetch(null);
       viewer = false;
     }
-
     return Future.value();
   }
 
@@ -107,30 +112,27 @@ class _TaskViewStateRI extends State<RITaskView>
 
   @override
   Widget build(BuildContext context) {
-    if (context != null) _provider.context = context;
-
+    _provider.context = context;
     builded = true;
-    return children.length > 0
+    return children.isNotEmpty
         ? RefreshIndicator(
             onRefresh: _refresh,
             child: ListView.separated(
-              padding: EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
               itemCount: children.length,
-              itemBuilder: (context, index) => children[index],
-              separatorBuilder: (context, index) {
-                return Divider();
-              },
+              itemBuilder: (context, idx) => children[idx],
+              separatorBuilder: (context, idx) => const Divider(),
             ))
         : Container(
-            child: Center(
+            child: const Center(
               child: CircularProgressIndicator(),
             ),
           );
   }
 
-  Widget getTitle(String text, {bold = false}) => new Container(
+  Widget getTitle(String text, {bool bold = false}) => Container(
         alignment: Alignment.centerLeft,
-        child: new Text(text,
+        child: Text(text,
             style: TextStyle(
                 fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
       );
@@ -138,33 +140,31 @@ class _TaskViewStateRI extends State<RITaskView>
   Widget status(String value) {
     var text = value;
     var color = colorTheme1;
-    if (text == "In Progress")
+    if (text == "In Progress") {
       color = colorTheme5;
-    else if (text == "Closed")
+    } else if (text == "Closed") {
       color = colorTheme4;
-    else if (text == "Check") {
+    } else if (text == "Check") {
       color = colorTheme2;
     } else if (text == "Verify") {
       color = colorTheme3;
     }
-    return new Container(
+    return Container(
         alignment: Alignment.center,
         height: 30.0,
         width: 100.0,
         decoration: BoxDecoration(
-            color: color, borderRadius: new BorderRadius.circular(20.0)),
-        child: new Text(text,
-            style: TextStyle(
-              color: Colors.white,
-            )));
+            color: color, borderRadius: BorderRadius.circular(20.0)),
+        child: Text(text, style: const TextStyle(color: Colors.white)));
   }
 
-  ListTile tile(Task task) => new ListTile(
-        contentPadding: EdgeInsets.all(12),
-        title: new Row(
+  ListTile tile(Task task) => ListTile(
+        contentPadding: const EdgeInsets.all(12),
+        title: Row(
           children: <Widget>[
-            new Expanded(
-                child: new Column(
+            Expanded(
+                child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 getTitle(task.transactionNo, bold: true),
                 getTitle(task.assetTypeName),
@@ -177,35 +177,33 @@ class _TaskViewStateRI extends State<RITaskView>
           ],
         ),
         onTap: () {
-          Object page = new FormView(
+          Object page = FormView(
             id: task.ppmTaskId,
             siteName: task.siteName,
             taskNo: task.transactionNo,
             taskStatus: task.statusDesc,
-            refresh: fetch,
-            viewer: this.viewer,
+            refresh: () => fetch(null),
+            viewer: viewer,
           );
           Navigator.of(context)
-              .push(new MaterialPageRoute(
-            builder: (BuildContext context) => page,
-          ))
-              .then((onValue) {
+              .push(MaterialPageRoute(
+                builder: (BuildContext context) => page as Widget,
+              ))
+              .then((_) {
             if (index == 1) fetch(null);
           }).whenComplete(_refresh);
         },
       );
 
-  DropdownButton get filter => DropdownButton<String>(
-        underline: new Container(),
+  DropdownButton<String> get filter => DropdownButton<String>(
+        underline: Container(),
         value: dropdownValue,
-        onChanged: (String newValue) {
+        onChanged: (String? newValue) {
           setState(() {
-            dropdownValue = newValue;
+            dropdownValue = newValue!;
             if (newValue != "All") {
-              var tempList = _listTask
-                  .where((test) => test.statusDesc == newValue)
-                  .toList();
-              children = List<Widget>();
+              var tempList = _listTask.where((test) => test.statusDesc == newValue).toList();
+              children = [];
               children.addAll(ListTile.divideTiles(
                       context: context,
                       tiles: List.generate(

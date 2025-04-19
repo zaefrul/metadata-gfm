@@ -2,8 +2,8 @@ import 'package:gfm_gems/utils/reference.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
-final kUserPrefs = "USER";
-final kUserSignature = "SIGNATURE";
+final String kUserPrefs = "USER";
+final String kUserSignature = "SIGNATURE";
 
 class User {
   final String token;
@@ -19,75 +19,84 @@ class User {
   final Address address;
   final List<Role> roles;
   String imageUrl;
-
   String responseJSON;
 
   User(
-      this.token,
-      this.userID,
-      this.username,
-      this.userFirstName,
-      this.userLastName,
-      this.userType,
-      this.userMykadNo,
-      this.userEmail,
-      this.userContactNo,
-      this.isFirstTime,
-      this.address,
-      this.roles,
-      this.imageUrl,
-      this.responseJSON);
+    this.token,
+    this.userID,
+    this.username,
+    this.userFirstName,
+    this.userLastName,
+    this.userType,
+    this.userMykadNo,
+    this.userEmail,
+    this.userContactNo,
+    this.isFirstTime,
+    this.address,
+    this.roles,
+    this.imageUrl,
+    this.responseJSON,
+  );
 
   factory User.fromMap(String response) {
-    var jsonData = json.decode(response);
+    var jsonData = json.decode(response) as Map<String, dynamic>;
     var data = jsonData["result"];
-
-    Address address;
-    List<Role> role = List<Role>();
-
-    if (data["address"] != null) address = Address.fromJson(data["address"]);
-
-    if (data["roles"] != null) {
-      var roles = data["roles"] as List<Object>;
-      roles.forEach((each) => role.add(Role.fromJson(each)));
+    if (data == null) {
+      throw Exception("User data is missing");
     }
+    Address? address;
+    List<Role> roleList = [];
 
-    return data == null
-        ? null
-        : User(
-            data["token"],
-            data["userId"],
-            data["userName"],
-            data["userFirstName"],
-            data["userLastName"],
-            data["userType"],
-            data["userMykadNo"],
-            data["userEmail"],
-            data["userContactNo"],
-            data["isFirstTime"],
-            address,
-            role,
-            data["imgUrl"],
-            response);
+    if (data["address"] != null) {
+      address = Address.fromJson(data["address"]);
+    }
+    if (data["roles"] != null) {
+      var rolesJson = data["roles"] as List<dynamic>;
+      for (var each in rolesJson) {
+        var r = Role.fromJson(each as Map<String, dynamic>);
+        if (r != null) {
+          roleList.add(r);
+        }
+      }
+    }
+    // Ensure that address is not null. You may throw an exception or provide a default.
+    if (address == null) {
+      throw Exception("Address data is missing");
+    }
+    return User(
+      data["token"] as String,
+      data["userId"] as String,
+      data["userName"] as String,
+      data["userFirstName"] as String,
+      data["userLastName"] as String,
+      data["userType"] as String,
+      data["userMykadNo"] as String,
+      data["userEmail"] as String,
+      data["userContactNo"] as String,
+      data["isFirstTime"] as String,
+      address,
+      roleList,
+      data["imgUrl"] as String? ?? "",
+      response,
+    );
   }
 
-  String get session => this.token;
-  String get id => this.userID;
-  String get firstName => this.userFirstName;
-  String get lastName => this.userLastName;
-  String get type => this.userType;
-  String get myKad => this.userMykadNo;
-  String get email => this.userEmail;
-  String get contactNo => this.userContactNo;
-  String get firstTime => this.isFirstTime;
-  String get response => this.responseJSON;
-
-  String get firstname => this.userFirstName;
-  Address get addresses => this.address;
-  List<Role> get allRole => this.roles;
+  String get session => token;
+  String get id => userID;
+  String get firstName => userFirstName;
+  String get lastName => userLastName;
+  String get type => userType;
+  String get myKad => userMykadNo;
+  String get email => userEmail;
+  String get contactNo => userContactNo;
+  String get firstTime => isFirstTime;
+  String get response => responseJSON;
+  String get firstname => userFirstName;
+  Address get addresses => address;
+  List<Role> get allRole => roles;
 
   updateFirstTime(String status) async {
-    var result = json.decode(responseJSON);
+    var result = json.decode(responseJSON) as Map<String, dynamic>;
     result["result"]["isFirstTime"] = status;
     var newjson = json.encode(result);
     responseJSON = newjson;
@@ -97,7 +106,7 @@ class User {
   }
 
   updateProfile(String name, String phone, String url) async {
-    var result = json.decode(responseJSON);
+    var result = json.decode(responseJSON) as Map<String, dynamic>;
     result["result"]["userFirstName"] = name;
     result["result"]["userContactNo"] = phone;
     result["result"]["imgUrl"] = url;
@@ -110,7 +119,7 @@ class User {
 
   saveUser() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString(kUserPrefs, response);
+    prefs.setString(kUserPrefs, responseJSON);
   }
 
   removeUser() async {
@@ -124,7 +133,6 @@ class User {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     var value = prefs.getString(kUserPrefs);
     if (value == null) return Future.error("not login yet");
-
     return value;
   }
 }
@@ -137,20 +145,21 @@ class Address {
 
   Address(this.desc, this.postcode, this.city, this.state);
 
-  String get _desc => this.desc;
-  String get _postcode => this.postcode;
-  String get _city => this.city;
-  String get _state => this.state;
+  String get _desc => desc;
+  String get _postcode => postcode;
+  String get _city => city;
+  String get _state => state;
 
-  factory Address.fromJson(Map<String, Object> json) {
-    return json == null
-        ? null
-        : Address(
-            json["addressDesc"],
-            json["addressPostcode"],
-            json["addressCity"],
-            json["addressState"],
-          );
+  factory Address.fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      throw Exception("Address JSON data is null");
+    }
+    return Address(
+      json["addressDesc"] as String,
+      json["addressPostcode"] as String,
+      json["addressCity"] as String,
+      json["addressState"] as String,
+    );
   }
 }
 
@@ -161,17 +170,18 @@ class Role {
 
   Role(this.id, this.desc, this.type);
 
-  String get _id => this.id;
-  String get _desc => this.desc;
-  String get _type => this.type;
+  String get _id => id;
+  String get _desc => desc;
+  String get _type => type;
 
-  factory Role.fromJson(Map<String, Object> json) {
-    return json == null
-        ? null
-        : Role(
-            json["roleId"],
-            json["roleDesc"],
-            json["roleType"],
-          );
+  factory Role.fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      throw Exception("Role JSON data is null");
+    }
+    return Role(
+      json["roleId"] as String,
+      json["roleDesc"] as String,
+      json["roleType"] as String,
+    );
   }
 }

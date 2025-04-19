@@ -5,7 +5,6 @@ import 'package:gfm_gems/utils/network.dart';
 import 'package:toast/toast.dart';
 import '../utils/reference.dart';
 import 'dialog.dart';
-
 import 'package:signature/signature.dart';
 
 class SignatureView extends StatefulWidget {
@@ -13,16 +12,25 @@ class SignatureView extends StatefulWidget {
   final String result;
   final String checkpoint;
 
-  SignatureView({this.id, this.result, this.checkpoint});
-  SignatureViewState createState() => new SignatureViewState();
+  const SignatureView({
+    Key? key,
+    required this.id,
+    required this.result,
+    required this.checkpoint,
+  }) : super(key: key);
+
+  @override
+  SignatureViewState createState() => SignatureViewState();
 }
 
 class SignatureViewState extends State<SignatureView> {
   bool loading = false;
 
-  final SignatureController _controller;
-  Signature _signatureCanvas;
-  SignatureViewState() : _controller = SignatureController() {
+  late final SignatureController _controller;
+  late final Signature _signatureCanvas;
+
+  SignatureViewState() {
+    _controller = SignatureController();
     _signatureCanvas = Signature(
       controller: _controller,
       height: 300,
@@ -36,98 +44,103 @@ class SignatureViewState extends State<SignatureView> {
     super.dispose();
   }
 
+  @override
   Widget build(BuildContext context) {
     ToastContext().init(context);
     return Scaffold(
-        backgroundColor: colorTheme3,
-        appBar: AppBar(
-          title: title("Signature"),
-          backgroundColor: Colors.white,
-          iconTheme: IconThemeData(
-            color: colorTheme3,
-          ),
-          actions: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: GestureDetector(
-                onTap: () {
-                  _controller.clear();
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius:
-                          new BorderRadius.all(new Radius.circular(6.0)),
-                      color: Colors.redAccent),
-                  width: 80,
-                  child: Center(child: title("Reset", bold: false)),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: GestureDetector(
-                onTap: () async {
-                  showDialog(
-                      context: context,
-                      builder: (context) => CustomDialog(
-                            cancel: true,
-                            description: "Do you confirm want to submit?",
-                            buttonText: "Yes",
-                            image: Image.asset(
-                              "assets/icon_trans.png",
-                              height: 40,
-                            ),
-                            okayTapped: () {
-                              Navigator.pop(context);
-                              post(context);
-                            },
-                          ));
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius:
-                          new BorderRadius.all(new Radius.circular(6.0)),
-                      color: colorTheme2),
-                  width: 80,
-                  child: Center(child: title("Submit", bold: false)),
-                ),
-              ),
-            ),
-          ],
+      backgroundColor: colorTheme3,
+      appBar: AppBar(
+        title: title("Signature"),
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(
+          color: colorTheme3,
         ),
-        body: loading
-            ? Stack(
-                children: <Widget>[
-                  _signatureCanvas,
-                  Container(
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                    color: Colors.black.withOpacity(0.5),
-                  )
-                ],
-              )
-            : new Center(
-                child: _signatureCanvas,
-              ));
+        actions: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: GestureDetector(
+              onTap: () {
+                _controller.clear();
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(6.0)),
+                  color: Colors.redAccent,
+                ),
+                width: 80,
+                child: Center(child: title("Reset", bold: false)),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: GestureDetector(
+              onTap: () async {
+                showDialog(
+                    context: context,
+                    builder: (context) => CustomDialog(
+                          cancel: true,
+                          description: "Do you confirm want to submit?",
+                          buttonText: "Yes",
+                          image: Image.asset(
+                            "assets/icon_trans.png",
+                            height: 40,
+                          ),
+                          okayTapped: () {
+                            Navigator.pop(context);
+                            post(context);
+                          },
+                        ));
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(6.0)),
+                  color: colorTheme2,
+                ),
+                width: 80,
+                child: Center(child: title("Submit", bold: false)),
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: loading
+          ? Stack(
+              children: <Widget>[
+                _signatureCanvas,
+                Container(
+                  color: Colors.black.withOpacity(0.5),
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              ],
+            )
+          : Center(child: _signatureCanvas),
+    );
   }
 
-  Widget title(text, {bold = true}) => new Text(text,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-          color: bold ? colorTheme3 : Colors.white,
-          fontWeight: bold ? FontWeight.bold : FontWeight.normal));
+  Widget title(String text, {bool bold = true}) => Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+            color: bold ? colorTheme3 : Colors.white,
+            fontWeight: bold ? FontWeight.bold : FontWeight.normal),
+      );
 
-  Widget titleSign(text) => new Text(text,
-      textAlign: TextAlign.left,
-      style: TextStyle(
+  Widget titleSign(String text) => Text(
+        text,
+        textAlign: TextAlign.left,
+        style: TextStyle(
           color: colorTheme3,
           fontFamily: 'Avenir',
           fontSize: 32,
           fontWeight: FontWeight.bold,
-          decoration: TextDecoration.underline));
+          decoration: TextDecoration.underline,
+        ),
+      );
 
-  post(BuildContext context) async {
+  Future<void> post(BuildContext context) async {
     if (_controller.isEmpty) {
       Toast.show("Please sign first before submit");
       setState(() => loading = false);
@@ -136,40 +149,46 @@ class SignatureViewState extends State<SignatureView> {
 
     setState(() => loading = true);
 
-    var pngBytes = await _controller.toPngBytes();
+    final pngBytes = await _controller.toPngBytes();
+    if (pngBytes == null) {
+      setState(() => loading = false);
+      Toast.show("Error generating signature image");
+      return;
+    }
     String size = pngBytes.length.toString();
     String base64Image = base64Encode(pngBytes);
 
     var body = UploadItem(
-        id: widget.id,
-        checkpoint: widget.checkpoint,
-        name: "Signature",
-        filename: "Signature.png",
-        size: size,
-        type: "data:image/png;base64",
-        data: base64Image);
+      id: widget.id,
+      checkpoint: widget.checkpoint,
+      name: "Signature",
+      filename: "Signature.png",
+      size: size,
+      type: "data:image/png;base64",
+      data: base64Image,
+    );
 
-    Provider provider = Provider();
-
-    if (context != null) provider.context = context;
+    Provider provider = Provider(fetchURL: "/api/m_ppm.php");
+    provider.context = context;
 
     provider.post(url: "/api/m_ppm.php", body: body.body).then((value) {
       setState(() => loading = false);
       alert(value);
-    }).catchError((err) => alert(err));
+    }).catchError((err) => alert(err.toString()));
   }
 
   void alert(String txt) {
     showDialog(
         context: context,
         builder: (BuildContext context) => CustomDialog(
-            rootPage: "/ppm",
-            description: txt,
-            buttonText: "Okay",
-            image: Image.asset(
-              "assets/icon_trans.png",
-              height: 40,
-            )));
+              rootPage: "/ppm",
+              description: txt,
+              buttonText: "Okay",
+              image: Image.asset(
+                "assets/icon_trans.png",
+                height: 40,
+              ),
+            ));
   }
 }
 
@@ -181,15 +200,15 @@ class UploadItem extends Upload {
   final String type;
   final String data;
 
-  UploadItem(
-      {String id,
-      this.checkpoint,
-      this.name,
-      this.filename,
-      this.size,
-      this.type,
-      this.data})
-      : super(ppmTaskId: id, action: "submit_ppm");
+  UploadItem({
+    required String id,
+    required this.checkpoint,
+    required this.name,
+    required this.filename,
+    required this.size,
+    required this.type,
+    required this.data,
+  }) : super(ppmTaskId: id, action: "submit_ppm");
 
   @override
   Map<String, dynamic> get body => {

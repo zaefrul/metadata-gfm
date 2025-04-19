@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/controller/Storekeeper/route/storekeeper/checkin_add_material.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc_checkin.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -41,7 +40,7 @@ class _ListMaterial extends StatelessWidget {
           return Column(
             children: snapshot.data == null
                 ? []
-                : snapshot.data.map((e) => Text(e.itemId)).toList(),
+                : snapshot.data?.map((e) => Text(e.itemId)).toList() ?? [],
           );
         });
   }
@@ -63,7 +62,7 @@ class Controller {
 
   Controller() {
     SharedPreferences.getInstance().then((value) {
-      final List<String> list = value.getStringList("material_checkin");
+      final List<String> list = value.getStringList("material_checkin") ?? [];
       return list.map((e) => Item.fromString(jsonDecode(e))).toList();
     }).then((value) => setItems(value));
   }

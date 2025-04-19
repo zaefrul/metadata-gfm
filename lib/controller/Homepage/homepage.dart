@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/widget/dialog.dart';
@@ -20,7 +18,7 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   bool isStorekeeper = false;
   bool isUtilities = false;
@@ -36,7 +34,7 @@ class _HomepageState extends State<Homepage> {
         print(token);
         var body = {"action": "save_token", "token": token};
 
-        Provider provider = Provider();
+        Provider provider = Provider(fetchURL: "/api/m_ppm.php");
         provider.context = context;
         provider.post(url: "/api/m_ppm.php", body: body);
       }
@@ -86,141 +84,143 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     ToastContext().init(context);
     return Scaffold(
-        key: _scaffoldKey,
-        drawer: BuildDrawer(() => Navigator.pop(context), isHome: true),
-        appBar: bar(_scaffoldKey, text: "GEMS"),
-        body: Stack(
-          children: <Widget>[
-            background,
-            new GridView.count(
-                crossAxisCount: 2,
-                mainAxisSpacing: 10.0,
-                crossAxisSpacing: 10.0,
-                padding: EdgeInsets.all(3.0),
-                children: <Widget>[
-                  gridView("Preventive Maintenance", Colors.cyanAccent,
-                      icon: "workorder.png", route: "/ppm"),
-                  gridView("Routine Inspection", Colors.cyanAccent,
-                      icon: "workorder.png", route: routeRoutineInspection),
-                  gridView("Work Order", Colors.cyanAccent,
-                      icon: "work_order.png", route: "/workorder"),
-                  gridView("StoreKeeper", Colors.yellowAccent,
-                      icon: "facilitycondition.png", onTap: () async {
-                    final user = User.fromMap(await User.getPrefUser);
-                    final _role = user.roles.map((role) => role.desc).toList();
-                    if (_role.contains("Storekeeper") ||
-                        _role.contains("Administrator"))
-                      Navigator.pushNamed(context, routeDashboard);
-                    else
-                      Toast.show("You have no access rights");
-                  }, notAllowed: isStorekeeper),
-                  gridView(
-                    "Utilities", Colors.greenAccent, icon: "bpm.png",
-                    //     onTap: () async {
-                    //   final user = User.fromMap(await User.getPrefUser);
-                    //   final _role = user.roles.map((role) => role.desc).toList();
-                    //   if (_role.contains("Administrator"))
-                    //     UtilsBill().selectType(context);
-                    //   else
-                    //     Toast.show("You have no access rights", context);
-                    // },
-                    route: routeUtilities,
-                    notAllowed: isUtilities,
+      key: _scaffoldKey,
+      drawer: BuildDrawer(() => Navigator.pop(context), isHome: true),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(kToolbarHeight),
+        child: bar(_scaffoldKey, text: "GEMS"),
+      ),
+      body: Stack(
+        children: <Widget>[
+          background,
+          GridView.count(
+            crossAxisCount: 2,
+            mainAxisSpacing: 10.0,
+            crossAxisSpacing: 10.0,
+            padding: EdgeInsets.all(3.0),
+            children: <Widget>[
+              gridView("Preventive Maintenance", Colors.cyanAccent,
+                  icon: "workorder.png", route: "/ppm"),
+              // gridView("Routine Inspection", Colors.cyanAccent,
+              //     icon: "workorder.png", route: routeRoutineInspection),
+              gridView("Work Order", Colors.cyanAccent,
+                  icon: "work_order.png", route: "/workorder"),
+              gridView("StoreKeeper", Colors.yellowAccent,
+                  icon: "facilitycondition.png", onTap: () async {
+                final user = User.fromMap(await User.getPrefUser);
+                final _role = user.roles.map((role) => role.desc).toList();
+                if (_role.contains("Storekeeper") ||
+                    _role.contains("Administrator"))
+                  Navigator.pushNamed(context, routeDashboard);
+                else
+                  Toast.show("You have no access rights");
+              }, notAllowed: isStorekeeper),
+              gridView("Utilities", Colors.greenAccent,
+                  icon: "bpm.png",
+                  route: routeUtilities,
+                  notAllowed: isUtilities),
+              gridView(
+                "Leaderboard",
+                Colors.black,
+                image: Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Image.asset(
+                    "assets/Complete.png",
+                    color: Colors.white,
                   ),
-                  gridView(
-                    "Leaderboard",
-                    Colors.black,
-                    image: Padding(
-                      padding: EdgeInsets.all(8),
-                      child: Image.asset(
-                        "assets/Complete.png",
-                        color: Colors.white,
-                      ),
-                    ),
-                    onTap: () {},
-                    route: routeLeaderboard,
-                    // notAllowed: isUtilities,
+                ),
+                onTap: () {},
+                route: routeLeaderboard,
+              ),
+              gridView(
+                "Attendance",
+                Colors.black,
+                image: Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Image.asset(
+                    "assets/attandance.png",
+                    color: Colors.white,
                   ),
-                  gridView(
-                    "Attendance",
-                    Colors.black,
-                    image: Padding(
-                      padding: EdgeInsets.all(8),
-                      child: Image.asset(
-                        "assets/attandance.png",
-                        color: Colors.white,
-                      ),
-                    ),
-                    onTap: openEmail,
-                    route: routeAttendance,
-                    // notAllowed: isUtilities,
+                ),
+                onTap: openEmail,
+                route: routeAttendance,
+              ),
+              gridView(
+                "Suggestion",
+                Color(0xFF99C24C),
+                image: Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Image.asset(
+                    "assets/feedback.png",
                   ),
-                  gridView(
-                    "Suggestion",
-                    Color(0xFF99C24C),
-                    image: Padding(
-                      padding: EdgeInsets.all(8),
-                      child: Image.asset(
-                        "assets/feedback.png",
-                        // color: Colors.white,
-                      ),
-                    ),
-                    onTap: openEmail,
-                    route: null,
-                    // notAllowed: isUtilities,
-                  ),
-                ]),
-          ],
-        ));
+                ),
+                onTap: openEmail,
+                route: null,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
-  Widget gridView(text, color,
-          {String icon,
-          Widget image,
-          String route,
-          Function onTap,
+  Widget gridView(dynamic text, dynamic color,
+          {String? icon,
+          Widget? image,
+          String? route,
+          Function()? onTap,
           bool notAllowed = true}) =>
-      new GestureDetector(
-          onTap: () => notAllowed == false
-              ? Toast.show("No Access Rights", duration: 3)
-              : route == null
-                  ? onTap()
-                  : Navigator.pushNamed(context, route),
-          child: Container(
-              padding: EdgeInsets.all(10.0),
-              alignment: Alignment.bottomCenter,
-              color: Colors.transparent,
-              child: new Column(
-                children: <Widget>[
-                  new Container(
-                    height: 100,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(50),
-                      color: color,
-                    ),
-                    child: icon == null
-                        ? image
-                        : Image.asset("assets/$icon", fit: BoxFit.fitHeight),
-                  ),
-                  SizedBox(height: 20),
-                  Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        text,
-                        textAlign: TextAlign.center,
-                      )),
-                ],
-              )));
+      GestureDetector(
+        onTap: () {
+          if (!notAllowed) {
+            Toast.show("No Access Rights", duration: 3);
+          } else {
+            if (route == null) {
+              onTap?.call();
+            } else {
+              Navigator.pushNamed(context, route);
+            }
+          }
+        },
+        child: Container(
+          padding: EdgeInsets.all(10.0),
+          alignment: Alignment.bottomCenter,
+          color: Colors.transparent,
+          child: Column(
+            children: <Widget>[
+              Container(
+                height: 100,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(50),
+                  color: color,
+                ),
+                child: icon == null
+                    ? image
+                    : Image.asset("assets/$icon", fit: BoxFit.fitHeight),
+              ),
+              SizedBox(height: 20),
+              Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    text,
+                    textAlign: TextAlign.center,
+                  )),
+            ],
+          ),
+        ),
+      );
 
-  get background => new Container(
+  Widget get background => Container(
         height: double.infinity,
         width: double.infinity,
         child: Image.asset("assets/bg.jpg", fit: BoxFit.fill),
       );
 
   void openEmail() async {
-    final url = "https://forms.office.com/r/CYvjipHJ4S";
-    launchUrl(Uri.parse(url));
+    final url = Uri.parse("https://forms.office.com/r/CYvjipHJ4S");
+    if (!await launchUrl(url)) {
+      throw 'Could not launch $url';
+    }
   }
 }
 
@@ -229,7 +229,7 @@ class Request {
   final BuildContext _context;
 
   Request(this._context, String id)
-      : this._checkSignature = Provider(
+      : _checkSignature = Provider(
           fetchURL: "/user_signature/",
           taskID: id,
         );
@@ -237,7 +237,7 @@ class Request {
   Future<String> check() async {
     _checkSignature.context = _context;
     try {
-      final result = await _checkSignature.getJson();
+      final result = await _checkSignature.getJson(url: "/user_signature/");
       if (result is List) return "";
       if (result == null) return "";
       final file = result["file"];
@@ -264,7 +264,7 @@ class Request {
               buttonText: "Okay",
               image: Image.asset("assets/icon_trans.png", height: 40),
               okayTapped: () {
-                return Navigator.pushNamed(
+                Navigator.pushNamed(
                   _context,
                   routeSignature,
                   arguments: id,

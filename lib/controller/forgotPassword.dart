@@ -8,30 +8,34 @@ import '../view/field.dart';
 import '../view/dialog.dart';
 
 class Forgot extends StatefulWidget {
+  const Forgot({Key? key}) : super(key: key);
+
   @override
   _ForgotState createState() => _ForgotState();
 }
 
 class _ForgotState extends State<Forgot> {
-  final titleTxt = "Forgot Password?";
-  final noticeTxt =
+  final String titleTxt = "Forgot Password?";
+  final String noticeTxt =
       "Enter your email address and we'll send you a link to reset your password.";
   bool loading = false;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  String _email;
+  String _email = "";
 
   @override
   Widget build(BuildContext context) {
     ToastContext().init(context);
-    pressed() {
-      var error = _validateEmail(_email);
 
-      if (error == null)
-        action(_email);
-      else
+    void pressed() {
+      String? error = _validateEmail(_email);
+      if (error != null) {
         Toast.show(error, backgroundColor: colorTheme3);
+      } else {
+        // Call your action when validation passes
+        action(_email);
+      }
     }
 
     return Scaffold(
@@ -41,92 +45,94 @@ class _ForgotState extends State<Forgot> {
           backgroundColor: Colors.white,
           centerTitle: true,
           iconTheme: IconThemeData(color: colorTheme3)),
-      body: new Stack(
+      body: Stack(
         children: <Widget>[
-          new Align(
-            alignment: Alignment(0, -0.8),
+          Align(
+            alignment: const Alignment(0, -0.8),
             child: Image.asset(
               "assets/Email.png",
               height: 100,
             ),
           ),
-          new Align(
-            alignment: Alignment(0, -0.45),
+          Align(
+            alignment: const Alignment(0, -0.45),
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: title(noticeTxt, size: 20),
             ),
           ),
-          new Align(
-            alignment: Alignment(0, -0.1),
+          Align(
+            alignment: const Alignment(0, -0.1),
             child: field("Email", (text) {
               _email = text;
             }, leftIcon: Icons.email),
           ),
-          new Align(
-              alignment: Alignment(0, 0.2),
-              child: new Container(
-                  width: 200,
-                  height: 50,
-                  child: Button(
-                    text: "Submit",
-                    onPressed: pressed,
-                    color: colorTheme2,
-                  ))),
+          Align(
+            alignment: const Alignment(0, 0.2),
+            child: Container(
+              width: 200,
+              height: 50,
+              child: Button(
+                text: "Submit",
+                onPressed: pressed,
+                color: colorTheme2,
+              ),
+            ),
+          ),
           loading
-              ? new Container(
-                  child: Center(
+              ? Container(
+                  color: Colors.black.withOpacity(0.5),
+                  child: const Center(
                     child: CircularProgressIndicator(),
                   ),
-                  color: Colors.black.withOpacity(0.5),
                 )
-              : new Container(),
+              : Container(),
         ],
       ),
     );
   }
 
-  Widget title(text, {double size = 24.0}) => new Text(text,
-      textAlign: TextAlign.center,
-      style: new TextStyle(
-        color: colorTheme3,
-        //   fontFamily: 'Avenir',
-        //   // fontSize: size,
-        fontWeight: FontWeight.bold,
-      ));
+  Widget title(String text, {double size = 24.0}) => Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: colorTheme3,
+          fontWeight: FontWeight.bold,
+          fontSize: size,
+        ),
+      );
 
   Widget info() => Container(
           child: Column(children: <Widget>[
-        new Center(child: title(titleTxt, size: 32)),
-        new SizedBox(height: 30),
-        new Center(child: title(noticeTxt, size: 20)),
+        Center(child: title(titleTxt, size: 32)),
+        const SizedBox(height: 30),
+        Center(child: title(noticeTxt, size: 20)),
       ]));
 
-  String _validateEmail(String value) {
-    if (value == null)
-      return "Enter email address";
-    else if (value.isEmpty) return "Enter email address";
+  String? _validateEmail(String value) {
+    if (value.isEmpty) return "Enter email address";
 
-    // This is just a regular expression for email addresses
-    String p = "[a-zA-Z0-9\+\.\_\%\-\+]{1,256}" +
-        "\\@" +
-        "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" +
-        "(" +
-        "\\." +
-        "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}" +
-        ")+";
-    RegExp regExp = new RegExp(p);
+    // Regular expression for email addresses
+    String p =
+        "[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}" +
+            "\\@" +
+            "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" +
+            "(" +
+            "\\." +
+            "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}" +
+            ")+";
+    RegExp regExp = RegExp(p);
 
     if (regExp.hasMatch(value)) {
-      // So, the email is valid
+      // Email is valid
       return null;
     }
 
-    // The pattern of the email didn't match the regex above.
+    // The pattern did not match; return error message.
     return 'Email is not valid';
   }
 
-  action(username) async {
+  Future<void> action(String username) async {
     setState(() => loading = true);
 
     var bodyProvider = {
@@ -134,7 +140,7 @@ class _ForgotState extends State<Forgot> {
       "email": username,
     };
 
-    Provider provider = Provider();
+    Provider provider = Provider(fetchURL: "/api/m_login.php");
 
     try {
       var result = await provider.post(
@@ -142,7 +148,7 @@ class _ForgotState extends State<Forgot> {
       alert(result);
       setState(() => loading = false);
     } catch (err) {
-      alert(err, success: false);
+      alert(err.toString(), success: false);
       setState(() => loading = false);
     }
   }
@@ -150,11 +156,12 @@ class _ForgotState extends State<Forgot> {
   void alert(String txt, {bool success = true}) => showDialog(
       context: context,
       builder: (BuildContext context) => CustomDialog(
-          rootPage: success ? "/" : null,
-          description: txt,
-          buttonText: "Okay",
-          image: Image.asset(
-            "assets/icon_trans.png",
-            height: 40,
-          )));
+            rootPage: success ? "/" : "",
+            description: txt,
+            buttonText: "Okay",
+            image: Image.asset(
+              "assets/icon_trans.png",
+              height: 40,
+            ),
+          ));
 }

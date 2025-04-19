@@ -8,12 +8,14 @@ import 'util.dart';
 import 'MonthlyReading.dart' as page;
 
 class UtilitiesHome extends StatefulWidget {
+  const UtilitiesHome({Key? key}) : super(key: key);
+
   @override
   _UtilitiesHomeState createState() => _UtilitiesHomeState();
 }
 
 class _UtilitiesHomeState extends State<UtilitiesHome> {
-  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final Bloc bloc = Bloc();
 
   _UtilitiesHomeState() {
@@ -53,17 +55,18 @@ class _UtilitiesHomeState extends State<UtilitiesHome> {
               bloc.fetch(api.ReadingW);
             })
           ],
-          leading: new IconButton(
-              icon: new Image.asset("assets/icon_trans.png", width: 30.0),
-              color: Colors.black,
-              onPressed: () {
-                _scaffoldKey.currentState.openDrawer();
-              }),
+          leading: IconButton(
+            icon: Image.asset("assets/icon_trans.png", width: 30.0),
+            color: Colors.black,
+            onPressed: () {
+              _scaffoldKey.currentState!.openDrawer();
+            },
+          ),
           bottom: TabBar(
             indicatorColor: colorTheme2,
             tabs: [
-              Tab(icon: new Image.asset("assets/drop.png", width: 24.0)),
-              Tab(icon: new Image.asset("assets/flash.png", width: 24.0)),
+              Tab(icon: Image.asset("assets/drop.png", width: 24.0)),
+              Tab(icon: Image.asset("assets/flash.png", width: 24.0)),
             ],
           ),
         ),
@@ -80,9 +83,10 @@ class _UtilitiesHomeState extends State<UtilitiesHome> {
 }
 
 class _BuildAddButton extends StatelessWidget {
-  final Function onRefresh;
+  final VoidCallback onRefresh;
 
-  const _BuildAddButton({Key key, this.onRefresh}) : super(key: key);
+  const _BuildAddButton({Key? key, required this.onRefresh}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -98,53 +102,69 @@ class _BuildAddButton extends StatelessWidget {
 class ListReading extends StatelessWidget {
   final Stream<List<Meter>> stream;
   final Bloc bloc;
-
   final bool isWater;
   final bool isElectric;
 
-  ListReading(this.bloc, this.stream,
-      {this.isElectric = false, this.isWater = false});
+  const ListReading(
+    this.bloc,
+    this.stream, {
+    this.isElectric = false,
+    this.isWater = false,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Meter>>(
-        stream: stream,
-        builder: (_, s) {
-          return RefreshIndicator(
-            onRefresh: () =>
-                isWater ? bloc.fetch(api.MetersW) : bloc.fetch(api.MetersE),
-            child: ListView.separated(
-              padding: EdgeInsets.symmetric(vertical: 12),
-              itemBuilder: (_, i) => TileMeter(
-                bloc,
-                s.hasData ? s.data[i] : null,
-                isWater: isWater,
-                isElectric: isElectric,
-              ),
-              itemCount: s.hasData ? s.data.length : 0,
-              separatorBuilder: (_, __) =>
-                  Divider(color: colorTheme3.withOpacity(0.7)),
+      stream: stream,
+      builder: (_, snapshot) {
+        if (!snapshot.hasData) {
+          return Center(child: CircularProgressIndicator());
+        }
+        final meters = snapshot.data!;
+        return RefreshIndicator(
+          onRefresh: () async =>
+              isWater ? bloc.fetch(api.MetersW) : bloc.fetch(api.MetersE),
+          child: ListView.separated(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            itemBuilder: (_, i) => TileMeter(
+              bloc,
+              meters[i],
+              isWater: isWater,
+              isElectric: isElectric,
             ),
-          );
-        });
+            itemCount: meters.length,
+            separatorBuilder: (_, __) =>
+                Divider(color: colorTheme3.withOpacity(0.7)),
+          ),
+        );
+      },
+    );
   }
 }
 
 class TileMeter extends StatelessWidget {
   final Meter value;
   final Bloc bloc;
-
   final bool isWater;
   final bool isElectric;
 
-  TileMeter(this.bloc, this.value,
-      {this.isElectric = false, this.isWater = false});
+  const TileMeter(
+    this.bloc,
+    this.value, {
+    this.isElectric = false,
+    this.isWater = false,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    String readingType;
-    if (isWater) readingType = "35m³";
-    if (isElectric) readingType = "kWh";
+    String readingType = "";
+    if (isWater) {
+      readingType = "35m³";
+    } else if (isElectric) {
+      readingType = "kWh";
+    }
     return ListTile(
       title: Text(
         value.meterName,
@@ -155,12 +175,12 @@ class TileMeter extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Monthly Total(RM) : " + value.monthlyTotalRm),
+            Text("Monthly Total(RM) : " + (value.monthlyTotalRm ?? "N/A")),
             Padding(
-                padding: EdgeInsets.symmetric(vertical: 4),
-                child: Text(
-                    "Daily Total($readingType) : " + value.dailyLatestReading)),
-            Text("Reading($readingType) : " + value.dailyLatestReading),
+              padding: EdgeInsets.symmetric(vertical: 4),
+              child: Text("Daily Total($readingType) : " + (value.dailyLatestReading ?? "N/A")),
+            ),
+            Text("Reading($readingType) : " + (value.dailyLatestReading ?? "N/A")),
           ],
         ),
       ),
@@ -169,7 +189,9 @@ class TileMeter extends StatelessWidget {
         width: 120,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5), color: colorTheme2),
+          borderRadius: BorderRadius.circular(5),
+          color: colorTheme2,
+        ),
         child: Text(
           value.meterLocation,
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -178,14 +200,16 @@ class TileMeter extends StatelessWidget {
       onTap: () {
         bloc.sMeter = value;
         Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (_) => page.ListReading(
-                      bloc,
-                      value,
-                      isWater: isWater,
-                      isElectric: isElectric,
-                    )));
+          context,
+          MaterialPageRoute(
+            builder: (_) => page.ListReading(
+              bloc,
+              value,
+              isWater: isWater,
+              isElectric: isElectric,
+            ),
+          ),
+        );
       },
     );
   }

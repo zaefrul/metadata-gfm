@@ -1,19 +1,19 @@
 import 'dart:convert';
-
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/PPM/Form/openImage.dart';
 import 'package:gfm_gems/model/meter.dart';
 import 'package:gfm_gems/model/serializers.dart';
+import 'package:gfm_gems/utils/image_compressor.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
-
 import 'package:toast/toast.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
+// Removed flutter_image_compress import
 import 'package:url_launcher/url_launcher.dart';
 
 class WaterBillScreen extends StatefulWidget {
@@ -29,7 +29,7 @@ class WaterBillScreen extends StatefulWidget {
 
 class _WaterBillScreenState extends State<WaterBillScreen> {
   final List<TextEditingController> _controllers = [];
-  final f = new DateFormat('yyyy-MM-dd');
+  final f = DateFormat('yyyy-MM-dd');
   final BehaviorSubject<Meter> dropdownValue = BehaviorSubject<Meter>();
   List<File> listItem = [];
   List<Meter> list = [];
@@ -54,12 +54,11 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
     final Provider _providerMeter = Provider(fetchURL: "/utility_meter/Water");
     _providerMeter.context = context;
 
-    _providerMeter.getJson().then((value) {
+    _providerMeter.getJson(url: "/utility_meter/Water").then((value) {
       final values = deserializeListOf<Meter>(value).toList();
       setState(() {
         list = values;
       });
-      if (dropdownValue.value == null) dropdownValue.sink.add(list.first);
     }).catchError((err) => Toast.show(err));
     super.didChangeDependencies();
   }
@@ -127,12 +126,15 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
     bool checkEmpty = false;
     List<TextEditingController> tempCtrl = [];
 
-    checkEmpty = _controllers.firstWhere((element) => element.text.isEmpty,
-            orElse: () => null) !=
-        null;
+    try {
+      _controllers.firstWhere((element) => element.text.isEmpty);
+      checkEmpty = true;
+    } catch (e) {
+      checkEmpty = false;
+    }
     if (checkEmpty) {
       Toast.show("Please check all fields");
-      return "Please check all fields";
+      return;
     }
 
     if (widget.isDaily) {
@@ -148,17 +150,15 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
         final _ = double.parse(ctrl.text);
       } catch (err) {
         Toast.show("Please check all fields must be numerical");
-        return "Please check all fields must be numerical";
+        return;
       }
     }
 
     checkEmpty = listItem.length == 0;
 
     if (checkEmpty) {
-      Toast.show(
-        "Please insert image",
-      );
-      return "Please insert image";
+      Toast.show("Please insert image");
+      return;
     }
 
     showDialog(
@@ -166,7 +166,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
       builder: (_) => Center(child: CircularProgressIndicator()),
     );
 
-    final Provider _provider = Provider();
+    final Provider _provider = Provider(fetchURL: "/utility/Water/");
     _provider.context = context;
 
     File file = listItem.first;
@@ -175,16 +175,20 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
     String max = "";
     String amount = '';
 
-    final bytes = await compressFile(File(file.path));
+    final bytes = await compressFile(File(file.path), settings: {
+      'quality': Platform.isIOS ? 20 : 60,
+      'minWidth': 480,
+      'minHeight': 640,
+    }) ?? Uint8List(0);
     String size = bytes.length.toString();
     String base64Image = base64Encode(bytes);
     String name =
         DateFormat('kk:mm:ss EEE d MMM').format(DateTime.now()) + ".jpg";
     final Image image = Image.file(File(file.path));
     image.image
-        .resolve(new ImageConfiguration())
+        .resolve(ImageConfiguration())
         .completer
-        .addListener(ImageStreamListener((info, _) async {
+        ?.addListener(ImageStreamListener((info, _) async {
       String height = info.image.height.toString();
       String width = info.image.width.toString();
 
@@ -212,7 +216,6 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
       };
       _provider.postUtilities(url: url, body: param).then((value) {
         Toast.show("Submitted");
-
         Navigator.pop(context);
       }).catchError((err) {
         Toast.show(err);
@@ -222,22 +225,18 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
     }));
   }
 
-  Future<List<int>> compressFile(File file) async {
-    var result = await FlutterImageCompress.compressWithFile(file.absolute.path,
-        quality: Platform.isIOS ? 20 : 60, minWidth: 480, minHeight: 640);
-    print(file.lengthSync());
-    print(result.length);
-    return result;
-  }
-
   Widget _filter(List<Meter> values) => StreamBuilder<Meter>(
       stream: dropdownValue.stream,
       builder: (context, snapshot) {
         return DropdownButton<Meter>(
-          underline: new Container(),
+          underline: Container(),
           value: snapshot.data,
           hint: Text("Select Location"),
-          onChanged: (Meter newValue) => dropdownValue.sink.add(newValue),
+          onChanged: (Meter? newValue) {
+            if (newValue != null) {
+              dropdownValue.sink.add(newValue);
+            }
+          },
           items: values.map<DropdownMenuItem<Meter>>((Meter value) {
             return DropdownMenuItem<Meter>(
               value: value,
@@ -248,15 +247,15 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
       });
 
   Widget get _addPhoto {
-    var title = new Padding(
+    var title = Padding(
         padding: EdgeInsets.symmetric(vertical: 6),
         child: Text(
           "Photo",
           style: TextStyle(fontWeight: FontWeight.bold),
         ));
-    var subtitle = new Text(
+    var subtitle = Text(
         "(Maximum of 1 Image only, Individual file should not larger than 5mb)");
-    var plustext = new Text(
+    var plustext = Text(
       "+",
       style: TextStyle(
           color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24),
@@ -290,45 +289,33 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
   }
 
   Widget _section(File item) {
-    var iconButton = new IconButton(
-      icon: new Icon(Icons.delete),
+    var iconButton = IconButton(
+      icon: Icon(Icons.delete),
       color: Colors.red,
       onPressed: () =>
           setState(() => listItem.removeWhere((value) => value == item)),
     );
 
-    var _latitude =
-        "0.0"; //prefs.getString(prefsLATITUDE) ?? "0.0"; //= item.latitude;
-    var _longitude =
-        "0.0"; //prefs.getString(prefsLONGITUDE) ?? "0.0"; //= item.longitude;
-
-    // var prefs = await SharedPreferences.getInstance();
-
-    var date = DateTime.now().toString(); //= item.date;
-    // var src = item.file;
+    var _latitude = "0.0";
+    var _longitude = "0.0";
+    var date = DateTime.now().toString();
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(children: <Widget>[
         ListTile(
             contentPadding: EdgeInsets.only(top: 6.0),
-            leading: new Image.file(item),
+            leading: Image.file(item),
             trailing: iconButton,
-            title: new Column(
+            title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                new Text(date),
-                new Text(_latitude + ", " + _longitude)
+                Text(date),
+                Text(_latitude + ", " + _longitude)
               ],
             ),
             onTap: () async => _bottomSheet(
                 latitude: _latitude, longitude: _longitude, src: item)),
-        // TextField(
-        //   decoration: InputDecoration(hintText: "Remark"),
-        //   onChanged: (text) {
-        //     item.desc = text;
-        //   },
-        // )
       ]),
     );
   }
@@ -353,16 +340,16 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext bc) => Container(
-        child: new Wrap(
+        child: Wrap(
           children: <Widget>[
-            new ListTile(
-              leading: new Icon(Icons.image),
-              title: new Text('View Image'),
+            ListTile(
+              leading: Icon(Icons.image),
+              title: Text('View Image'),
               onTap: () => _openViewer(),
             ),
-            new ListTile(
-              leading: new Icon(Icons.map),
-              title: new Text('Open Map'),
+            ListTile(
+              leading: Icon(Icons.map),
+              title: Text('Open Map'),
               onTap: () => _openMap(),
             ),
           ],

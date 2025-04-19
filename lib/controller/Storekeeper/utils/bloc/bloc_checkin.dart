@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
+// Removed flutter_image_compress and replaced with flutter_native_image:
 import 'package:gfm_gems/model/complaint.dart';
 import 'package:gfm_gems/model/serializers.dart';
+import 'package:gfm_gems/utils/image_compressor.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_size_getter/file_input.dart';
@@ -57,6 +59,7 @@ class BlocCheckin extends Bloc {
     _materials.sink.add(list);
   }
 
+  // Assuming a setter for file (adding a File to the DO list)
   set file(File value) {
     final list = _do.value;
     list.add(value);
@@ -114,7 +117,7 @@ class BlocCheckin extends Bloc {
   Future<void> getMaterials() async {
     final pref = await SharedPreferences.getInstance();
     final list = pref.getStringList(_kMaterials);
-    final listM = list.map((e) => Item.fromString(json.decode(e))).toList();
+    final listM = list?.map((e) => Item.fromString(json.decode(e))).toList() ?? [];
     _materials.sink.add(listM);
     return;
   }
@@ -122,28 +125,28 @@ class BlocCheckin extends Bloc {
   Future<void> getDoNo() async {
     final pref = await SharedPreferences.getInstance();
     final value = pref.getString(_kDoNo);
-    _doNo.text = value;
+    _doNo.text = value ?? '';
     return;
   }
 
   Future<void> getSupplierName() async {
     final pref = await SharedPreferences.getInstance();
     final value = pref.getString(_kSupplier);
-    _supplierName.text = value;
+    _supplierName.text = value ?? '';
     return;
   }
 
   Future<void> getDo() async {
     final pref = await SharedPreferences.getInstance();
     final values = pref.getStringList(_kDo);
-    dos = values.map((e) => File(e)).toList();
+    dos = values?.map((e) => File(e)).toList() ?? [];
     return;
   }
 
   Future<void> getStore() async {
     final pref = await SharedPreferences.getInstance();
     final value = pref.getString(_kStore);
-    final translate = json.decode(value);
+    final translate = json.decode(value ?? '{}');
     final item = deserialize<ComplaintDStore>(translate);
     store = item;
     return;
@@ -154,10 +157,8 @@ class BlocCheckin extends Bloc {
         Provider(fetchURL: "/store/purchase_option_store");
     _provider.context = context;
 
-    final result = await checker(_provider.getJson());
+    final result = await checker(_provider.getJson(url: "/store/purchase_option_store"));
     final list = deserializeListOf<ComplaintDStore>(result).toList();
-
-    if (_store.value == null) _store.sink.add(list.first);
     return list;
   }
 
@@ -170,10 +171,9 @@ class BlocCheckin extends Bloc {
 
     if (valuesM.length == 0) throw "Please select material";
     if (valuesD.length == 0) throw "Please upload DO ";
-    if (fieldStore == null) throw "Please select Store";
     if (fieldDoNo.length == 0) throw "Please insert Do Number";
     if (fieldSupplier.length == 0) throw "Please insert Supplier Name";
-    final Provider _provider = Provider();
+    final Provider _provider = Provider(fetchURL: "/do/check_in_direct");
     _provider.context = context;
 
     final body = await param;
@@ -210,7 +210,11 @@ class BlocCheckin extends Bloc {
       final width = getter.width;
       final type = 'data:image/jpg:base64';
       final filename = "DO";
-      final bytes = await compressFile(item);
+      final bytes = await compressFile(item, settings: {
+        'quality': Platform.isIOS ? 20 : 60,
+        'minWidth': 480,
+        'minHeight': 640,
+      }) ?? Uint8List(0);
       final size = bytes.length.toString();
       String name =
           DateFormat('kk:mm:ss EEE d MMM').format(DateTime.now()) + ".jpg";
@@ -228,21 +232,13 @@ class BlocCheckin extends Bloc {
     return value;
   }
 
-  Future<List<int>> compressFile(File file) async {
-    var result = await FlutterImageCompress.compressWithFile(file.absolute.path,
-        quality: Platform.isIOS ? 20 : 60, minWidth: 480, minHeight: 640);
-    print(file.lengthSync());
-    print(result.length);
-    return result;
-  }
-
   void createUploadItem(BuildContext context) async {
     final value = await ImagePicker().pickImage(source: ImageSource.camera);
-
     if (value != null) {
       file = File(value.path);
-    } else
+    } else {
       Toast.show("Only one picture is required");
+    }
   }
 
   void removeMaterial(Item value) {

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/WorkOrder/repository/provider.dart';
 import 'package:gfm_gems/model/execution.dart';
 import 'package:gfm_gems/model/workorder.dart';
-import 'package:rxdart/subjects.dart';
+import 'package:rxdart/rxdart.dart';
 
 import '../addTechnician.dart';
 import '../complaintPDF.dart';
@@ -18,26 +18,28 @@ import '../complaintSectionD_material.dart';
 class MainBloc {
   // -- VARIABLES
   int checkpoint = 0;
-  WOProvider _provider = WOProvider();
+  late WOProvider _provider;
   final String _id;
   final String _status;
   final String _taskNo;
 
-  // -- STATES SUBJECTS
+  // -- STATE SUBJECTS
   final BehaviorSubject<List<WorkOrderStatus>> _sections =
       BehaviorSubject<List<WorkOrderStatus>>();
   final BehaviorSubject<bool> _enableSubmit =
       BehaviorSubject<bool>.seeded(false);
-  final BehaviorSubject<bool> _loading = BehaviorSubject<bool>.seeded(false);
+  final BehaviorSubject<bool> _loading =
+      BehaviorSubject<bool>.seeded(false);
   final BehaviorSubject<ExecutionModel> _execution =
       BehaviorSubject<ExecutionModel>();
 
   // -- INITIALIZER
-  MainBloc({@required String id, String status, @required String taskNo})
-      : this._id = id,
-        this._status = status,
-        this._taskNo = taskNo {
-    setCheckpoint(status);
+  MainBloc({required String id, String status = '', required String taskNo, required BuildContext context})
+      : _id = id,
+        _status = status,
+        _taskNo = taskNo {
+    _provider = WOProvider(context: context);
+    setCheckpoint(_status);
     refresh();
   }
 
@@ -49,22 +51,26 @@ class MainBloc {
     _execution.close();
   }
 
-  // -- GET
-  Stream get sections$ => _sections.stream;
-  Stream get enable$ => _enableSubmit.stream;
-  Stream get loading$ => _loading.stream;
-  Stream get execution$ => _execution.stream;
+  // -- GETTERS
+  Stream<List<WorkOrderStatus>> get sections$ => _sections.stream;
+  Stream<bool> get enable$ => _enableSubmit.stream;
+  Stream<bool> get loading$ => _loading.stream;
+  Stream<ExecutionModel> get execution$ => _execution.stream;
 
-  // -- SINK
-  set sections(List values) => _sections.sink.add(values);
+  // -- SETTERS
+  set sections(List<WorkOrderStatus> values) => _sections.sink.add(values);
   set enable(bool value) => _enableSubmit.sink.add(value);
   set loading(bool value) => _loading.sink.add(value);
-  set execution(Map v) => _execution.sink.add(ExecutionModel.fromJson(v));
-  set context(BuildContext context) => _provider = WOProvider(context: context);
+  set execution(Map<String, dynamic> v) =>
+      _execution.sink.add(ExecutionModel.fromJson(v));
+  set context(BuildContext context) =>
+      _provider = WOProvider(context: context);
 
   // -- METHODS
-  Future<void> refresh() =>
-      fetch(_status, _id).whenComplete(() => enable = enableSubmit());
+  Future<void> refresh() async {
+    await fetch(_status, _id);
+    enable = enableSubmit();
+  }
 
   void setCheckpoint(String status) {
     if (status == "Verify") {
@@ -79,8 +85,9 @@ class MainBloc {
   }
 
   Future<void> fetch(String status, String id) async {
-    final listAssign = ["Assign", "Revisit", "Rejected", "WR Reassign"];
-    final listWR = ["WR Check", "WR Verified", "WR Re-Open"];
+    // Use different lists for assign and WR statuses
+    final List<String> listAssign = ["Assign", "Revisit", "Rejected", "WR Reassign"];
+    final List<String> listWR = ["WR Check", "WR Verified", "WR Re-Open"];
 
     String url = "/api/m_wo.php?type=section_status";
     String urlExecution = "/wo_v2/section_assign/";
@@ -88,7 +95,7 @@ class MainBloc {
     if (listAssign.contains(status)) {
       url += "_assign";
       url += "&woTaskId=";
-    } else if (listAssign.contains(status)) {
+    } else if (listWR.contains(status)) {
       url += "_wr";
       url += "&woTaskId=";
     } else {
@@ -98,31 +105,27 @@ class MainBloc {
     try {
       final result = await _provider.fetch(url, id);
       sections = result;
-      _provider.fetchExecution(id).then((value) => execution = value);
-
-      return;
+      _provider.fetchExecution(id).then((value) {
+        execution = value;
+      });
     } catch (err) {
       print(err);
     }
   }
 
   bool enableSubmit() {
+    // If no section value exists, return false.
+    if (_sections.valueOrNull == null) return false;
+
     final List<WorkOrderStatus> list = _sections.value;
-
-    for (var i = 0; i < list.length; i++) {
-      final element = list[i];
-
+    for (final element in list) {
       final state = element.sectionStatus;
-
-      if (state == "Invalid") {
-        return false;
-      } else if (state == "Pending") {
-        return false;
-      } else if (state == "Valid") {
+      if (state == "Invalid" ||
+          state == "Pending" ||
+          state == "Valid") {
         return false;
       }
     }
-
     return true;
   }
 
@@ -131,9 +134,9 @@ class MainBloc {
     try {
       await _provider.submit(_id);
       loading = false;
-      return;
     } catch (err) {
       print(err);
+      loading = false;
     }
   }
 
@@ -143,9 +146,9 @@ class MainBloc {
 
   void openScreen(BuildContext context, WorkOrderStatus order,
       {bool viewOnly = false}) {
-    String named = order.sectionName;
-    String desc = order.sectionDesc;
-    Object object;
+    String named = order.sectionName ?? '';
+    String desc = order.sectionDesc ?? '';
+    Object? object;
 
     if (named == "A") {
       object = ComplaintSectionA(id: _id, viewer: viewOnly);
@@ -153,72 +156,70 @@ class MainBloc {
       if (_status == "Assign" ||
           _status == "Revisit" ||
           _status == "WR Reassign") {
-        object =
-            ComplaintAssign(id: _id, viewer: viewOnly ? true : checkpoint == 1);
+        object = ComplaintAssign(id: _id, viewer: viewOnly ? true : (checkpoint == 1));
       } else if (_status == "Rejected" ||
           _status == "WR Verified" ||
           _status == "WR Re-Open") {
-        ComplaintSectionE(order.comment, named);
+        object = ComplaintSectionE(order.comment ?? "", named);
       } else {
         object = ComplaintAssign(id: _id, viewer: true);
-        // object = ComplaintSectionB(
-        // id: _id, viewer: viewOnly ? true : checkpoint == 1, name: named);
       }
-    }
-    if (named == "C") {
+    } else if (named == "C") {
       object = ComplaintSectionB(
         id: _id,
-        viewer: viewOnly ? true : checkpoint == 1,
+        viewer: viewOnly ? true : (checkpoint == 1),
         name: named,
       );
-    }
-    if (named == "D") {
-      object = ComplaintSectionC(_id, viewOnly ? true : checkpoint == 1);
+    } else if (named == "D") {
+      debugPrint("Checkpoint: $checkpoint");
+      debugPrint("View Only: $viewOnly");
+      debugPrint("Status: $_status");
+      debugPrint("Section Status: ${order.sectionStatus}");
+      object = ComplaintSectionC(_id, viewOnly ? true : (checkpoint == 1));
     } else if (named == "E" && desc == "Asset No") {
       object = ComplaintSectionD(
         id: _id,
-        viewer: viewOnly ? true : checkpoint == 1,
+        viewer: viewOnly ? true : (checkpoint == 1),
         name: named,
       );
     } else if (named == "F" && desc == "Assistants") {
       object = AddTechnicianCheckList(
         id: _id,
-        viewer: viewOnly ? true : checkpoint == 1,
+        viewer: viewOnly ? true : (checkpoint == 1),
       );
     } else if (named == "G" && desc == "Material / Spare Parts") {
-      final status = order.sectionStatusMaterial;
+      final String statusMaterial = order.sectionStatusMaterial ?? '';
       object = ComplaintSectionDMaterial(
         _id,
-        enableSubmit: (status == "Request Approval" ||
-            status == "" ||
-            status == "Request Parts"),
+        enableSubmit: (statusMaterial == "Request Approval" ||
+            statusMaterial == "" ||
+            statusMaterial == "Request Parts"),
         enableReset: order.sectionStatusMaterial == "Rejected",
-        viewer: viewOnly ? true : checkpoint == 1,
-        comment: order.comment,
+        viewer: viewOnly ? true : (checkpoint == 1),
+        comment: order.comment ?? '',
       );
-    } else if (object == null) {
-      object = ComplaintSectionE(order.comment ?? "", named);
     }
-
-    if (desc == "Comment") {
+    // Fallback if object is still null or when section is "Comment"
+    if (object == null || desc == "Comment") {
       object = ComplaintSectionE(order.comment ?? "", named);
     }
 
     Navigator.of(context)
-        .push(new MaterialPageRoute(builder: (_) => object))
+        .push(MaterialPageRoute(builder: (_) => object as Widget))
         .whenComplete(refresh);
   }
 
   void openComplaint(BuildContext context, {bool viewOnly = false}) {
-    var page = new ComplaintPDF(
+    final page = ComplaintPDF(
       id: _id,
       transactionNo: _taskNo,
       viewer: viewOnly,
       checkpoint: checkpoint,
+      submitted: () => false, // Add the required 'submitted' argument
     );
 
     Navigator.of(context)
-        .push(new MaterialPageRoute(builder: (BuildContext context) => page))
+        .push(MaterialPageRoute(builder: (BuildContext context) => page))
         .whenComplete(refresh);
   }
 }

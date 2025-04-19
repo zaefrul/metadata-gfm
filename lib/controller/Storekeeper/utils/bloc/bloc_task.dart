@@ -51,8 +51,8 @@ class MaterialTask extends Bloc {
   // Get
   Stream<List<Material>> get materials$ => _materials.stream;
   Stream<RequestTask> get detail$ => _detail.stream;
-  String titleButton(String id) => _statuses[id];
-  Color colorButton(String id) => _statusesColor[id];
+  String titleButton(String id) => _statuses[id] ?? "Unknown Status";
+  Color colorButton(String id) => _statusesColor[id] ?? colorNull;
   // Set
   set materials(List<Material> values) => _materials.sink.add(values);
   set detail(RequestTask value) => _detail.sink.add(value);
@@ -105,16 +105,16 @@ class Request extends _Utils {
             Provider(fetchURL: "/wo_request/approve_request/", taskID: id),
         this._providerRESERVED =
             Provider(fetchURL: "/wo_request/reserve_request/", taskID: id),
-        this._providerORDER = Provider(),
+        this._providerORDER = Provider(fetchURL: "/wo_request/order_request/"),
         this._providerCHECKOUT =
             Provider(fetchURL: "/wo_request/check_out_request/", taskID: id),
         this._providerREJECT =
             Provider(fetchURL: "/wo_request/reject_request/", taskID: id);
 
   Future<RequestTask> get info =>
-      _providerINFO.getJson().then((value) => _Utils.task(value));
+      _providerINFO.getJson(url: "/wo_request/request_details/").then((value) => _Utils.task(value));
   Future<List<Material>> get materials =>
-      _providerGET.getJson().then((value) => _Utils.material(value));
+      _providerGET.getJson(url: "/wo_request/request_details/").then((value) => _Utils.material(value));
 
   Future<void> get order => _providerORDER.post(url: "");
   Future<void> get submit => _providerSUBMIT.put();
@@ -127,5 +127,5 @@ class Request extends _Utils {
 class _Utils {
   static List<Material> material(dynamic value) =>
       deserializeListOf<Material>(value).toList();
-  static RequestTask task(Map value) => RequestTask.fromJson(value);
+  static RequestTask task(Map value) => RequestTask.fromJson(value.cast<String, dynamic>());
 }

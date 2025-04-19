@@ -5,7 +5,7 @@ import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
 class RouteTechnician extends StatefulWidget {
   final BlocTechnician bloc;
 
-  RouteTechnician({BlocTechnician value})
+  RouteTechnician({required BlocTechnician value})
       : this.bloc = value ?? BlocTechnician();
 
   @override
@@ -33,13 +33,13 @@ class _RouteTechnicianState extends State<RouteTechnician> {
           Divider(color: Colors.black38),
           _Title(widget.bloc),
           StreamBuilder<List<Item>>(
-            stream: widget.bloc.stream,
+            stream: widget.bloc.stream as Stream<List<Item>>?,
             builder: (ctx, snapshot) {
               if (snapshot.data == null || snapshot.error != null)
                 return Container();
-              else if (snapshot.data.length == 0) return Container();
+              else if (snapshot.data!.length == 0) return Container();
 
-              return _ListView(snapshot.data, widget.bloc);
+              return _ListView(snapshot.data ?? [], widget.bloc);
             },
           ),
           SizedBox(height: 70),
@@ -72,7 +72,7 @@ class _Info extends StatelessWidget {
             row("WO No : ", "WO0014"),
             row("Priority : ", "High"),
             row("Location : ", "BNM"),
-            row("Comment : ", snapshot.data ?? ""),
+            row("Comment : ", snapshot.data as String? ?? ""),
           ],
         ),
       ),
@@ -117,7 +117,7 @@ class _Title extends StatelessWidget {
 
   void onPressed(BuildContext context) =>
       Navigator.pushNamed(context, routeTechnicianDetail).then(
-        (value) => value != null ? bloc.setSink(value) : null,
+        (value) => value != null ? bloc.setSink(value as Item) : null,
       );
 }
 
@@ -160,7 +160,7 @@ class __ListViewState extends State<_ListView> {
             onPressed: () => Navigator.pushNamed(context, routeTechnicianDetail,
                     arguments: item)
                 .then((value) => value != null
-                    ? widget.bloc.replaceItem(item, value)
+                    ? widget.bloc.replaceItem(item, value as Item)
                     : null),
           ),
           IconButton(

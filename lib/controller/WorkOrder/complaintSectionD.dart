@@ -13,8 +13,8 @@ class ComplaintSectionD extends StatefulWidget {
 
   ComplaintSectionD({
     this.name = "D",
-    this.id,
-    this.viewer,
+    required this.id,
+    required this.viewer,
   });
 
   @override
@@ -24,8 +24,8 @@ class ComplaintSectionD extends StatefulWidget {
 class _ComplaintSectionDState extends State<ComplaintSectionD> {
   bool loading = false;
   String remark = "";
-  Provider provider;
-  String keyword;
+  late Provider provider;
+  late String keyword;
   TextEditingController controller = TextEditingController();
 
   _ComplaintSectionDState(String id) {
@@ -41,7 +41,7 @@ class _ComplaintSectionDState extends State<ComplaintSectionD> {
   @override
   Widget build(BuildContext context) {
     ToastContext().init(context);
-    if (provider != null) provider.context = context;
+    provider.context = context;
 
     return Scaffold(
       appBar: AppBar(
@@ -128,6 +128,7 @@ class _ComplaintSectionDState extends State<ComplaintSectionD> {
     showDialog(
         context: context,
         builder: (BuildContext context) => CustomDialog(
+            goBackOnDismiss: true,
             description: txt,
             buttonText: "Okay",
             image: Image.asset(

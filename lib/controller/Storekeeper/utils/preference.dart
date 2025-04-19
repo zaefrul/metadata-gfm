@@ -3,8 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferencesUtil<T> {
   Future<SharedPreferences> get pref => SharedPreferences.getInstance();
-  Future<String> _string(String k) => pref.then((v) => v.getString(k));
-  Future<bool> _bool(String k) => pref.then((v) => v.getBool(k));
+  Future<String> _string(String k) => pref.then((v) => v.getString(k) ?? '');
+  Future<bool> _bool(String k) => pref.then((v) => v.getBool(k) ?? false);
 }
 
 class Pref extends PreferencesUtil {

@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
@@ -8,8 +11,6 @@ import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/view/dialog.dart';
 import 'package:gfm_gems/utils/reference.dart';
 
-import 'dart:io';
-
 import 'complaintSign.dart';
 
 class ComplaintPDF extends StatefulWidget {
@@ -19,12 +20,14 @@ class ComplaintPDF extends StatefulWidget {
   final Function submitted;
   final int checkpoint;
 
-  ComplaintPDF(
-      {this.id,
-      this.transactionNo,
-      this.submitted,
-      this.checkpoint,
-      this.viewer});
+  const ComplaintPDF({
+    Key? key,
+    required this.viewer,
+    required this.id,
+    required this.transactionNo,
+    required this.submitted,
+    required this.checkpoint,
+  }) : super(key: key);
 
   @override
   _ComplaintPDFState createState() => _ComplaintPDFState();
@@ -33,8 +36,8 @@ class ComplaintPDF extends StatefulWidget {
 class _ComplaintPDFState extends State<ComplaintPDF> {
   String assetPDFPath = "";
   bool pdfReady = false;
-  CustomDialog dialog;
-  String src;
+  late CustomDialog dialog; // Initialize with a default value
+  late String src;
 
   @override
   void initState() {
@@ -42,17 +45,29 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
 
     Provider provider = Provider(
         fetchURL: "/api/m_wo.php?type=preview_pdf&woTaskId=${widget.id}");
+    provider.context = context;
 
-    if (context != null) provider.context = context;
+    provider.fetch().then((value) {
+      debugPrint(value.toString());
+      src = "http:" + (value.result ?? "");
+      return createFileOfPdfUrl(src);
+    }).then((file) {
+      setState(() => assetPDFPath = file.path);
+    }).catchError((err) {
+      print(err);
+    });
 
-    provider
-        .fetch()
-        .then((value) {
-          src = "http:" + value.result;
-          return createFileOfPdfUrl(src);
-        })
-        .then((value) => setState(() => assetPDFPath = value.path))
-        .catchError((err) => print(err));
+    // Initialize dialog with a default value to avoid LateInitializationError
+    dialog = CustomDialog(
+      rootPage: "/workorder",
+      title: "",
+      description: "",
+      buttonText: "Okay",
+      image: Image.asset(
+        "assets/icon_trans.png",
+        height: 40,
+      ),
+    );
   }
 
   Future<File> createFileOfPdfUrl(String url) async {
@@ -61,21 +76,21 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
     var response = await request.close();
     var bytes = await consolidateHttpClientResponseBytes(response);
     String dir = (await getApplicationDocumentsDirectory()).path;
-    File file = new File('$dir/$filename');
+    File file = File('$dir/$filename');
     await file.writeAsBytes(bytes);
     return file;
   }
 
   @override
   void dispose() {
+    // Dispose dialog's controller only if it has been initialized
+    dialog.controller?.dispose();
     super.dispose();
-    if (dialog != null) if (dialog.controller != null)
-      dialog.controller.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    var submitText = "Complete";
+    String submitText = "Complete";
     if (widget.checkpoint == 1 || widget.checkpoint == 5) submitText = "Verify";
     if (widget.checkpoint == 2 || widget.checkpoint == 4) submitText = "Check";
     if (widget.checkpoint == 3) submitText = "Complete";
@@ -96,36 +111,36 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
                         child: GestureDetector(
                           onTap: () {
                             dialog = CustomDialog(
-                                rootPage: "/workorder",
-                                title: "Remark",
-                                description: "Remark",
-                                buttonText: "Okay",
-                                cancel: true,
-                                secondButton: false,
-                                image: Image.asset(
-                                  "assets/icon_trans.png",
-                                  height: 40,
-                                ),
-                                remarkTapped: (text) {
-                                  Navigator.pop(context);
-                                  post(text);
-                                });
-
+                              rootPage: "/workorder",
+                              title: "Remark",
+                              description: "Remark",
+                              buttonText: "Okay",
+                              cancel: true,
+                              secondButton: false,
+                              image: Image.asset(
+                                "assets/icon_trans.png",
+                                height: 40,
+                              ),
+                              remarkTapped: (String text) {
+                                Navigator.pop(context);
+                                post(text);
+                              },
+                            );
                             showDialog(
                                 context: context,
                                 builder: (BuildContext context) => dialog);
                           },
                           child: Container(
                             decoration: BoxDecoration(
-                                borderRadius: new BorderRadius.all(
-                                    new Radius.circular(6.0)),
-                                color: Colors.redAccent),
+                              borderRadius: BorderRadius.all(Radius.circular(6.0)),
+                              color: Colors.redAccent,
+                            ),
                             width: 80,
                             child: Center(child: title("Re-Open", bold: false)),
                           ),
                         ),
                       )
-                    : new Container(),
+                    : Container(),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: GestureDetector(
@@ -141,8 +156,7 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                          borderRadius:
-                              new BorderRadius.all(new Radius.circular(6.0)),
+                          borderRadius: BorderRadius.all(Radius.circular(6.0)),
                           color: colorTheme2),
                       width: 80,
                       child: Center(child: title(submitText, bold: false)),
@@ -152,7 +166,7 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
               ],
       ),
       body: Container(
-        child: assetPDFPath == ""
+        child: assetPDFPath.isEmpty
             ? Center(child: CircularProgressIndicator())
             : PDFView(
                 filePath: assetPDFPath,
@@ -161,68 +175,75 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
                 pageSnap: true,
                 swipeHorizontal: true,
                 nightMode: false,
-                onError: (e) {
-                  print("err" + e);
+                onError: (error) {
+                  print("PDFView error: $error");
                 },
                 onRender: (_pages) {
                   setState(() {
                     pdfReady = true;
                   });
                 },
-                onPageChanged: (int page, int total) {
-                  setState(() {});
+                onPageChanged: (int? page, int? total) {
+                  // Handle page change if needed.
                 },
-                onPageError: (page, e) {},
+                onPageError: (page, error) {
+                  print("Error on page $page: $error");
+                },
               ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        label: new Text("Open File"),
-        onPressed: () {
-          launch(src);
+        label: Text("Open File"),
+        onPressed: () async {
+          if (await canLaunch(src)) {
+            await launch(src);
+          } else {
+            print("Could not launch file url");
+          }
         },
       ),
     );
   }
 
-  Widget title(text, {bold = true}) => new Text(text,
-      textAlign: TextAlign.center,
-      style: TextStyle(
+  Widget title(String text, {bool bold = true}) => Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(
           color: bold ? colorTheme3 : Colors.white,
-          fontWeight: bold ? FontWeight.bold : FontWeight.normal));
+          fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+        ),
+      );
 
-  post(String text) {
+  void post(String text) {
     var body = UploadItem(action: "return_verify", id: widget.id, remark: text);
 
-    Provider provider = Provider();
+    Provider provider = Provider(fetchURL: "/api/m_wo.php");
     provider.context = context;
     provider
         .post(url: "/api/m_wo.php", body: body.body)
         .then((value) => alert(value))
-        .catchError((err) => alert(err));
+        .catchError((err) => alert(err.toString()));
   }
 
   void alert(String txt) {
     showDialog(
         context: context,
         builder: (BuildContext context) => CustomDialog(
-            rootPage: "/workorder",
-            description: txt,
-            buttonText: "Okay",
-            image: Image.asset(
-              "assets/icon_trans.png",
-              height: 40,
-            )));
+              rootPage: "/workorder",
+              description: txt,
+              buttonText: "Okay",
+              image: Image.asset(
+                "assets/icon_trans.png",
+                height: 40,
+              ),
+            ));
   }
 }
 
 class UploadItem extends Upload {
   final String remark;
 
-  UploadItem({
-    String id,
-    String action,
-    this.remark,
-  }) : super(ppmTaskId: id, action: action);
+  UploadItem({required String id, required String action, required this.remark})
+      : super(ppmTaskId: id, action: action);
 
   @override
   Map<String, dynamic> get body => {

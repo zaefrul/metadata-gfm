@@ -11,18 +11,17 @@ abstract class ComplaintResponse
   String get error;
   String get errmsg;
 
-  @nullable
   @BuiltValueField(wireName: 'result')
-  BuiltList<ComplaintD> get items;
-  @nullable
+  BuiltList<ComplaintD>? get items;
+
   @BuiltValueField(wireName: 'result')
-  BuiltList<ComplaintDGroup> get groups;
-  @nullable
+  BuiltList<ComplaintDGroup>? get groups;
+
   @BuiltValueField(wireName: 'result')
-  BuiltList<ComplaintDType> get types;
-  @nullable
+  BuiltList<ComplaintDType>? get types;
+
   @BuiltValueField(wireName: 'result')
-  BuiltList<ComplaintDPart> get parts;
+  BuiltList<ComplaintDPart>? get parts;
 
   ComplaintResponse._();
   factory ComplaintResponse([void Function(ComplaintResponseBuilder) updates]) =

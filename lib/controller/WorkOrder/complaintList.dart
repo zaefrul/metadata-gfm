@@ -10,7 +10,7 @@ class ComplaintList extends StatelessWidget {
   final bool viewer;
   final List<WorkOrderTask> list;
 
-  ComplaintList({this.refresh, this.viewer, this.list});
+  ComplaintList({required this.refresh, required this.viewer, required this.list});
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +64,7 @@ class ComplaintList extends StatelessWidget {
             ],
           ),
           onTap: () {
-            Object page = new ComplaintSection(
+            Widget page = new ComplaintSection(
               id: task.woTaskId,
               siteName: task.reportedBy,
               taskNo: task.woTaskNo,

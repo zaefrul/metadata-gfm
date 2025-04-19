@@ -5,58 +5,59 @@ import 'package:gfm_gems/model/complaint.dart';
 class MaterialInfo extends StatelessWidget {
   final ComplaintDType value;
 
-  MaterialInfo({@required this.value});
+  const MaterialInfo({Key? key, required this.value}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text(this.value.itemTypeDesc), backgroundColor: Colors.white),
+        title: Text(value.itemTypeDesc ?? "No description available"),
+        backgroundColor: Colors.white,
+      ),
       body: ListView.separated(
+        itemCount: value.parts?.length ?? 0,
         itemBuilder: (BuildContext context, int index) {
-          final ComplaintMaterial material = value.parts[index];
+          final ComplaintMaterial material = value.parts?[index] ?? ComplaintMaterial();
           return ExpansionTile(
-              title:
-                  text(material.itemDescription, material.partCount.toString()),
-              children: [
-                expandedView(material),
-                TextButton(
-                    child: Text("View Details"),
-                    onPressed: () => Navigator.pushNamed(context, routeDetails,
-                        arguments: material.partId))
-              ]);
+            title: _text(material.itemDescription ?? "No description", material.partCount.toString()),
+            children: [
+              _expandedView(material),
+              TextButton(
+                child: const Text("View Details"),
+                onPressed: () => Navigator.pushNamed(
+                  context,
+                  routeDetails,
+                  arguments: material.partId,
+                ),
+              ),
+            ],
+          );
         },
-        itemCount: value.parts.length,
-        separatorBuilder: (BuildContext context, int index) => Divider(),
+        separatorBuilder: (BuildContext context, int index) => const Divider(),
       ),
     );
   }
 
-  Widget text(title, number) {
+  Widget _text(String title, String number) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Expanded(
-            child: Text(
-          title,
-          overflow: TextOverflow.ellipsis,
-        )),
+          child: Text(
+            title,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
         Text(number),
       ],
     );
   }
 
-  Widget expandedView(ComplaintMaterial material) {
+  Widget _expandedView(ComplaintMaterial material) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          Text(material.itemTypeDesc ?? "No description"),
-        ],
-      ),
+      padding: const EdgeInsets.all(12),
+      child: Text(material.itemTypeDesc ?? "No description"),
     );
   }
 }
