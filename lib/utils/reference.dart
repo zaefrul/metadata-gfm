@@ -26,3 +26,40 @@ abstract class Upload {
     return {"action": action, "ppmTaskId": ppmTaskId};
   }
 }
+
+class AppColors {
+  /// Primary brand color
+  static const Color primary       = Color(0xFF276EF1);
+  /// A lighter tint of primary
+  static const Color primaryLight  = Color(0xFFCCE5FF);
+
+  /// Neutral secondary / muted
+  static const Color secondary     = Color(0xFF6C757D);
+  /// Light tint of secondary
+  static const Color secondaryLight= Color(0xFFE2E3E5);
+
+  /// Success / positive actions
+  static const Color success       = Color(0xFF28A745);
+  /// Light tint of success
+  static const Color successLight  = Color(0xFFD1E7DD);
+
+  /// Information / tips
+  static const Color info          = Color(0xFF17A2B8);
+  /// Light tint of info
+  static const Color infoLight     = Color(0xFFCFF4FC);
+
+  /// Warning / caution
+  static const Color warning       = Color(0xFFFFC107);
+  /// Light tint of warning
+  static const Color warningLight  = Color(0xFFFFF3CD);
+
+  /// Danger / destructive actions
+  static const Color danger        = Color(0xFFDC3545);
+  /// Light tint of danger
+  static const Color dangerLight   = Color(0xFFF8D7DA);
+
+  /// Light background / surface
+  static const Color light         = Color(0xFFF8F9FA);
+  /// Dark text / surface
+  static const Color dark          = Color(0xFF343A40);
+}

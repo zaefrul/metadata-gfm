@@ -165,108 +165,99 @@ class BuildTile extends StatelessWidget {
     required this.onTap,
   }) : super(key: key);
 
-  // Map your status to the primary status color
   Color _getStatusColor(String? status) {
     switch (status) {
       case "Info":
-        return colorTheme2;
+        return AppColors.info;
       case "Pending":
-        return colorTheme4;
+        return AppColors.danger;
       case "In Progress":
-        return colorTheme1;
+        return AppColors.info;
       default:
-        return colorTheme3;
+        return AppColors.success;
     }
   }
 
-  Color _getBgStatusColor(String? status) {
-    switch (status) {
-      case "Info":
-        return colorTheme2Light;
-      case "Pending":
-        return colorTheme4Light;
-      case "In Progress":
-        return colorTheme1;
-      default:
-        return colorTheme3Light;
-    }
-  }
-
-  // Handle Pending → Material override
   String _getDisplayStatus(String? status, String? materialStatus) {
-    if (status == "Pending" && materialStatus != null && materialStatus.isNotEmpty)
+    if (status == "Pending" && materialStatus != null && materialStatus.isNotEmpty) {
       return materialStatus;
+    }
     return status ?? '';
   }
 
   @override
   Widget build(BuildContext context) {
-    final String status = _getDisplayStatus(
+    final String statusText = _getDisplayStatus(
       workOrderStatus.sectionStatus,
       workOrderStatus.sectionStatusMaterial,
     );
-    final Color statusColor = _getStatusColor(workOrderStatus.sectionStatus);
-    // Light tint for the card background
-    final Color cardColor = _getBgStatusColor(workOrderStatus.sectionStatus);
+    final Color accent = _getStatusColor(workOrderStatus.sectionStatus);
 
-    // Build the “B. Assign Executor” style title
     final String title = [
       if (workOrderStatus.sectionName != null) "${workOrderStatus.sectionName}.",
       if (workOrderStatus.sectionDesc != null) workOrderStatus.sectionDesc
     ].join(' ');
 
-    return Card(
-      color: cardColor,
-      borderOnForeground: true,
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0,2))],
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              // Leading icon tinted by status
-              Icon(Icons.assignment, color: statusColor),
-              const SizedBox(width: 12),
-
-              // Title + Status vertically stacked
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Bigger, bold title
-
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: colorTheme3,
-                      ),
-                    ),
-
-                    const SizedBox(height: 4),
-
-                    // Smaller status text
-                    Text(
-                      status,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
-                        color: statusColor,
-                      ),
-                    ),
-                  ],
+        child: Row(
+          children: [
+            // 1) Left accent stripe
+            Container(
+              width: 6,
+              height: 72,
+              decoration: BoxDecoration(
+                color: accent,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  bottomLeft: Radius.circular(12),
                 ),
               ),
+            ),
+            const SizedBox(width: 12),
 
-              // Keep the arrow for affordance
-              const Icon(Icons.arrow_right, color: Colors.black54),
-            ],
-          ),
+            // 2) Icon
+            Icon(Icons.assignment, color: accent),
+            const SizedBox(width: 12),
+
+            // 3) Title & status
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.dark,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    statusText,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: accent,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Icon(Icons.chevron_right, color: Colors.black38),
+
+            const SizedBox(width: 8),
+          ],
         ),
       ),
     );
@@ -346,7 +337,7 @@ class _BuildViewButton extends StatelessWidget {
   final bool isAssign;
   final bool viewer;
   final String status;
-  final Widget button;
+  final Widget button; // standardButton
   final Future<void> Function(String) reject;
   final Function(String) alert;
 
@@ -363,18 +354,66 @@ class _BuildViewButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // If in progress or assign mode, just show the single FAB you passed in
+    if (progress || isAssign) {
+      return button;
+    }
+
+    // Otherwise lay out Reject + Submit side by side
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: progress || isAssign
-          ? button
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                if (!viewer) _BuildRejectButton(status, reject, alert),
-                const SizedBox(width: 12.0),
-                button,
-              ],
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          // 1) Reject button
+          if (!viewer)
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () => _showRejectDialog(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.danger,    // red
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: Text(
+                  status == "Assign" ? "Reject" 
+                    : status == "WR Verified" ? "Re‑Open" 
+                    : "Revisit",
+                ),
+              ),
             ),
+
+          if (!viewer) const SizedBox(width: 12),
+
+          // 2) Submit/View Form button (your standard FAB)
+          Expanded(child: button),
+        ],
+      ),
+    );
+  }
+
+  void _showRejectDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => CustomDialog(
+        rootPage: "/workorder",
+        title: "Remark",
+        description: "Remark",
+        buttonText: "Okay",
+        secondButton: false,
+        cancel: true,
+        okayTapped: () {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        },
+        image: Image.asset("assets/icon_trans.png", height: 40),
+        remarkTapped: (text) {
+          Navigator.pop(context);
+          reject(text)
+              .then((_) => alert("Operation successful"))
+              .catchError(alert);
+        },
+      ),
     );
   }
 }
@@ -523,73 +562,180 @@ class _TimeDuration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16),
       child: StreamBuilder<ExecutionModel>(
         stream: stream,
-        builder: (context, snapshot) {
-          final String maxReponse = snapshot.data?.responseTimeSla ?? "0";
-          final String remainReponse = snapshot.data?.responseTimeDue ?? "0";
-          final String assignTime = snapshot.data?.assignTime ?? "0";
-          final String executeTime = snapshot.data?.execute ?? "0";
-          final String maxCompletion = snapshot.data?.completionTimeSla ?? "0";
-          final String remainCompletion = snapshot.data?.completionTimeDue ?? "0";
-          final bool exceedResponse = snapshot.data?.responseTimeExceeded ?? false;
-          final bool exceedCompletion = snapshot.data?.completionTimeExceeded ?? false;
-          return Table(
-            children: [
-              TableRow(children: [
-                _buildTableText("Response Time", isBold: true),
-                _buildTableText("Completion Time", isBold: true),
-              ]),
-              TableRow(children: [
-                _buildTableText("SLA Time :", isTitle: true),
-                _buildTableText("SLA Time :", isTitle: true),
-              ]),
-              TableRow(children: [
-                _buildTableText(maxReponse, isRed: exceedResponse),
-                _buildTableText(maxCompletion, isRed: exceedCompletion),
-              ]),
-              TableRow(children: [
-                _buildTableText("Time Due :", isTitle: true),
-                _buildTableText("Time Due :", isTitle: true),
-              ]),
-              TableRow(children: [
-                _buildTableText(remainReponse, isRed: exceedResponse),
-                _buildTableText(remainCompletion, isRed: exceedCompletion),
-              ]),
-              TableRow(children: [
-                _buildTableText("Assigned Time :", isTitle: true),
-                _buildTableText("Execute Time :", isTitle: true),
-              ]),
-              TableRow(children: [
-                _buildTableText(assignTime, isRed: exceedResponse),
-                _buildTableText(executeTime, isRed: exceedCompletion),
-              ]),
-            ],
+        builder: (context, snap) {
+          if (!snap.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
+          final e = snap.data!;
+
+          // pick colors
+          final respColor = AppColors.info;
+          final compColor = AppColors.success;
+
+          return Card(
+            elevation: 4,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  // Top row: Response / Completion
+                  Row(
+                    children: [
+                      // Response
+                      Expanded(
+                        child: _TimeSection(
+                          title: "Response Time",
+                          slaLabel: "SLA Time",
+                          slaValue: e.responseTimeSla ?? "-",
+                          dueLabel: "Time Due",
+                          dueValue: e.responseTimeDue ?? "-",
+                          accent: respColor,
+                          exceeded:
+                              e.responseTimeExceeded ?? false,
+                        ),
+                      ),
+
+                      // divider
+                      Container(
+                        width: 1,
+                        height: 100,
+                        color: Colors.grey.shade300,
+                        margin: const EdgeInsets.symmetric(horizontal: 12),
+                      ),
+
+                      // Completion
+                      Expanded(
+                        child: _TimeSection(
+                          title: "Completion Time",
+                          slaLabel: "SLA Time",
+                          slaValue: e.completionTimeSla ?? "-",
+                          dueLabel: "Time Due",
+                          dueValue: e.completionTimeDue ?? "-",
+                          accent: compColor,
+                          exceeded:
+                              e.completionTimeExceeded ?? false,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Bottom row: Assigned / Execute
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _TimeSmall(
+                          label: "Assigned Time",
+                          value: e.assignTime ?? "-",
+                          accent: respColor,
+                          exceeded: e.responseTimeExceeded ?? false,
+                        ),
+                      ),
+                      Expanded(
+                        child: _TimeSmall(
+                          label: "Execute Time",
+                          value: e.execute ?? "-",
+                          accent: compColor,
+                          exceeded: e.completionTimeExceeded ?? false,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           );
         },
       ),
     );
   }
+}
 
-  Widget _buildTableText(String value,
-      {bool isBold = false, bool isRed = false, bool isTitle = false}) {
-    return TableCell(
-      child: Padding(
-        padding: EdgeInsets.only(
-          top: isTitle ? 12 : 3,
-          left: 3,
-          right: 3,
-          bottom: 3,
-        ),
-        child: Text(
-          value,
-          style: TextStyle(
-            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            color: isRed ? colorTheme4 : colorTheme3,
-          ),
-        ),
-      ),
+/// Big section widget used in the top row
+class _TimeSection extends StatelessWidget {
+  final String title, slaLabel, slaValue, dueLabel, dueValue;
+  final Color accent;
+  final bool exceeded;
+
+  const _TimeSection({
+    Key? key,
+    required this.title,
+    required this.slaLabel,
+    required this.slaValue,
+    required this.dueLabel,
+    required this.dueValue,
+    required this.accent,
+    required this.exceeded,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final valueStyle = TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      color: exceeded ? AppColors.danger : accent,
+    );
+
+    final labelStyle = TextStyle(fontSize: 12, color: AppColors.dark);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title,
+            style: TextStyle(
+                fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.dark)),
+        const SizedBox(height: 12),
+
+        // SLA
+        Text(slaLabel, style: labelStyle),
+        const SizedBox(height: 4),
+        Text(slaValue, style: valueStyle),
+
+        const SizedBox(height: 12),
+
+        // Due
+        Text(dueLabel, style: labelStyle),
+        const SizedBox(height: 4),
+        Text(dueValue, style: valueStyle),
+      ],
+    );
+  }
+}
+
+/// Small label+value used in the bottom row
+class _TimeSmall extends StatelessWidget {
+  final String label, value;
+  final Color accent;
+  final bool exceeded;
+
+  const _TimeSmall({
+    Key? key,
+    required this.label,
+    required this.value,
+    required this.accent,
+    required this.exceeded,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: TextStyle(fontSize: 12, color: AppColors.dark)),
+        const SizedBox(height: 4),
+        Text(value,
+            style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: exceeded ? AppColors.danger : accent)),
+      ],
     );
   }
 }
