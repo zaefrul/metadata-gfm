@@ -7,6 +7,15 @@ import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/dialog.dart';
 import 'package:toast/toast.dart';
 
+final ButtonStyle actionButtonStyle = ElevatedButton.styleFrom(
+  minimumSize: Size(double.infinity, 52),            // full‐width, 52 px tall
+  padding: EdgeInsets.symmetric(vertical: 0),        // we control height via minimumSize
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(12),         // 12 px rounded corners
+  ),
+  elevation: 2,
+);
+
 class ComplaintSection extends StatefulWidget {
   final String taskNo;
   final String siteName;
@@ -68,13 +77,13 @@ class _ComplaintSectionState extends State<ComplaintSection> {
 
   @override
   Widget build(BuildContext context) {
-    final Widget standardButton = _BuildStandardButton(
+    final standardButton = _BuildStandardButton(
       _bloc,
       widget.viewer,
       widget.taskStatus,
     );
 
-    final Widget viewButton = _BuildViewButton(
+    final viewButton = _BuildViewButton(
       widget.isComplaintProgress,
       widget.isAssign,
       widget.viewer,
@@ -85,57 +94,51 @@ class _ComplaintSectionState extends State<ComplaintSection> {
     );
 
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: IconThemeData(color: colorTheme3),
-        backgroundColor: Colors.white,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.siteName,
-              style: TextStyle(color: colorTheme3),
-            ),
-            Text(
-              widget.taskNo,
-              style: TextStyle(fontSize: 16, color: colorTheme3),
-            ),
-          ],
-        ),
-      ),
+      appBar: AppBar(/* … */),
       body: StreamBuilder<List<WorkOrderStatus>>(
         stream: _bloc.sections$,
-        builder: (context, snapshot) {
-          if (snapshot.data == null) {
+        builder: (ctx, snapshot) {
+          if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());
           }
-          return RefreshIndicator(
-            onRefresh: _bloc.refresh,
-            child: ListView.builder(
-              padding: EdgeInsets.only(top: 12, bottom: 120),
-              itemCount: snapshot.data!.length + (showtime ? 1 : 0),
-              // separatorBuilder: (_, __) => Divider(),
-              itemBuilder: (_, index) {
-                if (index == 0 && showtime) {
-                  return _TimeDuration(stream: _bloc.execution$);
-                }
-                final int dataIndex = index - (showtime ? 1 : 0);
-                return BuildTile(
-                  workOrderStatus: snapshot.data![dataIndex],
-                  onTap: () => _bloc.openScreen(
-                    context,
-                    snapshot.data![dataIndex],
-                    viewOnly: widget.viewer,
+          final sections = snapshot.data!;
+          return Column(
+            children: [
+              // 1) The scrolling list
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: _bloc.refresh,
+                  child: ListView.builder(
+                    padding: EdgeInsets.only(top: 12),
+                    itemCount: sections.length + (showtime ? 1 : 0),
+                    itemBuilder: (c, i) {
+                      if (i == 0 && showtime) {
+                        return _TimeDuration(stream: _bloc.execution$);
+                      }
+                      final idx = i - (showtime ? 1 : 0);
+                      return BuildTile(
+                        workOrderStatus: sections[idx],
+                        onTap: () => _bloc.openScreen(
+                          context,
+                          sections[idx],
+                          viewOnly: widget.viewer,
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
+                ),
+              ),
+
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: (!widget.viewer && _bloc.checkpoint != 1) ? viewButton : standardButton,
+                ),
+              ),
+            ],
           );
         },
       ),
-      // Toggle between view button and standard button based on viewer flag and checkpoint
-      floatingActionButton: (!widget.viewer && _bloc.checkpoint != 1)
-          ? viewButton
-          : standardButton,
     );
   }
 
@@ -172,9 +175,22 @@ class BuildTile extends StatelessWidget {
       case "Pending":
         return AppColors.danger;
       case "In Progress":
-        return AppColors.info;
+        return AppColors.primary;
       default:
         return AppColors.success;
+    }
+  }
+
+  Color _getCardBgColorByStatus(String? status) {
+    switch (status) {
+      case "Info":
+        return AppColors.infoLight;
+      case "Pending":
+        return AppColors.dangerLight;
+      case "In Progress":
+        return AppColors.primaryLight;
+      default:
+        return AppColors.successLight;
     }
   }
 
@@ -199,9 +215,9 @@ class BuildTile extends StatelessWidget {
     ].join(' ');
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _getCardBgColorByStatus(workOrderStatus.sectionStatus),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0,2))],
       ),
@@ -369,11 +385,9 @@ class _BuildViewButton extends StatelessWidget {
             Expanded(
               child: ElevatedButton(
                 onPressed: () => _showRejectDialog(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.danger,    // red
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                style: actionButtonStyle.copyWith(
+                  backgroundColor: MaterialStateProperty.all(AppColors.primary),
+                  foregroundColor: MaterialStateProperty.all(Colors.white),
                 ),
                 child: Text(
                   status == "Assign" ? "Reject" 
@@ -562,7 +576,7 @@ class _TimeDuration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(8),
       child: StreamBuilder<ExecutionModel>(
         stream: stream,
         builder: (context, snap) {
