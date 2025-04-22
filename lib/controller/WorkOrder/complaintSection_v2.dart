@@ -5,7 +5,10 @@ import 'package:gfm_gems/model/user.dart';
 import 'package:gfm_gems/model/workorder.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/dialog.dart';
+import 'dart:convert';
 import 'package:toast/toast.dart';
+import 'dart:developer';
+
 
 final ButtonStyle actionButtonStyle = ElevatedButton.styleFrom(
   minimumSize: Size(double.infinity, 52),            // full‐width, 52 px tall
@@ -55,6 +58,8 @@ class _ComplaintSectionState extends State<ComplaintSection> {
       debugPrint("Status: ${widget.taskStatus}");
       debugPrint("Task No: ${widget.taskNo}");
       debugPrint("Viewer: ${widget.viewer}");
+      //debugPrint whole widget in json
+      inspect(widget);
       _bloc = MainBloc(
         id: widget.id,
         status: widget.taskStatus,
@@ -102,6 +107,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
             return Center(child: CircularProgressIndicator());
           }
           final sections = snapshot.data!;
+          debugPrint(sections.toString());
           return Column(
             children: [
               // 1) The scrolling list

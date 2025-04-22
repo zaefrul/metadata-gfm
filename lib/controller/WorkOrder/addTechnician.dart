@@ -113,7 +113,20 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
                                 );
                               }
                             } else {
-                              final success = await _provider.delete(f);
+                              //get the selected technician model
+                              var selectedModel = listTechnicianSelected.firstWhere(
+                                (element) => element.userId == f.userId,
+                                orElse: () => _Model("", "", ""),
+                              );
+                              if(selectedModel.assistantId.isEmpty) {
+                                Toast.show(
+                                  "Failed to remove technician",
+                                  duration: Toast.lengthLong,
+                                  gravity: Toast.bottom,
+                                );
+                                return;
+                              }
+                              final success = await _provider.delete(selectedModel);
                               if (!success) {
                                 Toast.show(
                                   "Failed to remove technician",
@@ -267,6 +280,7 @@ class _Controller {
     final Provider _provider = Provider(fetchURL: url, taskID: id);
     try {
       final result = await _provider.getJson(url: url);
+      debugPrint("Result: $result");
       if (result.length > 0) {
         return result.map<_Model>((v) => _Model.fromJson(v)).toList();
       }
@@ -297,12 +311,13 @@ class _Controller {
   Future<bool> delete(_Model model) async {
     final url = "/wo_task_assist/${model.assistantId}";
     final Provider _provider = Provider(fetchURL: url, taskID: id);
+    debugPrint(model.assistantId);
     try {
       final _ = await _provider.delete(url: url);
-      debugPrint("Return True for delete");
+      debugPrint("Return True for delete" );
       return true;
     } catch (e) {
-      debugPrint("Return False for delete");
+      debugPrint(e.toString());
       return false;
     }
   }
