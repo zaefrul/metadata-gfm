@@ -4,6 +4,7 @@ import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/dialog.dart';
 import 'package:toast/toast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../main.dart';
 
 class ComplaintSectionB extends StatefulWidget {
   final String id;
@@ -61,7 +62,7 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
 
   void _showAlert(String txt) {
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (_) => CustomDialog(
         goBackOnDismiss: true,
         description: txt,

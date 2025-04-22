@@ -8,6 +8,7 @@ import 'package:rating_dialog/rating_dialog.dart';
 import '../../utils/reference.dart';
 import '../../view/dialog.dart';
 import 'package:signature/signature.dart';
+import '../../main.dart';
 
 class ComplaintSignature extends StatefulWidget {
   final String id;
@@ -78,7 +79,8 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
             child: GestureDetector(
               onTap: () async {
                 showDialog(
-                  context: context,
+                  context: navigatorKey.currentContext!,
+
                   builder: (context) => withVerifier
                       ? CustomDialog(
                           title: "Remark",
@@ -206,7 +208,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
 
   void alert(String txt) {
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (BuildContext context) => CustomDialog(
         rootPage: "/workorder",
         description: txt,
@@ -222,26 +224,29 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
   void ratingDialog(Map<String, dynamic> body) {
     void upload() {
       debugPrint('the body: ${jsonEncode(body)}');
-      if (!mounted) return; // Ensure widget is still mounted
-      setState(() => loading = true);
+      debugPrint('mounted: $mounted');
+      // if (mounted) setState(() => loading = true); // Ensure widget is still mounted
       Provider provider = Provider(fetchURL: "/api/m_wo.php");
-      provider.context = context;
+      provider.context = navigatorKey.currentContext!;
+      debugPrint('Sending request to: ${provider.fetchURL}');
       provider
           .post(url: "/api/m_wo.php", body: body)
           .then((value) {
-            if (!mounted) return; // Ensure widget is still mounted
-            setState(() => loading = false);
+            debugPrint('Response: $value');
+            // if (!mounted) return; // Ensure widget is still mounted
+            // setState(() => loading = false);
             alert(value);
           })
           .catchError((err) {
-            if (!mounted) return; // Ensure widget is still mounted
+            debugPrint('Error: $err');
+            // if (!mounted) return; // Ensure widget is still mounted
             alert(err.toString());
           });
     }
 
     void dialogConfirmation() {
       showDialog(
-        context: context,
+        context: navigatorKey.currentContext!,
         barrierDismissible: true,
         builder: (context) => CustomDialog(
           title: "Remark",
@@ -270,7 +275,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
     if (widget.checkpoint == 4) {
       if (!withVerifier) {
         showDialog(
-          context: context,
+          context: navigatorKey.currentContext!,
           barrierDismissible: true,
           builder: (context) => CustomDialog(
             title: "Remark",
@@ -319,7 +324,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
       upload();
     } else {
       showDialog(
-        context: context,
+        context: navigatorKey.currentContext!,
         barrierDismissible: true,
         builder: (context) => RatingDialog(
           image: Material(

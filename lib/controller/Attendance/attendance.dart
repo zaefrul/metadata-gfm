@@ -11,6 +11,8 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:intl/intl.dart';
 
+import '../../main.dart';
+
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
   @override
@@ -119,7 +121,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   void confirmationCheckIn() {
     FocusScope.of(context).unfocus();
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (_) => AlertDialog(
         title: const Text("Confirmation"),
         content: const Text("Please confirm your Check In?"),
@@ -145,7 +147,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   void confirmationCheckOut() {
     FocusScope.of(context).unfocus();
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (_) => AlertDialog(
         title: const Text("Confirmation"),
         content: const Text("Please confirm your Check Out?"),

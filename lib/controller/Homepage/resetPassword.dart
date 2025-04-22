@@ -5,6 +5,7 @@ import '../../utils/reference.dart';
 import '../../view/button.dart';
 import '../../view/field.dart';
 import '../../view/dialog.dart';
+import '../../main.dart';
 
 class ResetArguments {
   final String username;
@@ -168,7 +169,7 @@ class _ResetPasswordState extends State<ResetPassword> {
   }
 
   void alert(String txt) => showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (BuildContext context) => CustomDialog(
           rootPage: "/homepage",
           description: txt,

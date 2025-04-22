@@ -75,7 +75,7 @@ class _FormComplaintState extends State<FormComplaint> {
             backgroundColor: colorTheme2,
             onPressed: () {
               showDialog(
-                  context: context,
+                  context: navigatorKey.currentContext!,
                   builder: (context) => CustomDialog(
                         cancel: true,
                         description: "Do you confirm want to submit?",
@@ -236,7 +236,7 @@ class _FormComplaintState extends State<FormComplaint> {
               ],
             ),
             onTap: () async => _bottomSheet(
-                latitude: _latitude, longitude: _longitude, src: src, context: context)),
+                latitude: _latitude, longitude: _longitude, src: src, context: navigatorKey.currentContext!)),
         TextField(
           decoration: InputDecoration(hintText: "Remark"),
           onChanged: (text) {
@@ -269,7 +269,7 @@ class _FormComplaintState extends State<FormComplaint> {
     }
 
     showModalBottomSheet(
-        context: context, // Use the parent context directly
+        context: navigatorKey.currentContext!, // Use the parent context directly
         builder: (BuildContext bc) => Container(
               child: Wrap(
                 children: <Widget>[

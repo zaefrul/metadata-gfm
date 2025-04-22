@@ -6,6 +6,7 @@ import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
 import 'package:gfm_gems/model/complaint.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:toast/toast.dart';
+import '../../../../main.dart';
 
 class CheckinRequest extends StatefulWidget {
   @override
@@ -25,7 +26,7 @@ class _CheckinRequestState extends State<CheckinRequest> {
     _controller.loadingState$.listen((event) {
       if (event ?? false)
         showDialog(
-          context: context,
+          context: navigatorKey.currentContext!,
           builder: (_) => Center(child: CircularProgressIndicator()),
         );
       else if (event == false) Navigator.pop(context);

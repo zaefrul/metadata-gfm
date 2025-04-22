@@ -15,6 +15,8 @@ import '../complaintSectionC.dart';
 import '../complaintSectionD.dart';
 import '../complaintSectionD_material.dart';
 
+import '../../../../main.dart';
+
 class MainBloc {
   // -- VARIABLES
   int checkpoint = 0;
@@ -38,7 +40,7 @@ class MainBloc {
       : _id = id,
         _status = status,
         _taskNo = taskNo {
-    _provider = WOProvider(context: context);
+    _provider = WOProvider(context: navigatorKey.currentContext!);
     setCheckpoint(_status);
     refresh();
   }
@@ -64,7 +66,7 @@ class MainBloc {
   set execution(Map<String, dynamic> v) =>
       _execution.sink.add(ExecutionModel.fromJson(v));
   set context(BuildContext context) =>
-      _provider = WOProvider(context: context);
+      _provider = WOProvider(context: navigatorKey.currentContext!);
 
   // -- METHODS
   Future<void> refresh() async {

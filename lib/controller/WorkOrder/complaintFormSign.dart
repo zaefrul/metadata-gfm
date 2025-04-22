@@ -69,7 +69,7 @@ class ComplaintFormSignatureState extends State<ComplaintFormSignature> {
             child: GestureDetector(
               onTap: () async {
                 showDialog(
-                    context: context,
+                    context: navigatorKey.currentContext!,
                     builder: (context) => CustomDialog(
                           cancel: true,
                           description: "Do you confirm want to submit?",
@@ -171,7 +171,7 @@ class ComplaintFormSignatureState extends State<ComplaintFormSignature> {
 
   void alert({String? txt, String? err}) {
     showDialog(
-        context: context,
+        context: navigatorKey.currentContext!,
         builder: (BuildContext context) => CustomDialog(
               rootPage: err != null ? "" : "/workorder",
               description: err ?? txt ?? "",

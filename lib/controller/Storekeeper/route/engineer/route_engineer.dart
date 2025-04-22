@@ -2,6 +2,7 @@ import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc_technician.dart'
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/widget/dialog.dart';
+import '../../../../main.dart';
 
 class RouteEngineer extends StatefulWidget {
   final BlocTechnician bloc;
@@ -250,6 +251,6 @@ class _FloatingButton extends StatelessWidget {
       },
     );
 
-    showDialog(context: context, builder: (BuildContext context) => dialog);
+    showDialog(context: navigatorKey.currentContext!, builder: (BuildContext context) => dialog);
   }
 }

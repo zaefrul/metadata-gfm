@@ -14,6 +14,7 @@ import 'package:gfm_gems/view/dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../main.dart';
 
 class ComplaintSectionC extends StatefulWidget {
   final String id;
@@ -377,7 +378,7 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
     }
 
     showModalBottomSheet(
-        context: context,
+        context: navigatorKey.currentContext!,
         builder: (BuildContext bc) => Container(
               child: Wrap(
                 children: <Widget>[
@@ -396,7 +397,7 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
 
   void _alert(String desc, {bool? backOneScreen = false}) {
     showDialog(
-        context: context,
+        context: navigatorKey.currentContext!,
         builder: (BuildContext context) => CustomDialog(
             goBackOnDismiss: backOneScreen,
             description: desc,

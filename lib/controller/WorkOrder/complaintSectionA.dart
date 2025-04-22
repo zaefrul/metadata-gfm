@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 // import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart'; // for colorTheme2
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../main.dart';
 
 class ComplaintSectionA extends StatefulWidget {
   final bool viewer;
@@ -255,7 +256,7 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
   }
 
   showModalBottomSheet(
-    context: context,
+    context: navigatorKey.currentContext!,
     builder: (_) => SafeArea(
       child: Wrap(
         children: [
@@ -296,7 +297,7 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
 
   void _openImageOptions(ComplaintImage img) {
     showModalBottomSheet(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (_) => Wrap(children: [
         ListTile(
           leading: Icon(Icons.image),

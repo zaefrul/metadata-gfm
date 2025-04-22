@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc_technician.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
 import 'package:toast/toast.dart';
+import '../../../../main.dart';
 
 class RouteTechnicianDetail extends StatefulWidget {
   final Item item;
@@ -28,7 +29,7 @@ class _RouteTechnicianDetailState extends State<RouteTechnicianDetail> {
     _bloc.loadingState.listen((value) {
       if (value == true)
         showDialog(
-          context: context,
+          context: navigatorKey.currentContext!,
           builder: (_) => Center(child: CircularProgressIndicator()),
         );
       else

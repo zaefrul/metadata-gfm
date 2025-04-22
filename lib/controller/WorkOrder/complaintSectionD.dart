@@ -5,6 +5,7 @@ import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/dialog.dart';
 import 'package:toast/toast.dart';
 import 'package:flutter/services.dart';
+import '../../main.dart';
 
 class ComplaintSectionD extends StatefulWidget {
   final String id;
@@ -126,7 +127,7 @@ class _ComplaintSectionDState extends State<ComplaintSectionD> {
 
   void alert(String txt) {
     showDialog(
-        context: context,
+        context: navigatorKey.currentContext!,
         builder: (BuildContext context) => CustomDialog(
             goBackOnDismiss: true,
             description: txt,

@@ -5,9 +5,9 @@ import 'package:gfm_gems/model/user.dart';
 import 'package:gfm_gems/model/workorder.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/dialog.dart';
-import 'dart:convert';
 import 'package:toast/toast.dart';
 import 'dart:developer';
+import '../../main.dart';
 
 
 final ButtonStyle actionButtonStyle = ElevatedButton.styleFrom(
@@ -64,7 +64,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
         id: widget.id,
         status: widget.taskStatus,
         taskNo: widget.taskNo,
-        context: context,
+        context: navigatorKey.currentContext!,
       );
       _blocInitialized = true;
       // Check user preferences to decide if the time view should be shown.
@@ -150,7 +150,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
 
   void alert(String txt) {
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (BuildContext context) => CustomDialog(
         rootPage: "/workorder",
         description: txt,
@@ -414,7 +414,7 @@ class _BuildViewButton extends StatelessWidget {
 
   void _showRejectDialog(BuildContext context) {
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (_) => CustomDialog(
         rootPage: "/workorder",
         title: "Remark",
@@ -465,7 +465,7 @@ class _BuildRejectButton extends StatelessWidget {
       label: Text(label, style: const TextStyle(color: Colors.white)),
       backgroundColor: Colors.red,
       onPressed: () => showDialog(
-        context: context,
+        context: navigatorKey.currentContext!,
         builder: _buildDialog,
       ),
     );
@@ -538,7 +538,7 @@ class _BuildStandardButton extends StatelessWidget {
                 mainStatus == "WR Reassign") {
               if (snapshot.data != null && snapshot.data!) {
                 bloc.submit().then((_) {
-                  showDialog(context: context, builder: _buildDialog);
+                  showDialog(context: navigatorKey.currentContext!, builder: _buildDialog);
                 }).catchError((err) => Toast.show(err));
               } else {
                 Toast.show("All sections must be completed before submit",

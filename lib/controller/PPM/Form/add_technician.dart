@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gfm_gems/main.dart';
 import 'package:gfm_gems/model/responseValue.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
@@ -150,7 +151,7 @@ class PPMAddTechnicianState extends State<PPMAddTechnician> {
 
   void showsheet() {
     showModalBottomSheet(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (ctx) {
         return ListView(
           children: [

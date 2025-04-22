@@ -3,6 +3,7 @@ import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
 import 'package:gfm_gems/model/responseValue.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:toast/toast.dart';
+import '../../../main.dart';
 
 class AddTechnicianCheckList extends StatefulWidget {
   final String id;
@@ -166,7 +167,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
 
   void showsheet() {
     showModalBottomSheet(
-        context: context,
+        context: navigatorKey.currentContext!,
         builder: (ctx) {
           return ListView(children: [
             Padding(

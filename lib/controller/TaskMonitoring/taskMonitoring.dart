@@ -6,6 +6,7 @@ import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/bar.dart';
 import 'package:gfm_gems/view/drawer.dart';
+import '../../main.dart';
 
 class TaskMonitoring extends StatefulWidget {
   @override
@@ -142,7 +143,7 @@ class _TaskMonitoringState extends State<TaskMonitoring> {
   void generateTile(List<MonitorTask> tasks) {
     _children = [];
     _children.addAll(ListTile.divideTiles(
-            context: context,
+            context: navigatorKey.currentContext!,
             tiles: List.generate(_tasks.length, (index) => tile(_tasks[index])))
         .toList());
     _children.insert(0, _filter);

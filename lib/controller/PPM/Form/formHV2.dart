@@ -453,7 +453,7 @@ class _FormHState extends State<FormH> {
     }
 
     return showModalBottomSheet(
-        context: context,
+        context: navigatorKey.currentContext!,
         builder: (BuildContext bc) => Container(
               child: Wrap(
                 children: <Widget>[
@@ -472,7 +472,7 @@ class _FormHState extends State<FormH> {
 
   void _alert(String desc) {
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (BuildContext context) => CustomDialog(
         description: desc,
         buttonText: "Okay",

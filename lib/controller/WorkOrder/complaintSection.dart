@@ -159,7 +159,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
             },
           );
           showDialog(
-              context: context,
+              context: navigatorKey.currentContext!,
               builder: (BuildContext context) => dialog);
         });
 
@@ -206,7 +206,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
                   ),
                 );
                 showDialog(
-                    context: context,
+                    context: navigatorKey.currentContext!,
                     builder: (BuildContext context) => dialog);
               }).catchError((err) => Toast.show(err.toString()))
                 .whenComplete(() => setState(() => loadingAssign = false));
@@ -385,7 +385,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
 
   void alert(String txt) {
     showDialog(
-        context: context,
+        context: navigatorKey.currentContext!,
         builder: (BuildContext context) => CustomDialog(
             rootPage: "/workorder",
             description: txt,

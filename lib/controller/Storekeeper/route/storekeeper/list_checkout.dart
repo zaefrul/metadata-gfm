@@ -3,6 +3,7 @@ import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
 import 'package:gfm_gems/model/complaint.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:rxdart/subjects.dart';
+import '../../../../main.dart';
 
 class CheckOutList extends StatelessWidget {
   final BehaviorSubject<List<Map<String, dynamic>>> _data =
@@ -24,7 +25,7 @@ class CheckOutList extends StatelessWidget {
         final data = snapshot.data!;
 
         return RefreshIndicator(
-          onRefresh: () => refresh(context: context),
+          onRefresh: () => refresh(context: navigatorKey.currentContext!),
           child: ListView.separated(
             padding: EdgeInsets.only(top: 12, bottom: 50),
             itemBuilder: (ctx, index) => _Tile(data[index]),

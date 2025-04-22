@@ -13,6 +13,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
 
+import '../main.dart';
+
 final String netDomain = "https://gems.metadatasystem.my";
 //final String netDomain = "https://gems.globalfm.com.my";
 final String netLogin = "/api/m_login.php";
@@ -111,7 +113,6 @@ class Provider {
       if (decode["result"] is List) {
         // In case it's a List and not empty…
         if ((decode["result"] as List).isNotEmpty) {
-          debugPrint("List is not empty, $decode");
           ResponseValue responseValue = serializers.deserializeWith(
               ResponseValue.serializer, decode)!;
           if (responseValue.success == true) {
@@ -158,7 +159,6 @@ class Provider {
             }
           }
       } else {
-        debugPrint(response.body);
         return Future.error("Unexpected type for result: ${decode["result"].runtimeType}");
       }
     }
@@ -453,7 +453,7 @@ class Provider {
 
   void alert(String txt) {
     showDialog(
-        context: context,
+        context: navigatorKey.currentContext!,
         builder: (BuildContext context) => CustomDialog(
               title: "Expired Session",
               description: txt,

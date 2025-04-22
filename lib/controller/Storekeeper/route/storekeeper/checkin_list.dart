@@ -3,6 +3,7 @@ import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:toast/toast.dart';
+import '../../../../main.dart';
 
 class CheckinDetails extends StatelessWidget {
   final String id;
@@ -213,7 +214,7 @@ class _Material extends StatelessWidget {
 
   Future<void> _showMyDialog(BuildContext context) async {
     return showDialog<void>(
-      context: context,
+      context: navigatorKey.currentContext!,
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
         return AlertDialog(

@@ -14,6 +14,7 @@ import '../../view/button.dart';
 import '../../view/field.dart';
 import '../../model/user.dart';
 import '../PPM/Form/openImage.dart';
+import '../../main.dart';
 
 class Edit extends StatefulWidget {
   final User user;
@@ -192,7 +193,7 @@ class _EditState extends State<Edit> {
 
   void alert(String txt, {bool success = true}) {
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (BuildContext context) => CustomDialog(
         rootPage: success ? "/profile" : "",
         description: txt,
@@ -247,7 +248,7 @@ class _EditState extends State<Edit> {
     }
 
     showModalBottomSheet(
-        context: context,
+        context: navigatorKey.currentContext!,
         builder: (BuildContext bc) => Container(
               child: Wrap(children: children),
             ));

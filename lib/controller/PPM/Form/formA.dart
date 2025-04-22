@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gfm_gems/main.dart';
 import 'package:intl/intl.dart';
 import 'package:gfm_gems/model/form.dart';
 import 'package:gfm_gems/utils/network.dart';
@@ -158,7 +159,7 @@ class _FormAState extends State<FormA> {
 
   void alert(String txt) {
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (BuildContext context) => CustomDialog(
         description: txt,
         buttonText: "Okay",

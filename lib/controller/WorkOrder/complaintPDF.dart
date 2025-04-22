@@ -13,6 +13,8 @@ import 'package:gfm_gems/utils/reference.dart';
 
 import 'complaintSign.dart';
 
+import '../../main.dart';
+
 class ComplaintPDF extends StatefulWidget {
   final bool viewer;
   final String id;
@@ -127,7 +129,7 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
                               },
                             );
                             showDialog(
-                                context: context,
+                                context: navigatorKey.currentContext!,
                                 builder: (BuildContext context) => dialog);
                           },
                           child: Container(
@@ -226,7 +228,7 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
 
   void alert(String txt) {
     showDialog(
-        context: context,
+        context: navigatorKey.currentContext!,
         builder: (BuildContext context) => CustomDialog(
               rootPage: "/workorder",
               description: txt,

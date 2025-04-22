@@ -14,6 +14,7 @@ import 'package:intl/intl.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../main.dart';
 
 class ElectricBillScreen extends StatefulWidget {
   final bool isMontly;
@@ -98,7 +99,7 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
   void confirmation() {
     FocusScope.of(context).unfocus();
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (_) => AlertDialog(
         title: Text("Confirmation"),
         content: Text("Are you confirm to submit the bill?"),
@@ -156,7 +157,7 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
     }
 
     showDialog(
-        context: context,
+        context: navigatorKey.currentContext!,
         builder: (_) => Center(child: CircularProgressIndicator()));
 
     final Provider _provider = Provider(fetchURL: "/utility/Electricity/");
@@ -332,7 +333,7 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
         MaterialPageRoute(builder: (context) => ImageViewer(file: src)));
 
     showModalBottomSheet(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (BuildContext bc) => Container(
         child: Wrap(
           children: <Widget>[

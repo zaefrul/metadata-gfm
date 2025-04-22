@@ -8,6 +8,7 @@ import 'package:gfm_gems/view/dialog.dart';
 import 'package:gfm_gems/view/signature.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'dart:io';
+import '../../../main.dart';
 
 class PDF extends StatefulWidget {
   final bool viewer;
@@ -103,7 +104,7 @@ class _PDFState extends State<PDF> {
                         );
 
                         showDialog(
-                          context: context,
+                          context: navigatorKey.currentContext!,
                           builder: (_) => dialog!,
                         );
                       },
@@ -198,7 +199,7 @@ class _PDFState extends State<PDF> {
 
   void alert(String txt) {
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (_) => CustomDialog(
         rootPage: "/ppm",
         description: txt,

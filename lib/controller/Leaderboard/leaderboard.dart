@@ -4,6 +4,7 @@ import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/drawer.dart';
 import 'package:month_year_picker/month_year_picker.dart';
+import '../../../main.dart';
 
 class LeaderboardView extends StatefulWidget {
   @override
@@ -59,7 +60,7 @@ class _LeaderboardViewState extends State<LeaderboardView>
     final currentDate = DateTime.now();
     final lastDate = DateTime(currentDate.year, currentDate.month + 1);
     final selected = await showMonthYearPicker(
-      context: context,
+      context: navigatorKey.currentContext!,
       initialDate: DateTime(year, month),
       firstDate: DateTime(2022),
       lastDate: lastDate,

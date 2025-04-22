@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gfm_gems/main.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 
@@ -202,7 +203,7 @@ class _TaskViewState extends State<TaskView>
                   .toList();
               children = List<Widget>.empty(growable: true);
               children.addAll(ListTile.divideTiles(
-                      context: context,
+                      context: navigatorKey.currentContext!,
                       tiles: List.generate(
                           tempList.length, (index) => tile(tempList[index])))
                   .toList());

@@ -3,15 +3,14 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:gfm_gems/model/form.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/dialog.dart';
 import 'package:toast/toast.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:gfm_gems/utils/image_compressor.dart';
+import '../../../../main.dart';
 
 import 'openImage.dart';
 
@@ -76,7 +75,7 @@ class _FormFState extends State<FormF> {
 
     void alert(String txt) {
       showDialog(
-          context: context,
+          context: navigatorKey.currentContext!,
           builder: (BuildContext context) => CustomDialog(
               description: txt,
               buttonText: "Okay",

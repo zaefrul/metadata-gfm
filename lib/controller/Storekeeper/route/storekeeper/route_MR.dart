@@ -5,6 +5,7 @@ import 'package:gfm_gems/controller/Storekeeper/utils/widget/dialog.dart';
 import 'package:gfm_gems/model/complaint.dart';
 import 'package:gfm_gems/model/material.dart' as item;
 import 'package:toast/toast.dart';
+import '../../../../main.dart';
 
 class MaterialRequest extends StatefulWidget {
   final RequestTask value;
@@ -34,7 +35,7 @@ class _MaterialRequestState extends State<MaterialRequest> {
     _bloc.loadingState$.listen((event) {
       if (event == true) {
         showDialog(
-          context: context,
+          context: navigatorKey.currentContext!,
           barrierDismissible: false,
           builder: (_) => const Center(child: CircularProgressIndicator()),
         );
@@ -315,7 +316,7 @@ class _BuildRejectButton extends StatelessWidget {
       heroTag: "reject_button",
       label: Text(label),
       backgroundColor: Colors.red,
-      onPressed: () => showDialog(context: context, builder: _buildDialog),
+      onPressed: () => showDialog(context: navigatorKey.currentContext!, builder: _buildDialog),
     );
   }
 

@@ -4,6 +4,7 @@ import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/dialog.dart';
 import 'package:toast/toast.dart';
+import '../../../main.dart';
 
 class FormG extends StatefulWidget {
   final String id;
@@ -139,7 +140,7 @@ class _FormGState extends State<FormG> {
 
   void alert(String txt) {
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (BuildContext context) => CustomDialog(
         description: txt,
         buttonText: "Okay",
