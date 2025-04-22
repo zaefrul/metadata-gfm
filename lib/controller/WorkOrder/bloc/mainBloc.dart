@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/WorkOrder/repository/provider.dart';
@@ -103,6 +104,8 @@ class MainBloc {
     } else {
       url = urlExecution;
     }
+
+    debugPrint("URL: $url");
 
     try {
       final result = await _provider.fetch(url, id);

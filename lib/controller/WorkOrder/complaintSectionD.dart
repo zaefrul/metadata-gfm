@@ -1,188 +1,256 @@
+import 'dart:developer';
+
 import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:toast/toast.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/dialog.dart';
-import 'package:toast/toast.dart';
-import 'package:flutter/services.dart';
-import '../../main.dart';
+import 'package:gfm_gems/main.dart';
 
 class ComplaintSectionD extends StatefulWidget {
   final String id;
   final bool viewer;
   final String name;
 
-  ComplaintSectionD({
+  const ComplaintSectionD({
+    Key? key,
     this.name = "D",
     required this.id,
     required this.viewer,
-  });
+  }) : super(key: key);
 
   @override
-  _ComplaintSectionDState createState() => _ComplaintSectionDState(this.id);
+  _ComplaintSectionDState createState() => _ComplaintSectionDState();
 }
 
 class _ComplaintSectionDState extends State<ComplaintSectionD> {
-  bool loading = false;
-  String remark = "";
-  late Provider provider;
-  late String keyword;
-  TextEditingController controller = TextEditingController();
+  bool _loading = false;
+  String _assetNo = "";
+  late Provider _provider;
+  final TextEditingController _controller = TextEditingController();
+  String _scanError = "";
 
-  _ComplaintSectionDState(String id) {
-    provider = Provider(
-        taskID: id, fetchURL: "/api/m_wo.php?type=wo_repair_work&woTaskId=");
-    // provider
-    //     .fetch()
-    //     .then((value) => setState(() => remark = value.result))
-    //     .catchError((err) => print(err))
-    //     .whenComplete(() => setState(() => loading = false));
+  @override
+  void initState() {
+    super.initState();
+    _provider = Provider(
+      fetchURL: "/api/m_wo.php?type=complaint_details&woTaskId=",
+      taskID: widget.id,
+    );
+    _loadExisting();
+  }
+
+  Future<void> _loadExisting() async {
+    setState(() => _loading = true);
+    _provider.context = context;
+    try {
+      final resp = await _provider.fetch();
+      debugPrint("RESPOPPSPOOPSOP: ${resp.toString()}");
+      _assetNo = resp.woDetail?.assetNo ?? "";
+      _controller.text = _assetNo;
+    } catch (_) {
+      // ignore
+    } finally {
+      setState(() => _loading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     ToastContext().init(context);
-    provider.context = context;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        iconTheme: IconThemeData(
-          color: colorTheme3,
+        iconTheme: IconThemeData(color: colorTheme3),
+        title: Text(
+          "${widget.name}. Asset No",
+          style: TextStyle(color: colorTheme3, fontWeight: FontWeight.bold),
         ),
-        title: getTitle("${widget.name}. Asset No", bold: true),
         actions: widget.viewer
             ? null
-            : <Widget>[
-                new GestureDetector(
-                    child: Icon(
-                      Icons.camera,
-                      color: colorTheme3,
-                      size: 30,
-                    ),
-                    onTap: scan),
-                new SizedBox(width: 20),
-              ],
-      ),
-      body: loading == false
-          ? _body()
-          : Stack(
-              children: <Widget>[
-                _body(),
-                Container(
-                  color: Colors.black.withOpacity(0.5),
-                  child: Center(child: CircularProgressIndicator()),
+            : [
+                IconButton(
+                  icon: Icon(Icons.camera_alt, color: colorTheme3),
+                  onPressed: _scanBarcode,
                 )
               ],
+      ),
+      body: Stack(
+        children: [
+          _buildBody(),
+          if (_loading)
+            Container(
+              color: Colors.black38,
+              child: Center(child: CircularProgressIndicator()),
             ),
-      floatingActionButton: widget.viewer
-          ? null
-          : FloatingActionButton.extended(
-              label: new Text("Save"),
-              onPressed: () {
-                //   if (remark.length > 2) {
-                setState(() => loading = true);
-                provider
-                    .post(url: "/api/m_wo.php", body: {
-                      "action": "save_asset_no",
-                      "woTaskId": widget.id,
-                      "assetNo": remark
-                    })
-                    .then((onValue) => alert(onValue))
-                    .then((value) {
-                      setState(() => loading = false);
-                    })
-                    .catchError((err) => alert(err))
-                    .whenComplete(() => setState(() => loading = false));
-                // } else {
-                //   Toast.show("You must enter at least total of 2 characters",gravity: Toast.CENTER);
-                // }
-              }),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        ],
+      ),
     );
   }
 
-  Widget _body() {
-    var textField = new TextField(
-      enabled: !widget.viewer,
-      controller: controller,
-      keyboardType: TextInputType.multiline,
-      maxLength: 1000,
-      maxLines: null,
-      onChanged: (value) {
-        remark = value;
-      },
+  Widget _buildBody() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          _row(
+            icon: Icons.confirmation_number,
+            label: "Asset No",
+            child: TextField(
+              controller: _controller,
+              enabled: !widget.viewer,
+              decoration: InputDecoration(
+                hintText: "Enter or scan asset no",
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(vertical: 8),
+              ),
+              onChanged: (v) => _assetNo = v,
+            ),
+          ),
+          if (_scanError.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(_scanError,
+                  style: TextStyle(color: Colors.red, fontSize: 12)),
+            ),
+          const SizedBox(height: 40),
+          if (!widget.viewer)
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(double.infinity, 48),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                  backgroundColor: colorTheme2,
+                ),
+                child: Text("Save", style: TextStyle(color: Colors.white)),
+                onPressed: _saveAssetNo,
+              ),
+            ),
+        ],
+      ),
     );
-
-    return new Padding(padding: EdgeInsets.all(16), child: textField);
   }
 
-  Widget getTitle(String text, {bold = false}) => new Container(
-        alignment: Alignment.centerLeft,
-        child: new Text(text,
-            style: TextStyle(
-                fontWeight: bold ? FontWeight.bold : FontWeight.normal,
-                color: colorTheme3)),
-      );
-
-  void alert(String txt) {
-    showDialog(
-        context: navigatorKey.currentContext!,
-        builder: (BuildContext context) => CustomDialog(
-            goBackOnDismiss: true,
-            description: txt,
-            buttonText: "Okay",
-            image: Image.asset(
-              "assets/icon_trans.png",
-              height: 40,
-            )));
-  }
-
-  Future scan() async {
+  Future<void> _scanBarcode() async {
     try {
-      var barcode = await BarcodeScanner.scan();
-      controller.text = barcode.rawContent;
+      var result = await BarcodeScanner.scan();
+      setState(() {
+        _assetNo = result.rawContent;
+        _controller.text = _assetNo;
+        _scanError = "";
+      });
     } on PlatformException catch (e) {
-      if (e.code == BarcodeScanner.cameraAccessDenied)
-        this.keyword = 'The user did not grant the camera permission!';
-      else
-        this.keyword = 'image scanning fail, please try again';
+      setState(() {
+        _scanError = e.code == BarcodeScanner.cameraAccessDenied
+            ? "Camera permission denied"
+            : "Scan failed, try again";
+      });
     } on FormatException {
-      this.keyword = 'image scanning fail, please try again';
-    } catch (e) {
-      this.keyword = 'image scanning fail, please try again';
+      setState(() {
+        _scanError = "Scan cancelled";
+      });
+    } catch (_) {
+      setState(() {
+        _scanError = "Unknown error scanning";
+      });
     }
+    if (_scanError.isNotEmpty) Toast.show(_scanError);
+  }
 
-    Toast.show(this.keyword);
+  Future<void> _saveAssetNo() async {
+    if (_assetNo.isEmpty) {
+      Toast.show("Please enter or scan an asset number");
+      return;
+    }
+    setState(() => _loading = true);
+    _provider.context = context;
+    try {
+      final resp = await _provider.post(
+        url: "/api/m_wo.php",
+        body: {
+          "action": "save_asset_no",
+          "woTaskId": widget.id,
+          "assetNo": _assetNo,
+        },
+      );
+      _showAlert(resp, backOne: true);
+    } catch (err) {
+      _showAlert(err.toString());
+    } finally {
+      setState(() => _loading = false);
+    }
+  }
+
+  void _showAlert(String txt, {bool backOne = false}) {
+    showDialog(
+      context: navigatorKey.currentContext!,
+      builder: (_) => CustomDialog(
+        goBackOnDismiss: backOne,
+        description: txt,
+        buttonText: "Okay",
+        image: Image.asset("assets/icon_trans.png", height: 40),
+      ),
+    );
+  }
+
+  Widget _row({
+    required IconData icon,
+    required String label,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Colors.grey.shade200),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: colorTheme2),
+          const SizedBox(width: 16),
+          Expanded(
+            flex: 2,
+            child: Text(label,
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+          ),
+          Expanded(flex: 3, child: child),
+        ],
+      ),
+    );
   }
 
   @override
   void dispose() {
+    _controller.dispose();
     super.dispose();
-    controller.dispose();
   }
 }
 
+/// Simple full‑screen comments viewer
 class ComplaintSectionE extends StatelessWidget {
   final String text;
   final String sect;
 
-  ComplaintSectionE(this.text, this.sect);
+  const ComplaintSectionE(this.text, this.sect, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: new Text(sect + ". Comment"),
+        title: Text("$sect. Comment"),
         centerTitle: true,
         backgroundColor: Colors.white,
       ),
-      body: new Container(
-        padding: EdgeInsets.all(12),
-        child: new Text(
-          text,
-          style: TextStyle(fontSize: 16),
-        ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Text(text, style: TextStyle(fontSize: 16)),
       ),
     );
   }

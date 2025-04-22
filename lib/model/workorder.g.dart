@@ -337,6 +337,9 @@ class _$WorkOrderDetailSerializer
       'woTaskEmail',
       serializers.serialize(object.woTaskEmail,
           specifiedType: const FullType(String)),
+      'assetNo',
+      serializers.serialize(object.assetNo,
+          specifiedType: const FullType(String)),
       'complaintImages',
       serializers.serialize(object.complaintImages,
           specifiedType: const FullType(
@@ -404,6 +407,10 @@ class _$WorkOrderDetailSerializer
           break;
         case 'woTaskEmail':
           result.woTaskEmail = serializers.deserialize(value,
+              specifiedType: const FullType(String))! as String;
+          break;
+        case 'assetNo':
+          result.assetNo = serializers.deserialize(value,
               specifiedType: const FullType(String))! as String;
           break;
         case 'complaintImages':
@@ -1331,6 +1338,8 @@ class _$WorkOrderDetail extends WorkOrderDetail {
   @override
   final String woTaskEmail;
   @override
+  final String assetNo;
+  @override
   final BuiltList<ComplaintImage> complaintImages;
 
   factory _$WorkOrderDetail([void Function(WorkOrderDetailBuilder)? updates]) =>
@@ -1349,6 +1358,7 @@ class _$WorkOrderDetail extends WorkOrderDetail {
       required this.woTaskStatus,
       required this.woTaskPhoneNo,
       required this.woTaskEmail,
+      required this.assetNo,
       required this.complaintImages})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
@@ -1375,6 +1385,8 @@ class _$WorkOrderDetail extends WorkOrderDetail {
         woTaskPhoneNo, r'WorkOrderDetail', 'woTaskPhoneNo');
     BuiltValueNullFieldError.checkNotNull(
         woTaskEmail, r'WorkOrderDetail', 'woTaskEmail');
+    BuiltValueNullFieldError.checkNotNull(
+        assetNo, r'WorkOrderDetail', 'assetNo');
     BuiltValueNullFieldError.checkNotNull(
         complaintImages, r'WorkOrderDetail', 'complaintImages');
   }
@@ -1403,6 +1415,7 @@ class _$WorkOrderDetail extends WorkOrderDetail {
         woTaskStatus == other.woTaskStatus &&
         woTaskPhoneNo == other.woTaskPhoneNo &&
         woTaskEmail == other.woTaskEmail &&
+        assetNo == other.assetNo &&
         complaintImages == other.complaintImages;
   }
 
@@ -1421,6 +1434,7 @@ class _$WorkOrderDetail extends WorkOrderDetail {
     _$hash = $jc(_$hash, woTaskStatus.hashCode);
     _$hash = $jc(_$hash, woTaskPhoneNo.hashCode);
     _$hash = $jc(_$hash, woTaskEmail.hashCode);
+    _$hash = $jc(_$hash, assetNo.hashCode);
     _$hash = $jc(_$hash, complaintImages.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
@@ -1441,6 +1455,7 @@ class _$WorkOrderDetail extends WorkOrderDetail {
           ..add('woTaskStatus', woTaskStatus)
           ..add('woTaskPhoneNo', woTaskPhoneNo)
           ..add('woTaskEmail', woTaskEmail)
+          ..add('assetNo', assetNo)
           ..add('complaintImages', complaintImages))
         .toString();
   }
@@ -1505,6 +1520,10 @@ class WorkOrderDetailBuilder
   String? get woTaskEmail => _$this._woTaskEmail;
   set woTaskEmail(String? woTaskEmail) => _$this._woTaskEmail = woTaskEmail;
 
+  String? _assetNo;
+  String? get assetNo => _$this._assetNo;
+  set assetNo(String? assetNo) => _$this._assetNo = assetNo;
+
   ListBuilder<ComplaintImage>? _complaintImages;
   ListBuilder<ComplaintImage> get complaintImages =>
       _$this._complaintImages ??= new ListBuilder<ComplaintImage>();
@@ -1528,6 +1547,7 @@ class WorkOrderDetailBuilder
       _woTaskStatus = $v.woTaskStatus;
       _woTaskPhoneNo = $v.woTaskPhoneNo;
       _woTaskEmail = $v.woTaskEmail;
+      _assetNo = $v.assetNo;
       _complaintImages = $v.complaintImages.toBuilder();
       _$v = null;
     }
@@ -1577,6 +1597,8 @@ class WorkOrderDetailBuilder
                 woTaskPhoneNo, r'WorkOrderDetail', 'woTaskPhoneNo'),
             woTaskEmail: BuiltValueNullFieldError.checkNotNull(
                 woTaskEmail, r'WorkOrderDetail', 'woTaskEmail'),
+            assetNo: BuiltValueNullFieldError.checkNotNull(
+                assetNo, r'WorkOrderDetail', 'assetNo'),
             complaintImages: complaintImages.build(),
           );
     } catch (_) {
