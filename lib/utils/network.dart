@@ -13,8 +13,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
 
-// final String netDomain = "https://gems.metadatasystem.my";
-final String netDomain = "https://gems.globalfm.com.my";
+final String netDomain = "https://gems.metadatasystem.my";
+//final String netDomain = "https://gems.globalfm.com.my";
 final String netLogin = "/api/m_login.php";
 final String netLogout = "";
 
