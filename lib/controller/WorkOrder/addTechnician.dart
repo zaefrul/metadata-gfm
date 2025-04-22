@@ -98,7 +98,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
                         return CheckboxListTile(
                           title: Text(f.userFullName),
                           value: isSelected,
-                          onChanged: (bool? value) {
+                          onChanged: (bool? value) async {
                             if (value == true) {
                               if (listTechnicianSelected.length < max) {
                                 setState(() {
@@ -113,11 +113,21 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
                                 );
                               }
                             } else {
-                              debugPrint("Unselected: ${f.toString()}");
+                              final success = await _provider.delete(f);
+                              if (!success) {
+                                Toast.show(
+                                  "Failed to remove technician",
+                                  duration: Toast.lengthLong,
+                                  gravity: Toast.bottom,
+                                );
+                                return;
+                              }
+
                               setState(() {
                                 listTechnicianSelected.remove(f);
                               });
-                              _provider.delete(f);
+                              debugPrint("Unselected: ${f.toString()}");
+                              
                             }
                           },
                         );
@@ -284,15 +294,16 @@ class _Controller {
     }
   }
 
-  Future<void> delete(_Model model) async {
+  Future<bool> delete(_Model model) async {
     final url = "/wo_task_assist/${model.assistantId}";
     final Provider _provider = Provider(fetchURL: url, taskID: id);
     try {
       final _ = await _provider.delete(url: url);
-      debugPrint("Delete: ${_.toString()}");
-      return;
+      debugPrint("Return True for delete");
+      return true;
     } catch (e) {
-      rethrow;
+      debugPrint("Return False for delete");
+      return false;
     }
   }
 

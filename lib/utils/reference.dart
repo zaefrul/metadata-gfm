@@ -62,4 +62,8 @@ class AppColors {
   static const Color light         = Color(0xFFF8F9FA);
   /// Dark text / surface
   static const Color dark          = Color(0xFF343A40);
+
+  /// White background
+  static const Color white         = Color(0xFFFFFFFF);
+  
 }

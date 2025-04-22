@@ -11,6 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:gfm_gems/utils/reference.dart';
 
 import 'resetPassword.dart';
 
@@ -112,7 +113,7 @@ class _HomepageState extends State<Homepage> {
         children: [
           // remove the blue gradient background
           // Positioned.fill(child: your old gradient), 
-
+          background,
           SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,7 +132,8 @@ class _HomepageState extends State<Homepage> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Expanded(child: _buildGrid(context)),
+                // Expanded(child: _buildGrid(context)),
+                Expanded(child: _buildList(context)),
               ],
             ),
           ),
@@ -234,20 +236,91 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
+  Widget _buildList(BuildContext context) {
+    final features = <_Feature>[
+      _Feature("Preventive Maintenance", Icons.build, "/ppm"),
+      _Feature("Work Order", Icons.assignment, "/workorder"),
+      _Feature("StoreKeeper", Icons.inventory, routeDashboard, enabled: _isStorekeeper),
+      _Feature("Utilities", Icons.folder, routeUtilities, enabled: _isUtilities),
+      _Feature("Leaderboard", Icons.bar_chart, routeLeaderboard),
+      _Feature("Attendance", Icons.calendar_today, routeAttendance, onTap: _openForm),
+      _Feature("Suggestion", Icons.feedback, null, onTap: _openForm),
+    ];
+
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      itemCount: features.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      itemBuilder: (ctx, i) {
+        final f = features[i];
+        return SizedBox(
+          height: 60, // small box height
+          child: PressScaleWidget(
+            onTap: f.enabled
+                ? () {
+                    if (f.onTap != null) f.onTap!();
+                    else if (f.route != null) Navigator.pushNamed(context, f.route!);
+                  }
+                : null,
+            child: Container(
+              decoration: BoxDecoration(
+                color: f.enabled ? AppColors.primary : AppColors.secondary,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 2,
+                    offset: Offset(0, 1),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  Icon(f.icon, color: f.enabled ? Colors.white : Colors.white60),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      f.title,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  Icon(Icons.chevron_right,
+                      color: f.enabled ? Colors.white : Colors.white60),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildFeatureTile(_Feature f) {
     return PressScaleWidget(
       onTap: f.enabled
-          ? () {
-              if (f.onTap != null) f.onTap!();
-              else if (f.route != null) Navigator.pushNamed(context, f.route!);
+          ? () async {
+              if (f.onTap != null) {
+                f.onTap!();
+              } else if (f.route != null) {
+                // Add a delay before navigating
+                await Future.delayed(const Duration(milliseconds: 300));
+                Navigator.pushNamed(context, f.route!);
+              }
             }
           : null,
       child: Material(
         color: Colors.transparent,
         child: Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: f.enabled ? LinearGradient(
               colors: [Colors.blue.shade300, Colors.blue.shade700],
+            ) : LinearGradient(
+              colors: [Colors.grey.shade400, Colors.grey.shade500],
             ),
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
@@ -262,7 +335,6 @@ class _HomepageState extends State<Homepage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Hero around the icon
               Hero(
                 tag: 'tile-icon-${f.title}',
                 child: CircleAvatar(
@@ -281,17 +353,6 @@ class _HomepageState extends State<Homepage> {
                   color: Colors.white,
                 ),
               ),
-              if (!f.enabled)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    "Coming soon",
-                    style: GoogleFonts.poppins(
-                      fontSize: 10,
-                      color: Colors.white60,
-                    ),
-                  ),
-                ),
             ],
           ),
         ),
@@ -415,3 +476,9 @@ class Request {
     );
   }
 }
+
+  Widget get background => Container(
+    height: double.infinity,
+    width: double.infinity,
+    child: Image.asset("assets/bg.jpg", fit: BoxFit.fill),
+  );
