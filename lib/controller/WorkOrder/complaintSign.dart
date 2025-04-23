@@ -223,23 +223,15 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
 
   void ratingDialog(Map<String, dynamic> body) {
     void upload() {
-      debugPrint('the body: ${jsonEncode(body)}');
-      debugPrint('mounted: $mounted');
-      // if (mounted) setState(() => loading = true); // Ensure widget is still mounted
       Provider provider = Provider(fetchURL: "/api/m_wo.php");
       provider.context = navigatorKey.currentContext!;
-      debugPrint('Sending request to: ${provider.fetchURL}');
       provider
           .post(url: "/api/m_wo.php", body: body)
           .then((value) {
-            debugPrint('Response: $value');
-            // if (!mounted) return; // Ensure widget is still mounted
-            // setState(() => loading = false);
             alert(value);
           })
           .catchError((err) {
             debugPrint('Error: $err');
-            // if (!mounted) return; // Ensure widget is still mounted
             alert(err.toString());
           });
     }
@@ -296,8 +288,9 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
               body["remark"] = text;
               body["isVerified"] = "1";
               withVerifierBody.addAll(body);
-              if (!mounted) return; // Ensure widget is still mounted
-              setState(() => loading = false);
+              if (mounted) {
+                setState(() => loading = false); // Ensure widget is still mounted
+              }
               Toast.show("Please Refill Signature field for verifier",
                   duration: 2);
             },

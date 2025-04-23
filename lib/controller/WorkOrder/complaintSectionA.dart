@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/PPM/Form/openImage.dart';
 import 'package:gfm_gems/model/workorder.dart';
@@ -30,8 +32,17 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
 
   Future<WorkOrderDetail> get _fetch async {
     _provider.context = context;
-    final result = await _provider.fetch();
-    return result.woDetail!; // assume non‑null here
+    try {
+      var result = await _provider.fetch();
+      debugPrint("✅ raw fetch result: $result");
+      if (result.woDetail == null) {
+        throw Exception("woDetail came back null");
+      }
+      return result.woDetail!;
+    } catch (err, st) {
+      debugPrint("❌ _fetch error: $err\n$st");
+      rethrow;
+    }
   }
 
   Widget build(BuildContext context) {
@@ -53,12 +64,16 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
           if (snap.connectionState == ConnectionState.waiting) {
             return _buildLoadingPlaceholder(isWide);
           }
+          if (snap.hasError) {
+            debugPrint("❌ ComplaintSectionA error: ${snap.error}");
+            return Center(child: Text("Error: ${snap.error}"));
+          }
           if (!snap.hasData) {
-            return Center(child: Text("Failed to load data"));
+            return Center(child: Text("No data returned"));
           }
           final d = snap.data!;
           return isWide ? _buildGrid(context, d) : _buildList(context, d);
-        },
+        }
       ),
     );
   }

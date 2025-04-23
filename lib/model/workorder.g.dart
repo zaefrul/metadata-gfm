@@ -337,15 +337,19 @@ class _$WorkOrderDetailSerializer
       'woTaskEmail',
       serializers.serialize(object.woTaskEmail,
           specifiedType: const FullType(String)),
-      'assetNo',
-      serializers.serialize(object.assetNo,
-          specifiedType: const FullType(String)),
       'complaintImages',
       serializers.serialize(object.complaintImages,
           specifiedType: const FullType(
               BuiltList, const [const FullType(ComplaintImage)])),
     ];
-
+    Object? value;
+    value = object.assetNo;
+    if (value != null) {
+      result
+        ..add('assetNo')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(String)));
+    }
     return result;
   }
 
@@ -411,7 +415,7 @@ class _$WorkOrderDetailSerializer
           break;
         case 'assetNo':
           result.assetNo = serializers.deserialize(value,
-              specifiedType: const FullType(String))! as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'complaintImages':
           result.complaintImages.replace(serializers.deserialize(value,
@@ -1338,7 +1342,7 @@ class _$WorkOrderDetail extends WorkOrderDetail {
   @override
   final String woTaskEmail;
   @override
-  final String assetNo;
+  final String? assetNo;
   @override
   final BuiltList<ComplaintImage> complaintImages;
 
@@ -1358,7 +1362,7 @@ class _$WorkOrderDetail extends WorkOrderDetail {
       required this.woTaskStatus,
       required this.woTaskPhoneNo,
       required this.woTaskEmail,
-      required this.assetNo,
+      this.assetNo,
       required this.complaintImages})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
@@ -1385,8 +1389,6 @@ class _$WorkOrderDetail extends WorkOrderDetail {
         woTaskPhoneNo, r'WorkOrderDetail', 'woTaskPhoneNo');
     BuiltValueNullFieldError.checkNotNull(
         woTaskEmail, r'WorkOrderDetail', 'woTaskEmail');
-    BuiltValueNullFieldError.checkNotNull(
-        assetNo, r'WorkOrderDetail', 'assetNo');
     BuiltValueNullFieldError.checkNotNull(
         complaintImages, r'WorkOrderDetail', 'complaintImages');
   }
@@ -1597,8 +1599,7 @@ class WorkOrderDetailBuilder
                 woTaskPhoneNo, r'WorkOrderDetail', 'woTaskPhoneNo'),
             woTaskEmail: BuiltValueNullFieldError.checkNotNull(
                 woTaskEmail, r'WorkOrderDetail', 'woTaskEmail'),
-            assetNo: BuiltValueNullFieldError.checkNotNull(
-                assetNo, r'WorkOrderDetail', 'assetNo'),
+            assetNo: assetNo,
             complaintImages: complaintImages.build(),
           );
     } catch (_) {

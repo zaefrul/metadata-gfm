@@ -80,7 +80,7 @@ abstract class WorkOrderDetail
   String get woTaskStatus;
   String get woTaskPhoneNo;
   String get woTaskEmail;
-  String get assetNo;
+  String? get assetNo;
   BuiltList<ComplaintImage> get complaintImages;
 
   WorkOrderDetail._();
