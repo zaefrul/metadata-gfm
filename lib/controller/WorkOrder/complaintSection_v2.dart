@@ -53,13 +53,6 @@ class _ComplaintSectionState extends State<ComplaintSection> {
     super.didChangeDependencies();
     // Initialize the bloc only once since context is now available.
     if (!_blocInitialized) {
-      debugPrint("Bloc initialized");
-      debugPrint("ID: ${widget.id}");
-      debugPrint("Status: ${widget.taskStatus}");
-      debugPrint("Task No: ${widget.taskNo}");
-      debugPrint("Viewer: ${widget.viewer}");
-      //debugPrint whole widget in json
-      inspect(widget);
       _bloc = MainBloc(
         id: widget.id,
         status: widget.taskStatus,
@@ -107,7 +100,6 @@ class _ComplaintSectionState extends State<ComplaintSection> {
             return Center(child: CircularProgressIndicator());
           }
           final sections = snapshot.data!;
-          debugPrint(sections.toString());
           return Column(
             children: [
               // 1) The scrolling list

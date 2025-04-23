@@ -47,7 +47,6 @@ class _ComplaintSectionDState extends State<ComplaintSectionD> {
     _provider.context = context;
     try {
       final resp = await _provider.fetch();
-      debugPrint("RESPOPPSPOOPSOP: ${resp.toString()}");
       _assetNo = resp.woDetail?.assetNo ?? "";
       _controller.text = _assetNo;
     } catch (_) {
@@ -164,10 +163,11 @@ class _ComplaintSectionDState extends State<ComplaintSectionD> {
   }
 
   Future<void> _saveAssetNo() async {
-    if (_assetNo.isEmpty) {
-      Toast.show("Please enter or scan an asset number");
-      return;
-    }
+    // Commented out the asset number check as per the original code
+    // if (_assetNo.isEmpty) {
+    //   Toast.show("Please enter or scan an asset number");
+    //   return;
+    // }
     setState(() => _loading = true);
     _provider.context = context;
     try {

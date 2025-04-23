@@ -340,15 +340,12 @@ class TaskInformation extends StatelessWidget {
   Future<MonitorDetail> get fetch async {
     try {
       // Step 1: Fetch the raw response.
-      debugPrint("step 1. Fetching raw response");
       var rawResponse = await _provider.fetch();
-      debugPrint("step 1. Raw response: $rawResponse");
       if (rawResponse is! Map<String, dynamic> && rawResponse is! ResponseValue) {
         throw Exception("Unexpected rawResponse type: ${rawResponse.runtimeType}");
       }
 
       // Step 2: Extract the 'monitorDetail' field from the response.
-      debugPrint("step 2. Extracting monitorDetail field");
       var detailField = rawResponse.monitorDetail;
       if (detailField == null) {
         throw Exception("MonitorDetail is null");
@@ -358,15 +355,12 @@ class TaskInformation extends StatelessWidget {
         try
         {
           // Step 3: Convert the monitorDetail Map to a JSON string.
-          debugPrint("step 3. Converting monitorDetail to JSON string");
           String jsonString = jsonEncode(detailField);
 
           // Step 4: Parse the JSON string using MonitorDetail.fromJson.
-          debugPrint("step 4. Parsing JSON string to MonitorDetail object");
           MonitorDetail detail = MonitorDetail.fromJson(jsonString);
           return detail;
         } catch (e) {
-          debugPrint("Error parsing monitorDetail: $e");
           throw Exception("Expected monitorDetail as a Map but got ${detailField.runtimeType}");
         }
       }

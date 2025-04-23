@@ -153,35 +153,58 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
   }
 
   Future<void> _onToggle(_Model tech, bool select) async {
-    if (select) {
-      if (_selectedTechs.length >= _maxAssistants) {
-        Toast.show("Max $_maxAssistants technician(s) allowed",
-            duration: Toast.lengthLong, gravity: Toast.bottom);
-        return;
-      }
-      setState(() => _selectedTechs.add(tech));
-      await _ctrl.add(tech).catchError((_) {
-        Toast.show("Failed to add");
-        setState(() => _selectedTechs.remove(tech));
+  if (select) {
+    // guard max-assistant count
+    if (_selectedTechs.length >= _maxAssistants) {
+      Toast.show(
+        "Max $_maxAssistants technician(s) allowed",
+        duration: Toast.lengthLong,
+        gravity: Toast.bottom,
+      );
+      return;
+    }
+
+    try {
+      // call your add API
+      await _ctrl.add(tech);
+
+      // now re-fetch the full selected list from server
+      final fresh = await _ctrl.selected;
+      setState(() {
+        _selectedTechs
+          ..clear()
+          ..addAll(fresh);
+      });
+    } catch (e) {
+      // on failure, keep the old selection and show error
+      Toast.show("Failed to add");
+    }
+  } else {
+    // removing: if it was never on server, just drop it locally
+    final stored = _selectedTechs.firstWhere(
+      (t) => t.userId == tech.userId,
+      orElse: () => _Model("", "", ""),
+    );
+    if (stored.assistantId.isEmpty) {
+      setState(() => _selectedTechs.removeWhere((t) => t.userId == tech.userId));
+      return;
+    }
+
+    // else, call delete API
+    final ok = await _ctrl.delete(stored);
+    if (ok) {
+      // re-fetch after delete too
+      final fresh = await _ctrl.selected;
+      setState(() {
+        _selectedTechs
+          ..clear()
+          ..addAll(fresh);
       });
     } else {
-      // find the stored assistantId
-      final stored = _selectedTechs.firstWhere(
-        (t) => t.userId == tech.userId,
-        orElse: () => _Model("", "", ""),
-      );
-      if (stored.assistantId.isEmpty) {
-        Toast.show("Failed to remove");
-        return;
-      }
-      final ok = await _ctrl.delete(stored);
-      if (!ok) {
-        Toast.show("Failed to remove");
-        return;
-      }
-      setState(() => _selectedTechs.remove(tech));
+      Toast.show("Failed to remove");
     }
   }
+}
 
   Widget _buildDoneButton() {
     return SafeArea(
@@ -241,7 +264,6 @@ class _Controller {
     final Provider _provider = Provider(fetchURL: url, taskID: id);
     try {
       final result = await _provider.getJson(url: url);
-      debugPrint("Result: $result");
       if (result.length > 0) {
         return result.map<_Model>((v) => _Model.fromJson(v)).toList();
       }
@@ -272,13 +294,10 @@ class _Controller {
   Future<bool> delete(_Model model) async {
     final url = "/wo_task_assist/${model.assistantId}";
     final Provider _provider = Provider(fetchURL: url, taskID: id);
-    debugPrint(model.assistantId);
     try {
       final _ = await _provider.delete(url: url);
-      debugPrint("Return True for delete" );
       return true;
     } catch (e) {
-      debugPrint(e.toString());
       return false;
     }
   }

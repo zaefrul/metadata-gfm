@@ -34,13 +34,11 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
     _provider.context = context;
     try {
       var result = await _provider.fetch();
-      debugPrint("✅ raw fetch result: $result");
       if (result.woDetail == null) {
         throw Exception("woDetail came back null");
       }
       return result.woDetail!;
     } catch (err, st) {
-      debugPrint("❌ _fetch error: $err\n$st");
       rethrow;
     }
   }
@@ -65,7 +63,6 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
             return _buildLoadingPlaceholder(isWide);
           }
           if (snap.hasError) {
-            debugPrint("❌ ComplaintSectionA error: ${snap.error}");
             return Center(child: Text("Error: ${snap.error}"));
           }
           if (!snap.hasData) {
