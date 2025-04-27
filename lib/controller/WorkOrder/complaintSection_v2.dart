@@ -523,6 +523,7 @@ class _BuildStandardButton extends StatelessWidget {
           backgroundColor:
               (viewOnly || (snapshot.data ?? false)) ? colorTheme2 : colorTheme3,
           onPressed: () {
+            debugPrint('snapshot: ${snapshot.data.toString()}');
             if (viewOnly) {
               bloc.openComplaint(context, viewOnly: viewOnly);
             } else if (mainStatus == "Assign" ||
@@ -537,7 +538,12 @@ class _BuildStandardButton extends StatelessWidget {
                     duration: 1);
               }
             } else {
-              if (snapshot.data != null && snapshot.data!) {
+              if (mainStatus == "WR Re-Open" || mainStatus == "WR Verified") {
+                bloc.submit().then((_) {
+                  showDialog(context: navigatorKey.currentContext!, builder: _buildDialog);
+                }).catchError((err) => Toast.show(err));
+              }
+              else if (snapshot.data != null && snapshot.data!) {
                 bloc.openComplaint(context, viewOnly: viewOnly);
               } else {
                 Toast.show("All sections must be completed before submit",

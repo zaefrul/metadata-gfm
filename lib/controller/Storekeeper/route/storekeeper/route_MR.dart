@@ -1,3 +1,5 @@
+// lib/controller/Storekeeper/route/storekeeper/route_MR.dart
+
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc_task.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
@@ -25,25 +27,22 @@ class MaterialRequest extends StatefulWidget {
 
 class _MaterialRequestState extends State<MaterialRequest> {
   final MaterialTask _bloc;
+  bool _loading = false;
 
   _MaterialRequestState(RequestTask value)
       : _bloc = MaterialTask(value.woTaskRequestId ?? '');
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _bloc.loadingState$.listen((event) {
-      if (event == true) {
-        showDialog(
-          context: navigatorKey.currentContext!,
-          barrierDismissible: false,
-          builder: (_) => const Center(child: CircularProgressIndicator()),
-        );
-      } else if (event == false) {
-        Navigator.pop(context);
-      }
+  void initState() {
+    super.initState();
+    // listen to loadingState$ and update page‐level spinner
+    _bloc.loadingState$.listen((isLoading) {
+      if (mounted) setState(() => _loading = isLoading);
     });
-    _bloc.err$.listen((event) => Toast.show(event, duration: 4));
+    // show any errors as toasts
+    _bloc.err$.listen((err) {
+      Toast.show(err, duration: 4, gravity: Toast.bottom);
+    });
   }
 
   @override
@@ -55,41 +54,61 @@ class _MaterialRequestState extends State<MaterialRequest> {
   @override
   Widget build(BuildContext context) {
     ToastContext().init(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Material Requisition Form"),
         backgroundColor: Colors.white,
         centerTitle: true,
       ),
-      body: RefreshIndicator(
-        onRefresh: _bloc.refresh,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              _Info(_bloc.detail$),
-              const Divider(color: Colors.black38),
-              const _Title(),
-              _ListView(_bloc.materials$, widget.isApproval),
-            ],
+
+      // Stack lets us overlay a spinner on top of the normal UI
+      body: Stack(
+        children: [
+          // your existing scrollable content
+          RefreshIndicator(
+            onRefresh: _bloc.refresh,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  _Info(_bloc.detail$),
+                  const Divider(color: Colors.black38),
+                  const _Title(),
+                  _ListView(_bloc.materials$, widget.isApproval),
+                ],
+              ),
+            ),
           ),
-        ),
+
+          // full‐screen loading overlay
+          if (_loading)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+        ],
       ),
+
       floatingActionButton: widget.isCheckout
           ? null
           : StreamBuilder<RequestTask>(
               stream: _bloc.detail$.cast<RequestTask>(),
               builder: (context, snapshot) {
-                // If statusId is not "33" and this is an approval case, hide buttons.
-                if (snapshot.hasData &&
-                    snapshot.data!.statusId != "33" &&
-                    widget.isApproval) {
+                final statusId = snapshot.data?.statusId ?? "-1";
+
+                // hide buttons if not in 33 and this is an approval screen
+                if (widget.isApproval && statusId != "33") {
                   return Container();
                 }
+
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    if ((snapshot.data?.statusId ?? "-1") == "33")
+                    if (statusId == "33")
                       _BuildRejectButton(
                         (value) => _bloc
                             .reject(value)
@@ -97,14 +116,14 @@ class _MaterialRequestState extends State<MaterialRequest> {
                             .catchError((e) => print(e)),
                         (e) => Toast.show(e),
                       ),
-                    if ((snapshot.data?.statusId ?? "-1") == "33")
-                      const SizedBox(width: 12),
+                    if (statusId == "33") const SizedBox(width: 12),
                     _FloatingButton(
-                      _bloc.titleButton(snapshot.data?.statusId ?? "-1"),
-                      () => _bloc.onclick(widget.isApproval)
-                        .then((_) => Navigator.pop(context))
-                        .catchError((e) => print(e)),
-                      color: _bloc.colorButton(snapshot.data?.statusId ?? "-1"),
+                      _bloc.titleButton(statusId),
+                      () => _bloc
+                          .onclick(widget.isApproval)
+                          .then((_) => Navigator.pop(context))
+                          .catchError((e) => print(e)),
+                      color: _bloc.colorButton(statusId),
                     ),
                   ],
                 );
@@ -114,6 +133,7 @@ class _MaterialRequestState extends State<MaterialRequest> {
   }
 }
 
+/// Displays the top table of MR metadata
 class _Info extends StatelessWidget {
   final Stream<RequestTask> _stream;
 
@@ -146,71 +166,62 @@ class _Info extends StatelessWidget {
   }
 
   TableRow row(String title, String value) {
-    return TableRow(
-      children: [
-        TableCell(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-          ),
+    return TableRow(children: [
+      TableCell(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child:
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         ),
-        TableCell(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Text(value),
-          ),
+      ),
+      TableCell(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Text(value),
         ),
-      ],
-    );
+      ),
+    ]);
   }
 }
 
+/// Section header
 class _Title extends StatelessWidget {
   const _Title({Key? key}) : super(key: key);
-
   @override
-  Widget build(BuildContext context) {
-    return const ListTile(
-      title: Text(
-        "Material",
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => const ListTile(
+        title: Text("Material", style: TextStyle(fontWeight: FontWeight.bold)),
+      );
 }
 
+/// Floating action button for approve/checkout
 class _FloatingButton extends StatelessWidget {
   final String status;
+  final VoidCallback onTap;
   final Color color;
-  final VoidCallback onTap;  // Changed type to VoidCallback
 
-  const _FloatingButton(
-    this.status,
-    this.onTap, {
-    Key? key,
-    required this.color, // Marked as required so it must be provided
-  }) : super(key: key);
+  const _FloatingButton(this.status, this.onTap,
+      {Key? key, required this.color})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
-      label: Text(
-        status,
-        style: TextStyle(
-          color: color == colorNull ? Colors.black : Colors.white,
-        ),
-      ),
+      label: Text(status,
+          style: TextStyle(
+              color: color == colorNull ? Colors.black : Colors.white)),
       backgroundColor: color,
       onPressed: onTap,
     );
   }
 }
 
+/// List of requested materials
 class _ListView extends StatelessWidget {
   final Stream<List<item.Material>> _stream;
   final bool isApproval;
 
-  const _ListView(this._stream, this.isApproval, {Key? key}) : super(key: key);
+  const _ListView(this._stream, this.isApproval, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -223,120 +234,98 @@ class _ListView extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 60),
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
-          scrollDirection: Axis.vertical,
-          children: List.generate(data.length, (index) => _Material(index + 1, data[index], isApproval)),
+          children: List.generate(
+            data.length,
+            (i) => _Material(i + 1, data[i], isApproval),
+          ),
         );
       },
     );
   }
 }
 
+/// Single material tile
 class _Material extends StatelessWidget {
+  final int index;
+  final item.Material _material;
   final bool isApproval;
   final bool isUnavailable;
-  final item.Material _material;
-  final int index;
 
-  _Material(this.index, item.Material material, this.isApproval)
-      : isUnavailable = material.statusStorekeeper == "Not Enough",
-        _material = material;
+  _Material(this.index, this._material, this.isApproval)
+      : isUnavailable = _material.statusStorekeeper == "Not Enough";
 
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
-      title: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Text(
-          "$index.  Material ${_material.itemDescription}",
-          overflow: TextOverflow.ellipsis,
-        ),
+      title: Text(
+        "$index. Material ${_material.itemDescription}",
+        overflow: TextOverflow.ellipsis,
       ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          text(value: "${_material.assetGroupName} |  ${_material.itemTypeDesc}", top: 8.0),
-          text(
-            value: "Quantity Request : ${_material.woTaskPartsQuantity}",
-            color: isUnavailable ? colorTheme4 : null,
+          Text("${_material.assetGroupName} | ${_material.itemTypeDesc}"),
+          Text(
+            "Quantity Request: ${_material.woTaskPartsQuantity}",
+            style: TextStyle(color: isUnavailable ? colorTheme4 : null),
           ),
         ],
       ),
       children: [
         if (isApproval)
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 22.0, vertical: 16),
-              child: Text(_material.woTaskPartsRemark ?? ''),
-            ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+            child: Text(_material.woTaskPartsRemark ?? ''),
           ),
-        if (!isApproval)
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 12.0, top: 6),
-              child: Text("- Threshold: " + (_material.partThreshold ?? "N/A")),
-            ),
+        if (!isApproval) ...[
+          Padding(
+            padding: const EdgeInsets.only(left: 12, top: 6),
+            child: Text("- Threshold: ${_material.partThreshold ?? "N/A"}"),
           ),
-        if (!isApproval)
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 12.0, top: 6, bottom: 12),
-              child: Text("- Stock Available: " + (_material.partAvailable ?? "N/A")),
-            ),
+          Padding(
+            padding: const EdgeInsets.only(left: 12, top: 6, bottom: 12),
+            child: Text("- Stock Available: ${_material.partAvailable ?? "N/A"}"),
           ),
+        ],
       ],
-    );
-  }
-
-  Widget text({required String value, double top = 3.0, Color? color}) {
-    return Padding(
-      padding: EdgeInsets.only(top: top),
-      child: Text(
-        value,
-        style: TextStyle(color: color ?? colorTheme3),
-      ),
     );
   }
 }
 
+/// Reject button in approval mode
 class _BuildRejectButton extends StatelessWidget {
-  final String label;
   final Future<void> Function(String) reject;
   final Function(String) alert;
 
   const _BuildRejectButton(this.reject, this.alert, {Key? key})
-      : label = "Reject",
-        super(key: key);
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
       heroTag: "reject_button",
-      label: Text(label),
+      label: const Text("Reject"),
       backgroundColor: Colors.red,
-      onPressed: () => showDialog(context: navigatorKey.currentContext!, builder: _buildDialog),
-    );
-  }
-
-  Widget _buildDialog(BuildContext context) {
-    return CustomDialog(
-      rootPage: "/workorder",
-      title: "Remark",
-      description: "Remark",
-      buttonText: "Okay",
-      secondButton: false,
-      cancel: true,
-      okayTapped: () {
-        Navigator.pop(context);
-        Navigator.pop(context);
-      },
-      image: Image.asset("assets/icon_trans.png", height: 40),
-      remarkTapped: (text) {
-        Navigator.pop(context);
-        reject(text).then((_) => alert("Success")).catchError(alert);
-      },
+      onPressed: () => showDialog(
+        context: navigatorKey.currentContext!,
+        builder: (_) => CustomDialog(
+          rootPage: "/workorder",
+          title: "Remark",
+          description: "Remark",
+          buttonText: "Okay",
+          secondButton: false,
+          cancel: true,
+          image: Image.asset("assets/icon_trans.png", height: 40),
+          okayTapped: () {
+            Navigator.pop(context);
+            Navigator.pop(context);
+          },
+          remarkTapped: (text) {
+            Navigator.pop(context);
+            reject(text).then((_) => alert("Success")).catchError(alert);
+          },
+        ),
+      ),
     );
   }
 }

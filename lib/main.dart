@@ -88,6 +88,17 @@ Future<void> main() async {
     provisional: false,
     sound: true,
   );
+
+  // **Make sure to grab APNS token immediately on iOS:**
+  if (Platform.isIOS) {
+    try {
+      String? apnsToken = await _messaging.getAPNSToken();
+      print('🪶 APNS token: $apnsToken');
+    } catch (e) {
+      debugPrint('⚠️ getAPNSToken failed: $e');
+    }
+  }
+
   await _messaging.setForegroundNotificationPresentationOptions(
     alert: true,
     badge: true,
