@@ -147,9 +147,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
 
   /// Step 2: Capture signature, encode, decide action, then _ratingDialog
   Future<void> _post(BuildContext ctx) async {
-    debugPrint("Masuk POST");
     if (_controller.isEmpty) {
-      debugPrint("Tak SIGN INs");
       ScaffoldMessenger.of(ctx).showSnackBar(
         const SnackBar(content: Text("Please sign first before submit")),
       );
@@ -158,7 +156,6 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
 
     final Uint8List? png = await _controller.toPngBytes();
     if (png == null) {
-      debugPrint("X BOLE NAK GENERATE SIGNATURE");
       ScaffoldMessenger.of(ctx).showSnackBar(
         const SnackBar(content: Text("Error generating signature")),
       );
@@ -193,7 +190,6 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
       "signature[data]": data,
     };
 
-    debugPrint("DAH NAK MASUK _RATING DIALOG");
     _ratingDialog(ctx, body);
   }
 
@@ -212,7 +208,6 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
 
   /// Performs HTTP POST and toggles loading spinner
   void _upload(BuildContext ctx, Map<String, dynamic> body) {
-    debugPrint("DALAM _UPLOAD : mounted = $mounted");
     if (!mounted) return;
     setState(() => loading = true);
 
@@ -224,7 +219,6 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
     }).catchError((err) {
       if (!mounted) return;
       setState(() => loading = false);
-      debugPrint("Upload failed: $err");
       _alert(ctx, err.toString());
     });
   }
@@ -234,11 +228,8 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
     BuildContext ctx,
     Map<String, dynamic> body,
   ) {
-    debugPrint('the checkpoint is : ${widget.checkpoint}');
-
     // helper for “No Verifier” → second remark dialog
     void dialogConfirmation() {
-      debugPrint("Dah dalam dialog confirmation");
       showDialog<void>(
         context: ctx,
         builder: (dialogCtx) => CustomDialog(
@@ -263,9 +254,8 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
     }
 
     if (widget.checkpoint == 4) {
-      // Two-step verifier
       if (!withVerifier) {
-        // inside your _ratingDialog, FIRST step (checkpoint==4 && !withVerifier):
+        // FIRST step for checkpoint 4
         showDialog<void>(
           context: ctx,
           builder: (dialogCtx) => CustomDialog(
@@ -276,64 +266,40 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
             buttonText2: "No Verifier",
             image: Image.asset("assets/icon_trans.png", height: 40),
             remarkTapped: (remark) {
-              debugPrint("➡️ remarkTapped invoked");
-
-              // 1) Are we still in the tree?
-              if (!mounted) {
-                debugPrint("⛔️ State not mounted – popping dialog and returning");
-                Navigator.of(dialogCtx).pop();
-                return;
-              }
-              debugPrint("✅ State is mounted");
-
-              // 2) Clear the old signature
-              debugPrint("🧹 Clearing signature controller");
+              // 1) stash original body with remark and isVerified flag
+              withVerifierBody
+                ..addAll(body)
+                ..['remark'] = remark
+                ..['isVerified'] = "1";
+              // 2) clear canvas to allow new signature
               _controller.clear();
-              debugPrint("✅ Controller.clear() done");
-
-              // 3) Update local state
-              debugPrint("🔄 Calling setState to flip withVerifier=true");
+              // 3) flip the flag & reset loading
               setState(() {
                 withVerifier = true;
                 loading = false;
               });
-              debugPrint("✅ setState complete: withVerifier=$withVerifier, loading=$loading");
-
-              // 4) Dismiss just the remark dialog
-              debugPrint("🚪 Popping remark dialog");
+              // 4) close this dialog
               Navigator.of(dialogCtx).pop();
-              debugPrint("✅ Dialog popped");
-
-              // 5) Show a SnackBar to prompt re-sign
-              debugPrint("🔔 Showing SnackBar");
+              // 5) prompt for re-sign
               ScaffoldMessenger.of(ctx).showSnackBar(
                 const SnackBar(content: Text("Please refill signature field for verifier")),
               );
-              debugPrint("✅ SnackBar.shown");
-
-              // 6) Finally—schedule the next dialog open after this frame
-              debugPrint("⏱ Scheduling re-open of the submit dialog");
+              // 6) reopen the initial submit dialog
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                debugPrint("🕒 addPostFrameCallback triggered");
-                if (!mounted) {
-                  debugPrint("⛔️ State not mounted in callback, aborting");
-                  return;
-                }
-                debugPrint("🚀 Re-opening initial submit dialog (withVerifier now true)");
+                if (!mounted) return;
                 _showInitialSubmitDialog(ctx);
               });
             },
             secondTapped: (remark) {
               Navigator.of(dialogCtx).pop();
-              body["remark"]     = remark;
+              body["remark"] = remark;
               body["isVerified"] = "0";
-              dialogConfirmation(); // your second-step helper
+              dialogConfirmation();
             },
           ),
         );
       } else {
-        // SECOND: merge verifier signature and upload
-        debugPrint("SECOND: merge verifier signature and upload");
+        // SECOND step: merge verifier signature & upload
         withVerifierBody["signatureVerifier[name]"] =
             "${body["signature[name]"]} verifier";
         withVerifierBody["signatureVerifier[filename]"] =
@@ -346,11 +312,9 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
             body["signature[data]"];
         _upload(ctx, withVerifierBody);
       }
-
     } else if (widget.checkpoint != 1) {
       // non-rating, non-verifier
       _upload(ctx, body);
-
     } else {
       // checkpoint 1: show RatingDialog
       showDialog<void>(
@@ -366,8 +330,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
             ),
           ),
           title: const Text("Rate It"),
-          message:
-              const Text("Rate technician work your complaint."),
+          message: const Text("Rate technician work your complaint."),
           submitButtonText: "SUBMIT",
           onSubmitted: (resp) {
             Navigator.of(dialogCtx).pop();
