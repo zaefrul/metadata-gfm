@@ -70,13 +70,13 @@ class _TaskCard extends StatelessWidget {
   Color _statusColor() {
     switch (task.woTaskStatus) {
       case "Assign":
-        return AppColors.warning;
+        return AppColors.warningDark;
       case "WR Check":
-        return AppColors.info;
+        return AppColors.infoDark;
       case "WR Verified":
-        return AppColors.success;
+        return AppColors.successDark;
       case "In Progress":
-        return AppColors.primary;
+        return AppColors.primaryDark;
       case "Verify":
         return AppColors.info;
       case "Re-Open":

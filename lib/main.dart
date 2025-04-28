@@ -318,21 +318,21 @@ class MyApp extends StatelessWidget {
             builder: (ctx) => PurchaseOrder(), settings: settings);
       case routeMateralRequest:
         return MaterialPageRoute(
-            builder: (ctx) => MaterialRequest(
+            builder: (ctx) => MaterialRequestScreen(
                   value: settings.arguments as dynamic, // Replace 'dynamic' with the correct type if known
                   isApproval: true,
                 ),
             settings: settings);
       case routeMaterialRequestView:
         return MaterialPageRoute(
-            builder: (ctx) => MaterialRequest(
+            builder: (ctx) => MaterialRequestScreen(
                   value: settings.arguments as dynamic,
                   isCheckout: true,
                 ),
             settings: settings);
       case routeStockRequest:
         return MaterialPageRoute(
-            builder: (ctx) => MaterialRequest(value: settings.arguments as dynamic), settings: settings);
+            builder: (ctx) => MaterialRequestScreen(value: settings.arguments as dynamic), settings: settings);
       case routeDashboard:
         return MaterialPageRoute(
             builder: (ctx) => storeKeeperHome.Homepage(), settings: settings);

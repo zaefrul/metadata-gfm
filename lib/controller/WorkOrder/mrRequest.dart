@@ -231,7 +231,7 @@ class _MRTaskCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: bg,
+                  color: color,
                   borderRadius:
                       BorderRadius.circular(20),
                   border: Border.all(color: color),
@@ -239,9 +239,9 @@ class _MRTaskCard extends StatelessWidget {
                 child: Text(
                   statusLabel,
                   style: GoogleFonts.poppins(
-                    fontSize: 13,
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: color,
+                    color: AppColors.white,
                   ),
                 ),
               ),

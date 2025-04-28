@@ -1,20 +1,20 @@
 // lib/controller/Storekeeper/route/storekeeper/route_MR.dart
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:toast/toast.dart';
+import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc_task.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/widget/dialog.dart';
 import 'package:gfm_gems/model/complaint.dart';
 import 'package:gfm_gems/model/material.dart' as item;
-import 'package:toast/toast.dart';
-import '../../../../main.dart';
 
-class MaterialRequest extends StatefulWidget {
+class MaterialRequestScreen extends StatefulWidget {
   final RequestTask value;
   final bool isApproval;
   final bool isCheckout;
 
-  const MaterialRequest({
+  const MaterialRequestScreen({
     required this.value,
     this.isApproval = false,
     this.isCheckout = false,
@@ -22,26 +22,24 @@ class MaterialRequest extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _MaterialRequestState createState() => _MaterialRequestState(value);
+  _MaterialRequestScreenState createState() => _MaterialRequestScreenState();
 }
 
-class _MaterialRequestState extends State<MaterialRequest> {
-  final MaterialTask _bloc;
+class _MaterialRequestScreenState extends State<MaterialRequestScreen> {
+  late final MaterialTask _bloc;
   bool _loading = false;
-
-  _MaterialRequestState(RequestTask value)
-      : _bloc = MaterialTask(value.woTaskRequestId ?? '');
 
   @override
   void initState() {
     super.initState();
-    // listen to loadingState$ and update page‐level spinner
+    _bloc = MaterialTask(widget.value.woTaskRequestId ?? '');
+    ToastContext().init(context);
+
     _bloc.loadingState$.listen((isLoading) {
       if (mounted) setState(() => _loading = isLoading);
     });
-    // show any errors as toasts
     _bloc.err$.listen((err) {
-      Toast.show(err, duration: 4, gravity: Toast.bottom);
+      Toast.show(err, duration: Toast.lengthLong, gravity: Toast.bottom);
     });
   }
 
@@ -51,44 +49,111 @@ class _MaterialRequestState extends State<MaterialRequest> {
     super.dispose();
   }
 
+  Widget _row(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          Icon(icon, color: colorTheme2),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(label,
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+          ),
+          Text(value, style: GoogleFonts.poppins()),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    ToastContext().init(context);
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Material Requisition Form"),
+        title: Text("Material Requisition",
+            style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600, color: colorTheme3)),
         backgroundColor: Colors.white,
         centerTitle: true,
+        iconTheme: IconThemeData(color: colorTheme3),
       ),
-
-      // Stack lets us overlay a spinner on top of the normal UI
       body: Stack(
         children: [
-          // your existing scrollable content
           RefreshIndicator(
             onRefresh: _bloc.refresh,
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  _Info(_bloc.detail$),
-                  const Divider(color: Colors.black38),
-                  const _Title(),
-                  _ListView(_bloc.materials$, widget.isApproval),
-                ],
-              ),
+            child: StreamBuilder<RequestTask>(
+              stream: _bloc.detail$.cast<RequestTask>(),
+              builder: (ctx, snap) {
+                final data = snap.data;
+                return ListView(
+                  padding: const EdgeInsets.only(bottom: 100),
+                  children: [
+                    _row(Icons.request_page, "MR No",
+                        data?.woTaskRequestNo ?? "-"),
+                    Divider(height: 1, color: colorTheme1Light),
+                    _row(Icons.calendar_today, "Request Date",
+                        data?.requestTime ?? "-"),
+                    Divider(height: 1, color: colorTheme1Light),
+                    _row(Icons.person, "Requested By",
+                        data?.requestBy ?? "-"),
+                    Divider(height: 1, color: colorTheme1Light),
+                    _row(Icons.receipt, "WO No", data?.woTaskNo ?? "-"),
+                    Divider(height: 1, color: colorTheme1Light),
+                    _row(Icons.priority_high, "Priority",
+                        data?.woSeverityDesc ?? "-"),
+                    Divider(height: 1, color: colorTheme1Light),
+                    _row(Icons.location_on, "Location",
+                        data?.siteName ?? "-"),
+                    if ((data?.collectTime ?? "").isNotEmpty) ...[
+                      Divider(height: 1, color: colorTheme1Light),
+                      _row(Icons.check_circle, "Checkout Date",
+                          data!.collectTime!),
+                    ],
+
+                    // Section title
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 24),
+                      child: Text("Materials",
+                          style: GoogleFonts.poppins(
+                              fontSize: 16, fontWeight: FontWeight.w600)),
+                    ),
+
+                    // Materials list
+                    StreamBuilder<List<item.Material>>(
+                      stream: _bloc.materials$,
+                      builder: (c, msnap) {
+                        final mats = msnap.data ?? [];
+                        if (mats.isEmpty) {
+                          return Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text("No materials requested",
+                                style: GoogleFonts.poppins(
+                                    color: colorTheme3Light)),
+                          );
+                        }
+                        return Column(
+                          children: mats
+                              .map((m) => _MaterialCard(
+                                    mat: m,
+                                    isApproval: widget.isApproval,
+                                  ))
+                              .toList(),
+                        );
+                      },
+                    ),
+                  ],
+                );
+              },
             ),
           ),
 
-          // full‐screen loading overlay
+          // global loading overlay
           if (_loading)
             Container(
               color: Colors.black.withOpacity(0.5),
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
+              child: const Center(child: CircularProgressIndicator()),
             ),
         ],
       ),
@@ -97,35 +162,35 @@ class _MaterialRequestState extends State<MaterialRequest> {
           ? null
           : StreamBuilder<RequestTask>(
               stream: _bloc.detail$.cast<RequestTask>(),
-              builder: (context, snapshot) {
-                final statusId = snapshot.data?.statusId ?? "-1";
-
-                // hide buttons if not in 33 and this is an approval screen
-                if (widget.isApproval && statusId != "33") {
-                  return Container();
-                }
-
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (statusId == "33")
-                      _BuildRejectButton(
-                        (value) => _bloc
-                            .reject(value)
+              builder: (ctx, snap) {
+                final statusId = snap.data?.statusId ?? "-1";
+                if (widget.isApproval && statusId != "33") return SizedBox();
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16, right: 16),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (statusId == "33") ...[
+                        _BuildRejectButton(
+                          (v) => _bloc
+                              .reject(v)
+                              .then((_) => Navigator.pop(context))
+                              .catchError((e) => Toast.show(e)),
+                          (e) => Toast.show(e),
+                        ),
+                        const SizedBox(width: 12),
+                      ],
+                      FloatingActionButton.extended(
+                        label: Text(_bloc.titleButton(statusId),
+                            style: GoogleFonts.poppins(color: Colors.white)),
+                        backgroundColor: _bloc.colorButton(statusId),
+                        onPressed: () => _bloc
+                            .onclick(widget.isApproval)
                             .then((_) => Navigator.pop(context))
-                            .catchError((e) => print(e)),
-                        (e) => Toast.show(e),
+                            .catchError((e) => Toast.show(e)),
                       ),
-                    if (statusId == "33") const SizedBox(width: 12),
-                    _FloatingButton(
-                      _bloc.titleButton(statusId),
-                      () => _bloc
-                          .onclick(widget.isApproval)
-                          .then((_) => Navigator.pop(context))
-                          .catchError((e) => print(e)),
-                      color: _bloc.colorButton(statusId),
-                    ),
-                  ],
+                    ],
+                  ),
                 );
               },
             ),
@@ -133,166 +198,127 @@ class _MaterialRequestState extends State<MaterialRequest> {
   }
 }
 
-/// Displays the top table of MR metadata
-class _Info extends StatelessWidget {
-  final Stream<RequestTask> _stream;
+class _MaterialCard extends StatelessWidget {
+  final item.Material mat;
+  final bool isApproval;
 
-  const _Info(this._stream, {Key? key}) : super(key: key);
+  const _MaterialCard({
+    required this.mat,
+    required this.isApproval,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      child: StreamBuilder<RequestTask>(
-        stream: _stream,
-        builder: (context, snapshot) {
-          final data = snapshot.data;
-          return Table(
-            columnWidths: const {0: FractionColumnWidth(0.30)},
-            children: <TableRow>[
-              row("MR No : ", data?.woTaskRequestNo ?? ""),
-              row("Request Date : ", data?.requestTime ?? ""),
-              row("Request By : ", data?.requestBy ?? ""),
-              row("WO No : ", data?.woTaskNo ?? ""),
-              row("Priority : ", data?.woSeverityDesc ?? ""),
-              row("Location : ", data?.siteName ?? ""),
-              if ((data?.collectTime ?? "").isNotEmpty)
-                row("Checkout Date : ", data?.collectTime ?? ""),
+    // parse your ints (fallback to 0 if parsing fails)
+    final int qty =
+        int.tryParse(mat.woTaskPartsQuantity ?? '') ?? 0;
+    final int threshold =
+        int.tryParse(mat.partThreshold ?? '') ?? 0;
+    final int available =
+        int.tryParse(mat.partAvailable ?? '') ?? 0;
+
+    // compute the three‐state flags
+    final bool isError = available < threshold;   // below threshold
+    final bool isWarning = available == threshold; // exactly at threshold
+    final bool isSuccess = available > qty;       // more than requested
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 2,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(mat.itemDescription ?? "",
+                style: GoogleFonts.poppins(
+                    fontSize: 14, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 4),
+            Text(
+              "${mat.assetGroupName}  |  ${mat.itemTypeDesc}",
+              style: GoogleFonts.poppins(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 12),
+
+            // responsive chips
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _infoChip("Qty", "$qty"),
+                _infoChip("Threshold", "$threshold"),
+                _infoChip("Available", "$available",
+                    isError: isError,
+                    isWarning: isWarning,
+                    isSuccess: isSuccess),
+              ],
+            ),
+
+            if (isApproval) ...[
+              const SizedBox(height: 12),
+              Divider(color: AppColors.divider),
+              const SizedBox(height: 8),
+              Text("Remark",
+                  style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600, fontSize: 14)),
+              const SizedBox(height: 4),
+              Text(mat.woTaskPartsRemark ?? "-",
+                  style: GoogleFonts.poppins(fontSize: 14)),
             ],
-          );
-        },
-      ),
-    );
-  }
-
-  TableRow row(String title, String value) {
-    return TableRow(children: [
-      TableCell(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child:
-              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          ],
         ),
       ),
-      TableCell(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Text(value),
-        ),
-      ),
-    ]);
-  }
-}
-
-/// Section header
-class _Title extends StatelessWidget {
-  const _Title({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) => const ListTile(
-        title: Text("Material", style: TextStyle(fontWeight: FontWeight.bold)),
-      );
-}
-
-/// Floating action button for approve/checkout
-class _FloatingButton extends StatelessWidget {
-  final String status;
-  final VoidCallback onTap;
-  final Color color;
-
-  const _FloatingButton(this.status, this.onTap,
-      {Key? key, required this.color})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return FloatingActionButton.extended(
-      label: Text(status,
-          style: TextStyle(
-              color: color == colorNull ? Colors.black : Colors.white)),
-      backgroundColor: color,
-      onPressed: onTap,
     );
   }
-}
 
-/// List of requested materials
-class _ListView extends StatelessWidget {
-  final Stream<List<item.Material>> _stream;
-  final bool isApproval;
+  Widget _infoChip(
+    String label,
+    String value, {
+    bool isError = false,
+    bool isWarning = false,
+    bool isSuccess = false,
+  }) {
+    late final Color bg;
+    late final Color fg;
 
-  const _ListView(this._stream, this.isApproval, {Key? key})
-      : super(key: key);
+    if (isError) {
+      bg = AppColors.dangerLight;
+      fg = AppColors.danger;
+    } else if (isWarning) {
+      bg = AppColors.warningLight;
+      fg = AppColors.warningDark;
+    } else if (isSuccess) {
+      bg = AppColors.successLight;
+      fg = AppColors.successDark;
+    } else {
+      bg = AppColors.primaryLight;
+      fg = AppColors.primaryDark;
+    }
 
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<List<item.Material>>(
-      stream: _stream,
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return Container();
-        final data = snapshot.data!;
-        return ListView(
-          padding: const EdgeInsets.only(bottom: 60),
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          children: List.generate(
-            data.length,
-            (i) => _Material(i + 1, data[i], isApproval),
-          ),
-        );
-      },
-    );
-  }
-}
-
-/// Single material tile
-class _Material extends StatelessWidget {
-  final int index;
-  final item.Material _material;
-  final bool isApproval;
-  final bool isUnavailable;
-
-  _Material(this.index, this._material, this.isApproval)
-      : isUnavailable = _material.statusStorekeeper == "Not Enough";
-
-  @override
-  Widget build(BuildContext context) {
-    return ExpansionTile(
-      title: Text(
-        "$index. Material ${_material.itemDescription}",
-        overflow: TextOverflow.ellipsis,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(12),
       ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text("${_material.assetGroupName} | ${_material.itemTypeDesc}"),
-          Text(
-            "Quantity Request: ${_material.woTaskPartsQuantity}",
-            style: TextStyle(color: isUnavailable ? colorTheme4 : null),
-          ),
+          Text(label,
+              style: GoogleFonts.poppins(fontSize: 12, color: fg)),
+          Text(value,
+              style: GoogleFonts.poppins(
+                  fontSize: 14, fontWeight: FontWeight.w600, color: fg)),
         ],
       ),
-      children: [
-        if (isApproval)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
-            child: Text(_material.woTaskPartsRemark ?? ''),
-          ),
-        if (!isApproval) ...[
-          Padding(
-            padding: const EdgeInsets.only(left: 12, top: 6),
-            child: Text("- Threshold: ${_material.partThreshold ?? "N/A"}"),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 12, top: 6, bottom: 12),
-            child: Text("- Stock Available: ${_material.partAvailable ?? "N/A"}"),
-          ),
-        ],
-      ],
     );
   }
 }
 
-/// Reject button in approval mode
 class _BuildRejectButton extends StatelessWidget {
   final Future<void> Function(String) reject;
   final Function(String) alert;
@@ -305,24 +331,19 @@ class _BuildRejectButton extends StatelessWidget {
     return FloatingActionButton.extended(
       heroTag: "reject_button",
       label: const Text("Reject"),
-      backgroundColor: Colors.red,
+      backgroundColor: colorTheme4,
       onPressed: () => showDialog(
-        context: navigatorKey.currentContext!,
+        context: context,
         builder: (_) => CustomDialog(
           rootPage: "/workorder",
           title: "Remark",
-          description: "Remark",
+          description: "Please enter reject remark",
           buttonText: "Okay",
           secondButton: false,
-          cancel: true,
           image: Image.asset("assets/icon_trans.png", height: 40),
-          okayTapped: () {
-            Navigator.pop(context);
-            Navigator.pop(context);
-          },
           remarkTapped: (text) {
             Navigator.pop(context);
-            reject(text).then((_) => alert("Success")).catchError(alert);
+            reject(text);
           },
         ),
       ),
