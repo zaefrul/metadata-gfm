@@ -330,7 +330,7 @@ class _BuildRejectButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
       heroTag: "reject_button",
-      label: const Text("Reject"),
+      label: const Text("Reject", style: TextStyle(color: AppColors.white)),
       backgroundColor: colorTheme4,
       onPressed: () => showDialog(
         context: context,

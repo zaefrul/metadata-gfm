@@ -523,31 +523,39 @@ class _BuildStandardButton extends StatelessWidget {
           backgroundColor:
               (viewOnly || (snapshot.data ?? false)) ? colorTheme2 : colorTheme3,
           onPressed: () {
-            debugPrint('snapshot: ${snapshot.data.toString()}');
             if (viewOnly) {
+              // just view
               bloc.openComplaint(context, viewOnly: viewOnly);
-            } else if (mainStatus == "Assign" ||
-                mainStatus == "Revisit" ||
-                mainStatus == "WR Reassign") {
-              if (snapshot.data != null && snapshot.data!) {
+            }
+            else if (mainStatus == "Assign" ||
+                     mainStatus == "Revisit" ||
+                     mainStatus == "WR Reassign") {
+              // old Assign/Revisit path: must be enabled to submit
+              if (snapshot.data == true) {
                 bloc.submit().then((_) {
-                  showDialog(context: navigatorKey.currentContext!, builder: _buildDialog);
+                  showDialog(
+                    context: navigatorKey.currentContext!,
+                    builder: _buildDialog,
+                  );
                 }).catchError((err) => Toast.show(err));
               } else {
-                Toast.show("All sections must be completed before submit",
-                    duration: 1);
+                Toast.show(
+                  "All sections must be completed before submit",
+                  duration: 1,
+                );
               }
-            } else {
-              if (mainStatus == "WR Re-Open" || mainStatus == "WR Verified") {
-                bloc.submit().then((_) {
-                  showDialog(context: navigatorKey.currentContext!, builder: _buildDialog);
-                }).catchError((err) => Toast.show(err));
-              }
-              else if (snapshot.data != null && snapshot.data!) {
+            }
+            else {
+              // DEFAULT for everything *else* (including WR Verified):
+              // if enabled → open the form; otherwise toast
+              debugPrint("snapshot : ${snapshot.data.toString()}");
+              if (snapshot.data == true || mainStatus == "WR Verified") {
                 bloc.openComplaint(context, viewOnly: viewOnly);
               } else {
-                Toast.show("All sections must be completed before submit",
-                    duration: 1);
+                Toast.show(
+                  "All sections must be completed before submit",
+                  duration: 1,
+                );
               }
             }
           },

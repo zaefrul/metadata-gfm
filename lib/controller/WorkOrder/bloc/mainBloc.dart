@@ -82,7 +82,7 @@ class MainBloc {
       checkpoint = 4;
     } else if (status == "WR Re-Open") {
       checkpoint = 4;
-    } else if (status == "WR Verify") {
+    } else if (status == "WR Verified") {
       checkpoint = 5;
     }
   }
@@ -220,7 +220,6 @@ class MainBloc {
       transactionNo: _taskNo,
       viewer: viewOnly,
       checkpoint: checkpoint,
-      submitted: () => false, // Add the required 'submitted' argument
     );
 
     Navigator.of(context)

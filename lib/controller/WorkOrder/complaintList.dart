@@ -20,6 +20,8 @@ class ComplaintList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // sort list by id descending
+    list.sort((a, b) => b.woTaskId.compareTo(a.woTaskId));
     return RefreshIndicator(
       onRefresh: refresh,
       child: ListView.builder(

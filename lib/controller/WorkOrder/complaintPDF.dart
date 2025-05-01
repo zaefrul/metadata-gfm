@@ -19,7 +19,7 @@ class ComplaintPDF extends StatefulWidget {
   final bool viewer;
   final String id;
   final String transactionNo;
-  final Function submitted;
+  final Function? submitted;
   final int checkpoint;
 
   const ComplaintPDF({
@@ -27,7 +27,7 @@ class ComplaintPDF extends StatefulWidget {
     required this.viewer,
     required this.id,
     required this.transactionNo,
-    required this.submitted,
+    this.submitted,
     required this.checkpoint,
   }) : super(key: key);
 
