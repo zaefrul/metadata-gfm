@@ -373,6 +373,10 @@ class _BuildViewButton extends StatelessWidget {
       return button;
     }
 
+    var buttonTextLabel = status == "Assign" ? "Reject" 
+                    : status == "WR Verified" ? "Re‑Open" 
+                    : "Revisit";
+
     // Otherwise lay out Reject + Submit side by side
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -384,14 +388,10 @@ class _BuildViewButton extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () => _showRejectDialog(context),
                 style: actionButtonStyle.copyWith(
-                  backgroundColor: MaterialStateProperty.all(AppColors.primary),
-                  foregroundColor: MaterialStateProperty.all(Colors.white),
+                  backgroundColor: WidgetStatePropertyAll(getButtonBgColorByStatus(buttonTextLabel)),
+                  foregroundColor: WidgetStatePropertyAll(AppColors.white),
                 ),
-                child: Text(
-                  status == "Assign" ? "Reject" 
-                    : status == "WR Verified" ? "Re‑Open" 
-                    : "Revisit",
-                ),
+                child: Text(buttonTextLabel, style: const TextStyle(color: Colors.white)),
               ),
             ),
 
@@ -521,7 +521,7 @@ class _BuildStandardButton extends StatelessWidget {
                   ),
           ),
           backgroundColor:
-              (viewOnly || (snapshot.data ?? false)) ? colorTheme2 : colorTheme3,
+              (viewOnly || (snapshot.data ?? false)) ? colorTheme2 : AppColors.primaryDark,
           onPressed: () {
             if (viewOnly) {
               // just view
@@ -549,7 +549,7 @@ class _BuildStandardButton extends StatelessWidget {
               // DEFAULT for everything *else* (including WR Verified):
               // if enabled → open the form; otherwise toast
               debugPrint("snapshot : ${snapshot.data.toString()}");
-              if (snapshot.data == true || mainStatus == "WR Verified") {
+              if (snapshot.data == true || mainStatus == "WR Verified" || mainStatus == "WR Re-Open") {
                 bloc.openComplaint(context, viewOnly: viewOnly);
               } else {
                 Toast.show(

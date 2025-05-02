@@ -22,6 +22,10 @@ class WOProvider {
       remark: remark,
     );
 
+    debugPrint("======================== THE BODY IS ========================");
+    debugPrint(body.body.toString());
+    debugPrint("=============================================================");
+
     Provider provider = Provider(fetchURL: "/api/m_wo.php");
 
     return provider.post(url: "/api/m_wo.php", body: body.body);

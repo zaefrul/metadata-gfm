@@ -61,33 +61,26 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
   Future<void> _loadInitial() async {
     // 1) Severity
     try {
-      debugPrint("🔍 Fetching severity for ${widget.id}");
       final resp = await Provider(
         fetchURL: "/api/m_wo.php?type=wo_severity_list&woTaskId=",
         taskID: widget.id,
       ).fetch();
       severityList = resp.wostatusList?.toList() ?? [];
-      debugPrint("✅ Got ${severityList.length} severities");
     } catch (e, st) {
-      debugPrint("❌ Severity error: $e\n$st");
     }
 
     // 2) Groups
     try {
-      debugPrint("🔍 Fetching groups for ${widget.id}");
       final resp = await Provider(
         fetchURL: "/api/m_wo.php?type=wo_group_list&woTaskId=",
         taskID: widget.id,
       ).fetch();
       groupList = resp.wostatusList?.toList() ?? [];
-      debugPrint("✅ Got ${groupList.length} groups");
     } catch (e, st) {
-      debugPrint("❌ Group error: $e\n$st");
     }
 
     // 3) Existing assignment & severity (the missing bit!)
     try {
-      debugPrint("🔍 Fetching existing assignment for ${widget.id}");
       final resp = await Provider(
         fetchURL: "/wo_v2/assign_and_severity/",
         taskID: widget.id,
@@ -109,7 +102,6 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
                                 : _externalCategory,
                               dropdownId4!
                           ).groupName;
-        debugPrint("✅ Loaded existing assignment: G=$dropdownValue1, U=$dropdownId2");
       }
     } catch (e, st) {
       debugPrint("❌ Assign&Severity error: $e\n$st");
@@ -118,7 +110,6 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
     // 4) Executor list for that group
     if (dropdownId1 != null) {
       try {
-        debugPrint("🔍 Fetching executors for groupId=$dropdownId1");
         final resp = await _fetchExecutor;
         executorList = resp.wostatusList?.toList() ?? [];
         // if we had a pre‑selected user, fill the text field
@@ -127,7 +118,6 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
           dropdownValue2 = sel.userName;
           _controller.text = dropdownValue2!;
         }
-        debugPrint("✅ Got ${executorList.length} executors");
       } catch (e, st) {
         debugPrint("❌ Executor fetch error: $e\n$st");
       }
@@ -136,10 +126,8 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
     // 5) Technician details for that user
     if (dropdownId2 != null) {
       try {
-        debugPrint("🔍 Fetching technician details for userId=$dropdownId2");
         final resp = await _fetchTechnician;
         technicianDetails = resp.technicianDetails;
-        debugPrint("✅ Technician details loaded");
       } catch (e, st) {
         debugPrint("❌ Technician details error: $e\n$st");
       }

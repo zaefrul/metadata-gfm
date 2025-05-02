@@ -34,6 +34,7 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
     _provider.context = context;
     try {
       var result = await _provider.fetch();
+      debugPrint(result.toString());
       if (result.woDetail == null) {
         throw Exception("woDetail came back null");
       }

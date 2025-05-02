@@ -29,6 +29,30 @@ abstract class Upload {
   }
 }
 
+// helper to determine the color of button
+Color getButtonBgColorByStatus(String? status) {
+  switch (status) {
+    case "Assign":
+      return AppColors.warning;
+    case "WR Check":
+      return AppColors.info;
+    case "WR Verified":
+      return AppColors.success;
+    case "In Progress":
+      return AppColors.primary;
+    case "Verify":
+      return AppColors.info;
+    case "Re-Open":
+      return AppColors.warning;
+    case "Completed":
+      return AppColors.success;
+    case "Rejected":
+      return AppColors.danger;
+    default:
+      return AppColors.secondary;
+  }
+}
+
 class AppColors {
   // — Primary palette
   static const Color primary       = Color(0xFF276EF1);
