@@ -175,7 +175,12 @@ class _HomepageState extends State<Homepage> {
   }
 
   Widget _buildProfileImage(User user) {
-    final imageUrl = user.imageUrl ?? '';
+    var imageUrl = user.imageUrl ?? '';
+    // if imageUrl does not start with "http", prepend it with "http:" or "https:"
+    if (imageUrl.isNotEmpty && !imageUrl.startsWith("http")) {
+      imageUrl = "https:$imageUrl";
+    }
+    debugPrint("Image URL: $imageUrl");
     return Container(
       width: 48,
       height: 48,
@@ -186,13 +191,12 @@ class _HomepageState extends State<Homepage> {
         ),
       ),
       child: imageUrl.isNotEmpty
-          ? ClipOval(
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _buildInitialsAvatar(user),
-              ),
-            )
+          ? CircleAvatar(
+                    radius: 60,
+                    backgroundImage: imageUrl.isEmpty
+                      ? AssetImage('assets/profile_plain.png') as ImageProvider
+                      : NetworkImage(imageUrl),
+                  )
           : _buildInitialsAvatar(user),
     );
   }

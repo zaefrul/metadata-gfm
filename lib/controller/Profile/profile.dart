@@ -9,6 +9,7 @@ import '../../model/user.dart';
 import '../PPM/Form/openImage.dart';
 import 'editProfile.dart';
 import 'changePassword.dart';
+import '../Homepage/homepage.dart';
 
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
@@ -68,71 +69,82 @@ class _ProfileState extends State<Profile> {
       ) as PreferredSizeWidget?,
       drawer: BuildDrawer(() => Navigator.pop(context)),
 
-      body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 24),
+      body: Stack(
         children: [
-          // — Avatar —
-          Center(
-            child: GestureDetector(
-              onTap: _imageSrc.isEmpty ? null : () {
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (_) => ImageViewer(url: "http:$_imageSrc"),
-                ));
-              },
-              child: CircleAvatar(
-                radius: 60,
-                backgroundImage: _imageSrc.isEmpty
-                  ? AssetImage('assets/profile_plain.png') as ImageProvider
-                  : NetworkImage("http:$_imageSrc"),
+          background,
+          ListView(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            children: [
+              // — Avatar —
+              Center(
+                child: GestureDetector(
+                  onTap: _imageSrc.isEmpty ? null : () {
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (_) => ImageViewer(url: "http:$_imageSrc"),
+                    ));
+                  },
+                  child: CircleAvatar(
+                    radius: 60,
+                    backgroundImage: _imageSrc.isEmpty
+                      ? AssetImage('assets/profile_plain.png') as ImageProvider
+                      : NetworkImage("http:$_imageSrc"),
+                  ),
+                ),
               ),
-            ),
-          ),
-          const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-          // — Edit / Change buttons —
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 50),
-            child: Column(
-              children: [
-                ElevatedButton.icon(
-                  icon: Icon(Icons.edit, color: Colors.white),
-                  label: Text("Edit Profile", style: GoogleFonts.poppins(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    minimumSize: Size(double.infinity, 44),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => Edit(user)),
-                  ).then((_) => _loadProfile()),
+              // — Edit / Change buttons —
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 50),
+                child: Column(
+                  children: [
+                    ElevatedButton.icon(
+                      icon: Icon(Icons.edit, color: Colors.white),
+                      label: Text("Edit Profile", style: GoogleFonts.poppins(color: Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        minimumSize: Size(double.infinity, 44),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => Edit(user)),
+                      ).then((_) => _loadProfile()),
+                    ),
+                    const SizedBox(height: 8),
+                    ElevatedButton.icon(
+                      icon: Icon(Icons.lock, color: Colors.white),
+                      label: Text("Change Password", style: GoogleFonts.poppins(color: Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        minimumSize: Size(double.infinity, 44),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => Change()),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                ElevatedButton.icon(
-                  icon: Icon(Icons.lock, color: Colors.white),
-                  label: Text("Change Password", style: GoogleFonts.poppins(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    minimumSize: Size(double.infinity, 44),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => Change()),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
+              ),
+              const SizedBox(height: 24),
 
-          // — Profile fields —
-          _buildRow(Icons.person,       "Name",         _name),
-          _buildRow(Icons.work,         "Roles",        _role.join(", ")),
-          _buildRow(Icons.phone,        "Contact No.",  _contact),
-          _buildRow(Icons.email,        "Email",        _email),
+              // — Profile fields —
+              _buildRow(Icons.person,       "Name",         _name),
+              _buildRow(Icons.work,         "Roles",        _role.join(", ")),
+              _buildRow(Icons.phone,        "Contact No.",  _contact),
+              _buildRow(Icons.email,        "Email",        _email),
+            ],
+          ),
         ],
-      ),
+      )
     );
   }
 }
+
+Widget get background => Container(
+  height: double.infinity,
+  width: double.infinity,
+  child: Image.asset("assets/bg.jpg", fit: BoxFit.fill),
+);
