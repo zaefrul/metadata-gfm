@@ -271,7 +271,7 @@ class MyApp extends StatelessWidget {
             builder: (context) => ResetPassword(), settings: settings);
       case "/monitoring":
         return MaterialPageRoute(
-            builder: (context) => TaskMonitoring(), settings: settings);
+            builder: (context) => TaskMonitoringScreen(), settings: settings);
       case routeMaterial:
         final String value = settings.arguments as String;
         return MaterialPageRoute(
