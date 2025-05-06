@@ -219,7 +219,15 @@ class MyApp extends StatelessWidget {
           ),
           primaryColor: colorTheme3,
           primaryTextTheme:
-              TextTheme(titleLarge: TextStyle(color: colorTheme3))),
+              TextTheme(titleLarge: TextStyle(color: colorTheme3)),
+          pageTransitionsTheme: PageTransitionsTheme(builders: {
+            TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+            // or replace both with your custom one:
+            // TargetPlatform.android: _MyFadeBuilder(),
+            // TargetPlatform.iOS: _MyFadeBuilder(),
+          }),
+      ),
       localizationsDelegates: const [
         GlobalWidgetsLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
