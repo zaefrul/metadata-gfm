@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/widget/dialog.dart';
 import 'ElectricBill.dart';
 import 'WaterBill.dart';
+import '../../main.dart';
 
 class UtilsBill {
   final VoidCallback onRefresh;
@@ -10,7 +11,7 @@ class UtilsBill {
 
   void selectType(BuildContext context) {
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (_) => CustomDialog(
         buttonText: "Electric",
         buttonText2: "Water",
@@ -29,7 +30,7 @@ class UtilsBill {
       {bool isWater = false, bool isElectric = false}) {
     Navigator.pop(context);
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (_) => CustomDialog(
         buttonText: "Daily",
         buttonText2: "Monthly",

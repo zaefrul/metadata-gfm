@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:rxdart/rxdart.dart';
+import '../../../../main.dart';
 
 class CheckInList extends StatelessWidget {
   // Explicitly specify that the subject holds a List<dynamic>.
@@ -23,7 +24,7 @@ class CheckInList extends StatelessWidget {
         final data = snapshot.data!;
 
         return RefreshIndicator(
-          onRefresh: () => refresh(context: context),
+          onRefresh: () => refresh(context: navigatorKey.currentContext!),
           child: ListView.separated(
             shrinkWrap: true,
             primary: true,

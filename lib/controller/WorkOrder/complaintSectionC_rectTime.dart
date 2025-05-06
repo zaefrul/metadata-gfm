@@ -3,6 +3,7 @@ import 'package:date_format/date_format.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/view/dialog.dart';
 import 'package:intl/intl.dart';
+import '../../main.dart';
 
 class ComplaintSectionC_RectTime extends StatefulWidget {
   final bool viewer;
@@ -142,7 +143,7 @@ class _ComplaintSectionC_RectTimeState extends State<ComplaintSectionC_RectTime>
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
-      context: context,
+      context: navigatorKey.currentContext!,
       initialDate: selectedDate,
       initialDatePickerMode: DatePickerMode.day,
       firstDate: DateTime(2015),
@@ -158,7 +159,7 @@ class _ComplaintSectionC_RectTimeState extends State<ComplaintSectionC_RectTime>
 
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? picked =
-        await showTimePicker(context: context, initialTime: selectedTime);
+        await showTimePicker(context: navigatorKey.currentContext!, initialTime: selectedTime);
     if (picked != null) {
       setState(() {
         selectedTime = picked;
@@ -177,7 +178,7 @@ class _ComplaintSectionC_RectTimeState extends State<ComplaintSectionC_RectTime>
 
   void alert(String txt) {
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (BuildContext context) => CustomDialog(
         description: txt,
         buttonText: "Okay",

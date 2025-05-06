@@ -15,6 +15,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:toast/toast.dart';
 // Removed flutter_image_compress import
 import 'package:url_launcher/url_launcher.dart';
+import '../../main.dart';
 
 class WaterBillScreen extends StatefulWidget {
   final bool isMontly;
@@ -99,7 +100,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
   void confirmation() {
     FocusScope.of(context).unfocus();
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (_) => AlertDialog(
         title: Text("Confirmation"),
         content: Text("Are you confirm to submit the bill?"),
@@ -162,7 +163,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
     }
 
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (_) => Center(child: CircularProgressIndicator()),
     );
 
@@ -338,7 +339,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
         MaterialPageRoute(builder: (context) => ImageViewer(file: src)));
 
     showModalBottomSheet(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (BuildContext bc) => Container(
         child: Wrap(
           children: <Widget>[

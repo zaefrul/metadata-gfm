@@ -9,7 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:toast/toast.dart';
 import 'package:gfm_gems/view/dialog.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc_checkin.dart';
+import '../../../../main.dart';
 
 class CheckinAdd extends StatefulWidget {
   final Controller _controller;
@@ -27,7 +27,7 @@ class _CheckinAddState extends State<CheckinAdd> {
     widget._controller.loadingState$.listen((event) {
       if (event == true) {
         showDialog(
-          context: context,
+          context: navigatorKey.currentContext!,
           barrierDismissible: false,
           builder: (_) => const Center(
             child: CircularProgressIndicator(),
@@ -40,7 +40,7 @@ class _CheckinAddState extends State<CheckinAdd> {
     widget._controller.err$.listen((event) {
       if (event == "Your session already expired, please relogin.") {
         showDialog(
-          context: context,
+          context: navigatorKey.currentContext!,
           builder: (BuildContext context) => CustomDialog(
             title: "Expired Session",
             description: event,

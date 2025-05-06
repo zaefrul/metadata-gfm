@@ -13,11 +13,13 @@ import 'package:gfm_gems/utils/reference.dart';
 
 import 'complaintSign.dart';
 
+import '../../main.dart';
+
 class ComplaintPDF extends StatefulWidget {
   final bool viewer;
   final String id;
   final String transactionNo;
-  final Function submitted;
+  final Function? submitted;
   final int checkpoint;
 
   const ComplaintPDF({
@@ -25,7 +27,7 @@ class ComplaintPDF extends StatefulWidget {
     required this.viewer,
     required this.id,
     required this.transactionNo,
-    required this.submitted,
+    this.submitted,
     required this.checkpoint,
   }) : super(key: key);
 
@@ -127,7 +129,7 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
                               },
                             );
                             showDialog(
-                                context: context,
+                                context: navigatorKey.currentContext!,
                                 builder: (BuildContext context) => dialog);
                           },
                           child: Container(
@@ -226,7 +228,7 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
 
   void alert(String txt) {
     showDialog(
-        context: context,
+        context: navigatorKey.currentContext!,
         builder: (BuildContext context) => CustomDialog(
               rootPage: "/workorder",
               description: txt,

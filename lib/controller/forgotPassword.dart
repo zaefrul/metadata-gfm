@@ -7,6 +7,8 @@ import '../view/button.dart';
 import '../view/field.dart';
 import '../view/dialog.dart';
 
+import '../main.dart';
+
 class Forgot extends StatefulWidget {
   const Forgot({Key? key}) : super(key: key);
 
@@ -154,7 +156,7 @@ class _ForgotState extends State<Forgot> {
   }
 
   void alert(String txt, {bool success = true}) => showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (BuildContext context) => CustomDialog(
             rootPage: success ? "/" : "",
             description: txt,

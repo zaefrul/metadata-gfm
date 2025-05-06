@@ -1,4 +1,7 @@
+// lib/controller/TaskMonitoring/task_monitoring_screen.dart
+
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:gfm_gems/controller/TaskMonitoring/searchMonitorTask.dart';
 import 'package:gfm_gems/controller/TaskMonitoring/task_detail.dart';
 import 'package:gfm_gems/model/monitor.dart';
@@ -7,163 +10,232 @@ import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/bar.dart';
 import 'package:gfm_gems/view/drawer.dart';
 
-class TaskMonitoring extends StatefulWidget {
+class TaskMonitoringScreen extends StatefulWidget {
   @override
-  _TaskMonitoringState createState() => _TaskMonitoringState();
+  _TaskMonitoringScreenState createState() => _TaskMonitoringScreenState();
 }
 
-class _TaskMonitoringState extends State<TaskMonitoring> {
+class _TaskMonitoringScreenState extends State<TaskMonitoringScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   late Provider _provider;
-  bool _isOpened = false;
+
   bool _loading = true;
-  String id = "1";
-  late String dropdownValue;
+  String _dropdownValue = "Planned Preventive Maintenance";
+  String get _flowId => _dropdownValue == "Work Order" ? "2" : "1";
+
   List<MonitorTask> _tasks = [];
-  List<Widget> _children = [];
 
   @override
   void initState() {
     super.initState();
-    dropdownValue = "Planned Preventive Maintenance";
-    tasks();
+    _fetchTasks();
+  }
+
+  Future<void> _fetchTasks() async {
+    setState(() => _loading = true);
+    _provider = Provider(
+      fetchURL: "/api/m_ppm.php?flowId=$_flowId&type=tnm_list",
+    );
+    _provider.context = context;
+    try {
+      final resp = await _provider.fetch();
+      _tasks = resp.monitorTaskList?.toList() ?? [];
+    } catch (_) {
+      _tasks = [];
+    } finally {
+      setState(() => _loading = false);
+    }
+  }
+
+  Color _pillColor(String status) {
+    switch (status) {
+      case "In Progress":
+        return AppColors.primaryDark;
+      case "Rejected":
+      case "WR Invalid":
+        return AppColors.dangerDark;
+      case "Out of Scope":
+        return AppColors.danger;
+      case "Check":
+      case "WR Re-Open":
+        return AppColors.infoDark;
+      case "Completed":
+        return AppColors.successDark;
+      case "Assign":
+      case "Verify":
+      case "WR Check":
+      case "WR Verified":
+        return AppColors.warningDark;
+      default:
+        return AppColors.secondaryDark;
+    }
+  }
+
+  Color _cardBgColor(String status) {
+    switch (status) {
+      case "In Progress":
+        return AppColors.primaryLight;
+      case "Rejected":
+      case "WR Invalid":
+      case "Out of Scope":
+        return AppColors.dangerLight;
+      case "Check":
+      case "WR Re-Open":
+        return AppColors.infoLight;
+      case "Completed":
+        return AppColors.successLight;
+      case "Assign":
+      case "Verify":
+      case "WR Check":
+      case "WR Verified":
+        return AppColors.warningLight;
+      default:
+        return AppColors.secondaryLight;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    _provider.context = context;
     return Scaffold(
       key: _scaffoldKey,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(kToolbarHeight),
-        child: bar(
-          _scaffoldKey,
-          text: "Track Monitoring",
-          search: true,
-          onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => SearchTaskMonitoring())),
-          dimmer: _isOpened,
+      appBar: bar(
+        _scaffoldKey,
+        text: "Track Monitoring",
+        search: true,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => SearchTaskMonitoring()),
         ),
-      ),
+      ) as PreferredSizeWidget,
       drawer: BuildDrawer(() => Navigator.pop(context)),
-      body: _loading
-          ? Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: RefreshIndicator(
-                onRefresh: tasks,
-                child: ListView(
-                  children: _children,
+      body: Stack(
+        children: [
+          RefreshIndicator(
+            onRefresh: _fetchTasks,
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              children: [
+                // — filter dropdown —
+                DropdownButton<String>(
+                  isExpanded: true,
+                  value: _dropdownValue,
+                  underline: Container(height: 1, color: AppColors.divider),
+                  items: [
+                    "Planned Preventive Maintenance",
+                    "Work Order"
+                  ].map((label) {
+                    return DropdownMenuItem(
+                      value: label,
+                      child: Text(label, style: GoogleFonts.poppins()),
+                    );
+                  }).toList(),
+                  onChanged: (v) {
+                    if (v != null) {
+                      setState(() => _dropdownValue = v);
+                      _fetchTasks();
+                    }
+                  },
                 ),
-              ),
+                const SizedBox(height: 12),
+
+                // — task cards —
+                ..._tasks.map((t) => _buildCard(context, t)).toList(),
+                if (_tasks.isEmpty && !_loading)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 32),
+                    child: Center(
+                      child: Text("No tasks found",
+                          style: GoogleFonts.poppins(color: colorTheme3Light)),
+                    ),
+                  ),
+              ],
             ),
+          ),
+
+          if (_loading)
+            Container(
+              color: Colors.black38,
+              child: const Center(child: CircularProgressIndicator()),
+            ),
+        ],
+      ),
     );
   }
 
-  Widget getTitle(String text, {bool bold = false}) => Container(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          text,
-          style: TextStyle(
-              fontWeight: bold ? FontWeight.bold : FontWeight.normal),
-        ),
-      );
+  Widget _buildCard(BuildContext ctx, MonitorTask task) {
+    final pillBg = _pillColor(task.transactionStatus);
+    final pillFg = AppColors.white;
 
-  Widget status(String value) {
-    var text = value;
-    var color = colorTheme1;
-    if (text == "In Progress")
-      color = colorTheme5;
-    else if (text == "Closed")
-      color = colorTheme4;
-    else if (text == "Check")
-      color = colorTheme2;
-    else if (text == "Verify")
-      color = colorTheme3;
-    else if (text == "Rejected") color = colorTheme4;
-    return Container(
-        alignment: Alignment.center,
-        height: 30.0,
-        width: 100.0,
-        decoration:
-            BoxDecoration(color: color, borderRadius: BorderRadius.circular(20.0)),
-        child: Text(text, style: const TextStyle(color: Colors.white)));
-  }
-
-  ListTile tile(MonitorTask task) => ListTile(
-        contentPadding: const EdgeInsets.all(12),
-        title: Row(
-          children: <Widget>[
-            Expanded(
-                child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                getTitle(task.transactionNo, bold: true),
-                getTitle(task.flowName),
-                getTitle(task.checkpointName),
-                getTitle(id == "1" ? (task.userFullName ?? 'Unknown') : (task.currentTaskOwner ?? 'Unknown')),
-                getTitle(task.transactionTimeCreated),
-              ],
-            )),
-            status(task.transactionStatus)
-          ],
-        ),
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: _cardBgColor(task.transactionStatus),
+      elevation: 2,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
         onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (BuildContext context) => TaskInformation(task: task),
-          ));
-        },
-      );
-
-  Widget get _filter => DropdownButton<String>(
-        underline: Container(),
-        value: dropdownValue,
-        onChanged: (String? newValue) {
-          if (newValue != null) {
-            setState(() {
-              dropdownValue = newValue;
-              tasks();
-            });
-          }
-        },
-        items: <String>[
-          "Planned Preventive Maintenance",
-          "Work Order"
-        ].map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
+          Navigator.of(ctx).push(
+            MaterialPageRoute(
+              builder: (_) => TaskInformation(task: task),
+            ),
           );
-        }).toList(),
-      );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              // left column
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(task.transactionNo,
+                        style: GoogleFonts.poppins(
+                            fontSize: 16, fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 4),
+                    Text(task.flowName,
+                        style: GoogleFonts.poppins(color: AppColors.gray700, fontWeight: FontWeight.w400)),
+                    const SizedBox(height: 4),
+                    Text(task.checkpointName,
+                        style: GoogleFonts.poppins(color: AppColors.gray700, fontWeight: FontWeight.w400)),
+                    const SizedBox(height: 4),
+                    Text(
+                      _flowId == "1"
+                          ? (task.userFullName ?? '')
+                          : (task.currentTaskOwner ?? ''),
+                      style: GoogleFonts.poppins(),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(Icons.access_time, size: 14, color: colorTheme3),
+                        const SizedBox(width: 4),
+                        Text(task.transactionTimeCreated,
+                            style: GoogleFonts.poppins(fontSize: 12)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
 
-  void generateTile(List<MonitorTask> tasks) {
-    _children = [];
-    _children.addAll(ListTile.divideTiles(
-            context: context,
-            tiles: List.generate(_tasks.length, (index) => tile(_tasks[index])))
-        .toList());
-    _children.insert(0, _filter);
-    _children.insert(0, const SizedBox(height: 16.0));
-    setState(() {
-      _loading = false;
-    });
-  }
-
-  Future<void> tasks() async {
-    setState(() => _loading = true);
-    id = dropdownValue == "Work Order" ? "2" : "1";
-    _provider = Provider(fetchURL: "/api/m_ppm.php?flowId=$id&type=tnm_list");
-    try {
-      var response = await _provider.fetch();
-      _tasks = response.monitorTaskList?.toList() ?? [];
-      generateTile(_tasks);
-    } catch (err) {
-      _tasks = [];
-      generateTile(_tasks);
-      print(err);
-    }
+              // status pill
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: pillBg,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(task.transactionStatus,
+                    style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: pillFg)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

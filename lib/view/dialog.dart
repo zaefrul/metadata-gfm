@@ -1,3 +1,5 @@
+// lib/view/dialog.dart
+
 import 'package:flutter/material.dart';
 import 'button.dart';
 import 'package:toast/toast.dart';
@@ -91,17 +93,17 @@ class CustomDialog extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min, // To make the card compact
             children: <Widget>[
-              title == null
-                  ? Container()
-                  : Text(
-                      title!,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-              const SizedBox(height: 16.0),
+              if (title != null) ...[
+                Text(
+                  title!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 24.0,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+              ],
               Text(
                 description,
                 textAlign: TextAlign.center,
@@ -111,24 +113,31 @@ class CustomDialog extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  cancel
-                      ? TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text(
-                            "Cancel",
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        )
-                      : Container(),
+                  if (cancel)
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text(
+                        "Cancel",
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   Button(
                     text: buttonText,
                     onPressed: () {
-                      if (okayTapped != null) okayTapped!();
+                      if (okayTapped != null) {
+                        okayTapped!();
+                      }
+                      // only pop here if we didn't already pop via okayTapped
+                      else if (rootPage == null && goBackOnDismiss != true) {
+                        Navigator.of(context).pop();
+                      }
+
+                      // existing rootPage / goBackOnDismiss logic remains intact:
                       if (rootPage != null) {
                         Navigator.popUntil(
                           context,
@@ -136,20 +145,15 @@ class CustomDialog extends StatelessWidget {
                         );
                       }
                       if (goBackOnDismiss == true) {
-                        Navigator.of(context).pop(); // Dismiss the dialog
-                        Navigator.of(context).pop(); // Navigate back to the previous screen
-                      }
-
-                      // if nothing else then
-                      // just dismiss the dialog
-                      if (rootPage == null && goBackOnDismiss != true) {
+                        // pop dialog then page
+                        Navigator.of(context).pop();
                         Navigator.of(context).pop();
                       }
                     },
                     color: colorTheme2,
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),
@@ -198,88 +202,87 @@ class CustomDialog extends StatelessWidget {
             ],
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.min, // To make the card compact
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              !useDescription
-                  ? Text(
-                      title ?? "",
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    )
-                  : Container(),
+              if (!useDescription)
+                Text(
+                  title ?? "",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 24.0,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               const SizedBox(height: 16.0),
-              useDescription
-                  ? Text(
-                      description,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 16.0),
-                    )
-                  : TextField(
-                      maxLength: 60,
-                      controller: controller,
-                    ),
+              if (useDescription)
+                Text(
+                  description,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16.0),
+                )
+              else
+                TextField(
+                  maxLength: 60,
+                  controller: controller,
+                ),
               const SizedBox(height: 24.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  cancel
-                      ? TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text(
-                            "Cancel",
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        )
-                      : Container(),
-                  secondButton
-                      ? TextButton(
-                          onPressed: () {
-                            if (useDescription) {
-                              if (secondTapped != null) secondTapped!();
-                            } else if (controller.text.isEmpty) {
-                              Toast.show("Please enter remark before submit.",
-                                  duration: Toast.lengthShort,
-                                  gravity: Toast.bottom);
-                            } else if (controller.text.length <= 60) {
-                              if (secondTapped != null)
-                                secondTapped!(controller.text);
-                            } else {
-                              Toast.show("Maximum 60 character",
-                                  duration: Toast.lengthShort,
-                                  gravity: Toast.bottom);
-                            }
-                          },
-                          child: Text(
-                            buttonText2 ?? "",
-                            style: const TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        )
-                      : Container(),
+                  if (cancel)
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text(
+                        "Cancel",
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  if (secondButton)
+                    TextButton(
+                      onPressed: () {
+                        if (useDescription) {
+                          secondTapped?.call();
+                        } else if (controller.text.isEmpty) {
+                          Toast.show(
+                              "Please enter remark before submit.",
+                              duration: Toast.lengthShort,
+                              gravity: Toast.bottom);
+                        } else if (controller.text.length <= 60) {
+                          secondTapped?.call(controller.text);
+                        } else {
+                          Toast.show("Maximum 60 character",
+                              duration: Toast.lengthShort,
+                              gravity: Toast.bottom);
+                        }
+                      },
+                      child: Text(
+                        buttonText2 ?? "",
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   Button(
                     text: buttonText,
                     onPressed: () {
                       if (useDescription) {
-                        if (remarkTapped != null) remarkTapped!("");
+                        remarkTapped?.call("");
                       } else if (controller.text.isEmpty) {
                         Toast.show("Please enter remark before submit.",
-                            duration: Toast.lengthShort, gravity: Toast.bottom);
+                            duration: Toast.lengthShort,
+                            gravity: Toast.bottom);
                       } else if (controller.text.length <= 60) {
-                        if (remarkTapped != null)
-                          remarkTapped!(controller.text);
+                        remarkTapped?.call(controller.text);
                       } else {
                         Toast.show("Maximum 60 character",
-                            duration: Toast.lengthShort, gravity: Toast.bottom);
+                            duration: Toast.lengthShort,
+                            gravity: Toast.bottom);
                       }
                     },
                     color: colorTheme2,

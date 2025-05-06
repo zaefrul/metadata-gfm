@@ -13,6 +13,7 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:gfm_gems/view/dialog.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../main.dart';
 
 class FormH extends StatefulWidget {
   final String id;
@@ -453,7 +454,7 @@ class _FormHState extends State<FormH> {
     }
 
     return showModalBottomSheet(
-        context: context,
+        context: navigatorKey.currentContext!,
         builder: (BuildContext bc) => Container(
               child: Wrap(
                 children: <Widget>[
@@ -472,7 +473,7 @@ class _FormHState extends State<FormH> {
 
   void _alert(String desc) {
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (BuildContext context) => CustomDialog(
         description: desc,
         buttonText: "Okay",

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:rxdart/rxdart.dart';
+import '../../../../main.dart';
 
 class MyDashboard extends StatelessWidget {
   // Explicitly type the BehaviorSubject to hold dynamic data.
@@ -29,7 +30,7 @@ class MyDashboard extends StatelessWidget {
         final totalValue = data["totalValue"];
 
         return RefreshIndicator(
-          onRefresh: () => refresh(context: context),
+          onRefresh: () => refresh(context: navigatorKey.currentContext!),
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
             children: <Widget>[

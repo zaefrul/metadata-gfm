@@ -6,6 +6,7 @@ import '../../utils/reference.dart';
 import '../../view/button.dart';
 import '../../view/field.dart';
 import '../../view/dialog.dart';
+import '../../main.dart';
 
 class Change extends StatefulWidget {
   @override
@@ -177,7 +178,7 @@ class _ChangeState extends State<Change> {
   }
 
   void alert(String txt, {bool success = true}) => showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (BuildContext context) => CustomDialog(
           rootPage: success ? "/profile" : "",
           description: txt,

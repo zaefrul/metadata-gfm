@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc_inventory.dart';
 import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
 import 'package:gfm_gems/model/complaint.dart';
+import '../../../../main.dart';
 
 class MyStock extends StatelessWidget {
   final BlocInventory bloc;
@@ -20,7 +21,7 @@ class MyStock extends StatelessWidget {
               children: [
                 _filter(context),
                 if (snapshot.hasData)
-                  _body(snapshot.data!, context: context)
+                  _body(snapshot.data!, context: navigatorKey.currentContext!)
                 else
                   const Center(child: Text("Loading...")),
               ],

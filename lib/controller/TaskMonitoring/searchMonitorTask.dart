@@ -6,6 +6,7 @@ import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:toast/toast.dart';
 import 'package:flutter/services.dart';
+import '../../main.dart';
 
 class SearchTaskMonitoring extends StatefulWidget {
   @override
@@ -166,7 +167,7 @@ class _SearchTaskMonitoringState extends State<SearchTaskMonitoring> {
     _children = <Widget>[];
     if (tasksList != null && tasksList.isNotEmpty) {
       _children.addAll(ListTile.divideTiles(
-              context: context,
+              context: navigatorKey.currentContext!,
               tiles: List.generate(
                   tasksList.length, (index) => tile(tasksList[index])))
           .toList());

@@ -14,6 +14,8 @@ import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:gfm_gems/utils/image_compressor.dart';
 
+import '../../../main.dart';
+
 class FormH extends StatefulWidget {
   final String id;
   final bool verified;
@@ -387,7 +389,7 @@ class _FormHState extends State<FormH> {
         );
 
     showModalBottomSheet(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (BuildContext bc) => Container(
         child: Wrap(
           children: <Widget>[
@@ -410,7 +412,7 @@ class _FormHState extends State<FormH> {
 
   void _alert(String desc) {
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (BuildContext context) => CustomDialog(
         description: desc,
         buttonText: "Okay",

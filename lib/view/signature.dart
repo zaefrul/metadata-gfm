@@ -6,6 +6,7 @@ import 'package:toast/toast.dart';
 import '../utils/reference.dart';
 import 'dialog.dart';
 import 'package:signature/signature.dart';
+import '../main.dart';
 
 class SignatureView extends StatefulWidget {
   final String id;
@@ -77,7 +78,7 @@ class SignatureViewState extends State<SignatureView> {
             child: GestureDetector(
               onTap: () async {
                 showDialog(
-                    context: context,
+                    context: navigatorKey.currentContext!,
                     builder: (context) => CustomDialog(
                           cancel: true,
                           description: "Do you confirm want to submit?",
@@ -179,7 +180,7 @@ class SignatureViewState extends State<SignatureView> {
 
   void alert(String txt) {
     showDialog(
-        context: context,
+        context: navigatorKey.currentContext!,
         builder: (BuildContext context) => CustomDialog(
               rootPage: "/ppm",
               description: txt,

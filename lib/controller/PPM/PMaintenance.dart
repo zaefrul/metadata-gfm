@@ -69,24 +69,24 @@ class _PreventiveMaintenanceState extends State<PreventiveMaintenance>
           ],
         ),
       ),
-      floatingActionButton: fab,
+      // floatingActionButton: fab,
     );
   }
 
-  Widget get fab => FloatingActionButton(
-        heroTag: "FAB",
-        backgroundColor: colorTheme4,
-        child: Icon(isOpened ? Icons.close : Icons.menu),
-        onPressed: () {
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              opaque: false,
-              pageBuilder: (_, __, ___) => AwesomeFAB(),
-            ),
-          ).then((value) {
-            debugPrint('FAB returned: $value');
-          });
-        },
-      );
+//   Widget get fab => FloatingActionButton(
+//         heroTag: "FAB",
+//         backgroundColor: colorTheme4,
+//         child: Icon(isOpened ? Icons.close : Icons.menu),
+//         onPressed: () {
+//           Navigator.push(
+//             context,
+//             PageRouteBuilder(
+//               opaque: false,
+//               pageBuilder: (_, __, ___) => AwesomeFAB(),
+//             ),
+//           ).then((value) {
+//             debugPrint('FAB returned: $value');
+//           });
+//         },
+//       );
 }

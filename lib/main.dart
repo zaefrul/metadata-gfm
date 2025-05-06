@@ -88,6 +88,17 @@ Future<void> main() async {
     provisional: false,
     sound: true,
   );
+
+  // **Make sure to grab APNS token immediately on iOS:**
+  if (Platform.isIOS) {
+    try {
+      String? apnsToken = await _messaging.getAPNSToken();
+      print('🪶 APNS token: $apnsToken');
+    } catch (e) {
+      debugPrint('⚠️ getAPNSToken failed: $e');
+    }
+  }
+
   await _messaging.setForegroundNotificationPresentationOptions(
     alert: true,
     badge: true,
@@ -208,7 +219,15 @@ class MyApp extends StatelessWidget {
           ),
           primaryColor: colorTheme3,
           primaryTextTheme:
-              TextTheme(titleLarge: TextStyle(color: colorTheme3))),
+              TextTheme(titleLarge: TextStyle(color: colorTheme3)),
+          pageTransitionsTheme: PageTransitionsTheme(builders: {
+            TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+            // or replace both with your custom one:
+            // TargetPlatform.android: _MyFadeBuilder(),
+            // TargetPlatform.iOS: _MyFadeBuilder(),
+          }),
+      ),
       localizationsDelegates: const [
         GlobalWidgetsLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -260,7 +279,7 @@ class MyApp extends StatelessWidget {
             builder: (context) => ResetPassword(), settings: settings);
       case "/monitoring":
         return MaterialPageRoute(
-            builder: (context) => TaskMonitoring(), settings: settings);
+            builder: (context) => TaskMonitoringScreen(), settings: settings);
       case routeMaterial:
         final String value = settings.arguments as String;
         return MaterialPageRoute(
@@ -307,21 +326,21 @@ class MyApp extends StatelessWidget {
             builder: (ctx) => PurchaseOrder(), settings: settings);
       case routeMateralRequest:
         return MaterialPageRoute(
-            builder: (ctx) => MaterialRequest(
+            builder: (ctx) => MaterialRequestScreen(
                   value: settings.arguments as dynamic, // Replace 'dynamic' with the correct type if known
                   isApproval: true,
                 ),
             settings: settings);
       case routeMaterialRequestView:
         return MaterialPageRoute(
-            builder: (ctx) => MaterialRequest(
+            builder: (ctx) => MaterialRequestScreen(
                   value: settings.arguments as dynamic,
                   isCheckout: true,
                 ),
             settings: settings);
       case routeStockRequest:
         return MaterialPageRoute(
-            builder: (ctx) => MaterialRequest(value: settings.arguments as dynamic), settings: settings);
+            builder: (ctx) => MaterialRequestScreen(value: settings.arguments as dynamic), settings: settings);
       case routeDashboard:
         return MaterialPageRoute(
             builder: (ctx) => storeKeeperHome.Homepage(), settings: settings);

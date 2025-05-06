@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/WorkOrder/repository/provider.dart';
@@ -14,6 +15,8 @@ import '../complaintSectionB_Remark.dart';
 import '../complaintSectionC.dart';
 import '../complaintSectionD.dart';
 import '../complaintSectionD_material.dart';
+
+import '../../../../main.dart';
 
 class MainBloc {
   // -- VARIABLES
@@ -38,7 +41,7 @@ class MainBloc {
       : _id = id,
         _status = status,
         _taskNo = taskNo {
-    _provider = WOProvider(context: context);
+    _provider = WOProvider(context: navigatorKey.currentContext!);
     setCheckpoint(_status);
     refresh();
   }
@@ -64,7 +67,7 @@ class MainBloc {
   set execution(Map<String, dynamic> v) =>
       _execution.sink.add(ExecutionModel.fromJson(v));
   set context(BuildContext context) =>
-      _provider = WOProvider(context: context);
+      _provider = WOProvider(context: navigatorKey.currentContext!);
 
   // -- METHODS
   Future<void> refresh() async {
@@ -79,7 +82,7 @@ class MainBloc {
       checkpoint = 4;
     } else if (status == "WR Re-Open") {
       checkpoint = 4;
-    } else if (status == "WR Verify") {
+    } else if (status == "WR Verified") {
       checkpoint = 5;
     }
   }
@@ -101,6 +104,8 @@ class MainBloc {
     } else {
       url = urlExecution;
     }
+
+    debugPrint("URL: $url");
 
     try {
       final result = await _provider.fetch(url, id);
@@ -215,7 +220,6 @@ class MainBloc {
       transactionNo: _taskNo,
       viewer: viewOnly,
       checkpoint: checkpoint,
-      submitted: () => false, // Add the required 'submitted' argument
     );
 
     Navigator.of(context)

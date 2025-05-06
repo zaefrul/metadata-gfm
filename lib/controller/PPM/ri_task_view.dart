@@ -5,6 +5,8 @@ import 'package:gfm_gems/utils/reference.dart';
 import '../../model/task.dart';
 import 'Form/form_view.dart';
 
+import '../../main.dart';
+
 class RITaskView extends StatefulWidget {
   final _TaskViewStateRI view;
 
@@ -205,7 +207,7 @@ class _TaskViewStateRI extends State<RITaskView>
               var tempList = _listTask.where((test) => test.statusDesc == newValue).toList();
               children = [];
               children.addAll(ListTile.divideTiles(
-                      context: context,
+                      context: navigatorKey.currentContext!,
                       tiles: List.generate(
                           tempList.length, (index) => tile(tempList[index])))
                   .toList());

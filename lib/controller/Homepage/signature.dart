@@ -7,6 +7,7 @@ import 'package:gfm_gems/controller/Storekeeper/utils/widget/dialog.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:toast/toast.dart';
 import 'package:signature/signature.dart';
+import '../../main.dart';
 
 class SignatureView extends StatefulWidget {
   final String id;
@@ -145,7 +146,7 @@ class SignatureViewState extends State<SignatureView> {
 
   void alert(String txt) {
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (BuildContext context) => CustomDialog(
         rootPage: "/homepage",
         description: txt,
@@ -157,7 +158,7 @@ class SignatureViewState extends State<SignatureView> {
 
   void submitDialog() {
     showDialog(
-      context: context,
+      context: navigatorKey.currentContext!,
       builder: (context) => CustomDialog(
         rootPage: "/homepage",
         cancel: true,

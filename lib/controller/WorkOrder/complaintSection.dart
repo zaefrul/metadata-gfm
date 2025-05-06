@@ -10,6 +10,7 @@ import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/dialog.dart';
 import 'package:toast/toast.dart';
+import '../../main.dart';
 
 class ComplaintSection extends StatefulWidget {
   final String taskNo;
@@ -159,7 +160,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
             },
           );
           showDialog(
-              context: context,
+              context: navigatorKey.currentContext!,
               builder: (BuildContext context) => dialog);
         });
 
@@ -206,7 +207,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
                   ),
                 );
                 showDialog(
-                    context: context,
+                    context: navigatorKey.currentContext!,
                     builder: (BuildContext context) => dialog);
               }).catchError((err) => Toast.show(err.toString()))
                 .whenComplete(() => setState(() => loadingAssign = false));
@@ -385,7 +386,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
 
   void alert(String txt) {
     showDialog(
-        context: context,
+        context: navigatorKey.currentContext!,
         builder: (BuildContext context) => CustomDialog(
             rootPage: "/workorder",
             description: txt,
