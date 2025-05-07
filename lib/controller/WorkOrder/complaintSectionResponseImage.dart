@@ -166,6 +166,12 @@ class _ComplaintSectionResponseImageState
               ),
             ),
           ],
+          if (_toUpload.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text("Newly picked images",
+                style: TextStyle(fontWeight: FontWeight.bold)),
+          ],
+          if (_toUpload.isNotEmpty) ...[
           const SizedBox(height: 8),
             Expanded(
               child: ListView.separated(
@@ -174,6 +180,7 @@ class _ComplaintSectionResponseImageState
                 itemBuilder: (_, i) => _buildLocalCard(_toUpload[i], i),
               ),
             ),
+          ],
         ],
       ),
     );
