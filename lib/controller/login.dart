@@ -41,7 +41,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     // 3s total, first half moves logo, second half fades form in
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 2),
     );
 
     _logoAlignment = AlignmentTween(
