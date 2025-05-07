@@ -165,7 +165,8 @@ class _ComplaintSectionResponseImageState
                     : _pickLocalImage,
               ),
             ),
-            const SizedBox(height: 8),
+          ],
+          const SizedBox(height: 8),
             Expanded(
               child: ListView.separated(
                 itemCount: _toUpload.length,
@@ -173,7 +174,6 @@ class _ComplaintSectionResponseImageState
                 itemBuilder: (_, i) => _buildLocalCard(_toUpload[i], i),
               ),
             ),
-          ],
         ],
       ),
     );
