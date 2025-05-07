@@ -13,6 +13,7 @@ import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' show basename;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 
 class ComplaintSectionResponseImage extends StatefulWidget {
@@ -33,19 +34,47 @@ class ComplaintSectionResponseImage extends StatefulWidget {
 class _ComplaintSectionResponseImageState
     extends State<ComplaintSectionResponseImage> {
   bool _loading = false;
-  final List<_ResponseImageItem> _items = [];
+
+  /// already-saved images from server
+  List<ResponseImage> _existing = [];
+
+  /// newly picked images waiting to upload
+  final List<_LocalImage> _toUpload = [];
 
   @override
   void initState() {
     super.initState();
     ToastContext().init(context);
+    _loadExisting();
+  }
+
+  /// Fetch the already-uploaded images
+  Future<void> _loadExisting() async {
+    setState(() => _loading = true);
+    final url =
+        "/api/m_wo.php?type=wo_response_images&woTaskId=${widget.woTaskId}";
+    final provider = Provider(fetchURL: url)..context = context;
+    try {
+      final json = await provider.getJson(url: url);
+      if (json['success'] == true) {
+        final List list = json['result'] as List;
+        _existing = list
+            .map((m) => ResponseImage.fromJson(m as Map<String, dynamic>))
+            .toList();
+      }
+    } catch (e) {
+      Toast.show("Failed to load existing images");
+    } finally {
+      setState(() => _loading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Response Images", style: TextStyle(color: AppColors.primaryDark)),
+        title: Text("Response Images",
+            style: TextStyle(color: AppColors.primaryDark)),
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: AppColors.primaryDark),
         centerTitle: true,
@@ -65,9 +94,11 @@ class _ComplaintSectionResponseImageState
           : FloatingActionButton.extended(
               backgroundColor: colorTheme2,
               label: Text("Submit", style: TextStyle(color: Colors.white)),
-              onPressed: _items.isEmpty || _loading ? null : _confirmAndSubmit,
+              onPressed:
+                  _toUpload.isEmpty || _loading ? null : _confirmAndSubmit,
             ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -76,13 +107,29 @@ class _ComplaintSectionResponseImageState
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          ListTile(
-            title: Text("Add up to 3 images with descriptions",
+          // 1) Existing
+          if (_existing.isNotEmpty) ...[
+            Text("Already uploaded",
                 style: TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text("(Each file ≤ 5 MB)"),
+            const SizedBox(height: 8),
+            Expanded(
+              child: ListView.separated(
+                itemCount: _existing.length,
+                separatorBuilder: (_, __) => const Divider(),
+                itemBuilder: (_, i) => _buildExistingCard(_existing[i]),
+              ),
+            ),
+            Divider(),
+          ],
+
+          // 2) To‐upload
+          ListTile(
+            title: Text("Add up to 3 new images",
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text("(Each ≤ 5 MB)"),
             trailing: MaterialButton(
               shape: CircleBorder(),
-              color: _items.length == 3
+              color: _toUpload.length == 3
                   ? colorTheme2.withOpacity(0.5)
                   : colorTheme2,
               child: Text("+",
@@ -90,16 +137,17 @@ class _ComplaintSectionResponseImageState
                       color: Colors.white,
                       fontSize: 24,
                       fontWeight: FontWeight.bold)),
-              onPressed:
-                  widget.disable || _items.length == 3 ? null : _pickImage,
+              onPressed: widget.disable || _toUpload.length == 3
+                  ? null
+                  : _pickLocalImage,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Expanded(
             child: ListView.separated(
-              itemCount: _items.length,
+              itemCount: _toUpload.length,
               separatorBuilder: (_, __) => const Divider(),
-              itemBuilder: (_, i) => _buildCard(_items[i], i),
+              itemBuilder: (_, i) => _buildLocalCard(_toUpload[i], i),
             ),
           ),
         ],
@@ -107,48 +155,48 @@ class _ComplaintSectionResponseImageState
     );
   }
 
-  Widget _buildCard(_ResponseImageItem item, int index) {
+  Widget _buildExistingCard(ResponseImage img) {
+    final src = img.documentSrc.startsWith("//")
+        ? "https:${img.documentSrc}"
+        : img.documentSrc;
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            GestureDetector(
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => ImageViewer(file: item.file)),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.file(item.file, width: 64, height: 64, fit: BoxFit.cover),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: TextField(
-                enabled: !widget.disable,
-                decoration: InputDecoration(
-                  hintText: "Description (optional)",
-                  isDense: true,
-                  contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                ),
-                onChanged: (v) => item.description = v,
-              ),
-            ),
-            if (!widget.disable)
-              IconButton(
-                icon: Icon(Icons.delete, color: Colors.red),
-                onPressed: () => setState(() => _items.removeAt(index)),
-              ),
-          ],
+      child: ListTile(
+        leading: GestureDetector(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => ImageViewer(url: src)),
+          ),
+          child: Image.network(src, width: 64, height: 64, fit: BoxFit.cover),
+        ),
+        title: Text(img.documentFilename),
+        subtitle: Text(img.documentDesc),
+      ),
+    );
+  }
+
+  Widget _buildLocalCard(_LocalImage img, int idx) {
+    return Card(
+      child: ListTile(
+        leading: GestureDetector(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => ImageViewer(file: img.file)),
+          ),
+          child: Image.file(img.file, width: 64, height: 64, fit: BoxFit.cover),
+        ),
+        title: TextField(
+          decoration: InputDecoration(hintText: "Description (optional)"),
+          onChanged: (v) => img.description = v,
+        ),
+        trailing: IconButton(
+          icon: Icon(Icons.delete, color: Colors.red),
+          onPressed: () => setState(() => _toUpload.removeAt(idx)),
         ),
       ),
     );
   }
 
-  Future<void> _pickImage() async {
-    final picked = await ImagePicker().pickImage(source: ImageSource.camera);
+  Future<void> _pickLocalImage() async {
+    final picked =
+        await ImagePicker().pickImage(source: ImageSource.camera);
     if (picked == null) return;
 
     setState(() => _loading = true);
@@ -163,14 +211,15 @@ class _ComplaintSectionResponseImageState
 
     if (bytes.length > 5 * 1024 * 1024) {
       Toast.show("File is larger than 5 MB");
-      return setState(() => _loading = false);
+      setState(() => _loading = false);
+      return;
     }
 
     setState(() {
-      _items.add(_ResponseImageItem(
+      _toUpload.add(_LocalImage(
         file: file,
-        name: basename(picked.path),
         data: base64Encode(bytes),
+        name: basename(picked.path),
         size: bytes.length.toString(),
       ));
       _loading = false;
@@ -182,7 +231,7 @@ class _ComplaintSectionResponseImageState
       context: context,
       builder: (_) => CustomDialog(
         cancel: true,
-        description: "Submit these ${_items.length} image(s)?",
+        description: "Submit ${_toUpload.length} image(s)?",
         buttonText: "Yes",
         image: Image.asset("assets/icon_trans.png", height: 40),
         okayTapped: () {
@@ -193,52 +242,86 @@ class _ComplaintSectionResponseImageState
     );
   }
 
+  /// POST each picked image, then reload `_existing`
   Future<void> _submitAll() async {
     setState(() => _loading = true);
 
     final provider = Provider(fetchURL: "/api/m_wo.php")..context = context;
-    for (var i = 0; i < _items.length; i++) {
-      final item = _items[i];
-      final body = <String,String>{
+
+    // get location
+    final prefs = await SharedPreferences.getInstance();
+    final lat = prefs.getString(prefsLATITUDE)  ?? "0.0";
+    final lng = prefs.getString(prefsLONGITUDE) ?? "0.0";
+    if (lat == "0.0" && lng == "0.0") {
+      Toast.show("Please relogin to get location");
+      return setState(() => _loading = false);
+    }
+
+    for (var i = 0; i < _toUpload.length; i++) {
+      final img = _toUpload[i];
+      final body = {
         "action": "upload_response_image",
         "woTaskId": widget.woTaskId,
-        "uploadType": "${i+2}",               // e.g. 2=before, 3=during, 4=after
-        "longitude": item.longitude,          // you’ll need to capture this if required
-        "latitude":  item.latitude,           // same here
-        "fileUpload[name]":     item.name,
-        "fileUpload[filename]": item.name,
-        "fileUpload[size]":     item.size,
-        "fileUpload[type]":     "data:image/jpeg;base64",
-        "fileUpload[data]":     item.data,
-        // if your API expects a description field:
-        "fileUpload[description]": item.description,
+        // you may adjust uploadType logic if needed:
+        "uploadType": "${i+2}",
+        "longitude": lng,
+        "latitude": lat,
+        "fileUpload[name]": img.name,
+        "fileUpload[filename]": img.name,
+        "fileUpload[size]": img.size,
+        "fileUpload[type]": "data:image/jpeg;base64",
+        "fileUpload[data]": img.data,
+        "fileUpload[description]": img.description,
       };
 
       try {
-        final resp = await provider.post(url: provider.fetchURL, body: body);
-        // you could check resp or show a per‐item Toast here
+        await provider.post(url: provider.fetchURL, body: body);
       } catch (e) {
-        Toast.show("Upload failed for image #${i+1}");
+        Toast.show("Failed to upload image #${i+1}");
       }
     }
 
-    // on success:
-    Toast.show("All images uploaded!");
-    setState(() {
-      _items.clear();
-      _loading = false;
-    });
+    Toast.show("Done!");
+    _toUpload.clear();
+    await _loadExisting();
   }
 }
 
-/// small model to hold each image’s data
-class _ResponseImageItem {
-  final File file;
-  final String name, data, size;
-  String description = "";
-  String latitude = "", longitude = "";
+/// model for existing images
+class ResponseImage {
+  final String woTaskUploadId;
+  final String documentFilename;
+  final String documentDesc;
+  final String documentSrc;
 
-  _ResponseImageItem({
+  ResponseImage({
+    required this.woTaskUploadId,
+    required this.documentFilename,
+    required this.documentDesc,
+    required this.documentSrc,
+  });
+
+  factory ResponseImage.fromJson(Map<String, dynamic> json) {
+    return ResponseImage(
+      woTaskUploadId: json['woTaskUploadId'],
+      documentFilename: json['documentFilename'],
+      documentDesc: json['documentDesc'],
+      documentSrc: json['documentSrc'],
+    );
+  }
+}
+
+/// model for new, local picks
+class _LocalImage {
+  final File file;
+  final String name;
+  final String data;
+  final String size;
+  String description = "";
+  String latitude = "";
+  String longitude = "";
+
+  _LocalImage({
     required this.file,
     required this.name,
     required this.data,
