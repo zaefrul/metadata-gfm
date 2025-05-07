@@ -51,19 +51,39 @@ class _ComplaintSectionResponseImageState
   /// Fetch the already-uploaded images
   Future<void> _loadExisting() async {
     setState(() => _loading = true);
+
     final url =
-        "/api/m_wo.php?type=wo_response_images&woTaskId=${widget.woTaskId}";
+      "/api/m_wo.php?type=wo_response_images&woTaskId=${widget.woTaskId}";
     final provider = Provider(fetchURL: url)..context = context;
+
     try {
-      final json = await provider.getJson(url: url);
-      if (json['success'] == true) {
-        final List list = json['result'] as List;
-        _existing = list
-            .map((m) => ResponseImage.fromJson(m as Map<String, dynamic>))
-            .toList();
+      final raw = await provider.getJson(url: url);
+
+      // 1) Figure out where our List of items actually lives
+      List<dynamic> listData;
+      if (raw is List) {
+        // provider jumped straight to the array
+        listData = raw;
+      } else if (raw is String) {
+        // we got a JSON string → decode to Map
+        final decoded = jsonDecode(raw) as Map<String, dynamic>;
+        listData = decoded['result'] as List<dynamic>? ?? [];
+      } else if (raw is Map) {
+        // we already have a Map
+        listData = raw['result'] as List<dynamic>? ?? [];
+      } else {
+        throw Exception("Unexpected response type: ${raw.runtimeType}");
       }
-    } catch (e) {
-      Toast.show("Failed to load existing images");
+
+      // 2) Map into your model
+      _existing = listData
+        .map((e) => ResponseImage.fromJson(Map<String, dynamic>.from(e as Map)))
+        .toList();
+
+    } catch (e, st) {
+      debugPrint("❌ _loadExisting failed: $e\n$st");
+      Toast.show("Failed to load response images");
+      _existing = [];
     } finally {
       setState(() => _loading = false);
     }
@@ -103,11 +123,13 @@ class _ComplaintSectionResponseImageState
   }
 
   Widget _buildBody() {
+    final totalImages = _existing.length + _toUpload.length;
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          // 1) Existing
+          // 1) Existing Images
           if (_existing.isNotEmpty) ...[
             Text("Already uploaded",
                 style: TextStyle(fontWeight: FontWeight.bold)),
@@ -122,34 +144,36 @@ class _ComplaintSectionResponseImageState
             Divider(),
           ],
 
-          // 2) To‐upload
-          ListTile(
-            title: Text("Add up to 3 new images",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text("(Each ≤ 5 MB)"),
-            trailing: MaterialButton(
-              shape: CircleBorder(),
-              color: _toUpload.length == 3
-                  ? colorTheme2.withOpacity(0.5)
-                  : colorTheme2,
-              child: Text("+",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold)),
-              onPressed: widget.disable || _toUpload.length == 3
-                  ? null
-                  : _pickLocalImage,
+          // 2) To‐upload Section (only show if less than 3 images total)
+          if (totalImages < 3) ...[
+            ListTile(
+              title: Text("Add up to 3 new images",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text("(Each ≤ 5 MB)"),
+              trailing: MaterialButton(
+                shape: CircleBorder(),
+                color: _toUpload.length == 3
+                    ? colorTheme2.withOpacity(0.5)
+                    : colorTheme2,
+                child: Text("+",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold)),
+                onPressed: widget.disable || _toUpload.length == 3
+                    ? null
+                    : _pickLocalImage,
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: ListView.separated(
-              itemCount: _toUpload.length,
-              separatorBuilder: (_, __) => const Divider(),
-              itemBuilder: (_, i) => _buildLocalCard(_toUpload[i], i),
+            const SizedBox(height: 8),
+            Expanded(
+              child: ListView.separated(
+                itemCount: _toUpload.length,
+                separatorBuilder: (_, __) => const Divider(),
+                itemBuilder: (_, i) => _buildLocalCard(_toUpload[i], i),
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
