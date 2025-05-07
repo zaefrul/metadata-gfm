@@ -110,6 +110,7 @@ class MainBloc {
 
     try {
       final result = await _provider.fetch(url, id);
+      debugPrint("Result Section: $result");
       sections = result;
       _provider.fetchExecution(id).then((value) {
         execution = value;
@@ -163,20 +164,26 @@ class MainBloc {
           _status == "Revisit" ||
           _status == "WR Reassign") {
         object = ComplaintAssign(id: _id, viewer: viewOnly ? true : (checkpoint == 1));
-      } else if (_status == "Rejected" ||
+      } else if (_status == "WR Check" ||
+          _status == "Rejected" ||
+          _status == "WR Verified" ||
+          _status == "WR Re-Open") {
+        object = ComplaintSectionResponseImage(woTaskId: _id, disable: viewOnly);
+      } else {
+        object = ComplaintAssign(id: _id, viewer: true);
+      }
+    } else if (named == "C") {
+      if(_status == "Rejected" ||
           _status == "WR Verified" ||
           _status == "WR Re-Open") {
         object = ComplaintSectionE(order.comment ?? "", named);
       } else {
-        // object = ComplaintAssign(id: _id, viewer: true);
-        object = ComplaintSectionResponseImage(woTaskId: _id, disable: viewOnly);
+        object = ComplaintSectionB(
+          id: _id,
+          viewer: viewOnly ? true : (checkpoint == 1),
+          name: named,
+        );
       }
-    } else if (named == "C") {
-      object = ComplaintSectionB(
-        id: _id,
-        viewer: viewOnly ? true : (checkpoint == 1),
-        name: named,
-      );
     } else if (named == "D") {
       debugPrint("Checkpoint: $checkpoint");
       debugPrint("View Only: $viewOnly");

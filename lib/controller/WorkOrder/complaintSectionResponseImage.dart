@@ -93,8 +93,7 @@ class _ComplaintSectionResponseImageState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Response Images",
-            style: TextStyle(color: AppColors.primaryDark)),
+        title: Text("B. Response Images"),
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: AppColors.primaryDark),
         centerTitle: true,
