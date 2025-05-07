@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:gfm_gems/controller/WorkOrder/complaintSectionResponseImage.dart';
 import 'package:gfm_gems/controller/WorkOrder/repository/provider.dart';
 import 'package:gfm_gems/model/execution.dart';
 import 'package:gfm_gems/model/workorder.dart';
@@ -167,7 +168,8 @@ class MainBloc {
           _status == "WR Re-Open") {
         object = ComplaintSectionE(order.comment ?? "", named);
       } else {
-        object = ComplaintAssign(id: _id, viewer: true);
+        // object = ComplaintAssign(id: _id, viewer: true);
+        object = ComplaintSectionResponseImage(woTaskId: _id, disable: viewOnly);
       }
     } else if (named == "C") {
       object = ComplaintSectionB(

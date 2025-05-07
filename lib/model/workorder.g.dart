@@ -337,6 +337,9 @@ class _$WorkOrderDetailSerializer
       'woTaskEmail',
       serializers.serialize(object.woTaskEmail,
           specifiedType: const FullType(String)),
+      'zoneName',
+      serializers.serialize(object.zoneName,
+          specifiedType: const FullType(String)),
       'complaintImages',
       serializers.serialize(object.complaintImages,
           specifiedType: const FullType(
@@ -416,6 +419,10 @@ class _$WorkOrderDetailSerializer
         case 'assetNo':
           result.assetNo = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
+          break;
+        case 'zoneName':
+          result.zoneName = serializers.deserialize(value,
+              specifiedType: const FullType(String))! as String;
           break;
         case 'complaintImages':
           result.complaintImages.replace(serializers.deserialize(value,
@@ -1344,6 +1351,8 @@ class _$WorkOrderDetail extends WorkOrderDetail {
   @override
   final String? assetNo;
   @override
+  final String zoneName;
+  @override
   final BuiltList<ComplaintImage> complaintImages;
 
   factory _$WorkOrderDetail([void Function(WorkOrderDetailBuilder)? updates]) =>
@@ -1363,6 +1372,7 @@ class _$WorkOrderDetail extends WorkOrderDetail {
       required this.woTaskPhoneNo,
       required this.woTaskEmail,
       this.assetNo,
+      required this.zoneName,
       required this.complaintImages})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
@@ -1389,6 +1399,8 @@ class _$WorkOrderDetail extends WorkOrderDetail {
         woTaskPhoneNo, r'WorkOrderDetail', 'woTaskPhoneNo');
     BuiltValueNullFieldError.checkNotNull(
         woTaskEmail, r'WorkOrderDetail', 'woTaskEmail');
+    BuiltValueNullFieldError.checkNotNull(
+        zoneName, r'WorkOrderDetail', 'zoneName');
     BuiltValueNullFieldError.checkNotNull(
         complaintImages, r'WorkOrderDetail', 'complaintImages');
   }
@@ -1418,6 +1430,7 @@ class _$WorkOrderDetail extends WorkOrderDetail {
         woTaskPhoneNo == other.woTaskPhoneNo &&
         woTaskEmail == other.woTaskEmail &&
         assetNo == other.assetNo &&
+        zoneName == other.zoneName &&
         complaintImages == other.complaintImages;
   }
 
@@ -1437,6 +1450,7 @@ class _$WorkOrderDetail extends WorkOrderDetail {
     _$hash = $jc(_$hash, woTaskPhoneNo.hashCode);
     _$hash = $jc(_$hash, woTaskEmail.hashCode);
     _$hash = $jc(_$hash, assetNo.hashCode);
+    _$hash = $jc(_$hash, zoneName.hashCode);
     _$hash = $jc(_$hash, complaintImages.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
@@ -1458,6 +1472,7 @@ class _$WorkOrderDetail extends WorkOrderDetail {
           ..add('woTaskPhoneNo', woTaskPhoneNo)
           ..add('woTaskEmail', woTaskEmail)
           ..add('assetNo', assetNo)
+          ..add('zoneName', zoneName)
           ..add('complaintImages', complaintImages))
         .toString();
   }
@@ -1526,6 +1541,10 @@ class WorkOrderDetailBuilder
   String? get assetNo => _$this._assetNo;
   set assetNo(String? assetNo) => _$this._assetNo = assetNo;
 
+  String? _zoneName;
+  String? get zoneName => _$this._zoneName;
+  set zoneName(String? zoneName) => _$this._zoneName = zoneName;
+
   ListBuilder<ComplaintImage>? _complaintImages;
   ListBuilder<ComplaintImage> get complaintImages =>
       _$this._complaintImages ??= new ListBuilder<ComplaintImage>();
@@ -1550,6 +1569,7 @@ class WorkOrderDetailBuilder
       _woTaskPhoneNo = $v.woTaskPhoneNo;
       _woTaskEmail = $v.woTaskEmail;
       _assetNo = $v.assetNo;
+      _zoneName = $v.zoneName;
       _complaintImages = $v.complaintImages.toBuilder();
       _$v = null;
     }
@@ -1600,6 +1620,8 @@ class WorkOrderDetailBuilder
             woTaskEmail: BuiltValueNullFieldError.checkNotNull(
                 woTaskEmail, r'WorkOrderDetail', 'woTaskEmail'),
             assetNo: assetNo,
+            zoneName: BuiltValueNullFieldError.checkNotNull(
+                zoneName, r'WorkOrderDetail', 'zoneName'),
             complaintImages: complaintImages.build(),
           );
     } catch (_) {

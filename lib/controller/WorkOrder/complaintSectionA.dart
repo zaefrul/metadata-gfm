@@ -304,7 +304,7 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
     _FieldRow(Icons.calendar_today,       "Reported Date/Time", d.woTaskTimeResponded),
     _FieldRow(Icons.category,             "Category",           d.woTaskCategory),
     _FieldRow(Icons.business,             "Client",             d.woTaskClient),
-    _FieldRow(Icons.place,                "Location",           d.woTaskLocation),
+    _FieldRow(Icons.place,                "Location",           d.zoneName),
     _FieldRow(Icons.description,         "Description",        d.woTaskComplaint),
   ];
 

@@ -81,6 +81,7 @@ abstract class WorkOrderDetail
   String get woTaskPhoneNo;
   String get woTaskEmail;
   String? get assetNo;
+  String get zoneName;
   BuiltList<ComplaintImage> get complaintImages;
 
   WorkOrderDetail._();

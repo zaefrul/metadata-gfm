@@ -113,16 +113,29 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
     );
   }
 
-  Widget _imageBlock(int index, List<TechnicianImageRepair> list) {
+  Widget _imageBlock(int idx, List<TechnicianImageRepair> list) {
+    // old: always 3 slots for index==1, otherwise just 1 slot
+    final maxSlots = (idx == 1 ? 3 : 1);
+    List<Widget> cards = [];
+
+    for (var slot = 0; slot < maxSlots; slot++) {
+      if (slot < list.length) {
+        cards.add(_sectionCard(list[slot]));
+      } else {
+        cards.add(_emptyCard(idx));
+      }
+      cards.add(const SizedBox(height: 12));
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(_sectionNames[index], style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+        Text(
+          _sectionNames[idx],
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
         const SizedBox(height: 8),
-        if (list.isEmpty)
-          _emptyCard(index)
-        else
-          ...list.map((img) => _sectionCard(img)).toList(),
+        ...cards,
         const SizedBox(height: 24),
       ],
     );
