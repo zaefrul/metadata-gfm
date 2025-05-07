@@ -16,17 +16,14 @@ import 'package:path/path.dart' show basename;
 import 'package:toast/toast.dart';
 
 class ComplaintSectionResponseImage extends StatefulWidget {
-  /// The work-order task ID to send to your API
   final String woTaskId;
-
-  /// If true, disables all UI (e.g. after submit or in read-only mode)
   final bool disable;
 
   const ComplaintSectionResponseImage({
-    super.key,
+    Key? key,
     required this.woTaskId,
     this.disable = false,
-  });
+  }) : super(key: key);
 
   @override
   _ComplaintSectionResponseImageState createState() =>
@@ -48,10 +45,7 @@ class _ComplaintSectionResponseImageState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          "Response Images",
-          style: TextStyle(color: AppColors.primaryDark),
-        ),
+        title: Text("Response Images", style: TextStyle(color: AppColors.primaryDark)),
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: AppColors.primaryDark),
         centerTitle: true,
@@ -70,15 +64,10 @@ class _ComplaintSectionResponseImageState
           ? null
           : FloatingActionButton.extended(
               backgroundColor: colorTheme2,
-              label: Text(
-                "Submit",
-                style: TextStyle(color: Colors.white),
-              ),
-              onPressed:
-                  _items.isEmpty || _loading ? null : () => _confirmAndSubmit(),
+              label: Text("Submit", style: TextStyle(color: Colors.white)),
+              onPressed: _items.isEmpty || _loading ? null : _confirmAndSubmit,
             ),
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -88,23 +77,19 @@ class _ComplaintSectionResponseImageState
       child: Column(
         children: [
           ListTile(
-            title: Text(
-              "Add up to 3 images with descriptions",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            title: Text("Add up to 3 images with descriptions",
+                style: TextStyle(fontWeight: FontWeight.bold)),
             subtitle: Text("(Each file ≤ 5 MB)"),
             trailing: MaterialButton(
               shape: CircleBorder(),
               color: _items.length == 3
                   ? colorTheme2.withOpacity(0.5)
                   : colorTheme2,
-              child: Text(
-                "+",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold),
-              ),
+              child: Text("+",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold)),
               onPressed:
                   widget.disable || _items.length == 3 ? null : _pickImage,
             ),
@@ -124,54 +109,38 @@ class _ComplaintSectionResponseImageState
 
   Widget _buildCard(_ResponseImageItem item, int index) {
     return Card(
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: Column(
+        child: Row(
           children: [
-            Row(
-              children: [
-                // thumbnail
-                GestureDetector(
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => ImageViewer(file: item.file),
-                    ),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.file(
-                      item.file,
-                      width: 64,
-                      height: 64,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextField(
-                    enabled: !widget.disable,
-                    decoration: InputDecoration(
-                      hintText: "Description (optional)",
-                      isDense: true,
-                      contentPadding: EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 12),
-                    ),
-                    onChanged: (v) => item.description = v,
-                  ),
-                ),
-                if (!widget.disable)
-                  IconButton(
-                    icon: Icon(Icons.delete, color: Colors.red),
-                    onPressed: () {
-                      setState(() => _items.removeAt(index));
-                    },
-                  ),
-              ],
+            GestureDetector(
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => ImageViewer(file: item.file)),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.file(item.file, width: 64, height: 64, fit: BoxFit.cover),
+              ),
             ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: TextField(
+                enabled: !widget.disable,
+                decoration: InputDecoration(
+                  hintText: "Description (optional)",
+                  isDense: true,
+                  contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                ),
+                onChanged: (v) => item.description = v,
+              ),
+            ),
+            if (!widget.disable)
+              IconButton(
+                icon: Icon(Icons.delete, color: Colors.red),
+                onPressed: () => setState(() => _items.removeAt(index)),
+              ),
           ],
         ),
       ),
@@ -179,8 +148,7 @@ class _ComplaintSectionResponseImageState
   }
 
   Future<void> _pickImage() async {
-    final picked =
-        await ImagePicker().pickImage(source: ImageSource.camera);
+    final picked = await ImagePicker().pickImage(source: ImageSource.camera);
     if (picked == null) return;
 
     setState(() => _loading = true);
@@ -198,14 +166,11 @@ class _ComplaintSectionResponseImageState
       return setState(() => _loading = false);
     }
 
-    final base64Data = base64Encode(bytes);
-    final name = basename(picked.path);
-
     setState(() {
       _items.add(_ResponseImageItem(
         file: file,
-        name: name,
-        data: base64Data,
+        name: basename(picked.path),
+        data: base64Encode(bytes),
         size: bytes.length.toString(),
       ));
       _loading = false;
@@ -214,7 +179,7 @@ class _ComplaintSectionResponseImageState
 
   void _confirmAndSubmit() {
     showDialog(
-      context: navigatorKey.currentContext!,
+      context: context,
       builder: (_) => CustomDialog(
         cancel: true,
         description: "Submit these ${_items.length} image(s)?",
@@ -222,60 +187,56 @@ class _ComplaintSectionResponseImageState
         image: Image.asset("assets/icon_trans.png", height: 40),
         okayTapped: () {
           Navigator.pop(context);
-          _submit();
+          _submitAll();
         },
       ),
     );
   }
 
-  Future<void> _submit() async {
+  Future<void> _submitAll() async {
     setState(() => _loading = true);
 
-    final body = <String, dynamic>{
-      "action": "submit_response_images",
-      "woTaskId": widget.woTaskId,
-    };
-
+    final provider = Provider(fetchURL: "/api/m_wo.php")..context = context;
     for (var i = 0; i < _items.length; i++) {
-      body.addAll(_items[i].toBody(i));
+      final item = _items[i];
+      final body = <String,String>{
+        "action": "upload_response_image",
+        "woTaskId": widget.woTaskId,
+        "uploadType": "${i+2}",               // e.g. 2=before, 3=during, 4=after
+        "longitude": item.longitude,          // you’ll need to capture this if required
+        "latitude":  item.latitude,           // same here
+        "fileUpload[name]":     item.name,
+        "fileUpload[filename]": item.name,
+        "fileUpload[size]":     item.size,
+        "fileUpload[type]":     "data:image/jpeg;base64",
+        "fileUpload[data]":     item.data,
+        // if your API expects a description field:
+        "fileUpload[description]": item.description,
+      };
+
+      try {
+        final resp = await provider.post(url: provider.fetchURL, body: body);
+        // you could check resp or show a per‐item Toast here
+      } catch (e) {
+        Toast.show("Upload failed for image #${i+1}");
+      }
     }
 
-    final provider = Provider(fetchURL: "/api/m_wo.php")
-      ..context = navigatorKey.currentContext!;
-    try {
-      final resp = await provider.post(
-        url: "/api/m_wo.php",
-        body: body,
-      );
-      _alert(resp);
-      setState(() => _items.clear());
-    } catch (e) {
-      _alert(e.toString());
-    } finally {
-      setState(() => _loading = false);
-    }
-  }
-
-  void _alert(String msg) {
-    showDialog(
-      context: navigatorKey.currentContext!,
-      builder: (_) => CustomDialog(
-        rootPage: "/workorder",
-        description: msg,
-        buttonText: "Okay",
-        image: Image.asset("assets/icon_trans.png", height: 40),
-      ),
-    );
+    // on success:
+    Toast.show("All images uploaded!");
+    setState(() {
+      _items.clear();
+      _loading = false;
+    });
   }
 }
 
-/// Internal model for each response-image slot
+/// small model to hold each image’s data
 class _ResponseImageItem {
   final File file;
-  final String name;
-  final String data;
-  final String size;
+  final String name, data, size;
   String description = "";
+  String latitude = "", longitude = "";
 
   _ResponseImageItem({
     required this.file,
@@ -283,16 +244,4 @@ class _ResponseImageItem {
     required this.data,
     required this.size,
   });
-
-  /// Construct the API body fields for this image at [index]
-  Map<String, String> toBody(int index) {
-    return {
-      "responseImages[$index][name]": name,
-      "responseImages[$index][filename]": name,
-      "responseImages[$index][size]": size,
-      "responseImages[$index][type]": "data:image/jpeg;base64",
-      "responseImages[$index][data]": data,
-      "responseImages[$index][description]": description,
-    };
-  }
 }
