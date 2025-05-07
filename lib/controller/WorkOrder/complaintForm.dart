@@ -14,7 +14,7 @@ import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:dropdown_search/dropdown_search.dart';
 import '../../main.dart';
 
 class FormComplaint extends StatefulWidget {
@@ -23,12 +23,19 @@ class FormComplaint extends StatefulWidget {
 }
 
 class _FormComplaintState extends State<FormComplaint> {
-  String location = "abcdef";
+  String location = "";
   String desc = "";
   bool loading = false;
   List<UploadItem> listItem = [];
-  String? dropdownLocation;
+  LocationAPI? _selectedLocation;
   String? dropdownArea;
+  List<LocationAPI> locations = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _getLocation();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,8 +43,8 @@ class _FormComplaintState extends State<FormComplaint> {
     var body = ListView(
       children: <Widget>[
         SizedBox(height: 12),
-        _locationCode,
-        // _locationDropdown,
+        // _locationCode,
+        _locationDropdown,
         // _areaDropdown,
         _descComplaint,
         _addPhoto,
@@ -108,28 +115,41 @@ class _FormComplaintState extends State<FormComplaint> {
   Widget get _locationDropdown {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: DropdownButton<String>(
-        value: dropdownLocation,
-        iconSize: 24,
-        elevation: 16,
-        hint: Text("Location"),
-        underline: Container(
-          height: 1,
-          color: Colors.grey,
+      child: DropdownSearch<LocationAPI>(
+        // 1) Supply your model list:
+        items: (String filter, LoadProps? loadProps) => locations,
+
+        // 2) Popup with search box:
+        popupProps: PopupProps.menu(
+          showSearchBox: true,
+          searchFieldProps: TextFieldProps(
+            decoration: InputDecoration(
+              labelText: "Search Location",
+              border: UnderlineInputBorder(),
+            ),
+          ),
         ),
-        isExpanded: true,
-        onChanged: (String? newValue) {
-          setState(() {
-            dropdownLocation = newValue;
-          });
+
+        // 3) How each item is rendered as text:
+        itemAsString: (LocationAPI loc) => loc.zoneName,
+
+        compareFn: (LocationAPI a, LocationAPI b) => a.zoneId == b.zoneId,
+
+        // 4) The dropdown’s decoration
+        decoratorProps: DropDownDecoratorProps(
+          decoration: InputDecoration(
+            labelText: "Location",
+            border: UnderlineInputBorder(),
+          ),
+        ),
+
+        // 5) When the user picks one, store the whole object:
+        onChanged: (loc) {
+          setState(() => _selectedLocation = loc);
         },
-        items: <String>['One', 'Two', 'Free', 'Four']
-            .map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          );
-        }).toList(),
+
+        // 6) What’s currently selected:
+        selectedItem: _selectedLocation,
       ),
     );
   }
@@ -247,6 +267,27 @@ class _FormComplaintState extends State<FormComplaint> {
     );
   }
 
+  void _getLocation() async {
+    final String url = '/zone/list';
+    final provider = Provider(fetchURL: url);
+
+    try {
+      var response = await provider.getJson(url: url);
+
+      // Assuming the response is a list of locations
+      List<LocationAPI> locations = (response as List)
+          .map((location) => LocationAPI.fromJson(location))
+          .toList();
+
+      debugPrint("Locations: $locations");
+      setState(() {
+        this.locations = locations;
+      });
+    } catch (e) {
+      debugPrint("Error fetching locations: $e");
+    }
+  }
+
   void _bottomSheet({required String latitude, required String longitude, required File src, required BuildContext context}) {
     Future<void> _openMap() async {
       String googleUrl =
@@ -354,8 +395,12 @@ class _FormComplaintState extends State<FormComplaint> {
     String? latitude;
     String? longitude;
 
-    if (location.isEmpty) {
-      Toast.show("Location at least 8 characters");
+    // if (location.isEmpty) {
+    //   Toast.show("Location at least 8 characters");
+    //   return;
+    // }
+    if (_selectedLocation == null) {
+      Toast.show("Please select a location");
       return;
     }
     if (desc.length <= 8) {
@@ -379,6 +424,7 @@ class _FormComplaintState extends State<FormComplaint> {
         "woTaskComplaint": desc,
         "woTaskLongitude": longitude,
         "woTaskLatitude": latitude,
+        "zoneId": _selectedLocation!.zoneId.toString(),
       };
 
       for (var f in listItem) {
@@ -392,6 +438,7 @@ class _FormComplaintState extends State<FormComplaint> {
 
       try
       {
+        debugPrint("Body: $body");
         var response = await provider.post(url: "/api/m_wo.php", body: body);
         setState(() => loading = false);
         alert(txt: response, err: null);
@@ -454,4 +501,29 @@ class UploadItem {
         "complaintImages[$i][type]": type,
         "complaintImages[$i][data]": data,
       };
+}
+
+class LocationAPI {
+  int zoneId;
+  String zoneName;
+
+  LocationAPI({
+    required this.zoneId,
+    required this.zoneName,
+  });
+
+  factory LocationAPI.fromJson(Map<String, dynamic> json) {
+    return LocationAPI(
+      zoneId: json['zoneId'],
+      zoneName: json['zoneName'],
+    );
+  }
+
+  // compare
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is LocationAPI && other.zoneId == zoneId;
+  }
 }
