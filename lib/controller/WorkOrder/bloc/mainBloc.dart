@@ -60,6 +60,7 @@ class MainBloc {
   Stream<bool> get enable$ => _enableSubmit.stream;
   Stream<bool> get loading$ => _loading.stream;
   Stream<ExecutionModel> get execution$ => _execution.stream;
+  String get id => _id;
 
   // -- SETTERS
   set sections(List<WorkOrderStatus> values) => _sections.sink.add(values);

@@ -3,6 +3,7 @@ import 'package:gfm_gems/controller/WorkOrder/bloc/mainBloc.dart';
 import 'package:gfm_gems/model/execution.dart';
 import 'package:gfm_gems/model/user.dart';
 import 'package:gfm_gems/model/workorder.dart';
+import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/dialog.dart';
 import 'package:toast/toast.dart';
@@ -550,7 +551,23 @@ class _BuildStandardButton extends StatelessWidget {
               // if enabled → open the form; otherwise toast
               debugPrint("snapshot : ${snapshot.data.toString()}");
               if (snapshot.data == true || mainStatus == "WR Verified" || mainStatus == "WR Re-Open") {
-                bloc.openComplaint(context, viewOnly: viewOnly);
+                if (mainStatus == "WR Check") {
+                  var body = {
+                    "action": "wo_check",
+                    "woTaskId": bloc.id,
+                  };
+
+                  final provider = Provider(fetchURL: "/api/m_wo.php");
+
+                  provider.post(url: "/api/m_wo.php", body: body).then((resp) {
+                    Toast.show(resp.toString(), backgroundColor: AppColors.success);
+                  }).catchError((err) {
+                    Toast.show(err.toString(), backgroundColor: AppColors.danger);
+                  });
+                }
+                else {
+                  bloc.openComplaint(context, viewOnly: viewOnly);
+                }
               } else {
                 Toast.show(
                   "All sections must be completed before submit",

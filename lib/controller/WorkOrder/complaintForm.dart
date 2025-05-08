@@ -1,21 +1,19 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
+import 'package:dropdown_search/dropdown_search.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:gfm_gems/utils/image_compressor.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:gfm_gems/controller/PPM/Form/openImage.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/dialog.dart';
-import 'package:path/path.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:path/path.dart' show basename;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:dropdown_search/dropdown_search.dart';
-import '../../main.dart';
 
 class FormComplaint extends StatefulWidget {
   @override
@@ -23,507 +21,573 @@ class FormComplaint extends StatefulWidget {
 }
 
 class _FormComplaintState extends State<FormComplaint> {
-  String location = "";
-  String desc = "";
+  Map<String, List<LocationAPI>> _locationsByType = {};
+  List<String> _zoneTypes = [];
+  String? _selectedZoneType;
+  List<LocationAPI> _filteredZones = [];
+
+  LocationAPI? _selectedLocation;
+  String desc = '';
   bool loading = false;
   List<UploadItem> listItem = [];
-  LocationAPI? _selectedLocation;
-  String? dropdownArea;
-  List<LocationAPI> locations = [];
 
   @override
   void initState() {
     super.initState();
-    _getLocation();
+    ToastContext().init(context);
+    _fetchZones();
+  }
+
+  Future<void> _fetchZones() async {
+    try {
+      final provider = Provider(fetchURL: '/zone/list')..context = context;
+      final raw = await provider.getJson(url: '/zone/list');
+      final result = raw as Map<String, dynamic>;
+
+      _locationsByType = {
+        for (var entry in result.entries)
+          entry.key: (entry.value as List)
+              .map((e) => LocationAPI.fromJson(e))
+              .toList()
+      };
+      _zoneTypes = _locationsByType.keys.toList();
+      if (_zoneTypes.isNotEmpty) {
+        _selectedZoneType = _zoneTypes.first;
+        _filteredZones = _locationsByType[_selectedZoneType!]!;
+      }
+      setState(() {});
+    } catch (e) {
+      debugPrint('Error fetching zones: \$e');
+    }
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
-    ToastContext().init(context);
-    var body = ListView(
-      children: <Widget>[
-        SizedBox(height: 12),
-        // _locationCode,
-        _locationDropdown,
-        // _areaDropdown,
-        _descComplaint,
-        _addPhoto,
-        listItem.length >= 1 ? _section(listItem[0], context) : Container(),
-        listItem.length >= 2 ? _section(listItem[1], context) : Container(),
-        listItem.length >= 3 ? _section(listItem[2], context) : Container(),
-      ],
-    );
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            "Add Complaint",
-            style: TextStyle(color: colorTheme3),
-          ),
-          centerTitle: true,
-          backgroundColor: Colors.white,
-        ),
-        body: loading
-            ? Stack(
-                children: <Widget>[
-                  body,
-                  Container(
-                    height: double.infinity,
-                    width: double.infinity,
-                    color: Colors.black.withOpacity(0.4),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                ],
-              )
-            : body,
-        floatingActionButton: FloatingActionButton.extended(
-            label: Text("Submit"),
-            backgroundColor: colorTheme2,
-            onPressed: () {
-              showDialog(
-                  context: navigatorKey.currentContext!,
-                  builder: (context) => CustomDialog(
-                        cancel: true,
-                        description: "Do you confirm want to submit?",
-                        buttonText: "Yes",
-                        image: Image.asset(
-                          "assets/icon_trans.png",
-                          height: 40,
-                        ),
-                        okayTapped: () {
-                          // Navigator.pop(context);
-                          _upload(context);
-                        },
-                      ));
-            }),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      ),
-    );
-  }
-
-  Widget get _locationCode {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: TextField(
-        decoration: InputDecoration(labelText: "* Location"),
-        onChanged: ((text) => location = text),
-      ),
-    );
-  }
-
-  Widget get _locationDropdown {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: DropdownSearch<LocationAPI>(
-        // 1) Supply your model list:
-        items: (String filter, LoadProps? loadProps) => locations,
-
-        // 2) Popup with search box:
-        popupProps: PopupProps.menu(
-          showSearchBox: true,
-          searchFieldProps: TextFieldProps(
-            decoration: InputDecoration(
-              labelText: "Search Location",
-              border: UnderlineInputBorder(),
-            ),
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        title: Text(
+          'New Complaint',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
           ),
         ),
-
-        // 3) How each item is rendered as text:
-        itemAsString: (LocationAPI loc) => loc.zoneName,
-
-        compareFn: (LocationAPI a, LocationAPI b) => a.zoneId == b.zoneId,
-
-        // 4) The dropdown’s decoration
-        decoratorProps: DropDownDecoratorProps(
-          decoration: InputDecoration(
-            labelText: "Location",
-            border: UnderlineInputBorder(),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Colors.black87),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.help_outline, size: 22),
+            onPressed: () {},
           ),
-        ),
-
-        // 5) When the user picks one, store the whole object:
-        onChanged: (loc) {
-          setState(() => _selectedLocation = loc);
-        },
-
-        // 6) What’s currently selected:
-        selectedItem: _selectedLocation,
+        ],
       ),
-    );
-  }
-
-  Widget get _areaDropdown {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: DropdownButton<String>(
-        value: dropdownArea,
-        iconSize: 24,
-        elevation: 16,
-        hint: Text("Location Code"),
-        underline: Container(
-          height: 1,
-          color: Colors.grey,
-        ),
-        isExpanded: true,
-        onChanged: (String? newValue) {
-          setState(() {
-            dropdownArea = newValue;
-          });
-        },
-        items: <String>['One', 'Two', 'Free', 'Four']
-            .map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget get _descComplaint {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: TextField(
-        decoration:
-            InputDecoration(labelText: "* Description of Complaint"),
-        keyboardType: TextInputType.multiline,
-        maxLength: 1000,
-        maxLines: null,
-        onChanged: (value) => desc = value,
-      ),
-    );
-  }
-
-  Widget get _addPhoto {
-    var title = Padding(
-        padding: EdgeInsets.symmetric(vertical: 6),
-        child: Text(
-          "Photo",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ));
-    var subtitle = Text(
-        "(Maximum of 3 images, Individual file should not larger than 5mb)");
-    var plustext = Text(
-      "+",
-      style: TextStyle(
-          color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24),
-    );
-    var plus = MaterialButton(
-      shape: CircleBorder(),
-      height: 25,
-      child: plustext,
-      color: listItem.length == 3
-          ? colorTheme2.withOpacity(0.5)
-          : colorTheme2,
-      onPressed: listItem.length == 3 ? null : () => _createUploadItem(),
-    );
-
-    return ListTile(
-      title: title,
-      subtitle: subtitle,
-      trailing: plus,
-    );
-  }
-
-  Widget _section(UploadItem item, BuildContext context) {
-    var iconButton = IconButton(
-      icon: Icon(Icons.delete),
-      color: Colors.red,
-      onPressed: () =>
-          setState(() => listItem.removeWhere((value) => value == item)),
-    );
-
-    var _latitude = item.latitude;
-    var _longitude = item.longitude;
-    var date = item.date;
-    var src = item.file;
-
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(children: <Widget>[
-        ListTile(
-            contentPadding: EdgeInsets.only(top: 6.0),
-            leading: Image.file(src),
-            trailing: iconButton,
-            title: Column(
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: EdgeInsets.all(20),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(date),
-                Text(_latitude + ", " + _longitude)
+              children: [
+                Text(
+                  'Report an Issue',
+                  style: GoogleFonts.poppins(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Please provide details about the problem you encountered',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                SizedBox(height: 24),
+                
+                // Zone & Location Section
+                _buildSection(
+                  title: 'Location Details',
+                  icon: Icons.location_on_outlined,
+                  child: Column(
+                    children: [
+                      _buildDropdown<String>(
+                        label: 'Zone Type',
+                        items: _zoneTypes,
+                        selected: _selectedZoneType,
+                        onChanged: (t) {
+                          setState(() {
+                            _selectedZoneType = t;
+                            _filteredZones = _locationsByType[t] ?? [];
+                            _selectedLocation = null;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 16),
+                      _buildDropdown<LocationAPI>(
+                        label: 'Specific Location',
+                        items: _filteredZones,
+                        itemAsString: (loc) => '${loc.zoneCode} — ${loc.zoneName}',
+                        selected: _selectedLocation,
+                        onChanged: (loc) => setState(() => _selectedLocation = loc),
+                        showSearchBox: true,
+                        hint: 'Search for a location...',
+                      ),
+                    ],
+                  ),
+                ),
+                
+                SizedBox(height: 20),
+                
+                // Complaint Details
+                _buildSection(
+                  title: 'Problem Description',
+                  icon: Icons.description_outlined,
+                  child: Column(
+                    children: [
+                      TextField(
+                        decoration: InputDecoration(
+                          labelText: 'Describe the issue',
+                          hintText: 'Provide detailed information about the problem',
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey[300]!),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey[300]!),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                        ),
+                        maxLines: 5,
+                        style: GoogleFonts.poppins(fontSize: 14),
+                        onChanged: (v) => desc = v,
+                      ),
+                      SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Minimum 8 characters required',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                SizedBox(height: 20),
+                
+                // Photos Section
+                _buildSection(
+                  title: 'Attach Photos',
+                  icon: Icons.photo_camera_outlined,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Add visual evidence (max 3)',
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      if (listItem.isEmpty)
+                        _buildEmptyPhotoState(),
+                      ...listItem.map((item) => _photoCard(item)),
+                      SizedBox(height: 12),
+                      if (listItem.length < 3)
+                        _buildAddPhotoButton(),
+                    ],
+                  ),
+                ),
+                
+                SizedBox(height: 40),
+
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: FloatingActionButton.extended(
+                      onPressed: _submitComplaint,
+                      backgroundColor: AppColors.primary,
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      label: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Text(
+                          'SUBMIT COMPLAINT',
+                          style: GoogleFonts.poppins(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 40),
+
               ],
             ),
-            onTap: () async => _bottomSheet(
-                latitude: _latitude, longitude: _longitude, src: src, context: navigatorKey.currentContext!)),
-        TextField(
-          decoration: InputDecoration(hintText: "Remark"),
-          onChanged: (text) {
-            item.desc = text;
-          },
-        )
-      ]),
+          ),
+          
+          if (loading)
+            Container(
+              color: Colors.black54,
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Submitting...',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
-  void _getLocation() async {
-    final String url = '/zone/list';
-    final provider = Provider(fetchURL: url);
-
-    try {
-      var response = await provider.getJson(url: url);
-
-      // Assuming the response is a list of locations
-      List<LocationAPI> locations = (response as List)
-          .map((location) => LocationAPI.fromJson(location))
-          .toList();
-
-      debugPrint("Locations: $locations");
-      setState(() {
-        this.locations = locations;
-      });
-    } catch (e) {
-      debugPrint("Error fetching locations: $e");
-    }
-  }
-
-  void _bottomSheet({required String latitude, required String longitude, required File src, required BuildContext context}) {
-    Future<void> _openMap() async {
-      String googleUrl =
-          'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
-      String appleUrl = 'https://maps.apple.com/?sll=$latitude,$longitude';
-
-      if (await canLaunch(googleUrl))
-        await launch(googleUrl);
-      else if (await canLaunch(appleUrl))
-        await launch(appleUrl);
-      else
-        throw 'Could not launch url';
-    }
-
-    void _openViewer() {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => ImageViewer(file: src)));
-    }
-
-    showModalBottomSheet(
-        context: navigatorKey.currentContext!, // Use the parent context directly
-        builder: (BuildContext bc) => Container(
-              child: Wrap(
-                children: <Widget>[
-                  ListTile(
-                      leading: Icon(Icons.image),
-                      title: Text('View Image'),
-                      onTap: _openViewer),
-                  ListTile(
-                      leading: Icon(Icons.map),
-                      title: Text('Open Map'),
-                      onTap: _openMap),
-                ],
+  Widget _buildSection({
+    required String title,
+    required Widget child,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 20, color: AppColors.primary),
+              SizedBox(width: 8),
+              Text(
+                title,
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ));
+            ],
+          ),
+          SizedBox(height: 16),
+          child,
+        ],
+      ),
+    );
   }
 
-  void _createUploadItem() async {
-    String? latitude;
-    String? longitude;
-
-    Future<File?> getImage() async {
-      var value = await ImagePicker().pickImage(source: ImageSource.camera);
-      if (value != null) {
-        final file = File(value.path);
-        return file;
-      }
-      return null;
-    }
-
-    Future<bool> openLocationSetting() async {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      latitude = prefs.getString(prefsLATITUDE) ?? "0.0";
-      longitude = prefs.getString(prefsLONGITUDE) ?? "0.0";
-
-      if (latitude == "0.0" || longitude == "0.0") return false;
-      return true;
-    }
-
-    String date() => DateFormat('kk:mm:ss EEE d MMM').format(DateTime.now());
-
-    void createObject(File file) async {
-      final bytes = await compressFile(file, settings: {
-        'quality': Platform.isIOS ? 20 : 60,
-        'minWidth': 480,
-        'minHeight': 640,
-      }) ?? Uint8List(0);
-      String size = bytes.length.toString();
-      String base64Image = base64Encode(bytes);
-      String name = "${date()}.jpg";
-
-      if (int.parse(size) > 5000000) {
-        Toast.show("File size more than 5mb, please try again.");
-        return;
-      }
-
-      UploadItem uploadItem = UploadItem(
-          file: file,
-          date: date(),
-          longitude: latitude!,
-          latitude: longitude!,
-          name: name,
-          filename: name,
-          size: size,
-          data: base64Image,
-          desc: "",
-          i: listItem.length);
-
-      setState(() => listItem.add(uploadItem));
-    }
-
-    if (await openLocationSetting()) {
-      File? imageFile = await getImage();
-      if (imageFile != null) {
-        createObject(imageFile);
-      }
-    } else {
-      Toast.show("Please allow permission location for camera");
-    }
+  Widget _buildDropdown<T>({
+    required String label,
+    required List<T> items,
+    required T? selected,
+    required void Function(T?) onChanged,
+    String Function(T)? itemAsString,
+    bool showSearchBox = false,
+    String? hint,
+  }) {
+    return DropdownSearch<T>(
+      items: (String filter, LoadProps? loadProps) => items,
+      selectedItem: selected,
+      popupProps: PopupProps.modalBottomSheet(
+        showSearchBox: showSearchBox,
+        searchFieldProps: TextFieldProps(
+          decoration: InputDecoration(
+            hintText: hint,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          ),
+        ),
+        modalBottomSheetProps: ModalBottomSheetProps(
+          backgroundColor: Colors.grey[50],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+        ),
+      ),
+      itemAsString: itemAsString,
+      compareFn: (T a, T b) => a == b,
+      decoratorProps: DropDownDecoratorProps(
+        decoration: InputDecoration(
+          labelText: label,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey[300]!),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey[300]!),
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        ),
+      ),
+      onChanged: onChanged,
+    );
   }
 
-  void _upload(BuildContext context) async {
-    String? latitude;
-    String? longitude;
+  Widget _buildEmptyPhotoState() {
+    return Center(
+      child: Container(
+        padding: EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.grey[50],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey[200]!, width: 1.5),
+        ),
+        child: Column(
+          children: [
+            Icon(Icons.photo_library_outlined, size: 40, color: Colors.grey[400]),
+            SizedBox(height: 8),
+            Text(
+              'No photos added yet',
+              style: GoogleFonts.poppins(
+                color: Colors.grey[600],
+                fontSize: 14,
+              ),
+            ),
+            SizedBox(height: 4),
+            Text(
+              'Photos help us better understand the issue',
+              style: GoogleFonts.poppins(
+                color: Colors.grey[400],
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-    // if (location.isEmpty) {
-    //   Toast.show("Location at least 8 characters");
-    //   return;
-    // }
+  Widget _buildAddPhotoButton() {
+    return InkWell(
+      onTap: listItem.length >= 3 ? null : _createUploadItem,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppColors.primary.withOpacity(0.3),
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.add, color: AppColors.primary, size: 20),
+            SizedBox(width: 8),
+            Text(
+              'Add Photo',
+              style: GoogleFonts.poppins(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _photoCard(UploadItem item) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(12),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                item.file,
+                width: 60,
+                height: 60,
+                fit: BoxFit.cover,
+              ),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Add remark (optional)',
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                style: GoogleFonts.poppins(fontSize: 14),
+                onChanged: (t) => item.remark = t,
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.delete_outline, color: Colors.red[400]),
+              onPressed: () => setState(() => listItem.remove(item)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _createUploadItem() async {
+    final picked = await ImagePicker().pickImage(source: ImageSource.camera);
+    if (picked == null) return;
+    setState(() => loading = true);
+    final file = File(picked.path);
+    final bytes = await compressFile(file, settings: {
+      'quality': Platform.isIOS ? 20 : 60,
+      'minWidth': 480,
+      'minHeight': 640,
+    }) ?? Uint8List(0);
+    if (bytes.length > 5 * 1024 * 1024) {
+      Toast.show('File > 5 MB');
+      setState(() => loading = false);
+      return;
+    }
+    setState(() {
+      listItem.add(UploadItem(
+        file: file,
+        date: DateFormat('yyyy/MM/dd HH:mm:ss').format(DateTime.now()),
+        name: basename(picked.path),
+        filename: basename(picked.path),
+        size: bytes.length.toString(),
+        data: base64Encode(bytes),
+      ));
+      loading = false;
+    });
+  }
+
+  Future<void> _submitComplaint() async {
     if (_selectedLocation == null) {
-      Toast.show("Please select a location");
+      Toast.show('Please pick a Location');
       return;
     }
-    if (desc.length <= 8) {
-      Toast.show("Description at least 8 characters");
+    if (desc.length < 8) {
+      Toast.show('Description must be ≥ 8 chars');
       return;
     }
-
-    Future<bool> openLocationSetting() async {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      latitude = prefs.getString(prefsLATITUDE) ?? "0.0";
-      longitude = prefs.getString(prefsLONGITUDE) ?? "0.0";
-
-      if (latitude == "0.0" || longitude == "0.0") return false;
-      return true;
+    setState(() => loading = true);
+    final prefs = await SharedPreferences.getInstance();
+    final lat = prefs.getString(prefsLATITUDE);
+    final lng = prefs.getString(prefsLONGITUDE);
+    if (lat == null || lng == null) {
+      Toast.show('Missing GPS coords');
+      setState(() => loading = false);
+      return;
     }
-
-    if (await openLocationSetting()) {
-      Map<String, dynamic> body = {
-        "action": "submit_complain",
-        "woTaskLocation": location,
-        "woTaskComplaint": desc,
-        "woTaskLongitude": longitude,
-        "woTaskLatitude": latitude,
-        "zoneId": _selectedLocation!.zoneId.toString(),
-      };
-
-      for (var f in listItem) {
-        body.addAll(f.body);
-      }
-
-      setState(() => loading = true);
-
-      Provider provider = Provider(fetchURL: "/api/m_wo.php");
-      // provider.context = context;
-
-      try
-      {
-        debugPrint("Body: $body");
-        var response = await provider.post(url: "/api/m_wo.php", body: body);
-        setState(() => loading = false);
-        alert(txt: response, err: null);
-      } catch (e) {
-        setState(() => loading = false);
-        alert(txt: null, err: e.toString());
-      }
-    } else {
-      Toast.show("Please allow permission location for camera");
+    final body = {
+      'action': 'submit_complain',
+      'woTaskLocation': '\$lat,\$lng',
+      'woTaskComplaint': desc,
+      'zoneId': _selectedLocation!.zoneId.toString(),
+    };
+    for (var i = 0; i < listItem.length; i++) {
+      body.addAll(listItem[i].toBody(i));
+    }
+    final prov = Provider(fetchURL: '/api/m_wo.php')..context = context;
+    try {
+      final resp = await prov.post(url: '/api/m_wo.php', body: body);
+      _showResult(resp);
+    } catch (e) {
+      _showResult(e.toString());
+    } finally {
+      setState(() => loading = false);
     }
   }
 
-  void alert({String? txt, String? err}) {
+  void _showResult(String msg) {
     showDialog(
-        context: navigatorKey.currentContext!,
-        builder: (BuildContext context) => CustomDialog(
-            rootPage: err != null ? "" : "/workorder",
-            description: err ?? txt!,
-            buttonText: "Okay",
-            image: Image.asset(
-              "assets/icon_trans.png",
-              height: 40,
-            )));
+      context: context,
+      builder: (_) => CustomDialog(
+        rootPage: '/workorder',
+        description: msg,
+        buttonText: 'Okay',
+        image: Image.asset('assets/icon_trans.png', height: 40),
+      ),
+    );
   }
 }
 
 class UploadItem {
   final File file;
-  final String longitude;
-  final String latitude;
-  String name;
-  final String filename;
-  final String size;
-  final String type = "data:image/jpeg:base64";
-  final String data;
-  final String date;
-  String desc;
-  int i;
-
+  final String date, name, filename, size, data;
+  String remark = '';
   UploadItem({
     required this.file,
     required this.date,
-    required this.longitude,
-    required this.latitude,
     required this.name,
     required this.filename,
-    required this.desc,
     required this.size,
     required this.data,
-    required this.i,
   });
-
-  Map<String, String> get body => {
-        "complaintImages[$i][longitude]": longitude,
-        "complaintImages[$i][latitude]": latitude,
-        "complaintImages[$i][description]": desc,
-        "complaintImages[$i][name]": name,
-        "complaintImages[$i][filename]": filename,
-        "complaintImages[$i][size]": size,
-        "complaintImages[$i][type]": type,
-        "complaintImages[$i][data]": data,
+  Map<String, String> toBody(int idx) => {
+        'complaintImages[\$idx][name]': name,
+        'complaintImages[\$idx][filename]': filename,
+        'complaintImages[\$idx][size]': size,
+        'complaintImages[\$idx][type]': 'data:image/jpeg;base64',
+        'complaintImages[\$idx][data]': data,
+        'complaintImages[\$idx][description]': remark,
       };
 }
 
 class LocationAPI {
-  int zoneId;
-  String zoneName;
-
-  LocationAPI({
-    required this.zoneId,
-    required this.zoneName,
-  });
-
-  factory LocationAPI.fromJson(Map<String, dynamic> json) {
-    return LocationAPI(
-      zoneId: json['zoneId'],
-      zoneName: json['zoneName'],
-    );
-  }
-
-  // compare
+  final int zoneId;
+  final String siteId, zoneCode, zoneType, zoneName;
+  final int zoneStatus;
+  LocationAPI.fromJson(Map<String, dynamic> json)
+      : zoneId = json['zoneId'] as int,
+        siteId = json['siteId'].toString(),
+        zoneCode = json['zoneCode'] as String,
+        zoneType = json['zoneType'] as String,
+        zoneName = json['zoneName'] as String,
+        zoneStatus = json['zoneStatus'] as int;
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is LocationAPI && other.zoneId == zoneId;
-  }
+  String toString() => '\$zoneCode — \$zoneName';
 }
