@@ -15,6 +15,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' show basename;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ComplaintSectionResponseImage extends StatefulWidget {
   final String woTaskId;
@@ -92,95 +93,223 @@ class _ComplaintSectionResponseImageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.bgDefault,
       appBar: AppBar(
-        title: Text("B. Response Images"),
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: AppColors.primaryDark),
+        title: Text(
+          'Response Images',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        backgroundColor: AppColors.bgAppBar,
+        elevation: 1,
         centerTitle: true,
+        iconTheme: IconThemeData(color: AppColors.textPrimary),
       ),
       body: Stack(
         children: [
-          _buildBody(),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: _buildBody(),
+          ),
           if (_loading)
             Container(
-              color: Colors.black38,
+              color: Colors.black.withOpacity(0.3),
               child: Center(child: CircularProgressIndicator()),
             ),
         ],
       ),
       floatingActionButton: widget.disable
           ? null
-          : FloatingActionButton.extended(
-              backgroundColor: colorTheme2,
-              label: Text("Submit", style: TextStyle(color: Colors.white)),
-              onPressed:
-                  _toUpload.isEmpty || _loading ? null : _confirmAndSubmit,
+          : _buildSubmitButton(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SizedBox(
+        width: double.infinity,
+        child: FloatingActionButton.extended(
+          onPressed: _toUpload.isEmpty || _loading ? null : _confirmAndSubmit,
+          backgroundColor: _toUpload.isEmpty 
+              ? AppColors.secondary
+              : AppColors.primary,
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          label: Padding(
+            padding: EdgeInsets.symmetric(vertical: 14),
+            child: Text(
+              'SUBMIT IMAGES',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.onPrimary,
+              ),
             ),
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.centerFloat,
+          ),
+        ),
+      ),
     );
   }
 
   Widget _buildBody() {
     final totalImages = _existing.length + _toUpload.length;
+    final canAddMore = totalImages < 3;
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          // 1) Existing Images
-          if (_existing.isNotEmpty) ...[
-            Text("Already uploaded",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Expanded(
-              child: ListView.separated(
-                itemCount: _existing.length,
-                separatorBuilder: (_, __) => const Divider(),
-                itemBuilder: (_, i) => _buildExistingCard(_existing[i]),
-              ),
-            ),
-            Divider(),
-          ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Upload Response Evidence',
+          style: GoogleFonts.poppins(
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            color: Colors.black87,
+          ),
+        ),
+        SizedBox(height: 8),
+        Text(
+          'Document your work with photos (max 3)',
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            color: Colors.grey[600],
+          ),
+        ),
+        SizedBox(height: 24),
 
-          // 2) To‐upload Section (only show if less than 3 images total)
-          if (totalImages < 3) ...[
-            ListTile(
-              title: Text("Add up to 3 new images",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text("(Each ≤ 5 MB)"),
-              trailing: MaterialButton(
-                shape: CircleBorder(),
-                color: _toUpload.length == 3
-                    ? colorTheme2.withOpacity(0.5)
-                    : colorTheme2,
-                child: Text("+",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold)),
-                onPressed: widget.disable || _toUpload.length == 3
-                    ? null
-                    : _pickLocalImage,
+        // Existing Images
+        if (_existing.isNotEmpty) ...[
+          _buildSectionCard(
+            title: 'Uploaded Images',
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 0.8,
               ),
+              itemCount: _existing.length,
+              itemBuilder: (_, i) => _buildExistingCard(_existing[i]),
             ),
-          ],
-          if (_toUpload.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text("Newly picked images",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-          ],
-          if (_toUpload.isNotEmpty) ...[
-          const SizedBox(height: 8),
-            Expanded(
-              child: ListView.separated(
-                itemCount: _toUpload.length,
-                separatorBuilder: (_, __) => const Divider(),
-                itemBuilder: (_, i) => _buildLocalCard(_toUpload[i], i),
-              ),
-            ),
-          ],
+          ),
+          SizedBox(height: 16),
         ],
+
+        // Add New Photos
+        if (canAddMore) ...[
+          _buildSectionCard(
+            title: 'Add Photos (${3 - totalImages} remaining)',
+            child: Column(
+              children: [
+                if (_toUpload.isEmpty)
+                  Container(
+                      padding: EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey[200]!, width: 1.5),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(Icons.photo_library_outlined, size: 40, color: Colors.grey[400]),
+                          SizedBox(height: 8),
+                          Text(
+                            'No photos added yet',
+                            style: GoogleFonts.poppins(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Photos help us better understand the issue',
+                            style: GoogleFonts.poppins(
+                              color: Colors.grey[400],
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  
+                  SizedBox(height: 12),
+                  
+                  InkWell(
+                    onTap: widget.disable ? null : _pickLocalImage,
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.add, color: AppColors.white, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'Add Photo',
+                            style: GoogleFonts.poppins(
+                              color: AppColors.white,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          SizedBox(height: 16),
+        ],
+
+        // New Photos to Upload
+        if (_toUpload.isNotEmpty) ...[
+          _buildSectionCard(
+            title: 'Photos to Upload',
+            child: Column(
+              children: [
+                ..._toUpload.asMap().entries.map(
+                  (e) => _buildLocalCard(e.value, e.key),
+                ),
+              ],
+            ),
+          ),
+        ],
+        SizedBox(height: 80), // Space for FAB
+      ],
+    );
+  }
+
+  Widget _buildSectionCard({required String title, required Widget child}) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontSize: 16, 
+                fontWeight: FontWeight.w600
+              ),
+            ),
+            SizedBox(height: 12),
+            child,
+          ],
+        ),
       ),
     );
   }
@@ -190,36 +319,112 @@ class _ComplaintSectionResponseImageState
         ? "https:${img.documentSrc}"
         : img.documentSrc;
     return Card(
-      child: ListTile(
-        leading: GestureDetector(
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => ImageViewer(url: src)),
-          ),
-          child: Image.network(src, width: 64, height: 64, fit: BoxFit.cover),
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => ImageViewer(url: src)),
         ),
-        title: Text(img.documentFilename),
-        subtitle: Text(img.documentDesc),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                child: Image.network(
+                  src,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    img.documentFilename,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (img.documentDesc.isNotEmpty) ...[
+                    SizedBox(height: 4),
+                    Text(
+                      img.documentDesc,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildLocalCard(_LocalImage img, int idx) {
     return Card(
-      child: ListTile(
-        leading: GestureDetector(
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => ImageViewer(file: img.file)),
+      margin: EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: Column(
+        children: [
+          GestureDetector(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => ImageViewer(file: img.file)),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+              child: Image.file(
+                img.file,
+                width: double.infinity,
+                height: 150,
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
-          child: Image.file(img.file, width: 64, height: 64, fit: BoxFit.cover),
-        ),
-        title: TextField(
-          decoration: InputDecoration(hintText: "Description (optional)"),
-          onChanged: (v) => img.description = v,
-        ),
-        trailing: IconButton(
-          icon: Icon(Icons.delete, color: Colors.red),
-          onPressed: () => setState(() => _toUpload.removeAt(idx)),
-        ),
+          Padding(
+            padding: EdgeInsets.all(12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Add description...",
+                      border: InputBorder.none,
+                    ),
+                    style: GoogleFonts.poppins(fontSize: 14),
+                    onChanged: (v) => img.description = v,
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.delete, color: AppColors.danger),
+                  onPressed: () => setState(() => _toUpload.removeAt(idx)),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

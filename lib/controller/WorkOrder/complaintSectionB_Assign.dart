@@ -23,7 +23,6 @@ class ComplaintAssign extends StatefulWidget {
 
 class _ComplaintAssignState extends State<ComplaintAssign> {
   bool loading = true;
-
   String typeCategory = '';
   List<String> assistUserId = [];
 
@@ -39,8 +38,6 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
   TechnicianDetails? technicianDetails;
   final TextEditingController _controller = TextEditingController();
 
-  
-
   @override
   void initState() {
     super.initState();
@@ -52,525 +49,606 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
   void _prepareCategories() {
     final m1 = {"Self Finding":"2","Request":"3","Breakdown":"4","Defect":"5"};
     final m2 = {"Complaint":"1","Request":"3","Breakdown":"4","Defect":"5"};
-    m1.forEach((k,v)=> _internalCategory.add(WorkOrderStatus((b)=>b
-      ..groupName=k..groupId=v)));
-    m2.forEach((k,v)=> _externalCategory.add(WorkOrderStatus((b)=>b
-      ..groupName=k..groupId=v)));
+    m1.forEach((k,v) => _internalCategory.add(WorkOrderStatus((b) => b
+      ..groupName = k..groupId = v)));
+    m2.forEach((k,v) => _externalCategory.add(WorkOrderStatus((b) => b
+      ..groupName = k..groupId = v)));
   }
 
   Future<void> _loadInitial() async {
-    // 1) Severity
+    setState(() => loading = true);
+    
     try {
-      final resp = await Provider(
+      // 1) Load Severity
+      final severityResp = await Provider(
         fetchURL: "/api/m_wo.php?type=wo_severity_list&woTaskId=",
         taskID: widget.id,
       ).fetch();
-      severityList = resp.wostatusList?.toList() ?? [];
-    } catch (e, st) {
-    }
+      severityList = severityResp.wostatusList?.toList() ?? [];
 
-    // 2) Groups
-    try {
-      final resp = await Provider(
+      // 2) Load Groups
+      final groupResp = await Provider(
         fetchURL: "/api/m_wo.php?type=wo_group_list&woTaskId=",
         taskID: widget.id,
       ).fetch();
-      groupList = resp.wostatusList?.toList() ?? [];
-    } catch (e, st) {
-    }
+      groupList = groupResp.wostatusList?.toList() ?? [];
 
-    // 3) Existing assignment & severity (the missing bit!)
-    try {
-      final resp = await Provider(
+      // 3) Load Existing Assignment
+      final assignResp = await Provider(
         fetchURL: "/wo_v2/assign_and_severity/",
         taskID: widget.id,
       ).fetch();
-      final a = resp.technicianAssign;
-      if (a != null) {
-        typeCategory      = a.userCategory ?? '';
-        assistUserId      = a.assistUserId.toList();
-        dropdownAssist    = a.woTaskMaxAssistant;
-        dropdownId1       = a.groupId;
-        dropdownValue1    = _fetchStatus(groupList, dropdownId1!).groupName;
-        dropdownId2       = a.userId;
-        dropdownId3       = a.severity;
-        dropdownValue3    = _fetchSeverityId(severityList, dropdownId3!).severityName;
-        dropdownId4       = a.woTaskCategory;
-        dropdownValue4    = _fetchStatus(
-                              typeCategory == "Internal"
-                                ? _internalCategory
-                                : _externalCategory,
-                              dropdownId4!
-                          ).groupName;
+      
+      if (assignResp.technicianAssign != null) {
+        final a = assignResp.technicianAssign!;
+        typeCategory = a.userCategory ?? '';
+        assistUserId = a.assistUserId.toList();
+        dropdownAssist = a.woTaskMaxAssistant;
+        dropdownId1 = a.groupId;
+        
+        if (dropdownId1 != null) {
+          dropdownValue1 = _safeFetchStatus(groupList, dropdownId1!)?.groupName;
+          await _loadExecutorsForGroup(dropdownId1!);
+          
+          dropdownId2 = a.userId;
+          if (dropdownId2 != null) {
+            final sel = _safeFetchStatus(executorList, dropdownId2!);
+            if (sel != null) {
+              dropdownValue2 = sel.userName;
+              _controller.text = dropdownValue2!;
+              await _loadTechnicianDetails(dropdownId1!, dropdownId2!);
+            }
+          }
+        }
+        
+        dropdownId3 = a.severity;
+        if (dropdownId3 != null) {
+          dropdownValue3 = _safeFetchSeverity(severityList, dropdownId3!)?.severityName;
+        }
+        
+        dropdownId4 = a.woTaskCategory;
+        if (dropdownId4 != null) {
+          dropdownValue4 = _safeFetchStatus(
+            typeCategory == "Internal" ? _internalCategory : _externalCategory, 
+            dropdownId4!
+          )?.groupName;
+        }
       }
     } catch (e, st) {
-      debugPrint("❌ Assign&Severity error: $e\n$st");
+      debugPrint("❌ Initial load error: $e\n$st");
+    } finally {
+      setState(() => loading = false);
     }
-
-    // 4) Executor list for that group
-    if (dropdownId1 != null) {
-      try {
-        final resp = await _fetchExecutor;
-        executorList = resp.wostatusList?.toList() ?? [];
-        // if we had a pre‑selected user, fill the text field
-        if (dropdownId2 != null) {
-          final sel = executorList.firstWhere((e) => e.userId == dropdownId2);
-          dropdownValue2 = sel.userName;
-          _controller.text = dropdownValue2!;
-        }
-      } catch (e, st) {
-        debugPrint("❌ Executor fetch error: $e\n$st");
-      }
-    }
-
-    // 5) Technician details for that user
-    if (dropdownId2 != null) {
-      try {
-        final resp = await _fetchTechnician;
-        technicianDetails = resp.technicianDetails;
-      } catch (e, st) {
-        debugPrint("❌ Technician details error: $e\n$st");
-      }
-    }
-
-    setState(() => loading = false);
   }
 
-  Future<ResponseValue> get _fetchExecutor => Provider(
-    fetchURL:"/api/m_wo.php?type=wo_technician_list&groupId=",
-    taskID:dropdownId1??''
-  ).fetch();
+  Future<void> _loadExecutorsForGroup(String groupId) async {
+    if (groupId.isEmpty) return;
+    setState(() => loading = true);
+    try {
+      final executorResp = await Provider(
+        fetchURL: "/api/m_wo.php?type=wo_technician_list&groupId=",
+        taskID: groupId,
+      ).fetch();
+      executorList = executorResp.wostatusList?.toList() ?? [];
+    } catch (e, st) {
+      debugPrint("❌ Executor load error: $e\n$st");
+    } finally {
+      setState(() => loading = false);
+    }
+  }
+
+  Future<void> _loadTechnicianDetails(String groupId, String userId) async {
+    setState(() => loading = true);
+    try {
+      final techResp = await _fetchTechnician;
+      technicianDetails = techResp.technicianDetails;
+    } catch (e, st) {
+      debugPrint("❌ Technician load error: $e\n$st");
+    } finally {
+      setState(() => loading = false);
+    }
+  }
 
   Future<ResponseValue> get _fetchTechnician => Provider(
-    fetchURL:"/api/m_wo.php?type=technician_details&groupId=$dropdownId1&userId=",
-    taskID:dropdownId2??''
+    fetchURL: "/api/m_wo.php?type=technician_details&groupId=$dropdownId1&userId=",
+    taskID: dropdownId2 ?? ''
   ).fetch();
 
-  /// Lookup a group/category by its id or name
-  WorkOrderStatus _fetchStatus(List<WorkOrderStatus> list, String idOrName) {
-    return list.firstWhere((w) =>
-        w.groupId   == idOrName ||
-        w.groupName == idOrName
-    );
+  Future<ResponseValue> get _fetchExecutor => Provider(
+    fetchURL: "/api/m_wo.php?type=wo_technician_list&groupId=",
+    taskID: dropdownId1 ?? ''
+  ).fetch();
+
+  WorkOrderStatus? _safeFetchStatus(List<WorkOrderStatus> list, String idOrName) {
+    try {
+      return list.firstWhere((w) => 
+          w.groupId == idOrName || w.groupName == idOrName);
+    } catch (e) {
+      return null;
+    }
   }
 
-  /// Lookup a severity by its id
-  WorkOrderStatus _fetchSeverityId(List<WorkOrderStatus> list, String id) {
-    return list.firstWhere((w) => w.severityId == id);
+  WorkOrderStatus? _safeFetchSeverity(List<WorkOrderStatus> list, String id) {
+    try {
+      return list.firstWhere((w) => w.severityId == id);
+    } catch (e) {
+      return null;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     if (loading) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text("B. Assign Executor"),
-          centerTitle: true,
-          backgroundColor: Colors.white,
+        backgroundColor: Colors.grey[50],
+        appBar: _buildAppBar(),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Loading assignment data...',
+                style: GoogleFonts.poppins(color: Colors.grey[600]),
+              ),
+            ],
+          ),
         ),
-        body: Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text("B. Assign Executor"),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-      ),
+      backgroundColor: Colors.grey[50],
+      appBar: _buildAppBar(),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _rowGroup(),
-            Divider(),
-            _rowExecutor(),
-            Divider(),
-            _rowSeverity(),
-            Divider(),
-            _rowCategory(),
-            Divider(),
-            _rowAssistCount(),
-            const SizedBox(height: 24),
-            if (!widget.viewer) _saveButton(),
-            if (technicianDetails != null) ...[
-              const SizedBox(height: 32),
-              _detailsCard(),
-              const SizedBox(height: 16),
-              _tasksCard(),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _rowGroup() {
-    return _row(
-      icon: Icons.group,
-      label: "Executor Group",
-      child: widget.viewer
-          ? Text(dropdownValue1 ?? "-", style: _valueStyle)
-          : DropdownButton<String>(
-              value: dropdownValue1,
-              hint: Text("Select Group"),
-              items: groupList
-                  .map((g) => DropdownMenuItem(
-                        child: Text(g.groupName!),
-                        value: g.groupName,
-                      ))
-                  .toList(),
-              onChanged: (v) async {
-                setState(() {
-                  dropdownValue1 = v;
-                  dropdownId1 = groupList
-                      .firstWhere((g) => g.groupName == v)
-                      .groupId;
-                  loading = true;
-                  dropdownValue2 = null;
-                  dropdownId2 = null;
-                  technicianDetails = null;
-                });
-                final resp = await _fetchExecutor;
-                setState(() {
-                  executorList = resp.wostatusList?.toList() ?? [];
-                  loading = false;
-                });
-              },
-            ),
-    );
-  }
-
-  Widget _rowExecutor() {
-    return _row(
-      icon: Icons.person,
-      label: "Executor",
-      child: widget.viewer
-          ? Text(dropdownValue2 ?? "-", style: _valueStyle)
-          : SizedBox(
-              width: 200,
-              child: TypeAheadFormField<WorkOrderStatus>(
-                getImmediateSuggestions: true,
-                textFieldConfiguration: TextFieldConfiguration(
-                  controller: _controller,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    hintText: "Select Executor",
-                  ),
-                ),
-                suggestionsCallback: (_) => Future.value(executorList),
-                itemBuilder: (_, s) => ListTile(title: Text(s.userName!)),
-                onSuggestionSelected: (s) async {
-                  setState(() {
-                    _controller.text = s.userName!;
-                    dropdownValue2 = s.userName;
-                    dropdownId2 = s.userId;
-                    loading = true;
-                    technicianDetails = null;
-                  });
-                  final resp = await _fetchTechnician;
-                  setState(() {
-                    technicianDetails = resp.technicianDetails;
-                    loading = false;
-                  });
-                },
+            Text(
+              'Assign Executor',
+              style: GoogleFonts.poppins(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
               ),
             ),
-    );
-  }
-
-  Widget _rowSeverity() {
-    return _row(
-      icon: Icons.report_problem,
-      label: "Severity",
-      child: widget.viewer
-          ? Text(dropdownValue3 ?? "-", style: _valueStyle)
-          : DropdownButton<String>(
-              value: dropdownValue3,
-              hint: Text("Select Severity"),
-              items: severityList
-                  .map((s) => DropdownMenuItem(
-                        child: Text(s.severityName!),
-                        value: s.severityName,
-                      ))
-                  .toList(),
-              onChanged: (v) {
-                setState(() {
-                  dropdownValue3 = v;
-                  dropdownId3 = severityList
-                      .firstWhere((s) => s.severityName == v)
-                      .severityId;
-                });
-              },
-            ),
-    );
-  }
-
-  Widget _rowCategory() {
-    final list = dropdownValue1 == "Internal"
-        ? _internalCategory
-        : _externalCategory;
-    return _row(
-      icon: Icons.category,
-      label: "Category",
-      child: widget.viewer
-          ? Text(dropdownValue4 ?? "-", style: _valueStyle)
-          : DropdownButton<String>(
-              value: dropdownValue4,
-              hint: Text("Select Category"),
-              items: list
-                  .map((c) => DropdownMenuItem(
-                        child: Text(c.groupName!),
-                        value: c.groupName,
-                      ))
-                  .toList(),
-              onChanged: (v) {
-                setState(() {
-                  dropdownValue4 = v;
-                  dropdownId4 =
-                      list.firstWhere((c) => c.groupName == v).groupId;
-                });
-              },
-            ),
-    );
-  }
-
-  Widget _rowAssistCount() {
-    return _row(
-      icon: Icons.people,
-      label: "Max Assistants",
-      child: widget.viewer
-          ? Text(dropdownAssist ?? "0", style: _valueStyle)
-          : DropdownButton<String>(
-              value: dropdownAssist,
-              hint: Text("0"),
-              items: ["0","1","2","3","4","5"]
-                  .map((e) => DropdownMenuItem(child: Text(e), value: e))
-                  .toList(),
-              onChanged: (v) => setState(() => dropdownAssist = v),
-            ),
-    );
-  }
-
-  Widget _saveButton() {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        minimumSize: Size(double.infinity, 48),
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        backgroundColor: AppColors.primary,
-      ),
-      child: Text("Save", style: TextStyle(fontSize: 16, color: Colors.white)),
-      onPressed: _onSavePressed,
-    );
-  }
-
-  Widget _detailsSection() {
-    final d = technicianDetails!;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text("Executor Details",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        SizedBox(height: 8),
-        _detailRow("Name", d.name),
-        _detailRow("Phone No.", d.phoneNo),
-        _detailRow("Email", d.email),
-        _detailRow("Group", d.group),
-        _detailRow("Current Tasks", d.totalCurrentTask.toString()),
-      ],
-    );
-  }
-
-  Widget _tasksTable() {
-    final rows = <TableRow>[];
-    rows.add(TableRow(
-      decoration: BoxDecoration(color: Colors.grey[200]),
-      children: [
-        _tc("No."), _tc("Task No."), _tc("Date Received"),
-      ],
-    ));
-    for (var i = 0; i < technicianDetails!.currentTask.length; i++) {
-      final t = technicianDetails!.currentTask[i];
-      rows.add(TableRow(children: [
-        _tc("${i+1}"),
-        _tc(t.woTaskNo),
-        _tc(t.dateReceived),
-      ]));
-    }
-    return Table(
-      border: TableBorder.all(color: AppColors.primary),
-      columnWidths: {0: FractionColumnWidth(.15), 2: FractionColumnWidth(.35)},
-      children: rows,
-    );
-  }
-
-  Widget _detailsCard() {
-  final d = technicianDetails!;
-  return Card(
-    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    elevation: 3,
-    child: Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Executor Details",
+            SizedBox(height: 8),
+            Text(
+              'Select the appropriate team and personnel for this task',
               style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primary,
-              )),
-          const SizedBox(height: 12),
-          _detailTile("Name", d.name),
-          _detailTile("Phone No.", d.phoneNo),
-          _detailTile("Email", d.email),
-          _detailTile("Group", d.group),
-          _detailTile("Current Tasks", d.totalCurrentTask.toString()),
-        ],
-      ),
-    ),
-  );
-}
-
-Widget _detailTile(String label, String value) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 6),
-    child: Row(
-      children: [
-        Expanded(
-          flex: 2,
-          child: Text(
-            "$label:",
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
             ),
-          ),
-        ),
-        Expanded(
-          flex: 3,
-          child: Text(
-            value,
-            style: GoogleFonts.poppins(fontSize: 14),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-/// A card‑wrapped DataTable for current tasks
-Widget _tasksCard() {
-  final tasks = technicianDetails!.currentTask.toList();
-  return Card(
-    margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    elevation: 3,
-    child: Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Current Tasks",
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primary,
-              )),
-          const SizedBox(height: 12),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              headingRowColor: MaterialStateProperty.all(AppColors.primary),
-              columnSpacing: 10,
-              columns: [
-                DataColumn(
-                    label: Text("No.", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-                DataColumn(
-                    label:
-                        Text("Task No.", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-                DataColumn(
-                    label: Text("Date Received",
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-              ],
-              rows: List<DataRow>.generate(tasks.length, (i) {
-                final t = tasks[i];
-                return DataRow(cells: [
-                  DataCell(Text('${i + 1}')),
-                  DataCell(Text(t.woTaskNo)),
-                  DataCell(Text(t.dateReceived)),
-                ]);
-              }),
+            SizedBox(height: 24),
+            
+            _buildSection(
+              title: 'Assignment Details',
+              icon: Icons.assignment_ind_outlined,
+              child: Column(
+                children: [
+                  _buildDropdownRow(
+                    icon: Icons.group,
+                    label: "Executor Group",
+                    value: dropdownValue1,
+                    items: groupList.map((g) => g.groupName ?? '').whereType<String>().toList(),
+                    onChanged: widget.viewer ? null : (v) async {
+                      if (v == null) return;
+                      setState(() {
+                        dropdownValue1 = v;
+                        dropdownId1 = groupList.firstWhere((g) => g.groupName == v).groupId;
+                        loading = true;
+                        dropdownValue2 = null;
+                        dropdownId2 = null;
+                        _controller.clear();
+                        technicianDetails = null;
+                      });
+                      await _loadExecutorsForGroup(dropdownId1!);
+                    },
+                  ),
+                  SizedBox(height: 16),
+                  _buildExecutorRow(),
+                  SizedBox(height: 16),
+                  _buildDropdownRow(
+                    icon: Icons.report_problem,
+                    label: "Severity Level",
+                    value: dropdownValue3,
+                    items: severityList.map((s) => s.severityName ?? '').whereType<String>().toList(),
+                    onChanged: widget.viewer ? null : (v) {
+                      if (v == null) return;
+                      setState(() {
+                        dropdownValue3 = v;
+                        dropdownId3 = severityList.firstWhere((s) => s.severityName == v).severityId;
+                      });
+                    },
+                  ),
+                  SizedBox(height: 16),
+                  _buildDropdownRow(
+                    icon: Icons.category,
+                    label: "Task Category",
+                    value: dropdownValue4,
+                    items: (dropdownValue1 == "Internal" 
+                        ? _internalCategory 
+                        : _externalCategory)
+                        .map((c) => c.groupName ?? '')
+                        .whereType<String>()
+                        .toList(),
+                    onChanged: widget.viewer ? null : (v) {
+                      if (v == null) return;
+                      setState(() {
+                        dropdownValue4 = v;
+                        dropdownId4 = (dropdownValue1 == "Internal" 
+                            ? _internalCategory 
+                            : _externalCategory)
+                            .firstWhere((c) => c.groupName == v)
+                            .groupId;
+                      });
+                    },
+                  ),
+                  SizedBox(height: 16),
+                  _buildDropdownRow(
+                    icon: Icons.people,
+                    label: "Max Assistants",
+                    value: dropdownAssist,
+                    items: ["0","1","2","3","4","5"],
+                    onChanged: widget.viewer ? null : (v) {
+                      if (v == null) return;
+                      setState(() => dropdownAssist = v);
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-  // ---- util widgets ----
-
-  TextStyle get _valueStyle => TextStyle(fontSize: 16);
-
-  Widget _row({
-    required IconData icon,
-    required String label,
-    required Widget child,
-    VoidCallback? onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Row(
-          children: [
-            Icon(icon, color: colorTheme2),
-            SizedBox(width: 16),
-            Expanded(
-                child: Text(label,
-                    style: TextStyle(fontWeight: FontWeight.w600))),
-            child,
-            if (onTap != null) ...[
-              SizedBox(width: 8),
-              Icon(Icons.chevron_right, color: Colors.grey),
+            
+            if (!widget.viewer) ...[
+              SizedBox(height: 20),
+              _buildSaveButton(),
             ],
+            if (technicianDetails != null) ...[
+              SizedBox(height: 20),
+              _buildTechnicianDetailsCard(),
+              SizedBox(height: 20),
+              _buildCurrentTasksCard(),
+            ],
+            SizedBox(height: 80),
           ],
         ),
       ),
     );
   }
 
-  Widget _detailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      title: Text(
+        'Assign Executor',
+        style: GoogleFonts.poppins(
+          fontWeight: FontWeight.w600,
+          fontSize: 18,
+        ),
+      ),
+      backgroundColor: Colors.white,
+      elevation: 0,
+      centerTitle: true,
+      iconTheme: IconThemeData(color: Colors.black87),
+      actions: [
+        IconButton(
+          icon: Icon(Icons.help_outline, size: 22),
+          onPressed: () {},
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSection({
+    required String title,
+    required Widget child,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-              flex: 2,
-              child: Text("$label:",
-                  style: TextStyle(fontWeight: FontWeight.w600))),
-          Expanded(flex: 3, child: Text(value)),
+          Row(
+            children: [
+              Icon(icon, size: 20, color: AppColors.primary),
+              SizedBox(width: 8),
+              Text(
+                title,
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          child,
         ],
       ),
     );
   }
 
-  TableCell _tc(String txt) => TableCell(
-        child: Padding(
-          padding: const EdgeInsets.all(6),
-          child: Text(txt, textAlign: TextAlign.center),
+  Widget _buildDropdownRow({
+    required String label,
+    required String? value,
+    required List<String> items,
+    required void Function(String?)? onChanged,
+    required IconData icon,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, color: AppColors.primary, size: 20),
+        SizedBox(width: 12),
+        Expanded(
+          child: DropdownButtonFormField<String>(
+            value: items.contains(value) ? value : null,
+            decoration: InputDecoration(
+              labelText: label,
+              floatingLabelBehavior: FloatingLabelBehavior.always,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              filled: true,
+              fillColor: onChanged == null ? Colors.grey[100] : Colors.white,
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            ),
+            items: items.map((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+            onChanged: onChanged,
+            style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
+            isExpanded: true,
+            icon: Icon(Icons.arrow_drop_down),
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
-      );
+      ],
+    );
+  }
 
-  // ---- save ----
+  Widget _buildExecutorRow() {
+    return Row(
+      children: [
+        Icon(Icons.person, color: AppColors.primary, size: 20),
+        SizedBox(width: 12),
+        Expanded(
+          child: widget.viewer
+              ? TextFormField(
+                  controller: _controller,
+                  readOnly: true,
+                  style: GoogleFonts.poppins(fontSize: 14),
+                  decoration: InputDecoration(
+                    labelText: "Executor",
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  ),
+                )
+              : TypeAheadFormField<WorkOrderStatus>(
+                  getImmediateSuggestions: true,
+                  textFieldConfiguration: TextFieldConfiguration(
+                    controller: _controller,
+                    decoration: InputDecoration(
+                      labelText: "Executor",
+                      floatingLabelBehavior: FloatingLabelBehavior.always,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    ),
+                  ),
+                  suggestionsCallback: (_) => Future.value(executorList),
+                  itemBuilder: (_, s) => ListTile(
+                    title: Text(s.userName ?? ''),
+                    leading: Icon(Icons.person_outline),
+                  ),
+                  onSuggestionSelected: (s) async {
+                    setState(() {
+                      _controller.text = s.userName ?? '';
+                      dropdownValue2 = s.userName;
+                      dropdownId2 = s.userId;
+                      loading = true;
+                      technicianDetails = null;
+                    });
+                    final resp = await _fetchTechnician;
+                    setState(() {
+                      technicianDetails = resp.technicianDetails;
+                      loading = false;
+                    });
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTechnicianDetailsCard() {
+    final d = technicianDetails!;
+    return _buildSection(
+      title: 'Executor Details',
+      icon: Icons.badge_outlined,
+      child: Column(
+        children: [
+          _buildDetailTile(Icons.person_outline, "Name", d.name),
+          _buildDetailTile(Icons.phone_outlined, "Phone No.", d.phoneNo),
+          _buildDetailTile(Icons.email_outlined, "Email", d.email),
+          _buildDetailTile(Icons.group_outlined, "Group", d.group),
+          _buildDetailTile(Icons.task_outlined, "Current Tasks", 
+              d.totalCurrentTask.toString()),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailTile(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: Colors.grey[600]),
+          SizedBox(width: 12),
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[700],
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              value,
+              style: GoogleFonts.poppins(fontSize: 14),
+              textAlign: TextAlign.end,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCurrentTasksCard() {
+    final tasks = technicianDetails!.currentTask.toList();
+    return _buildSection(
+      title: 'Current Tasks',
+      icon: Icons.list_alt_outlined,
+      child: Column(
+        children: [
+          if (tasks.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'No current tasks assigned',
+                style: GoogleFonts.poppins(color: Colors.grey[600]),
+              ),
+            )
+          else
+            ...tasks.map((task) => _buildTaskItem(task)).toList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTaskItem(TechnicianTask task) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.task_outlined, 
+                size: 18, color: AppColors.primary),
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  task.woTaskNo,
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'Received: ${task.dateReceived}',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSaveButton() {
+    return Container(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: _onSavePressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+          child: Text(
+            'SAVE ASSIGNMENT',
+            style: GoogleFonts.poppins(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   void _onSavePressed() async {
+    // Validate required fields
+    if (dropdownId1 == null || dropdownId3 == null || dropdownId4 == null) {
+      Toast.show('Please complete all required fields');
+      return;
+    }
+
     setState(() => loading = true);
     final provider = Provider(
       fetchURL: "/wo_v2/save_assigned_technician/${widget.id}",
@@ -589,7 +667,7 @@ Widget _tasksCard() {
 
     try {
       await provider.post(url: provider.fetchURL, body: body);
-      Toast.show("Assignation Saved");
+      Toast.show("Assignment Saved");
       Navigator.pop(context);
     } catch (e) {
       Toast.show(e.toString());
