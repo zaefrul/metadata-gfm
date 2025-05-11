@@ -22,8 +22,7 @@ class AddTechnicianCheckList extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _AddTechnicianCheckListState createState() =>
-      _AddTechnicianCheckListState();
+  _AddTechnicianCheckListState createState() => _AddTechnicianCheckListState();
 }
 
 class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
@@ -33,6 +32,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
   final List<_Model> _selectedTechs = [];
   late final _Controller _ctrl;
   int _maxAssistants = 0;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -41,30 +41,41 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
 
     _ctrl = _Controller(widget.id);
 
-    // load full list and selection
-    _ctrl.list.then((v) {
-      setState(() {
-        _allTechs.addAll(v);
-        _filteredTechs.addAll(v);
-      });
-    });
-    _ctrl.selected.then((v) {
-      setState(() {
-        _selectedTechs.addAll(v);
-      });
-    });
-    // load max assistants
-    Provider(
-      fetchURL: "/wo_v2/assign_and_severity/",
-      taskID: widget.id,
-    ).fetch().then((resp) {
-      setState(() {
-        _maxAssistants = int.parse(resp.technicianAssign?.woTaskMaxAssistant ?? "0");
-      });
-    });
+    // load data
+    _loadData();
 
     // search listener
     _searchCtr.addListener(_applySearch);
+  }
+
+  Future<void> _loadData() async {
+    try {
+      // Load all data in parallel
+      final results = await Future.wait([
+        _ctrl.list,
+        _ctrl.selected,
+        Provider(
+          fetchURL: "/wo_v2/assign_and_severity/",
+          taskID: widget.id,
+        ).fetch(),
+      ]);
+
+      // Extract results from the list
+      final listResult = results[0] as List<_Model>;
+      final selectedResult = results[1] as List<_Model>;
+      final maxResult = results[2] as ResponseValue;
+
+      setState(() {
+        _allTechs.addAll(listResult);
+        _filteredTechs.addAll(listResult);
+        _selectedTechs.addAll(selectedResult);
+        _maxAssistants = int.parse(maxResult.technicianAssign?.woTaskMaxAssistant ?? "0");
+        _isLoading = false;
+      });
+    } catch (e) {
+      Toast.show("Failed to load data", duration: Toast.lengthLong);
+      setState(() => _isLoading = false);
+    }
   }
 
   void _applySearch() {
@@ -79,36 +90,75 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.gray100,
       appBar: AppBar(
-        title: Text("F. Add Technician Assistant"),
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: AppColors.secondary),
+        title: Text(
+          "Add Technician Assistant",
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: AppColors.bgAppBar,
+        elevation: 0,
+        iconTheme: IconThemeData(color: AppColors.primary),
+        centerTitle: false,
       ),
       body: Column(
         children: [
-          _buildSearchRow(),
-          const Divider(height: 1),
-          Expanded(child: _buildList()),
+          _buildSearchCard(),
+          const SizedBox(height: 8),
+          _buildSelectionInfo(),
+          const SizedBox(height: 8),
+          Expanded(child: _buildContent()),
           if (!widget.viewer) _buildDoneButton(),
         ],
       ),
     );
   }
 
-  Widget _buildSearchRow() {
+  Widget _buildSearchCard() {
+    return Card(
+      margin: const EdgeInsets.all(12),
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          children: [
+            Icon(Icons.search, color: AppColors.primary, size: 24),
+            const SizedBox(width: 12),
+            Expanded(
+              child: TextField(
+                controller: _searchCtr,
+                decoration: InputDecoration(
+                  hintText: "Search technicians...",
+                  border: InputBorder.none,
+                  hintStyle: TextStyle(color: AppColors.textHint),
+                ),
+                style: TextStyle(color: AppColors.textPrimary),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSelectionInfo() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          Icon(Icons.search, color: AppColors.primary),
-          const SizedBox(width: 12),
-          Expanded(
-            child: TextField(
-              controller: _searchCtr,
-              decoration: InputDecoration(
-                hintText: "Search technicians…",
-                border: InputBorder.none,
-              ),
+          Icon(Icons.info_outline, color: AppColors.info, size: 18),
+          const SizedBox(width: 8),
+          Text(
+            "Selected ${_selectedTechs.length}/$_maxAssistants",
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 14,
             ),
           ),
         ],
@@ -116,116 +166,228 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
     );
   }
 
-  Widget _buildList() {
+  Widget _buildContent() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_filteredTechs.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.group_off, size: 48, color: AppColors.gray400),
+            const SizedBox(height: 16),
+            Text(
+              "No technicians found",
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 16,
+              ),
+            ),
+            if (_searchCtr.text.isNotEmpty)
+              TextButton(
+                onPressed: () {
+                  _searchCtr.clear();
+                  _applySearch();
+                },
+                child: Text(
+                  "Clear search",
+                  style: TextStyle(color: AppColors.primary),
+                ),
+              ),
+          ],
+        ),
+      );
+    }
+
     return ListView.separated(
+      padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: _filteredTechs.length,
-      separatorBuilder: (_, __) => Divider(height: 1, color: Colors.grey[200]),
+      separatorBuilder: (_, __) => Divider(
+        height: 1,
+        indent: 72,
+        color: AppColors.gray200,
+      ),
       itemBuilder: (_, i) {
         final tech = _filteredTechs[i];
         final isSel = _selectedTechs.contains(tech);
 
-        return InkWell(
-          onTap: widget.viewer
-              ? null
-              : () => _onToggle(tech, !isSel),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              children: [
-                Icon(Icons.person, color: AppColors.primary),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(tech.userFullName,
-                      style: TextStyle(fontSize: 16)),
-                ),
-                Checkbox(
-                  value: isSel,
-                  onChanged: widget.viewer
-                      ? null
-                      : (v) => _onToggle(tech, v!),
-                ),
-              ],
-            ),
-          ),
-        );
+        return _buildTechItem(tech, isSel);
       },
     );
   }
 
+  Widget _buildTechItem(_Model tech, bool isSelected) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: isSelected ? AppColors.primaryLight : AppColors.gray200,
+          width: 1,
+        ),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: widget.viewer ? null : () => _onToggle(tech, !isSelected),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.primary50,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.person_outline,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      tech.userFullName,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    if (isSelected)
+                      Text(
+                        "Selected",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.success,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              if (!widget.viewer)
+                Checkbox(
+                  value: isSelected,
+                  onChanged: (v) => _onToggle(tech, v!),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  fillColor: MaterialStateProperty.resolveWith<Color>((states) {
+                    if (states.contains(MaterialState.selected)) {
+                      return AppColors.primary;
+                    }
+                    return AppColors.gray300;
+                  }),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _onToggle(_Model tech, bool select) async {
-  if (select) {
-    // guard max-assistant count
-    if (_selectedTechs.length >= _maxAssistants) {
+    // First check if we're already at max capacity
+    if (select && _selectedTechs.length >= _maxAssistants) {
       Toast.show(
-        "Max $_maxAssistants technician(s) allowed",
+        "Maximum of $_maxAssistants technicians allowed",
         duration: Toast.lengthLong,
         gravity: Toast.bottom,
       );
       return;
     }
 
-    try {
-      // call your add API
-      await _ctrl.add(tech);
+    // Create local copies for state management
+    final wasSelected = _selectedTechs.any((t) => t.userId == tech.userId);
+    final previousSelection = List<_Model>.from(_selectedTechs);
 
-      // now re-fetch the full selected list from server
-      final fresh = await _ctrl.selected;
+    try {
+      if (select && !wasSelected) {
+        // Add case
+        await _ctrl.add(tech);
+      } else if (!select && wasSelected) {
+        // Remove case - find the complete record
+        final completeTech = await _findCompleteTechRecord(tech);
+        if (completeTech.assistantId.isNotEmpty) {
+          await _ctrl.delete(completeTech);
+        }
+      }
+
+      // Refresh from server after any modification
+      final freshSelection = await _ctrl.selected;
       setState(() {
         _selectedTechs
           ..clear()
-          ..addAll(fresh);
+          ..addAll(freshSelection);
       });
     } catch (e) {
-      // on failure, keep the old selection and show error
-      Toast.show("Failed to add");
-    }
-  } else {
-    // removing: if it was never on server, just drop it locally
-    final stored = _selectedTechs.firstWhere(
-      (t) => t.userId == tech.userId,
-      orElse: () => _Model("", "", ""),
-    );
-    if (stored.assistantId.isEmpty) {
-      setState(() => _selectedTechs.removeWhere((t) => t.userId == tech.userId));
-      return;
-    }
-
-    // else, call delete API
-    final ok = await _ctrl.delete(stored);
-    if (ok) {
-      // re-fetch after delete too
-      final fresh = await _ctrl.selected;
+      // On failure, revert to previous selection
       setState(() {
         _selectedTechs
           ..clear()
-          ..addAll(fresh);
+          ..addAll(previousSelection);
       });
-    } else {
-      Toast.show("Failed to remove");
+      Toast.show(
+        select ? "Failed to add technician" : "Failed to remove technician",
+        duration: Toast.lengthLong,
+      );
     }
   }
-}
+
+  Future<_Model> _findCompleteTechRecord(_Model tech) async {
+    try {
+      // First check in our current selection
+      final inSelection = _selectedTechs.firstWhere(
+        (t) => t.userId == tech.userId,
+        orElse: () => _Model("", "", ""),
+      );
+      if (inSelection.assistantId.isNotEmpty) return inSelection;
+
+      // If not found, check the full list from server
+      final completeList = await _ctrl.selected;
+      return completeList.firstWhere(
+        (t) => t.userId == tech.userId,
+        orElse: () => tech,
+      );
+    } catch (e) {
+      return tech;
+    }
+  }
 
   Widget _buildDoneButton() {
     return SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: SizedBox(
-          width: double.infinity,
-          height: 48,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
+        padding: const EdgeInsets.all(16),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.onPrimary,
+            minimumSize: const Size(double.infinity, 48),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Text("Done", style: TextStyle(color: Colors.white)),
-            onPressed: () async {
-              await _ctrl.submit();
-              Navigator.of(context).pop(_selectedTechs);
-            },
+            elevation: 0,
           ),
+          onPressed: () async {
+            try {
+              await _ctrl.submit();
+              if (mounted) {
+                Navigator.of(context).pop(_selectedTechs);
+              }
+            } catch (e) {
+              Toast.show("Failed to submit changes");
+            }
+          },
+          child: const Text("Done"),
         ),
       ),
     );

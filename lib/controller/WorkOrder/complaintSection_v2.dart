@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element
+
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/controller/WorkOrder/bloc/mainBloc.dart';
 import 'package:gfm_gems/model/execution.dart';
@@ -93,7 +95,9 @@ class _ComplaintSectionState extends State<ComplaintSection> {
     );
 
     return Scaffold(
-      appBar: AppBar(/* … */),
+      appBar: AppBar(
+        title: Text(widget.taskNo, style: TextStyle(color: AppColors.dark, fontWeight: FontWeight.w600)),
+      ),
       body: StreamBuilder<List<WorkOrderStatus>>(
         stream: _bloc.sections$,
         builder: (ctx, snapshot) {
@@ -367,6 +371,17 @@ class _BuildViewButton extends StatelessWidget {
     Key? key,
   }) : super(key: key);
 
+  String getButtonLabel(String status) {
+    switch (status) {
+      case "Assign":
+        return "Reject";
+      case "WR Verified":
+        return "Re-Open";
+      default:
+        return "Revisit";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // If in progress or assign mode, just show the single FAB you passed in
@@ -374,9 +389,7 @@ class _BuildViewButton extends StatelessWidget {
       return button;
     }
 
-    var buttonTextLabel = status == "Assign" ? "Reject" 
-                    : status == "WR Verified" ? "Re‑Open" 
-                    : "Revisit";
+    var buttonTextLabel = getButtonLabel(status);
 
     // Otherwise lay out Reject + Submit side by side
     return Padding(
@@ -553,7 +566,7 @@ class _BuildStandardButton extends StatelessWidget {
               if (snapshot.data == true || mainStatus == "WR Verified" || mainStatus == "WR Re-Open") {
                 if (mainStatus == "WR Check") {
                   var body = {
-                    "action": "wo_check",
+                    "action": "submit_wr_check",
                     "woTaskId": bloc.id,
                   };
 

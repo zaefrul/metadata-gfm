@@ -5,6 +5,7 @@ import 'package:gfm_gems/model/complaint.dart';
 import 'package:gfm_gems/utils/network.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:toast/toast.dart';
+import 'package:gfm_gems/utils/reference.dart'; // Assuming this contains AppColors
 import 'complaintAdd.dart';
 
 class ComplaintSectionDMaterial extends StatefulWidget {
@@ -39,10 +40,19 @@ class _ComplaintSectionDMaterialState extends State<ComplaintSectionDMaterial> {
     ToastContext().init(context);
 
     return Scaffold(
+      backgroundColor: AppColors.gray100,
       appBar: AppBar(
-        title: const Text("G. Spare Parts/ Material User"),
+        title: Text(
+          "Spare Parts / Material User",
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.bgAppBar,
+        elevation: 0,
+        iconTheme: IconThemeData(color: AppColors.primary),
         actions: [
           if (widget.enableReset)
             TextButton(
@@ -51,7 +61,10 @@ class _ComplaintSectionDMaterialState extends State<ComplaintSectionDMaterial> {
                   Navigator.pop(context);
                 }).catchError((e) => print(e));
               },
-              child: const Text("Re-Apply"),
+              child: Text(
+                "Re-Apply",
+                style: TextStyle(color: AppColors.primary),
+              ),
             )
         ],
       ),
@@ -60,24 +73,78 @@ class _ComplaintSectionDMaterialState extends State<ComplaintSectionDMaterial> {
         child: StreamBuilder<List<ComplaintD>>(
           stream: _controller.items$,
           builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
+
+            if (snapshot.hasError) {
+              return Center(child: Text("Error loading data"));
+            }
+
+            final items = snapshot.data ?? [];
+
+            if (items.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.inventory_2_outlined, size: 48, color: AppColors.gray400),
+                    SizedBox(height: 16),
+                    Text(
+                      "No spare parts added yet",
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      "Tap the + button to add items",
+                      style: TextStyle(
+                        color: AppColors.textHint,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
             return RefreshIndicator(
               onRefresh: () => _controller.refresh(),
               child: ListView(
                 children: [
                   if (widget.comment.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Text(widget.comment),
+                    Card(
+                      margin: EdgeInsets.all(12),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(
+                          color: AppColors.gray200,
+                          width: 1,
+                        ),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Text(
+                          widget.comment,
+                          style: TextStyle(color: AppColors.textSecondary),
+                        ),
+                      ),
                     ),
-                  ListView.separated(
-                    primary: true,
+                  ListView.builder(
+                    primary: false,
                     shrinkWrap: true,
-                    itemBuilder: (_, index) {
-                      return Tile(snapshot.data![index], _controller,
-                          widget.enableSubmit);
-                    },
-                    separatorBuilder: (_, __) => const Divider(),
-                    itemCount: snapshot.data == null ? 0 : snapshot.data!.length,
+                    itemCount: items.length,
+                    itemBuilder: (_, index) => Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      child: MaterialItemCard(
+                        item: items[index],
+                        controller: _controller,
+                        enableEdit: widget.enableSubmit,
+                      ),
+                    ),  
                   ),
                 ],
               ),
@@ -89,94 +156,171 @@ class _ComplaintSectionDMaterialState extends State<ComplaintSectionDMaterial> {
           ? Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                _addButton,
-                const SizedBox(width: 12),
-                _submitButton,
+                FloatingActionButton(
+                  heroTag: "add",
+                  backgroundColor: AppColors.primary,
+                  child: Icon(Icons.add, color: AppColors.onPrimary),
+                  onPressed: () => _controller.add(context, widget.id),
+                ),
+                SizedBox(width: 12),
+                FloatingActionButton.extended(
+                  heroTag: "submit",
+                  backgroundColor: AppColors.primary,
+                  icon: Icon(Icons.send, color: AppColors.onPrimary),
+                  label: Text(
+                    "Submit",
+                    style: TextStyle(color: AppColors.onPrimary),
+                  ),
+                  onPressed: () => _controller.submit(context),
+                ),
               ],
             )
           : null,
     );
   }
-
-  Widget get _addButton => FloatingActionButton(
-        backgroundColor: colorTheme2,
-        child: const Icon(Icons.add, color: Colors.white),
-        onPressed: () => _controller.add(context, widget.id),
-      );
-
-  Widget get _submitButton => FloatingActionButton.extended(
-        heroTag: "submit",
-        backgroundColor: colorTheme2,
-        label: const Text("Submit", style: TextStyle(color: Colors.white)),
-        onPressed: () => _controller.submit(context),
-      );
 }
 
-class Tile extends StatelessWidget {
+class MaterialItemCard extends StatelessWidget {
   final ComplaintD item;
   final Controller controller;
   final bool enableEdit;
 
-  const Tile(this.item, this.controller, this.enableEdit, {Key? key})
-      : super(key: key);
+  const MaterialItemCard({
+    Key? key,
+    required this.item,
+    required this.controller,
+    required this.enableEdit,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Slidable(
-      // Uncomment and adjust the following properties if needed:
-      // actionPane: SlidableDrawerActionPane(),
-      // actionExtentRatio: 0.25,
-      child: ListTile(
-        title: Text(
-          item.itemDescription ?? 'No description available',
-          overflow: TextOverflow.ellipsis,
-          maxLines: 1,
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("Quantity : " + (item.woTaskPartsQuantity ?? "N/A")),
-              Text("Group : " + (item.assetGroupName ?? "N/A")),
-              Text(
-                "Type : " + (item.itemTypeDesc ?? "N/A"),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Slidable(
+        endActionPane: ActionPane(
+          motion: ScrollMotion(),
+          children: [
+            SlidableAction(
+              onPressed: (_) => controller.delete(item.woTaskPartsId!),
+              backgroundColor: AppColors.danger,
+              foregroundColor: AppColors.onDanger,
+              icon: Icons.delete,
+              label: 'Delete',
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(12),
+                bottomRight: Radius.circular(12),
               ),
-            ],
+            ),
+          ],
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: enableEdit
+              ? () => Navigator.pushNamed(
+                    context,
+                    routeMaterial,
+                    arguments: item.woTaskPartsId,
+                  ).whenComplete(() => controller.refresh())
+              : null,
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        item.itemDescription ?? 'No description available',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textPrimary,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: _getStatusColor(item.statusDesc),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        item.statusDesc ?? 'N/A',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12),
+                _buildDetailRow(
+                  Icons.scale,
+                  "Quantity: ${item.woTaskPartsQuantity ?? "N/A"}",
+                ),
+                _buildDetailRow(
+                  Icons.category,
+                  "Group: ${item.assetGroupName ?? "N/A"}",
+                ),
+                _buildDetailRow(
+                  Icons.type_specimen,
+                  "Type: ${item.itemTypeDesc ?? "N/A"}",
+                  maxLines: 2, // Specific override for type
+                ),
+              ],
+            ),
           ),
         ),
-        trailing: Container(
-          padding: const EdgeInsets.all(8),
-          child: Text(item.statusDesc ?? 'N/A'),
-        ),
-        onTap: enableEdit
-            ? () => Navigator.pushNamed(
-                  context,
-                  routeMaterial,
-                  arguments: item.woTaskPartsId,
-                ).whenComplete(() => controller.refresh())
-            : null,
       ),
-      // Optionally uncomment actions or secondaryActions below:
-      // actions: [
-      //   IconSlideAction(
-      //     caption: 'Delete',
-      //     color: Colors.red,
-      //     icon: Icons.delete,
-      //     onTap: () => controller.delete(item.woTaskPartsId),
-      //   )
-      // ],
-      // secondaryActions: [
-      //   IconSlideAction(
-      //     caption: 'Delete',
-      //     color: Colors.red,
-      //     icon: Icons.delete,
-      //     onTap: () => controller.delete(item.woTaskPartsId),
-      //   )
-      // ],
     );
+  }
+
+  Widget _buildDetailRow(IconData icon, String text, {int? maxLines}) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 16, color: AppColors.textSecondary),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 14,
+              ),
+              maxLines: maxLines ?? 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getStatusColor(String? status) {
+    debugPrint('Status: $status');
+    switch (status?.toLowerCase()) {
+      case 'approved':
+        return AppColors.success;
+      case 'pending':
+        return AppColors.warning;
+      case 'rejected':
+        return AppColors.danger;
+      case 'request approval':
+        return AppColors.primary;
+      default:
+        return AppColors.secondary;
+    }
   }
 }
 

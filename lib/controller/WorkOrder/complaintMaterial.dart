@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/model/complaint.dart';
 import 'package:gfm_gems/utils/network.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:toast/toast.dart';
+import 'package:gfm_gems/utils/reference.dart';
 
 class MaterialEdit extends StatefulWidget {
   final String id;
@@ -20,46 +22,237 @@ class _MaterialEditState extends State<MaterialEdit> {
     widget._controller.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
+    debugPrint("Controller: ${widget._controller.group.text}");
+    debugPrint("Controller: ${widget._controller.group.value}");
     ToastContext().init(context);
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: Text("Material / Item"),
-        centerTitle: true,
+        title: Text(
+          'Material / Item',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ),
+        ),
         backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Colors.black87),
       ),
-      body: Container(
-        padding: EdgeInsets.all(12),
-        child: ListView(
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildField("Group",
-                enable: false, controller: widget._controller.group),
-            _buildField("Type",
-                enable: false, controller: widget._controller.type),
-            _buildField("Name",
-                enable: false, controller: widget._controller.name),
-            _buildField("Quantity", controller: widget._controller.quantity),
-            _buildField("Remark", controller: widget._controller.remark),
+            // Item Information Section
+            _buildSection(
+              title: 'Item Information',
+              icon: Icons.inventory_outlined,
+              child: Column(
+                children: [
+                  _buildReadOnlyField('Group', false, 1, widget._controller.group),
+                  SizedBox(height: 16),
+                  _buildReadOnlyField('Type', false, 3, widget._controller.type),
+                  SizedBox(height: 16),
+                  _buildReadOnlyField('Name', false, 1, widget._controller.name),
+                ],
+              ),
+            ),
+            
+            SizedBox(height: 20),
+            
+            // Edit Details Section
+            _buildSection(
+              title: 'Edit Details',
+              icon: Icons.edit_outlined,
+              child: Column(
+                children: [
+                  _buildEditableField(
+                    'Quantity',
+                    widget._controller.quantity,
+                    keyboardType: TextInputType.number,
+                  ),
+                  SizedBox(height: 16),
+                  _buildEditableField(
+                    'Remark',
+                    widget._controller.remark,
+                    maxLines: 3,
+                  ),
+                ],
+              ),
+            ),
+            
+            SizedBox(height: 40),
+            
+            // Save Button
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: SizedBox(
+                width: double.infinity,
+                child: FloatingActionButton.extended(
+                  onPressed: () => widget._controller
+                      .update(context)
+                      .then((_) => Navigator.pop(context))
+                      .catchError((e) {}),
+                  backgroundColor: AppColors.primary,
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  label: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      'SAVE CHANGES',
+                      style: GoogleFonts.poppins(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            
+            SizedBox(height: 40),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.done),
-        onPressed: () => widget._controller
-            .update(context)
-            .then((_) => Navigator.pop(context)),
       ),
     );
   }
 
-  Widget _buildField(String label,
-      {required TextEditingController controller, bool enable = true}) {
-    return TextField(
-      enabled: enable,
-      controller: controller,
-      decoration: InputDecoration(labelText: label),
+  Widget _buildSection({
+    required String title,
+    required Widget child,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 20, color: AppColors.primary),
+              SizedBox(width: 8),
+              Text(
+                title,
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          child,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReadOnlyField(String label, bool enable, int? maxline, TextEditingController controller) {
+    debugPrint("ReadOnly: $controller");
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            color: Colors.grey[600],
+          ),
+        ),
+        SizedBox(height: 4),
+        TextField(
+          controller: controller,
+          maxLines: maxline,
+          enabled: enable,
+          decoration: InputDecoration(
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppColors.primary),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+          ),
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            color: Colors.black87,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEditableField(
+    String label,
+    TextEditingController controller, {
+    int maxLines = 1,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            color: Colors.grey[600],
+          ),
+        ),
+        SizedBox(height: 4),
+        TextField(
+          controller: controller,
+          maxLines: maxLines,
+          keyboardType: keyboardType,
+          decoration: InputDecoration(
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppColors.primary),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+          ),
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            color: Colors.black87,
+          ),
+        ),
+      ],
     );
   }
 }

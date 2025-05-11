@@ -160,10 +160,16 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
   ).fetch();
 
   WorkOrderStatus? _safeFetchStatus(List<WorkOrderStatus> list, String idOrName) {
+    debugPrint("Fetching status with id/name: $idOrName");
+    debugPrint("List: ${list.map((e) => e.toString()).toList()}");
     try {
       return list.firstWhere((w) => 
-          w.groupId == idOrName || w.groupName == idOrName);
+          (w.groupId != null && w.groupId == idOrName) || 
+          (w.groupName != null && w.groupName == idOrName) ||
+          (w.userId != null && w.userId == idOrName) ||
+          (w.userName != null && w.userName == idOrName));
     } catch (e) {
+      debugPrint("Could not find status with id/name: $idOrName");
       return null;
     }
   }
@@ -644,10 +650,17 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
 
   void _onSavePressed() async {
     // Validate required fields
-    if (dropdownId1 == null || dropdownId3 == null || dropdownId4 == null) {
+    if (dropdownId1 == null || dropdownId2 == null || dropdownId3 == null || dropdownId4 == null) {
       Toast.show('Please complete all required fields');
       return;
     }
+
+    debugPrint("Saving assignment with: "
+        "Group: $dropdownId1, "
+        "Executor: $dropdownId2, "
+        "Severity: $dropdownId3, "
+        "Category: $dropdownId4, "
+        "Assistants: $dropdownAssist");
 
     setState(() => loading = true);
     final provider = Provider(
