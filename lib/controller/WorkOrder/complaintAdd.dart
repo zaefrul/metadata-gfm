@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:gfm_gems/model/complaint.dart';
 import 'package:gfm_gems/utils/network.dart';
+import 'package:gfm_gems/utils/reference.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:toast/toast.dart';
-import 'package:custom_searchable_dropdown/custom_searchable_dropdown.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 
 class ComplaintAdd extends StatefulWidget {
   final String id;
   final Controller _controller;
 
-  ComplaintAdd(this.id, {super.key})
-      : _controller = Controller(id);
+  ComplaintAdd(this.id, {super.key}) : _controller = Controller(id);
 
   @override
   _ComplaintAddState createState() => _ComplaintAddState();
@@ -27,124 +28,306 @@ class _ComplaintAddState extends State<ComplaintAdd> {
   Widget build(BuildContext context) {
     ToastContext().init(context);
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: Text("Add Material / Item"),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-      ),
-      body: Container(
-        padding: EdgeInsets.all(12),
-        child: ListView(
-          children: [
-            _dropdown<ComplaintDGroup>(
-              widget._controller.list1$,
-              widget._controller.setfirst,
-              value: widget._controller.first$,
-              enable: true,
-            ),
-            StreamBuilder<ComplaintDGroup>(
-              stream: widget._controller.first$,
-              builder: (context, AsyncSnapshot<ComplaintDGroup> snapshot) {
-                return _dropdown<ComplaintDType>(
-                  widget._controller.list2$,
-                  widget._controller.setsecond,
-                  value: widget._controller.second$.where((event) => event != null).cast<ComplaintDType>(),
-                  enable: snapshot.data != null,
-                );
-              },
-            ),
-            StreamBuilder<ComplaintDType>(
-              stream: widget._controller.second$.where((event) => event != null).cast<ComplaintDType>(),
-              builder: (context, AsyncSnapshot<ComplaintDType> snapshot) {
-                return _dropdown<ComplaintDPart>(
-                  widget._controller.list3$,
-                  widget._controller.setthird,
-                  value: widget._controller.third$.where((event) => event != null).cast<ComplaintDPart>(),
-                  enable: snapshot.data != null,
-                );
-              },
-            ),
-            StreamBuilder<ComplaintDPart>(
-              stream: widget._controller.third$.where((event) => event != null).cast<ComplaintDPart>(),
-              builder: (context, snapshot) => TextField(
-                enabled: snapshot.data != null,
-                controller: widget._controller.quantity,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: "Quantity",
-                  hintText: "0",
-                ),
-              ),
-            ),
-            StreamBuilder<ComplaintDPart>(
-              stream: widget._controller.third$.where((event) => event != null).cast<ComplaintDPart>(),
-              builder: (context, snapshot) => TextField(
-                enabled: snapshot.data != null,
-                controller: widget._controller.remark,
-                decoration: InputDecoration(
-                  labelText: "Remark",
-                  hintText: "-",
-                ),
-              ),
-            ),
-          ],
+        title: Text(
+          'Add Material / Item',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ),
         ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Colors.black87),
       ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: "ADD NEW PARTS",
-        child: Icon(Icons.done),
-        onPressed: () => widget._controller
-            .upload(context)
-            .then((value) => Navigator.pop(context))
-            .catchError((e) => Toast.show(e.toString())),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Add New Item',
+                  style: GoogleFonts.poppins(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Please select the item details below',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                SizedBox(height: 24),
+
+                // Group Selection
+                _buildSection(
+                  title: 'Item Group',
+                  icon: Icons.category_outlined,
+                  child: _buildDropdownSearch<ComplaintDGroup>(
+                    stream: widget._controller.list1$,
+                    valueStream: widget._controller.first$,
+                    onChanged: widget._controller.setfirst,
+                    hintText: "Select Group",
+                    itemAsString: (item) => item.itemName ?? "",
+                  ),
+                ),
+                SizedBox(height: 20),
+
+                // Type Selection
+                StreamBuilder<ComplaintDGroup>(
+                  stream: widget._controller.first$,
+                  builder: (context, snapshot) {
+                    return _buildSection(
+                      title: 'Item Type',
+                      icon: Icons.type_specimen_outlined,
+                      child: _buildDropdownSearch<ComplaintDType>(
+                        stream: widget._controller.list2$,
+                        valueStream: widget._controller.second$.where((event) => event != null).cast<ComplaintDType>(),
+                        onChanged: widget._controller.setsecond,
+                        hintText: "Select Type",
+                        enabled: snapshot.data != null,
+                        itemAsString: (item) => item.itemName ?? "",
+                      ),
+                    );
+                  },
+                ),
+                SizedBox(height: 20),
+
+                // Part Selection
+                StreamBuilder<ComplaintDType>(
+                  stream: widget._controller.second$.where((event) => event != null).cast<ComplaintDType>(),
+                  builder: (context, snapshot) {
+                    return _buildSection(
+                      title: 'Item Part',
+                      icon: Icons.inventory_outlined,
+                      child: _buildDropdownSearch<ComplaintDPart>(
+                        stream: widget._controller.list3$,
+                        valueStream: widget._controller.third$.where((event) => event != null).cast<ComplaintDPart>(),
+                        onChanged: widget._controller.setthird,
+                        hintText: "Select Part",
+                        enabled: snapshot.data != null,
+                        itemAsString: (item) => item.itemName ?? "",
+                      ),
+                    );
+                  },
+                ),
+                SizedBox(height: 20),
+
+                // Quantity and Remark
+                _buildSection(
+                  title: 'Item Details',
+                  icon: Icons.edit_outlined,
+                  child: Column(
+                    children: [
+                      StreamBuilder<ComplaintDPart>(
+                        stream: widget._controller.third$.where((event) => event != null).cast<ComplaintDPart>(),
+                        builder: (context, snapshot) {
+                          return TextField(
+                            enabled: snapshot.data != null,
+                            controller: widget._controller.quantity,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              labelText: 'Quantity',
+                              hintText: '0',
+                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey[300]!),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey[300]!),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                            ),
+                            style: GoogleFonts.poppins(fontSize: 14),
+                          );
+                        },
+                      ),
+                      SizedBox(height: 16),
+                      StreamBuilder<ComplaintDPart>(
+                        stream: widget._controller.third$.where((event) => event != null).cast<ComplaintDPart>(),
+                        builder: (context, snapshot) {
+                          return TextField(
+                            enabled: snapshot.data != null,
+                            controller: widget._controller.remark,
+                            decoration: InputDecoration(
+                              labelText: 'Remark',
+                              hintText: '-',
+                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey[300]!),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey[300]!),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                            ),
+                            maxLines: 3,
+                            style: GoogleFonts.poppins(fontSize: 14),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 40),
+
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: FloatingActionButton.extended(
+                      onPressed: () => widget._controller
+                          .upload(context)
+                          .then((value) => Navigator.pop(context))
+                          .catchError((e) => Toast.show(e.toString())),
+                      backgroundColor: AppColors.primary,
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      label: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Text(
+                          'ADD NEW ITEM',
+                          style: GoogleFonts.poppins(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 40),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  /// _dropdown now takes a stream of List<T>, a [ValueSetter<T>] as sink, a required stream for the current value,
-  /// and a flag to enable selection.
-  Widget _dropdown<T>(
-    Stream<List<T>> stream,
-    ValueSetter<T> sink, {
-    required Stream<T> value,
-    bool enable = false,
+  Widget _buildSection({
+    required String title,
+    required Widget child,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 20, color: AppColors.primary),
+              SizedBox(width: 8),
+              Text(
+                title,
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          child,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDropdownSearch<T>({
+    required Stream<List<T>> stream,
+    required Stream<T> valueStream,
+    required Function(T?) onChanged,
+    required String hintText,
+    required String Function(T) itemAsString,
+    bool enabled = true,
   }) {
     return StreamBuilder<List<T>>(
       stream: stream,
       builder: (context, snapshot) {
-        // Create a list and filter out null values if any.
         final List<T> list = (snapshot.data ?? []).where((element) => element != null).toList();
         return StreamBuilder<T>(
-          stream: value,
-          builder: (context, AsyncSnapshot<T> selected) {
-            T? selectedItem = selected.data;
-            String _hint = "";
-            if (T.toString() == "ComplaintDGroup") {
-              _hint = "Select Group";
-            } else if (T.toString() == "ComplaintDType") {
-              _hint = "Select Type";
-            } else if (T.toString() == "ComplaintDPart") {
-              _hint = "Select Part";
-            }
-            return CustomSearchableDropDown(
-              items: list,
-              label: _hint,
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Colors.black, width: 0.4),
+          stream: valueStream,
+          builder: (context, selected) {
+            return DropdownSearch<T>(
+              items: (String filter, LoadProps? loadProps) => list,
+              selectedItem: selected.data,
+              popupProps: PopupProps.modalBottomSheet(
+                showSearchBox: true,
+                searchFieldProps: TextFieldProps(
+                  decoration: InputDecoration(
+                    hintText: 'Search $hintText...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  ),
+                ),
+                modalBottomSheetProps: ModalBottomSheetProps(
+                  backgroundColor: Colors.grey[50],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                  ),
                 ),
               ),
-              prefixIcon: Padding(
-                padding: const EdgeInsets.all(0.0),
-                child: Icon(Icons.search),
+              itemAsString: itemAsString,
+              compareFn: (T a, T b) => a == b,
+              decoratorProps: DropDownDecoratorProps(
+                decoration: InputDecoration(
+                  labelText: hintText,
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey[300]!),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey[300]!),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.primary),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                ),
               ),
-              // Convert each item to its display string, safely handling nulls.
-              dropDownMenuItems: list.map((e) => (e as dynamic)?.itemName ?? "").toList(),
-              onChanged: (item) {
-                if (enable && item != null) {
-                  sink(item as T);
-                }
-              },
+              onChanged: enabled ? onChanged : null,
+              enabled: enabled,
             );
           },
         );
