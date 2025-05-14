@@ -94,6 +94,8 @@ class _ComplaintSectionState extends State<ComplaintSection> {
       alert,
     );
 
+    debugPrint("widget parameters are ${widget.taskNo}, ${widget.taskStatus}, ${widget.viewer}, ${widget.isAssign}");
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.taskNo, style: TextStyle(color: AppColors.dark, fontWeight: FontWeight.w600)),
@@ -135,7 +137,45 @@ class _ComplaintSectionState extends State<ComplaintSection> {
               SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: (!widget.viewer && _bloc.checkpoint != 1) ? viewButton : standardButton,
+                  child: Builder(builder: (_) {
+                    // 1) If this is the Assigner on a WR Check ticket:
+                    if (!widget.viewer 
+                        && widget.taskStatus == "WR Check") {
+                      return Row(
+                        children: [
+                          // Mark Out-of-Scope
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () => _showOutOfScopeDialog(context),
+                              style: actionButtonStyle.copyWith(
+                                backgroundColor: WidgetStatePropertyAll(AppColors.danger),
+                              ),
+                              child: const Text("Out-of-Scope", style: TextStyle(color: AppColors.white),),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // Accept & Proceed
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () => _bloc.submit(),  // existing submit flow
+                              style: actionButtonStyle.copyWith(
+                                backgroundColor: WidgetStatePropertyAll(AppColors.primary),
+                              ),
+                              child: const Text("Accept & Proceed", 
+                                  style: TextStyle(color: AppColors.white)),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          
+                        ],
+                      );
+                    }
+
+                    // 2) Otherwise, your original buttons:
+                    return (!widget.viewer && _bloc.checkpoint != 1)
+                      ? viewButton
+                      : standardButton;
+                  }),
                 ),
               ),
             ],
@@ -153,6 +193,28 @@ class _ComplaintSectionState extends State<ComplaintSection> {
         description: txt,
         buttonText: "Okay",
         image: Image.asset("assets/icon_trans.png", height: 40),
+      ),
+    );
+  }
+
+  void _showOutOfScopeDialog(BuildContext context) {
+    showDialog(
+      context: navigatorKey.currentContext!,
+      builder: (_) => CustomDialog(
+        rootPage: "/workorder",
+        title: "Remark",
+        description: "Please enter reason for Out-of-Scope",
+        buttonText: "Submit",
+        cancel: true,
+        secondButton: false,
+        image: Image.asset("assets/icon_trans.png", height: 40),
+        remarkTapped: (text) {
+          Navigator.pop(context);
+          _bloc.reject(text /* you'll need to signal “out_of_scope” */,
+                        /* optionally pass a flag or use a dedicated reject variant */)
+            .then((_) => alert("Ticket marked Out-of-Scope"))
+            .catchError((e) => alert(e.toString()));
+        },
       ),
     );
   }
@@ -390,6 +452,8 @@ class _BuildViewButton extends StatelessWidget {
     }
 
     var buttonTextLabel = getButtonLabel(status);
+    var bgColor = getButtonBgColorByStatus(buttonTextLabel);
+    var labelColor = bgColor == AppColors.warning ? AppColors.dark : AppColors.white;
 
     // Otherwise lay out Reject + Submit side by side
     return Padding(
@@ -402,10 +466,10 @@ class _BuildViewButton extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () => _showRejectDialog(context),
                 style: actionButtonStyle.copyWith(
-                  backgroundColor: WidgetStatePropertyAll(getButtonBgColorByStatus(buttonTextLabel)),
+                  backgroundColor: WidgetStatePropertyAll(bgColor),
                   foregroundColor: WidgetStatePropertyAll(AppColors.white),
                 ),
-                child: Text(buttonTextLabel, style: const TextStyle(color: Colors.white)),
+                child: Text(buttonTextLabel, style: TextStyle(color: labelColor)),
               ),
             ),
 

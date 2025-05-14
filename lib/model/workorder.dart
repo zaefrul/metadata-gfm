@@ -32,6 +32,11 @@ abstract class WorkOrderTask
         WorkOrderTask.serializer, json.decode(jsonString))!;
   }
 
+  static WorkOrderTask fromJsonMap(Map<String, dynamic> json) {
+    return serializers.deserializeWith(
+        WorkOrderTask.serializer, json) as WorkOrderTask;
+  }
+
   static Serializer<WorkOrderTask> get serializer => _$workOrderTaskSerializer;
 }
 
