@@ -43,7 +43,7 @@ class WOProvider {
     Provider provider = Provider(fetchURL: "/api/m_wo.php");
     return provider.post(
       url: "/api/m_wo.php",
-      body: {"action": "submit_wr_verified", "woTaskId": id, "remarks": remarks, "isRejected": isRejected},
+      body: {"action": "submit_wr_verified", "woTaskId": id, "remarks": remarks, "isRejected": isRejected.toString()},
     );
   }
 
