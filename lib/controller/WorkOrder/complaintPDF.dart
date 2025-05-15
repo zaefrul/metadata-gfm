@@ -92,9 +92,10 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('Checkpoint are : ${widget.checkpoint}');
     String submitText = "Complete";
     if (widget.checkpoint == 1 || widget.checkpoint == 5) submitText = "Verify";
-    if (widget.checkpoint == 2 || widget.checkpoint == 4) submitText = "Check";
+    if (widget.checkpoint == 2 || widget.checkpoint == 4 || widget.checkpoint == 6) submitText = "Check";
     if (widget.checkpoint == 3) submitText = "Complete";
 
     return Scaffold(

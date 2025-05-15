@@ -176,6 +176,9 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
       case 5:
         action = "submit_wr_verified";
         break;
+      case 6:
+        action = "submit_check";
+        break;
       default:
         action = "submit_repair";
     }
@@ -190,7 +193,13 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
       "signature[data]": data,
     };
 
-    _ratingDialog(ctx, body);
+    if(widget.checkpoint != 6) {
+      _ratingDialog(ctx, body);
+    }
+    else {
+      // For checkpoint 6, directly upload without rating dialog
+      _upload(ctx, body);
+    }
   }
 
   /// Simple OK-dialog after network call

@@ -86,6 +86,8 @@ class MainBloc {
       checkpoint = 4;
     } else if (status == "WR Verified") {
       checkpoint = 5;
+    } else if (status == "Check") {
+      checkpoint = 6;
     }
   }
 
@@ -148,14 +150,16 @@ class MainBloc {
     }
   }
 
-  Future<void> attendanceApprove(String remarks) async {
+  Future<bool> attendanceApprove(String remarks) async {
     loading = true;
     try {
       await _provider.submitVerified(_id, remarks, 0);
       loading = false;
+      return true;
     } catch (err) {
       print(err);
       loading = false;
+      return false;
     }
   }
 

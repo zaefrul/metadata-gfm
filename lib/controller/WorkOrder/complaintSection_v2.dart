@@ -157,7 +157,14 @@ class _ComplaintSectionState extends State<ComplaintSection> {
                           // Accept & Proceed
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: () => _bloc.attendanceApprove(''),  // existing submit flow
+                              onPressed: () async {
+                                var success = await _bloc.attendanceApprove('');
+                                if (success) {
+                                  alert("Ticket marked as Approved");
+                                } else {
+                                  alert("Failed to mark ticket as Approved. Please try again.");
+                                }
+                              },  // existing submit flow
                               style: actionButtonStyle.copyWith(
                                 backgroundColor: WidgetStatePropertyAll(AppColors.primary),
                               ),
@@ -212,7 +219,9 @@ class _ComplaintSectionState extends State<ComplaintSection> {
           Navigator.pop(context);
           _bloc.reject(text /* you'll need to signal “out_of_scope” */,
                         /* optionally pass a flag or use a dedicated reject variant */)
-            .then((_) => alert("Ticket marked Out-of-Scope"))
+            .then((_) {
+              alert("Ticket marked Out-of-Scope");
+            })
             .catchError((e) => alert(e.toString()));
         },
       ),
@@ -437,6 +446,7 @@ class _BuildViewButton extends StatelessWidget {
     switch (status) {
       case "Assign":
         return "Reject";
+      case "Check":
       case "WR Verified":
         return "Re-Open";
       default:
@@ -579,6 +589,18 @@ class _BuildStandardButton extends StatelessWidget {
     Key? key,
   }) : super(key: key);
 
+  void alert(String txt) {
+    showDialog(
+      context: navigatorKey.currentContext!,
+      builder: (BuildContext context) => CustomDialog(
+        rootPage: "/workorder",
+        description: txt,
+        buttonText: "Okay",
+        image: Image.asset("assets/icon_trans.png", height: 40),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     ToastContext().init(context);
@@ -637,7 +659,7 @@ class _BuildStandardButton extends StatelessWidget {
                   final provider = Provider(fetchURL: "/api/m_wo.php");
 
                   provider.post(url: "/api/m_wo.php", body: body).then((resp) {
-                    Toast.show(resp.toString(), backgroundColor: AppColors.success);
+                    alert("Request submitted successfully");
                   }).catchError((err) {
                     Toast.show(err.toString(), backgroundColor: AppColors.danger);
                   });

@@ -74,6 +74,7 @@ class _TaskCard extends StatelessWidget {
       case "Assign":
         return AppColors.warningDark;
       case "WR Check":
+      case "Check":
         return AppColors.infoDark;
       case "WR Verified":
         return AppColors.successDark;
@@ -97,6 +98,7 @@ class _TaskCard extends StatelessWidget {
       case "Assign":
         return AppColors.warningLight;
       case "WR Check":
+      case "Check":
         return AppColors.infoLight;
       case "WR Verified":
         return AppColors.successLight;
