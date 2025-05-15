@@ -148,6 +148,28 @@ class MainBloc {
     }
   }
 
+  Future<void> attendanceApprove(String remarks) async {
+    loading = true;
+    try {
+      await _provider.submitVerified(_id, remarks, 0);
+      loading = false;
+    } catch (err) {
+      print(err);
+      loading = false;
+    }
+  }
+
+  Future<void> attendanceOutOfScope(String remarks) async {
+    loading = true;
+    try {
+      await _provider.submitVerified(_id, remarks, 1);
+      loading = false;
+    } catch (err) {
+      print(err);
+      loading = false;
+    }
+  }
+
   Future<void> reject(String value) {
     return _provider.reject(_status, _id, value);
   }

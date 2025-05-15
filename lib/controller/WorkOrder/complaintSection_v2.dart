@@ -140,7 +140,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
                   child: Builder(builder: (_) {
                     // 1) If this is the Assigner on a WR Check ticket:
                     if (!widget.viewer 
-                        && widget.taskStatus == "WR Check") {
+                        && widget.taskStatus == "WR Verified") {
                       return Row(
                         children: [
                           // Mark Out-of-Scope
@@ -157,7 +157,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
                           // Accept & Proceed
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: () => _bloc.submit(),  // existing submit flow
+                              onPressed: () => _bloc.attendanceApprove(''),  // existing submit flow
                               style: actionButtonStyle.copyWith(
                                 backgroundColor: WidgetStatePropertyAll(AppColors.primary),
                               ),

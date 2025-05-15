@@ -39,6 +39,14 @@ class WOProvider {
     );
   }
 
+  Future<void> submitVerified(String id, String remarks, int isRejected) {
+    Provider provider = Provider(fetchURL: "/api/m_wo.php");
+    return provider.post(
+      url: "/api/m_wo.php",
+      body: {"action": "submit_wr_verified", "woTaskId": id, "remarks": remarks, "isRejected": isRejected},
+    );
+  }
+
   Future<List<WorkOrderStatus>> fetch(String url, String id) async {
     Provider provider = Provider(fetchURL: url, taskID: id);
     try {

@@ -120,10 +120,10 @@ class _ComplaintSectionResponseImageState
             ),
         ],
       ),
-      floatingActionButton: widget.disable
-          ? null
-          : _buildSubmitButton(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      // floatingActionButton: widget.disable
+      //     ? null
+      //     : _buildSubmitButton(),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -286,6 +286,8 @@ class _ComplaintSectionResponseImageState
           ),
         ],
         SizedBox(height: 80), // Space for FAB
+        if (!widget.disable && _toUpload.isNotEmpty )
+            _buildSubmitButton(),
       ],
     );
   }
