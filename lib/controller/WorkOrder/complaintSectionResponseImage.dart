@@ -161,134 +161,137 @@ class _ComplaintSectionResponseImageState
     final totalImages = _existing.length + _toUpload.length;
     final canAddMore = totalImages < 3;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Upload Response Evidence',
-          style: GoogleFonts.poppins(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: Colors.black87,
-          ),
-        ),
-        SizedBox(height: 8),
-        Text(
-          'Document your work with photos (max 3)',
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-        ),
-        SizedBox(height: 24),
-
-        // Existing Images
-        if (_existing.isNotEmpty) ...[
-          _buildSectionCard(
-            title: 'Uploaded Images',
-            child: GridView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 0.8,
-              ),
-              itemCount: _existing.length,
-              itemBuilder: (_, i) => _buildExistingCard(_existing[i]),
+    return SingleChildScrollView(
+      physics: BouncingScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Upload Response Evidence',
+            style: GoogleFonts.poppins(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
             ),
           ),
-          SizedBox(height: 16),
-        ],
-
-        // Add New Photos
-        if (canAddMore) ...[
-          _buildSectionCard(
-            title: 'Add Photos (${3 - totalImages} remaining)',
-            child: Column(
-              children: [
-                if (_toUpload.isEmpty)
-                  Container(
-                      padding: EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey[200]!, width: 1.5),
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(Icons.photo_library_outlined, size: 40, color: Colors.grey[400]),
-                          SizedBox(height: 8),
-                          Text(
-                            'No photos added yet',
-                            style: GoogleFonts.poppins(
-                              color: Colors.grey[600],
-                              fontSize: 14,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            'Photos help us better understand the issue',
-                            style: GoogleFonts.poppins(
-                              color: Colors.grey[400],
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  
-                  SizedBox(height: 12),
-                  
-                  InkWell(
-                    onTap: widget.disable ? null : _pickLocalImage,
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.add, color: AppColors.white, size: 20),
-                          SizedBox(width: 8),
-                          Text(
-                            'Add Photo',
-                            style: GoogleFonts.poppins(
-                              color: AppColors.white,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-              ],
+          SizedBox(height: 8),
+          Text(
+            'Document your work with photos (max 3)',
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: Colors.grey[600],
             ),
           ),
-          SizedBox(height: 16),
-        ],
+          SizedBox(height: 24),
 
-        // New Photos to Upload
-        if (_toUpload.isNotEmpty) ...[
-          _buildSectionCard(
-            title: 'Photos to Upload',
-            child: Column(
-              children: [
-                ..._toUpload.asMap().entries.map(
-                  (e) => _buildLocalCard(e.value, e.key),
+          // Existing Images
+          if (_existing.isNotEmpty) ...[
+            _buildSectionCard(
+              title: 'Uploaded Images',
+              child: GridView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 0.8,
                 ),
-              ],
+                itemCount: _existing.length,
+                itemBuilder: (_, i) => _buildExistingCard(_existing[i]),
+              ),
             ),
-          ),
+            SizedBox(height: 16),
+          ],
+
+          // Add New Photos
+          if (canAddMore) ...[
+            _buildSectionCard(
+              title: 'Add Photos (${3 - totalImages} remaining)',
+              child: Column(
+                children: [
+                  if (_toUpload.isEmpty)
+                    Container(
+                        padding: EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[50],
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey[200]!, width: 1.5),
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(Icons.photo_library_outlined, size: 40, color: Colors.grey[400]),
+                            SizedBox(height: 8),
+                            Text(
+                              'No photos added yet',
+                              style: GoogleFonts.poppins(
+                                color: Colors.grey[600],
+                                fontSize: 14,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Photos help us better understand the issue',
+                              style: GoogleFonts.poppins(
+                                color: Colors.grey[400],
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    
+                    SizedBox(height: 12),
+                    
+                    InkWell(
+                      onTap: widget.disable ? null : _pickLocalImage,
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add, color: AppColors.white, size: 20),
+                            SizedBox(width: 8),
+                            Text(
+                              'Add Photo',
+                              style: GoogleFonts.poppins(
+                                color: AppColors.white,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            SizedBox(height: 16),
+          ],
+
+          // New Photos to Upload
+          if (_toUpload.isNotEmpty) ...[
+            _buildSectionCard(
+              title: 'Photos to Upload',
+              child: Column(
+                children: [
+                  ..._toUpload.asMap().entries.map(
+                    (e) => _buildLocalCard(e.value, e.key),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          SizedBox(height: 80), // Space for FAB
+          if (!widget.disable && _toUpload.isNotEmpty )
+              _buildSubmitButton(),
         ],
-        SizedBox(height: 80), // Space for FAB
-        if (!widget.disable && _toUpload.isNotEmpty )
-            _buildSubmitButton(),
-      ],
+      )
     );
   }
 
