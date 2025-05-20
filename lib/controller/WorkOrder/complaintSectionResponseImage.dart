@@ -320,71 +320,78 @@ class _ComplaintSectionResponseImageState
   }
 
   Widget _buildExistingCard(ResponseImage img) {
-    final src = img.documentSrc.startsWith("//")
-        ? "https:${img.documentSrc}"
+    final src = img.documentSrc.startsWith('//')
+        ? 'https:${img.documentSrc}'
         : img.documentSrc;
-    return Card(
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => ImageViewer(url: src)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: ClipRRect(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-                child: Image.network(
-                  src,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Center(
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-                      ),
-                    );
-                  },
-                ),
-              ),
+
+    return Stack(
+      children: [
+        Card(
+          margin: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => ImageViewer(url: src)),
             ),
-            Padding(
-              padding: EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    img.documentFilename,
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                    child: Image.network(
+                      src,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, progress) {
+                        if (progress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation(AppColors.primary),
+                          ),
+                        );
+                      },
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                  if (img.documentDesc.isNotEmpty) ...[
-                    SizedBox(height: 4),
-                    Text(
-                      img.documentDesc,
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ],
+                ),
+                Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (img.documentDesc.isNotEmpty) ...[
+                        SizedBox(height: 4),
+                        Text(
+                          img.documentDesc,
+                          style: GoogleFonts.poppins(
+                            fontSize: 12, color: Colors.grey[600]),
+                          maxLines: 2, overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // delete button in the corner:
+        if (!widget.disable)
+          Positioned(
+            top: 4, right: 4,
+            child: Material(
+              color: Colors.white.withOpacity(0.8),
+              shape: CircleBorder(),
+              child: IconButton(
+                icon: Icon(Icons.delete, size: 20, color: Colors.red),
+                onPressed: () => _confirmDelete(img.woTaskUploadId),
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+      ],
     );
   }
 
@@ -480,6 +487,39 @@ class _ComplaintSectionResponseImageState
         },
       ),
     );
+  }
+
+  void _confirmDelete(String uploadId) {
+    showDialog(
+      context: context,
+      builder: (_) => CustomDialog(
+        cancel: true,
+        description: 'Delete this image?',
+        buttonText: 'Yes',
+        image: Image.asset('assets/icon_trans.png', height: 40),
+        okayTapped: () {
+          Navigator.pop(context);
+          _deleteExistingImage(uploadId);
+        },
+      ),
+    );
+  }
+
+  Future<void> _deleteExistingImage(String uploadId) async {
+    setState(() => _loading = true);
+    final url = '/api/m_wo.php?action=delete_wo_repair_image'
+      '&woTaskId=${widget.woTaskId}'
+      '&woTaskUploadId=$uploadId';
+    final provider = Provider(fetchURL: url)..context = context;
+    try {
+      await provider.delete(url: provider.fetchURL);
+      Toast.show('Image deleted');
+      await _loadExisting();
+    } catch (e) {
+      Toast.show('Delete failed');
+    } finally {
+      setState(() => _loading = false);
+    }
   }
 
   /// POST each picked image, then reload `_existing`
