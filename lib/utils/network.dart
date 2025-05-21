@@ -89,14 +89,18 @@ class Provider {
   Future<ResponseValue> fetch() async {
     await init();
 
-    print(fetchURL);
 
     final uri = Uri.parse(netDomain +
         fetchURL +
         (taskID == null ? "" : taskID!));
+
+    print(uri);
+    print('token: $token');
+    print('deviceID: $deviceID');
+    
     var response = await http.get(uri, headers: {
       "Authorization": token,
-      "Deviceid": deviceID,
+      "deviceid": deviceID,
     });
 
     if (response.statusCode == 200) {

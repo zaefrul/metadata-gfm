@@ -44,6 +44,7 @@ class ComplaintList extends StatelessWidget {
                 isAssign:      task.woTaskStatus == "Assign" ||
                                task.woTaskStatus == "Revisit" ||
                                task.woTaskStatus == "WR Reassign",
+                woTaskType: task.woTaskType,
               );
               Navigator.of(context)
                   .push(MaterialPageRoute(builder: (_) => page))

@@ -183,6 +183,8 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
         action = "submit_repair";
     }
 
+    debugPrint('Action: $action');
+
     final body = {
       "action": action,
       "woTaskId": widget.id,

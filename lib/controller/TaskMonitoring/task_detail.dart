@@ -231,6 +231,7 @@ class TaskInformation extends StatelessWidget {
                       taskNo: d.transactionNo,
                       taskStatus: d.taskStatus,
                       viewer: true,
+                      woTaskType: "",
                     ),
                   ),
                 ),

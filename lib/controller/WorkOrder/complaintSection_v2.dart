@@ -9,7 +9,6 @@ import 'package:gfm_gems/utils/network.dart';
 import 'package:gfm_gems/utils/reference.dart';
 import 'package:gfm_gems/view/dialog.dart';
 import 'package:toast/toast.dart';
-import 'dart:developer';
 import '../../main.dart';
 
 
@@ -30,6 +29,7 @@ class ComplaintSection extends StatefulWidget {
   final String id;
   final bool isComplaintProgress;
   final bool isAssign;
+  final String woTaskType;
 
   const ComplaintSection({
     Key? key,
@@ -40,6 +40,7 @@ class ComplaintSection extends StatefulWidget {
     required this.viewer,
     this.isAssign = false,
     this.isComplaintProgress = false,
+    required this.woTaskType,
   }) : super(key: key);
 
   @override
@@ -94,7 +95,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
       alert,
     );
 
-    debugPrint("widget parameters are ${widget.taskNo}, ${widget.taskStatus}, ${widget.viewer}, ${widget.isAssign}");
+    debugPrint("widget parameters are ${widget.taskNo}, ${widget.taskStatus}, ${widget.viewer}, ${widget.isAssign}, ${widget.woTaskType}");
 
     return Scaffold(
       appBar: AppBar(
@@ -140,7 +141,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
                   child: Builder(builder: (_) {
                     // 1) If this is the Assigner on a WR Check ticket:
                     if (!widget.viewer 
-                        && widget.taskStatus == "WR Verified") {
+                        && (widget.taskStatus == "WR Verified" || (widget.woTaskType == "Self Finding" && widget.taskStatus == "Assign"))) {
                       return Row(
                         children: [
                           // Mark Out-of-Scope
