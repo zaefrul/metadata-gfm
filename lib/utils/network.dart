@@ -94,9 +94,9 @@ class Provider {
         fetchURL +
         (taskID == null ? "" : taskID!));
 
-    print(uri);
-    print('token: $token');
-    print('deviceID: $deviceID');
+    debugPrint(uri.toString());
+    // debugPrint('token: $token');
+    // debugPrint('deviceID: $deviceID');
     
     var response = await http.get(uri, headers: {
       "Authorization": token,
