@@ -38,6 +38,7 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
       if (result.woDetail == null) {
         throw Exception("woDetail came back null");
       }
+      debugPrint(result.woDetail.toString());
       return result.woDetail!;
     } catch (err, st) {
       rethrow;
@@ -296,8 +297,8 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
 }
 
   List<_FieldRow> _makeFields(WorkOrderDetail d) => [
+    _FieldRow(Icons.request_page,         "Work Request No",         d.woTaskRequestNo),
     _FieldRow(Icons.confirmation_number,  "Work Order No",      d.woTaskNo),
-    _FieldRow(Icons.request_page,         "Request No",         d.woTaskRequestNo),
     _FieldRow(Icons.person,               "Reported by",        d.woTaskReportedBy),
     _FieldRow(Icons.phone,                "Phone No",           d.woTaskPhoneNo),
     _FieldRow(Icons.email,                "Email",              d.woTaskEmail),
