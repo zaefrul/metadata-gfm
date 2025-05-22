@@ -224,7 +224,9 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
 
     final provider = Provider(fetchURL: "/api/m_wo.php")..context = ctx;
     provider.post(url: "/api/m_wo.php", body: body).then((resp) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       setState(() => loading = false);
       _alert(ctx, resp);
     }).catchError((err) {
