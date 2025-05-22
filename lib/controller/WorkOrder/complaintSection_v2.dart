@@ -618,87 +618,92 @@ class _BuildStandardButton extends StatelessWidget {
           children: [
             // New button (conditionally displayed)
             if (mainStatus == "Assign" && woTaskStatus == "Self Finding")
-              FloatingActionButton.extended(
-                heroTag: "out_of_scope_button",
-                label: const Text(
-                  "Out-of-Scope",
-                  style: TextStyle(color: Colors.white),
+              Expanded(
+                child: FloatingActionButton.extended(
+                  heroTag: "out_of_scope_button",
+                  label: const Text(
+                    "Out-of-Scope",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: AppColors.dangerDark, // Use your desired color
+                  onPressed: () {
+                    outOfScopeOnPressAction(context);
+                  },
                 ),
-                backgroundColor: AppColors.dangerDark, // Use your desired color
-                onPressed: () {
-                  outOfScopeOnPressAction(context);
-                }
               ),
-            const SizedBox(width: 16), // Add spacing between buttons
+            if (mainStatus == "Assign" && woTaskStatus == "Self Finding")
+              const SizedBox(width: 16), // Add spacing between buttons
 
             // Existing Submit button
-            FloatingActionButton.extended(
-              heroTag: "accept_button",
-              label: StreamBuilder<bool>(
-                stream: bloc.loading$,
-                builder: (_, loadingSnapshot) => loadingSnapshot.data == false
-                    ? Text(
-                        viewOnly ? "View Form" : "Submit",
-                        style: const TextStyle(color: Colors.white),
-                      )
-                    : const CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-              ),
-              backgroundColor:
-                  (viewOnly || (snapshot.data ?? false)) ? colorTheme2 : AppColors.primaryDark,
-              onPressed: () {
-                if (viewOnly) {
-                  // just view
-                  bloc.openComplaint(context, viewOnly: viewOnly);
-                } else if (mainStatus == "Assign" ||
-                    mainStatus == "Revisit" ||
-                    mainStatus == "WR Reassign") {
-                  // old Assign/Revisit path: must be enabled to submit
-                  if (snapshot.data == true) {
-                    bloc.submit().then((_) {
-                      showDialog(
-                        context: navigatorKey.currentContext!,
-                        builder: _buildDialog,
-                      );
-                    }).catchError((err) => Toast.show(err));
-                  } else {
-                    Toast.show(
-                      "All sections must be completed before submit",
-                      duration: 1,
-                    );
-                  }
-                } else {
-                  // DEFAULT for everything *else* (including WR Verified):
-                  // if enabled → open the form; otherwise toast
-                  debugPrint("snapshot : ${snapshot.data.toString()}");
-                  if (snapshot.data == true ||
-                      mainStatus == "WR Verified" ||
-                      mainStatus == "WR Re-Open") {
-                    if (mainStatus == "WR Check") {
-                      var body = {
-                        "action": "submit_wr_check",
-                        "woTaskId": bloc.id,
-                      };
-
-                      final provider = Provider(fetchURL: "/api/m_wo.php");
-
-                      provider.post(url: "/api/m_wo.php", body: body).then((resp) {
-                        alert("Request submitted successfully");
-                      }).catchError((err) {
-                        Toast.show(err.toString(), backgroundColor: AppColors.danger);
-                      });
+            Expanded(
+              child: FloatingActionButton.extended(
+                heroTag: "accept_button",
+                label: StreamBuilder<bool>(
+                  stream: bloc.loading$,
+                  builder: (_, loadingSnapshot) => loadingSnapshot.data == false
+                      ? Text(
+                          viewOnly ? "View Form" : "Submit",
+                          style: const TextStyle(color: Colors.white),
+                        )
+                      : const CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                ),
+                backgroundColor:
+                    (viewOnly || (snapshot.data ?? false)) ? colorTheme2 : AppColors.primaryDark,
+                onPressed: () {
+                  if (viewOnly) {
+                    // just view
+                    bloc.openComplaint(context, viewOnly: viewOnly);
+                  } else if (mainStatus == "Assign" ||
+                      mainStatus == "Revisit" ||
+                      mainStatus == "WR Reassign") {
+                    // old Assign/Revisit path: must be enabled to submit
+                    if (snapshot.data == true) {
+                      bloc.submit().then((_) {
+                        showDialog(
+                          context: navigatorKey.currentContext!,
+                          builder: _buildDialog,
+                        );
+                      }).catchError((err) => Toast.show(err));
                     } else {
-                      bloc.openComplaint(context, viewOnly: viewOnly);
+                      Toast.show(
+                        "All sections must be completed before submit",
+                        duration: 1,
+                      );
                     }
                   } else {
-                    Toast.show(
-                      "All sections must be completed before submit",
-                      duration: 1,
-                    );
+                    // DEFAULT for everything *else* (including WR Verified):
+                    // if enabled → open the form; otherwise toast
+                    debugPrint("snapshot : ${snapshot.data.toString()}");
+                    if (snapshot.data == true ||
+                        mainStatus == "WR Verified" ||
+                        mainStatus == "WR Re-Open") {
+                      if (mainStatus == "WR Check") {
+                        var body = {
+                          "action": "submit_wr_check",
+                          "woTaskId": bloc.id,
+                        };
+
+                        final provider = Provider(fetchURL: "/api/m_wo.php");
+
+                        provider.post(url: "/api/m_wo.php", body: body).then((resp) {
+                          alert("Request submitted successfully");
+                        }).catchError((err) {
+                          Toast.show(err.toString(), backgroundColor: AppColors.danger);
+                        });
+                      } else {
+                        bloc.openComplaint(context, viewOnly: viewOnly);
+                      }
+                    } else {
+                      Toast.show(
+                        "All sections must be completed before submit",
+                        duration: 1,
+                      );
+                    }
                   }
-                }
-              },
+                },
+              ),
             ),
           ],
         );

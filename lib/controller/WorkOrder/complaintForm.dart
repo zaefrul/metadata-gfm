@@ -57,7 +57,7 @@ class _FormComplaintState extends State<FormComplaint> {
       }
       setState(() {});
     } catch (e) {
-      debugPrint('Error fetching zones: \$e');
+      debugPrint('Error fetching zones: $e');
     }
   }
 
@@ -524,7 +524,7 @@ class _FormComplaintState extends State<FormComplaint> {
     }
     final body = {
       'action': 'submit_complain',
-      'woTaskLocation': '\$lat,\$lng',
+      'woTaskLocation': '$lat,$lng',
       'woTaskComplaint': desc,
       'zoneId': _selectedLocation!.zoneId.toString(),
     };
@@ -570,12 +570,12 @@ class UploadItem {
     required this.data,
   });
   Map<String, String> toBody(int idx) => {
-        'complaintImages[\$idx][name]': name,
-        'complaintImages[\$idx][filename]': filename,
-        'complaintImages[\$idx][size]': size,
-        'complaintImages[\$idx][type]': 'data:image/jpeg;base64',
-        'complaintImages[\$idx][data]': data,
-        'complaintImages[\$idx][description]': remark,
+        'complaintImages[$idx][name]': name,
+        'complaintImages[$idx][filename]': filename,
+        'complaintImages[$idx][size]': size,
+        'complaintImages[$idx][type]': 'data:image/jpeg;base64',
+        'complaintImages[$idx][data]': data,
+        'complaintImages[$idx][description]': remark,
       };
 }
 
@@ -591,5 +591,5 @@ class LocationAPI {
         zoneName = json['zoneName'] as String,
         zoneStatus = json['zoneStatus'] as int;
   @override
-  String toString() => '\$zoneCode — \$zoneName';
+  String toString() => '$zoneCode — $zoneName';
 }
