@@ -108,7 +108,7 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
         actions: widget.viewer
             ? null
             : <Widget>[
-                widget.checkpoint == 1
+                widget.checkpoint == 1 && submitText != "Verify"
                     ? Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: GestureDetector(
