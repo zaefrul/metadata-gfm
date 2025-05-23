@@ -4,16 +4,16 @@ import 'dart:typed_data'; // Required for Uint8List
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:gfm_gems/controller/PPM/Form/openImage.dart';
-import 'package:gfm_gems/model/form.dart'; // Assuming FormHItem is defined here
-import 'package:gfm_gems/utils/network.dart';
-import 'package:gfm_gems/utils/reference.dart';
+import 'package:GEMS/controller/PPM/Form/openImage.dart';
+import 'package:GEMS/model/form.dart'; // Assuming FormHItem is defined here
+import 'package:GEMS/utils/network.dart';
+import 'package:GEMS/utils/reference.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:gfm_gems/view/dialog.dart'; // Assuming CustomDialog is defined here
+import 'package:GEMS/view/dialog.dart'; // Assuming CustomDialog is defined here
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:gfm_gems/utils/image_compressor.dart';
+import 'package:GEMS/utils/image_compressor.dart';
 import 'package:geolocator/geolocator.dart'; // Import for Geolocator
 
 import '../../../main.dart'; // For navigatorKey, colorTheme2, colorTheme3

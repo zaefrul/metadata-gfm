@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/controller/PPM/ri_search.dart';
+import 'package:GEMS/controller/PPM/ri_search.dart';
 
 import '../../view/bar.dart';
 import '../../view/drawer.dart';

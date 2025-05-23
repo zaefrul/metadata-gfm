@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gfm_gems/controller/WorkOrder/complaintSection_v2.dart';
-import 'package:gfm_gems/model/workorder.dart';
-import 'package:gfm_gems/utils/reference.dart';
+import 'package:GEMS/controller/WorkOrder/complaintSection_v2.dart';
+import 'package:GEMS/model/workorder.dart';
+import 'package:GEMS/utils/reference.dart';
 
 typedef Future<void> VoidFutureCallback();
 

@@ -1,11 +1,11 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/model/complaint.dart';
-import 'package:gfm_gems/model/complaintResponse.dart';
-import 'package:gfm_gems/model/meter.dart';
-import 'package:gfm_gems/model/responseValue.dart';
-import 'package:gfm_gems/model/serializers.dart';
-import 'package:gfm_gems/view/dialog.dart';
+import 'package:GEMS/model/complaint.dart';
+import 'package:GEMS/model/complaintResponse.dart';
+import 'package:GEMS/model/meter.dart';
+import 'package:GEMS/model/responseValue.dart';
+import 'package:GEMS/model/serializers.dart';
+import 'package:GEMS/view/dialog.dart';
 
 import '../model/user.dart';
 import 'package:http/http.dart' as http;

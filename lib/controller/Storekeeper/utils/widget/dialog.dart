@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/widget/button.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
+import 'package:GEMS/controller/Storekeeper/utils/widget/button.dart';
+import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 import 'package:toast/toast.dart';
 
 class Consts {

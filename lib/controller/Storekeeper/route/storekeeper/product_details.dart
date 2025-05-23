@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
+import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc_material.dart';
+import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc_material.dart';
 
 // Dummy implementations for missing classes—you should replace these with your actual implementations.
 class ComplaintMaterial {

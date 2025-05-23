@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
-import 'package:gfm_gems/controller/Utilities/Bloc/bloc.dart';
-import 'package:gfm_gems/model/meter.dart';
-import 'package:gfm_gems/view/drawer.dart';
+import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
+import 'package:GEMS/controller/Utilities/Bloc/bloc.dart';
+import 'package:GEMS/model/meter.dart';
+import 'package:GEMS/view/drawer.dart';
 import 'package:toast/toast.dart';
 import 'util.dart';
 import 'MonthlyReading.dart' as page;

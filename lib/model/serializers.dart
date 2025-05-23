@@ -4,10 +4,10 @@ import 'package:built_collection/built_collection.dart';
 import 'package:built_value/serializer.dart';
 import 'package:built_value/standard_json_plugin.dart';
 
-import 'package:gfm_gems/model/dot.dart';
-import 'package:gfm_gems/model/responseValue.dart';
-import 'package:gfm_gems/model/task.dart';
-import 'package:gfm_gems/model/workorder.dart';
+import 'package:GEMS/model/dot.dart';
+import 'package:GEMS/model/responseValue.dart';
+import 'package:GEMS/model/task.dart';
+import 'package:GEMS/model/workorder.dart';
 
 import 'attendance.dart';
 import 'complaint.dart';

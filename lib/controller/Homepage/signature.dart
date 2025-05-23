@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
-import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/widget/dialog.dart';
-import 'package:gfm_gems/utils/network.dart';
+import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
+import 'package:GEMS/controller/Storekeeper/utils/widget/dialog.dart';
+import 'package:GEMS/utils/network.dart';
 import 'package:toast/toast.dart';
 import 'package:signature/signature.dart';
 import '../../main.dart';

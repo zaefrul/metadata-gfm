@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:toast/toast.dart';
-import 'package:gfm_gems/model/workorder.dart';
-import 'package:gfm_gems/model/responseValue.dart';
-import 'package:gfm_gems/utils/network.dart';
-import 'package:gfm_gems/utils/reference.dart';
+import 'package:GEMS/model/workorder.dart';
+import 'package:GEMS/model/responseValue.dart';
+import 'package:GEMS/utils/network.dart';
+import 'package:GEMS/utils/reference.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ComplaintAssign extends StatefulWidget {

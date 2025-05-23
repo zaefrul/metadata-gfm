@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
-import 'package:gfm_gems/model/complaint.dart';
+import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
+import 'package:GEMS/model/complaint.dart';
 
 class MaterialInfo extends StatelessWidget {
   final ComplaintDType value;

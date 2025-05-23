@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc.dart';
-import 'package:gfm_gems/model/complaint.dart';
-import 'package:gfm_gems/model/user.dart';
-import 'package:gfm_gems/utils/network.dart';
+import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc.dart';
+import 'package:GEMS/model/complaint.dart';
+import 'package:GEMS/model/user.dart';
+import 'package:GEMS/utils/network.dart';
 import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:toast/toast.dart';
-import 'package:gfm_gems/view/dialog.dart';
+import 'package:GEMS/view/dialog.dart';
 import '../../../../main.dart';
 
 class CheckinAdd extends StatefulWidget {

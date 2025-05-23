@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/model/attendance.dart';
-import 'package:gfm_gems/model/eventAtt.dart';
-import 'package:gfm_gems/model/eventDetail.dart';
+import 'package:GEMS/model/attendance.dart';
+import 'package:GEMS/model/eventAtt.dart';
+import 'package:GEMS/model/eventDetail.dart';
 import 'dart:async';
 
 import 'bloc/bloc_attendance.dart';
 
-import 'package:gfm_gems/utils/reference.dart';
+import 'package:GEMS/utils/reference.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:intl/intl.dart';

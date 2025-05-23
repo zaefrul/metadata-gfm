@@ -4,10 +4,10 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 // Removed flutter_image_compress and replaced with flutter_native_image:
-import 'package:gfm_gems/model/complaint.dart';
-import 'package:gfm_gems/model/serializers.dart';
-import 'package:gfm_gems/utils/image_compressor.dart';
-import 'package:gfm_gems/utils/network.dart';
+import 'package:GEMS/model/complaint.dart';
+import 'package:GEMS/model/serializers.dart';
+import 'package:GEMS/utils/image_compressor.dart';
+import 'package:GEMS/utils/network.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';

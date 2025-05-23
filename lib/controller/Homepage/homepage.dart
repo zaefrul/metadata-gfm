@@ -4,12 +4,12 @@ import 'dart:ui'; // Keep if used by other parts of your app, not directly used 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 // Assuming these are your project's local imports
-import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart'; // For AppColors, routeDashboard etc.
-import 'package:gfm_gems/controller/Storekeeper/utils/widget/dialog.dart'; // For CustomDialog
-import 'package:gfm_gems/model/user.dart'; // Your User model
-import 'package:gfm_gems/utils/network.dart'; // Your custom Provider
-import 'package:gfm_gems/utils/reference.dart'; // For kUserSignature, routeSignature etc.
-import 'package:gfm_gems/view/drawer.dart'; // Your BuildDrawer widget
+import 'package:GEMS/controller/Storekeeper/utils/constant.dart'; // For AppColors, routeDashboard etc.
+import 'package:GEMS/controller/Storekeeper/utils/widget/dialog.dart'; // For CustomDialog
+import 'package:GEMS/model/user.dart'; // Your User model
+import 'package:GEMS/utils/network.dart'; // Your custom Provider
+import 'package:GEMS/utils/reference.dart'; // For kUserSignature, routeSignature etc.
+import 'package:GEMS/view/drawer.dart'; // Your BuildDrawer widget
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart'; // Ensure this is the intended toast package

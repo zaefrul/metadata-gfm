@@ -78,7 +78,7 @@ class Provider {
   }
 }
 
-// Mock CustomDialog (from gfm_gems/view/dialog.dart)
+// Mock CustomDialog (from GEMS/view/dialog.dart)
 // This is a simplified mock. Your actual CustomDialog might be more complex.
 class CustomDialog extends StatelessWidget {
   final String description;

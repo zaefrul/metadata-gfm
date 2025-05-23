@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/utils/network.dart';
-import 'package:gfm_gems/utils/reference.dart';
+import 'package:GEMS/utils/network.dart';
+import 'package:GEMS/utils/reference.dart';
 
 final String api_rect = '/api/m_wo.php?type=wr_rectification_time&woTaskId=';
 final String api_save = 'save_wr_rectification_time, woTaskId=';

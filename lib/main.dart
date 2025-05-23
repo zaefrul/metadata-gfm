@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc_technician.dart';
+import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc_technician.dart';
 import 'controller/Attendance/attendance.dart' as main_attendance;
 import 'controller/Homepage/signature.dart';
 import 'controller/Leaderboard/leaderboard.dart';
@@ -43,7 +43,7 @@ import 'controller/Homepage/resetPassword.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:gfm_gems/model/complaint.dart';
+import 'package:GEMS/model/complaint.dart';
 
 late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 late AndroidNotificationChannel channel;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
-import 'package:gfm_gems/model/complaint.dart';
-import 'package:gfm_gems/utils/network.dart';
+import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
+import 'package:GEMS/model/complaint.dart';
+import 'package:GEMS/utils/network.dart';
 import 'package:rxdart/subjects.dart';
 import '../../../../main.dart';
 

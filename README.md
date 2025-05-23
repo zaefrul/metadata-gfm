@@ -1,4 +1,4 @@
-# gfm_gems
+# GEMS
 
 A new Flutter project.
 

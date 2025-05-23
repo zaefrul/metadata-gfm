@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc.dart';
+import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc.dart';
 import 'package:rxdart/rxdart.dart';
 
 enum ScreenType {

@@ -3,10 +3,10 @@ library responseValue;
 import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
-import 'package:gfm_gems/model/dot.dart';
-import 'package:gfm_gems/model/form.dart';
-import 'package:gfm_gems/model/task.dart';
-import 'package:gfm_gems/model/workorder.dart';
+import 'package:GEMS/model/dot.dart';
+import 'package:GEMS/model/form.dart';
+import 'package:GEMS/model/task.dart';
+import 'package:GEMS/model/workorder.dart';
 
 import 'monitor.dart';
 

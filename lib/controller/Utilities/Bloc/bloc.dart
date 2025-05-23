@@ -1,5 +1,5 @@
-import 'package:gfm_gems/model/meter.dart';
-import 'package:gfm_gems/utils/network.dart';
+import 'package:GEMS/model/meter.dart';
+import 'package:GEMS/utils/network.dart';
 import 'package:rxdart/subjects.dart';
 
 const String meterAPI = "/utility_meter/";

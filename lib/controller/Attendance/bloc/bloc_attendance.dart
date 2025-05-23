@@ -3,10 +3,10 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:gfm_gems/model/attendance.dart';
-import 'package:gfm_gems/model/eventAtt.dart';
-import 'package:gfm_gems/model/eventDetail.dart';
-import 'package:gfm_gems/utils/network.dart';
+import 'package:GEMS/model/attendance.dart';
+import 'package:GEMS/model/eventAtt.dart';
+import 'package:GEMS/model/eventDetail.dart';
+import 'package:GEMS/utils/network.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:rxdart/rxdart.dart';

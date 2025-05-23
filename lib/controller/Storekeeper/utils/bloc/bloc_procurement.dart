@@ -1,4 +1,4 @@
-import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc.dart';
+import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc.dart';
 import 'package:rxdart/rxdart.dart';
 
 const List<String> statuses = [

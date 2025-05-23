@@ -1,4 +1,4 @@
-import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
+import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferencesUtil<T> {

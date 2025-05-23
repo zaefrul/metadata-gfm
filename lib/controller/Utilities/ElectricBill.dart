@@ -3,12 +3,12 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/controller/PPM/Form/openImage.dart';
-import 'package:gfm_gems/model/meter.dart';
-import 'package:gfm_gems/model/serializers.dart';
-import 'package:gfm_gems/utils/image_compressor.dart';
-import 'package:gfm_gems/utils/network.dart';
-import 'package:gfm_gems/utils/reference.dart';
+import 'package:GEMS/controller/PPM/Form/openImage.dart';
+import 'package:GEMS/model/meter.dart';
+import 'package:GEMS/model/serializers.dart';
+import 'package:GEMS/utils/image_compressor.dart';
+import 'package:GEMS/utils/network.dart';
+import 'package:GEMS/utils/reference.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:rxdart/subjects.dart';

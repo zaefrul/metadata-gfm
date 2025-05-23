@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/model/complaint.dart';
+import 'package:GEMS/model/complaint.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'bloc.dart';

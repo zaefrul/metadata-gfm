@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/model/workorder.dart';
-import 'package:gfm_gems/utils/network.dart';
+import 'package:GEMS/model/workorder.dart';
+import 'package:GEMS/utils/network.dart';
 import 'complaintList.dart';
 
 class ComplaintView extends StatefulWidget {

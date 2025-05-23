@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
-import 'package:gfm_gems/model/user.dart';
+import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
+import 'package:GEMS/model/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../utils/network.dart';

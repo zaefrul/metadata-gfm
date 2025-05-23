@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:date_format/date_format.dart';
-import 'package:gfm_gems/utils/network.dart';
-import 'package:gfm_gems/view/dialog.dart';
+import 'package:GEMS/utils/network.dart';
+import 'package:GEMS/view/dialog.dart';
 import 'package:intl/intl.dart';
 import '../../main.dart';
 

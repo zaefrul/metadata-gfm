@@ -1,9 +1,9 @@
 import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/controller/TaskMonitoring/task_detail.dart';
-import 'package:gfm_gems/model/monitor.dart';
-import 'package:gfm_gems/utils/network.dart';
-import 'package:gfm_gems/utils/reference.dart';
+import 'package:GEMS/controller/TaskMonitoring/task_detail.dart';
+import 'package:GEMS/model/monitor.dart';
+import 'package:GEMS/utils/network.dart';
+import 'package:GEMS/utils/reference.dart';
 import 'package:toast/toast.dart';
 import 'package:flutter/services.dart';
 import '../../main.dart';

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/model/gamification.dart';
-import 'package:gfm_gems/utils/network.dart';
-import 'package:gfm_gems/utils/reference.dart';
-import 'package:gfm_gems/view/drawer.dart';
+import 'package:GEMS/model/gamification.dart';
+import 'package:GEMS/utils/network.dart';
+import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/drawer.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 import '../../../main.dart';
 

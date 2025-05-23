@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc_checkin.dart';
+import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc_checkin.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/bloc/bloc_inventory.dart';
-import 'package:gfm_gems/controller/Storekeeper/utils/constant.dart';
-import 'package:gfm_gems/model/complaint.dart';
+import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc_inventory.dart';
+import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
+import 'package:GEMS/model/complaint.dart';
 
 class TaskList extends StatelessWidget {
   final BlocInventory bloc;

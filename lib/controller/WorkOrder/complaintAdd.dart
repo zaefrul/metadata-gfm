@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/model/complaint.dart';
-import 'package:gfm_gems/utils/network.dart';
-import 'package:gfm_gems/utils/reference.dart';
+import 'package:GEMS/model/complaint.dart';
+import 'package:GEMS/utils/network.dart';
+import 'package:GEMS/utils/reference.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:toast/toast.dart';
 import 'package:google_fonts/google_fonts.dart';

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/utils/network.dart';
+import 'package:GEMS/utils/network.dart';
 import 'package:rating_dialog/rating_dialog.dart';
 import 'package:signature/signature.dart';
 

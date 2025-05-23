@@ -2,13 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gfm_gems/controller/TaskMonitoring/searchMonitorTask.dart';
-import 'package:gfm_gems/controller/TaskMonitoring/task_detail.dart';
-import 'package:gfm_gems/model/monitor.dart';
-import 'package:gfm_gems/utils/network.dart';
-import 'package:gfm_gems/utils/reference.dart';
-import 'package:gfm_gems/view/bar.dart';
-import 'package:gfm_gems/view/drawer.dart';
+import 'package:GEMS/controller/TaskMonitoring/searchMonitorTask.dart';
+import 'package:GEMS/controller/TaskMonitoring/task_detail.dart';
+import 'package:GEMS/model/monitor.dart';
+import 'package:GEMS/utils/network.dart';
+import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/bar.dart';
+import 'package:GEMS/view/drawer.dart';
 
 class TaskMonitoringScreen extends StatefulWidget {
   @override

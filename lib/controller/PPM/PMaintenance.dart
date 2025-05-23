@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/controller/PPM/search.dart';
-import 'package:gfm_gems/controller/Homepage/test.dart';
-import 'package:gfm_gems/utils/reference.dart';
+import 'package:GEMS/controller/PPM/search.dart';
+import 'package:GEMS/controller/Homepage/test.dart';
+import 'package:GEMS/utils/reference.dart';
 
 import '../../view/bar.dart';
 import '../../view/drawer.dart';

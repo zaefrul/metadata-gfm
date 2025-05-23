@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/controller/WorkOrder/complaintSectionResponseImage.dart';
-import 'package:gfm_gems/controller/WorkOrder/repository/provider.dart';
-import 'package:gfm_gems/model/execution.dart';
-import 'package:gfm_gems/model/workorder.dart';
+import 'package:GEMS/controller/WorkOrder/complaintSectionResponseImage.dart';
+import 'package:GEMS/controller/WorkOrder/repository/provider.dart';
+import 'package:GEMS/model/execution.dart';
+import 'package:GEMS/model/workorder.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../addTechnician.dart';

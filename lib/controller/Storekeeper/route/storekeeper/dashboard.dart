@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gfm_gems/utils/network.dart';
+import 'package:GEMS/utils/network.dart';
 import 'package:rxdart/rxdart.dart';
 import '../../../../main.dart';
 
