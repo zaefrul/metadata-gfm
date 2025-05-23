@@ -486,6 +486,9 @@ class _FormComplaintState extends State<FormComplaint> {
       'minWidth': 480,
       'minHeight': 640,
     }) ?? Uint8List(0);
+    var pref = await SharedPreferences.getInstance();
+    var lat = pref.getString(prefsLATITUDE);
+    var lng = pref.getString(prefsLONGITUDE);
     if (bytes.length > 5 * 1024 * 1024) {
       Toast.show('File > 5 MB');
       setState(() => loading = false);
@@ -499,6 +502,8 @@ class _FormComplaintState extends State<FormComplaint> {
         filename: basename(picked.path),
         size: bytes.length.toString(),
         data: base64Encode(bytes),
+        latitude: lat ?? '0.0',
+        longitude: lng ?? '0.0',
       ));
       loading = false;
     });
@@ -559,7 +564,7 @@ class _FormComplaintState extends State<FormComplaint> {
 
 class UploadItem {
   final File file;
-  final String date, name, filename, size, data;
+  final String date, name, filename, size, data, latitude, longitude;
   String remark = '';
   UploadItem({
     required this.file,
@@ -568,6 +573,8 @@ class UploadItem {
     required this.filename,
     required this.size,
     required this.data,
+    required this.latitude,
+    required this.longitude,
   });
   Map<String, String> toBody(int idx) => {
         'complaintImages[$idx][name]': name,
@@ -576,6 +583,8 @@ class UploadItem {
         'complaintImages[$idx][type]': 'data:image/jpeg;base64',
         'complaintImages[$idx][data]': data,
         'complaintImages[$idx][description]': remark,
+        "complaintImages[$idx][longitude]": longitude,
+        "complaintImages[$idx][latitude]": latitude,
       };
 }
 
