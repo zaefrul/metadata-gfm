@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 
 class StockInList extends StatelessWidget {
+  const StockInList({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,7 +24,7 @@ class StockInList extends StatelessWidget {
 class _Tile extends StatelessWidget {
   final String price;
 
-  _Tile(this.price);
+  const _Tile(this.price);
 
   @override
   Widget build(BuildContext context) {

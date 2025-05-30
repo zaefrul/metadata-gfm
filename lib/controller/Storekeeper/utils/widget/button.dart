@@ -6,7 +6,7 @@ class Button extends StatelessWidget {
   final String text;
   final Color color;
 
-  Button({required this.onPressed, required this.text, required this.color});
+  const Button({super.key, required this.onPressed, required this.text, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +15,8 @@ class Button extends StatelessWidget {
         // backgroundColor: color == null ? colorTheme1 : color,
         shape: StadiumBorder(),
       ),
-      onPressed: this.onPressed,
-      child: new Text(
+      onPressed: onPressed,
+      child: Text(
         text,
         style: TextStyle(
           color: Colors.white,

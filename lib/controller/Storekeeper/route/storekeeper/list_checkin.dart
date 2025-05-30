@@ -8,7 +8,7 @@ class CheckInList extends StatelessWidget {
   // Explicitly specify that the subject holds a List<dynamic>.
   final BehaviorSubject<List<dynamic>> _data = BehaviorSubject<List<dynamic>>.seeded([]);
 
-  CheckInList() {
+  CheckInList({super.key}) {
     refresh();
   }
 
@@ -39,9 +39,9 @@ class CheckInList extends StatelessWidget {
   }
 
   Future<void> refresh({BuildContext? context}) {
-    final Provider _provider = Provider(fetchURL: "/do/list_mobile_check_in");
-    _provider.context = context!;
-    return _provider.getJson(url: "/do/list_mobile_check_in").then((value) {
+    final Provider provider = Provider(fetchURL: "/do/list_mobile_check_in");
+    provider.context = context!;
+    return provider.getJson(url: "/do/list_mobile_check_in").then((value) {
       _data.sink.add(value);
     });
   }
@@ -105,7 +105,7 @@ class _Tile extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          "RM " + price,
+          "RM $price",
           style: const TextStyle(color: Colors.white, fontSize: 16),
         ),
       ),

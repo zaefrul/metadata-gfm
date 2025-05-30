@@ -109,11 +109,11 @@ class BlocInventory extends Bloc {
   Color color(String id) => _statusesColor[id] ?? Colors.grey;
 
   Future<void> getStore(BuildContext context) async {
-    final Provider _provider =
+    final Provider provider =
         Provider(fetchURL: "/store/purchase_option_store");
-    _provider.context = context;
+    provider.context = context;
 
-    final result = await _provider.getJson(url: "/store/purchase_option_store");
+    final result = await provider.getJson(url: "/store/purchase_option_store");
     final values = deserializeListOf<ComplaintDStore>(result).toList();
 
     stores = values;
@@ -123,11 +123,11 @@ class BlocInventory extends Bloc {
   }
 
   Future<void> getStock(BuildContext context, String id) async {
-    final Provider _provider =
+    final Provider provider =
         Provider(fetchURL: "/part/part_tree_category/", taskID: id);
-    _provider.context = context;
+    provider.context = context;
 
-    final result = await _provider.getJson(url: "/part/part_tree_category/") as List<dynamic>;
+    final result = await provider.getJson(url: "/part/part_tree_category/") as List<dynamic>;
     final values =
         deserializeListOf<ComplaintDGroupStore>(result).toList();
     materials = values;
@@ -229,7 +229,7 @@ class Request {
       final result = await _providerGET.getJson(url: "/wo_request/pending_task");
       return deserializeListOf<RequestTask>(result).toList();
     } catch (err) {
-      throw err;
+      rethrow;
     }
   }
 }

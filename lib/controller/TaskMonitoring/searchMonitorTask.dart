@@ -9,6 +9,8 @@ import 'package:flutter/services.dart';
 import '../../main.dart';
 
 class SearchTaskMonitoring extends StatefulWidget {
+  const SearchTaskMonitoring({super.key});
+
   @override
   _SearchTaskMonitoringState createState() => _SearchTaskMonitoringState();
 }
@@ -62,12 +64,12 @@ class _SearchTaskMonitoringState extends State<SearchTaskMonitoring> {
         ),
         actions: <Widget>[
           GestureDetector(
+            onTap: scan,
             child: Icon(
               Icons.camera,
               color: colorTheme3,
               size: 30,
             ),
-            onTap: scan,
           ),
           SizedBox(width: 20),
         ],
@@ -95,9 +97,9 @@ class _SearchTaskMonitoringState extends State<SearchTaskMonitoring> {
   Widget status(String value) {
     String text = value;
     Color color = colorTheme1;
-    if (text == "In Progress")
+    if (text == "In Progress") {
       color = colorTheme5;
-    else if (text == "Closed")
+    } else if (text == "Closed")
       color = colorTheme4;
     else if (text == "Check")
       color = colorTheme2;
@@ -187,11 +189,12 @@ class _SearchTaskMonitoringState extends State<SearchTaskMonitoring> {
       allTask(controller.text);
       Toast.show("Loading", duration: 2);
     } on PlatformException catch (e) {
-      if (e.code == BarcodeScanner.cameraAccessDenied)
+      if (e.code == BarcodeScanner.cameraAccessDenied) {
         setState(
             () => keyword = 'The user did not grant the camera permission!');
-      else
+      } else {
         setState(() => keyword = 'Unknown error: $e');
+      }
     } on FormatException {
       setState(() => keyword = 'Cancel');
     } catch (e) {
@@ -201,17 +204,17 @@ class _SearchTaskMonitoringState extends State<SearchTaskMonitoring> {
   }
 
   void allTask(String text) {
-    String _url = "/api/m_ppm.php?flowId=$flowId&type=tnm_list";
-    _url += "_search&searchTxt=$text";
-    _provider = Provider(fetchURL: _url);
+    String url = "/api/m_ppm.php?flowId=$flowId&type=tnm_list";
+    url += "_search&searchTxt=$text";
+    _provider = Provider(fetchURL: url);
     _provider.context = context;
     tasks; // Reload tasks with search filter
   }
 
   void qrTask(String text) {
-    String _url = "/api/m_ppm.php?flowId=$flowId&type=tnm_list";
-    _url += "_scan_asset&assetNo=$text";
-    _provider = Provider(fetchURL: _url);
+    String url = "/api/m_ppm.php?flowId=$flowId&type=tnm_list";
+    url += "_scan_asset&assetNo=$text";
+    _provider = Provider(fetchURL: url);
     _provider.context = context;
     tasks; // Reload tasks with scan result
   }

@@ -5,7 +5,7 @@ import 'package:GEMS/model/complaint.dart';
 class MaterialInfo extends StatelessWidget {
   final ComplaintDType value;
 
-  const MaterialInfo({Key? key, required this.value}) : super(key: key);
+  const MaterialInfo({super.key, required this.value});
 
   @override
   Widget build(BuildContext context) {

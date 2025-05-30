@@ -12,7 +12,7 @@ import 'dashboard.dart';
 import 'list_checkout.dart';
 
 class Homepage extends StatefulWidget {
-  const Homepage({Key? key}) : super(key: key);
+  const Homepage({super.key});
   @override
   _HomepageState createState() => _HomepageState();
 }
@@ -64,7 +64,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
   final BlocInventory _bloc;
   final GlobalKey<ScaffoldState> _key;
 
-  const _AppBar(this._bloc, this._key, {Key? key}) : super(key: key);
+  const _AppBar(this._bloc, this._key, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +72,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
       title: StreamBuilder<String>(
         stream: _bloc.view$.cast<String>(),
         builder: (ctx, snapshot) =>
-            Tab(text: "Inventory - " + (snapshot.data?.toString() ?? "")),
+            Tab(text: "Inventory - ${snapshot.data?.toString() ?? ""}"),
       ),
       backgroundColor: Colors.white,
       centerTitle: true,
@@ -95,7 +95,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
 class _Body extends StatelessWidget {
   final BlocInventory _bloc;
 
-  const _Body(this._bloc, {Key? key}) : super(key: key);
+  const _Body(this._bloc, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +144,7 @@ class _Body extends StatelessWidget {
 
 class _Header extends StatelessWidget {
   final BlocInventory bloc;
-  const _Header(this.bloc, {Key? key}) : super(key: key);
+  const _Header(this.bloc, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -164,7 +164,7 @@ class _Header extends StatelessWidget {
 class _DropdownFilter extends StatelessWidget {
   final BlocInventory bloc;
 
-  const _DropdownFilter(this.bloc, {Key? key}) : super(key: key);
+  const _DropdownFilter(this.bloc, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -174,7 +174,7 @@ class _DropdownFilter extends StatelessWidget {
         underline: Container(),
         value: snapshot.data,
         items: statuses
-            .map((f) => DropdownMenuItem(child: Text(f), value: f))
+            .map((f) => DropdownMenuItem(value: f, child: Text(f)))
             .toList(),
         onChanged: (value) {
           if (value != null) {
@@ -189,7 +189,7 @@ class _DropdownFilter extends StatelessWidget {
 class _FloatingButton extends StatelessWidget {
   final BlocInventory bloc;
 
-  const _FloatingButton(this.bloc, {Key? key}) : super(key: key);
+  const _FloatingButton(this.bloc, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -208,7 +208,6 @@ class _FloatingButton extends StatelessWidget {
           if (snapshot.data == "My Check In") const SizedBox(width: 12),
           FloatingActionButton(
             heroTag: "FAB",
-            child: const Icon(Icons.menu),
             backgroundColor: colorTheme1,
             onPressed: () {
               Navigator.push(
@@ -221,6 +220,7 @@ class _FloatingButton extends StatelessWidget {
                 if (value != null) bloc.setView(value);
               });
             },
+            child: const Icon(Icons.menu),
           ),
         ],
       ),

@@ -44,8 +44,8 @@ class CustomDialog extends StatelessWidget {
     this.okayTapped,
     this.secondButton = false,
     this.secondTapped,
-    Key? key,
-  }) : super(key: key) {
+    super.key,
+  }) {
     controller.addListener(_updateRemark);
   }
 
@@ -248,8 +248,9 @@ class CustomDialog extends StatelessWidget {
                             } else if (controller.text.isEmpty) {
                               Toast.show("Please enter remark before submit.");
                             } else if (controller.text.length <= 60) {
-                              if (secondTapped != null)
+                              if (secondTapped != null) {
                                 secondTapped!(controller.text);
+                              }
                             } else {
                               Toast.show("Maximum 60 characters");
                             }
@@ -271,8 +272,9 @@ class CustomDialog extends StatelessWidget {
                       } else if (controller.text.isEmpty) {
                         Toast.show("Please enter remark before submit.");
                       } else if (controller.text.length <= 60) {
-                        if (remarkTapped != null)
+                        if (remarkTapped != null) {
                           remarkTapped!(controller.text);
+                        }
                       } else {
                         Toast.show("Maximum 60 characters");
                       }

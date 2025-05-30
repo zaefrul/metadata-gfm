@@ -10,8 +10,8 @@ class ListReading extends StatelessWidget {
   final Stream<dynamic>? stream;
 
   ListReading(this.bloc, this.reading,
-      {this.isWater = false, this.isElectric = false})
-      : this.stream = isWater
+      {super.key, this.isWater = false, this.isElectric = false})
+      : stream = isWater
             ? bloc.rdw$
             : isElectric
                 ? bloc.rde$ as Stream<dynamic>

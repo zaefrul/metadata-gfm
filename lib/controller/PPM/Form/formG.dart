@@ -17,8 +17,8 @@ class FormG extends StatefulWidget {
     this.verified,
     this.refreshStatus,
     this.disable, {
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _FormGState createState() => _FormGState();

@@ -327,7 +327,7 @@ class _HomepageState extends State<Homepage> {
     String? imageUrl = user.imageUrl;
     bool hasValidUrl = false;
 
-    if (imageUrl != null && imageUrl.isNotEmpty) {
+    if (imageUrl.isNotEmpty) {
       if (!imageUrl.startsWith("http://") && !imageUrl.startsWith("https://")) {
         imageUrl = "https:$imageUrl"; // Assuming HTTPS if no scheme
       }
@@ -456,7 +456,7 @@ class _HomepageState extends State<Homepage> {
   }
 
   // Background image getter
-  Widget get _backgroundImage => Container(
+  Widget get _backgroundImage => SizedBox(
         height: double.infinity,
         width: double.infinity,
         // Ensure you have 'assets/bg.jpg' in your pubspec.yaml and project

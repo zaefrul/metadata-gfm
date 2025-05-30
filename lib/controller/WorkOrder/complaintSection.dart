@@ -22,7 +22,7 @@ class ComplaintSection extends StatefulWidget {
   final bool isAssign;
 
   const ComplaintSection({
-    Key? key,
+    super.key,
     required this.id,
     required this.taskNo,
     required this.siteName,
@@ -30,7 +30,7 @@ class ComplaintSection extends StatefulWidget {
     required this.viewer,
     this.isAssign = false,
     this.isComplaintProgress = false,
-  }) : super(key: key);
+  });
 
   @override
   _ComplaintSectionState createState() => _ComplaintSectionState();
@@ -69,8 +69,9 @@ class _ComplaintSectionState extends State<ComplaintSection> {
         widget.taskStatus == "WR Verified" ||
         widget.taskStatus == "WR Re-Open") {
       titles = ["A. Complaint Details"];
-      if (widget.taskStatus == "WR Check" || widget.taskStatus == "WR Re-Open")
+      if (widget.taskStatus == "WR Check" || widget.taskStatus == "WR Re-Open") {
         checkpoint = 4;
+      }
       if (widget.taskStatus == "WR Verified") checkpoint = 5;
     } else {
       titles = [
@@ -97,7 +98,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
       urlSuffix = "_wr";
     }
     Provider provider = Provider(
-        fetchURL: "/api/m_wo.php?type=section_status" + urlSuffix + "&woTaskId=",
+        fetchURL: "/api/m_wo.php?type=section_status$urlSuffix&woTaskId=",
         taskID: widget.id);
     try {
       responseValue = await provider.fetch();
@@ -106,7 +107,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
             ?.map((f) => f.sectionStatus)
             .toList() ?? <String>[]) as List<String>;
         String lastSection =
-            (responseValue?.wostatusList?.last.sectionName ?? '') as String;
+            (responseValue?.wostatusList?.last.sectionName ?? '');
         if (lastSection == "C" && widget.taskStatus == "Rejected") {
           listStatus.removeAt(1);
         }
@@ -296,9 +297,9 @@ class _ComplaintSectionState extends State<ComplaintSection> {
 
   Widget status(String text) {
     Color color;
-    if (text == "Info")
+    if (text == "Info") {
       color = colorTheme2;
-    else if (text == "Pending")
+    } else if (text == "Pending")
       color = colorTheme4;
     else if (text == "In Progress")
       color = colorTheme1;
@@ -410,9 +411,9 @@ class UploadItem extends Upload {
 
   UploadItem({
     required String id,
-    required String action,
+    required super.action,
     required this.remark,
-  }) : super(ppmTaskId: id, action: action);
+  }) : super(ppmTaskId: id);
 
   @override
   Map<String, dynamic> get body => {

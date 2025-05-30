@@ -19,7 +19,7 @@ import '../../main.dart';
 class Edit extends StatefulWidget {
   final User user;
 
-  const Edit(this.user, {Key? key}) : super(key: key);
+  const Edit(this.user, {super.key});
 
   @override
   _EditState createState() => _EditState();
@@ -59,7 +59,7 @@ class _EditState extends State<Edit> {
         width: 120.0,
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: NetworkImage("http:" + imageSrc),
+            image: NetworkImage("http:$imageSrc"),
             fit: BoxFit.fitWidth,
           ),
           shape: BoxShape.circle,
@@ -85,8 +85,8 @@ class _EditState extends State<Edit> {
       children: <Widget>[
         const SizedBox(height: 40),
         GestureDetector(
-          child: image,
           onTap: _bottomSheet,
+          child: image,
         ),
         const SizedBox(height: 12),
         GestureDetector(
@@ -104,7 +104,7 @@ class _EditState extends State<Edit> {
           contact = text;
         }, secure: false, value: contact, phoneType: true),
         const SizedBox(height: 80),
-        Container(
+        SizedBox(
           width: 200,
           height: 50,
           child: Button(
@@ -184,7 +184,7 @@ class _EditState extends State<Edit> {
       widget.user.updateProfile(
           name,
           contact,
-          (src == null || src.isEmpty) ? imageSrc : src);
+          (src.isEmpty) ? imageSrc : src);
       alert(response.errmsg);
     }).catchError((err) {
       alert(err.toString(), success: false);
@@ -219,7 +219,7 @@ class _EditState extends State<Edit> {
     if (path != null) {
       viewer = ImageViewer(path: path);
     } else {
-      viewer = ImageViewer(url: "http:" + imageSrc);
+      viewer = ImageViewer(url: "http:$imageSrc");
     }
     Navigator.push(context, MaterialPageRoute(builder: (context) => viewer));
   }

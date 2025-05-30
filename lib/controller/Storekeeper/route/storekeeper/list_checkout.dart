@@ -9,7 +9,7 @@ class CheckOutList extends StatelessWidget {
   final BehaviorSubject<List<Map<String, dynamic>>> _data =
     BehaviorSubject<List<Map<String, dynamic>>>.seeded([]);
 
-  CheckOutList() {
+  CheckOutList({super.key}) {
     refresh();
   }
 
@@ -38,12 +38,12 @@ class CheckOutList extends StatelessWidget {
   }
 
   Future<void> refresh({BuildContext? context}) async {
-    final Provider _provider =
+    final Provider provider =
         Provider(fetchURL: "/wo_request/list_mobile_check_out");
     if (context != null) {
-      _provider.context = context;
+      provider.context = context;
     }
-    final value = await _provider.getJson(url: "/wo_request/list_mobile_check_out");
+    final value = await provider.getJson(url: "/wo_request/list_mobile_check_out");
     if (value is List) {
       _data.sink.add(value.cast<Map<String, dynamic>>());
     }
@@ -53,7 +53,7 @@ class CheckOutList extends StatelessWidget {
 class _Tile extends StatelessWidget {
   final Map<String, dynamic> value;
 
-  _Tile(this.value);
+  const _Tile(this.value);
 
   @override
   Widget build(BuildContext context) {

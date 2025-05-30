@@ -5,7 +5,7 @@ import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc_technician.dart';
 class RegisterItem extends StatelessWidget {
   final BlocTechnicianDetails _bloc;
 
-  RegisterItem() : this._bloc = BlocTechnicianDetails();
+  RegisterItem({super.key}) : _bloc = BlocTechnicianDetails();
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ class _Dropdown extends StatelessWidget {
   final Stream<String> listen;
   final String label;
 
-  _Dropdown(this.subscribe, this.dispatch, this.listen, this.label);
+  const _Dropdown(this.subscribe, this.dispatch, this.listen, this.label);
 
   @override
   Widget build(BuildContext context) {
@@ -50,12 +50,13 @@ class _Dropdown extends StatelessWidget {
       (listValue) => streaming<String>(
         listen,
         (selectedValue) {
-          if (listValue == null && label != "Group")
+          if (listValue == null && label != "Group") {
             return TextField(
               decoration: InputDecoration(
                   labelText: label, suffixIcon: Icon(Icons.arrow_drop_down)),
               enabled: false,
             );
+          }
 
           return Container();
 
@@ -102,17 +103,18 @@ class _Dropdown extends StatelessWidget {
   }
 
   StreamBuilder streaming<T>(Stream<T> subscribe, Widget Function(T) builder) {
-    return new StreamBuilder<T>(
+    return StreamBuilder<T>(
       stream: subscribe,
       builder: (ctx, snapshot) {
         // if (T is String)
         //   return builder(snapshot.data);
-        if (snapshot.data == null && snapshot.error != null)
+        if (snapshot.data == null && snapshot.error != null) {
           return TextField(
             decoration: InputDecoration(
                 labelText: label, suffixIcon: Icon(Icons.arrow_drop_down)),
             enabled: false,
           );
+        }
 
         if (snapshot.data != null) {
           return builder(snapshot.data as T);

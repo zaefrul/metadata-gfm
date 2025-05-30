@@ -54,10 +54,8 @@ class User {
       var rolesJson = data["roles"] as List<dynamic>;
       for (var each in rolesJson) {
         var r = Role.fromJson(each as Map<String, dynamic>);
-        if (r != null) {
-          roleList.add(r);
-        }
-      }
+        roleList.add(r);
+            }
     }
     // Ensure that address is not null. You may throw an exception or provide a default.
     if (address == null) {

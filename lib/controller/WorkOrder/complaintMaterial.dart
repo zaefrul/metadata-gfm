@@ -10,7 +10,7 @@ class MaterialEdit extends StatefulWidget {
   final String id;
   final Controller _controller;
 
-  MaterialEdit(this.id) : _controller = Controller(id);
+  MaterialEdit(this.id, {super.key}) : _controller = Controller(id);
 
   @override
   _MaterialEditState createState() => _MaterialEditState();

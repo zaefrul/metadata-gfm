@@ -153,11 +153,11 @@ class BlocCheckin extends Bloc {
   }
 
   Future<List<ComplaintDStore>> fetchStore(BuildContext context) async {
-    final Provider _provider =
+    final Provider provider =
         Provider(fetchURL: "/store/purchase_option_store");
-    _provider.context = context;
+    provider.context = context;
 
-    final result = await checker(_provider.getJson(url: "/store/purchase_option_store"));
+    final result = await checker(provider.getJson(url: "/store/purchase_option_store"));
     final list = deserializeListOf<ComplaintDStore>(result).toList();
     return list;
   }
@@ -169,16 +169,16 @@ class BlocCheckin extends Bloc {
     final fieldDoNo = _doNo.text;
     final fieldSupplier = _supplierName.text;
 
-    if (valuesM.length == 0) throw "Please select material";
-    if (valuesD.length == 0) throw "Please upload DO ";
-    if (fieldDoNo.length == 0) throw "Please insert Do Number";
-    if (fieldSupplier.length == 0) throw "Please insert Supplier Name";
-    final Provider _provider = Provider(fetchURL: "/do/check_in_direct");
-    _provider.context = context;
+    if (valuesM.isEmpty) throw "Please select material";
+    if (valuesD.isEmpty) throw "Please upload DO ";
+    if (fieldDoNo.isEmpty) throw "Please insert Do Number";
+    if (fieldSupplier.isEmpty) throw "Please insert Supplier Name";
+    final Provider provider = Provider(fetchURL: "/do/check_in_direct");
+    provider.context = context;
 
     final body = await param;
     return checker(
-            _provider.postUtilities(url: "/do/check_in_direct", body: body))
+            provider.postUtilities(url: "/do/check_in_direct", body: body))
         .then((_) async {
       final pref = await SharedPreferences.getInstance();
       pref.remove(_kMaterials);
@@ -217,7 +217,7 @@ class BlocCheckin extends Bloc {
       }) ?? Uint8List(0);
       final size = bytes.length.toString();
       String name =
-          DateFormat('kk:mm:ss EEE d MMM').format(DateTime.now()) + ".jpg";
+          "${DateFormat('kk:mm:ss EEE d MMM').format(DateTime.now())}.jpg";
       final data = base64Encode(bytes);
 
       value['doUploads[$i][name]'] = filename;
@@ -272,15 +272,15 @@ class Item {
   );
 
   Item.fromString(dynamic value)
-      : this.itemGroupName = value["itemGroupName"],
-        this.itemTypeName = value["itemTypeName"],
-        this.itemName = value["itemName"],
-        this.itemId = value["partId"],
-        this.itemQuantity = value["doItemTotal"],
-        this.itemPrice = value["doItemCost"],
-        this.partSubLocation = value["partSubLocation"],
-        this.doItemWarranty = value["doItemWarranty"],
-        this.doItemValidity = value["doItemValidity"];
+      : itemGroupName = value["itemGroupName"],
+        itemTypeName = value["itemTypeName"],
+        itemName = value["itemName"],
+        itemId = value["partId"],
+        itemQuantity = value["doItemTotal"],
+        itemPrice = value["doItemCost"],
+        partSubLocation = value["partSubLocation"],
+        doItemWarranty = value["doItemWarranty"],
+        doItemValidity = value["doItemValidity"];
 
   Map toJson() => {
         "itemGroupName": itemGroupName,

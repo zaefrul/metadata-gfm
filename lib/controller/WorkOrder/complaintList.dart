@@ -4,7 +4,7 @@ import 'package:GEMS/controller/WorkOrder/complaintSection_v2.dart';
 import 'package:GEMS/model/workorder.dart';
 import 'package:GEMS/utils/reference.dart';
 
-typedef Future<void> VoidFutureCallback();
+typedef VoidFutureCallback = Future<void> Function();
 
 class ComplaintList extends StatelessWidget {
   final VoidFutureCallback refresh;
@@ -12,11 +12,11 @@ class ComplaintList extends StatelessWidget {
   final List<WorkOrderTask> list;
 
   const ComplaintList({
-    Key? key,
+    super.key,
     required this.refresh,
     required this.viewer,
     required this.list,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -64,11 +64,11 @@ class _TaskCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const _TaskCard({
-    Key? key,
+    super.key,
     required this.task,
     required this.viewer,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   Color _statusColor() {
     switch (task.woTaskStatus) {

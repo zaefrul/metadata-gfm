@@ -17,12 +17,12 @@ class ComplaintSectionDMaterial extends StatefulWidget {
 
   const ComplaintSectionDMaterial(
     this.id, {
-    Key? key,
+    super.key,
     this.enableSubmit = false,
     this.viewer = false,
     this.enableReset = false,
     this.comment = "",
-  }) : super(key: key);
+  });
 
   @override
   _ComplaintSectionDMaterialState createState() =>
@@ -186,11 +186,11 @@ class MaterialItemCard extends StatelessWidget {
   final bool enableEdit;
 
   const MaterialItemCard({
-    Key? key,
+    super.key,
     required this.item,
     required this.controller,
     required this.enableEdit,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -382,9 +382,9 @@ class Request {
       : _providerGET = Provider(
             taskID: id,
             fetchURL: "/wo_parts/wo_parts_mobile_list/"),
-        _providerDELETE = Provider(fetchURL: "/wo_parts/" + id),
-        _providerSUBMIT = Provider(fetchURL: "/wo_request/" + id),
-        _providerRESET = Provider(fetchURL: "/wo_request/reset/" + id),
+        _providerDELETE = Provider(fetchURL: "/wo_parts/$id"),
+        _providerSUBMIT = Provider(fetchURL: "/wo_request/$id"),
+        _providerRESET = Provider(fetchURL: "/wo_request/reset/$id"),
         _id = id;
 
   Future<List<ComplaintD>> get response => _providerGET
@@ -392,9 +392,9 @@ class Request {
       .then((value) => value.map((e) => e as ComplaintD).toList());
 
   Future delete(String id) =>
-      _providerDELETE.delete(url: "/wo_parts/" + id);
+      _providerDELETE.delete(url: "/wo_parts/$id");
 
-  Future submit() => _providerSUBMIT.post(url: "/wo_request/" + _id);
+  Future submit() => _providerSUBMIT.post(url: "/wo_request/$_id");
 
-  Future reset() => _providerRESET.post(url: "/wo_request/reset/" + _id);
+  Future reset() => _providerRESET.post(url: "/wo_request/reset/$_id");
 }

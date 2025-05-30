@@ -10,7 +10,7 @@ import '../../main.dart';
 class RITaskView extends StatefulWidget {
   final _TaskViewStateRI view;
 
-  RITaskView({int index = 0}) : view = _TaskViewStateRI(index);
+  RITaskView({super.key, int index = 0}) : view = _TaskViewStateRI(index);
 
   void update(String text) => view.fetch(text);
   void updateQR(String text) => view.fetchQR(text);
@@ -46,49 +46,49 @@ class _TaskViewStateRI extends State<RITaskView>
   }
 
   void fetch(String? text) {
-    String _url = "/api/m_ppm.php?type=pending_task";
+    String url = "/api/m_ppm.php?type=pending_task";
     if (text == null) {
-      _url += "&isRoutine=true";
+      url += "&isRoutine=true";
     } else {
-      _url += "_search&isRoutine=true&assetNo=$text";
+      url += "_search&isRoutine=true&assetNo=$text";
     }
-    _fetch(_url);
+    _fetch(url);
   }
 
   void fetchQR(String? text) {
-    String _url = "/api/m_ppm.php?type=pending_task";
+    String url = "/api/m_ppm.php?type=pending_task";
     if (text == null) {
-      _url += "&isRoutine=true";
+      url += "&isRoutine=true";
     } else {
-      _url += "_scan_asset&isRoutine=true&assetNo=$text";
+      url += "_scan_asset&isRoutine=true&assetNo=$text";
     }
-    _fetch(_url);
+    _fetch(url);
   }
 
   void fetchQRAll(String? text) {
-    String _url = "/api/m_ppm.php?type=all_task";
+    String url = "/api/m_ppm.php?type=all_task";
     if (text == null) {
-      _url += "&isRoutine=true";
+      url += "&isRoutine=true";
     } else {
-      _url += "_scan_asse&isRoutine=truet&assetNo=$text";
+      url += "_scan_asse&isRoutine=truet&assetNo=$text";
     }
-    _fetch(_url);
+    _fetch(url);
   }
 
   void fetchAll(String? text) {
-    String _url = "/api/m_ppm.php?type=all_task";
+    String url = "/api/m_ppm.php?type=all_task";
     if (text == null) {
-      _url += "&isRoutine=true";
+      url += "&isRoutine=true";
     } else {
-      _url += "_search&isRoutine=true&searchTxt=$text";
+      url += "_search&isRoutine=true&searchTxt=$text";
     }
-    _fetch(_url);
+    _fetch(url);
   }
 
   void _fetch(String url) {
     _provider = Provider(fetchURL: url);
     _provider.fetch().then((value) {
-      _listTask = (value.taskList?.toList() as List<Task>?) ?? [];
+      _listTask = value.taskList?.toList() ?? [];
       tiles = fetchGenerate(_listTask);
       children = tiles;
       if (builded) setState(() {});
@@ -100,9 +100,9 @@ class _TaskViewStateRI extends State<RITaskView>
   }
 
   Future<void> _refresh() {
-    if (index == 0)
+    if (index == 0) {
       fetchAll(null);
-    else if (index == 1) {
+    } else if (index == 1) {
       fetch(null);
       viewer = false;
     }

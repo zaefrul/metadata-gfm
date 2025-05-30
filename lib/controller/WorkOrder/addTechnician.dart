@@ -16,10 +16,10 @@ class AddTechnicianCheckList extends StatefulWidget {
   final bool viewer;
 
   const AddTechnicianCheckList({
-    Key? key,
+    super.key,
     required this.id,
     required this.viewer,
-  }) : super(key: key);
+  });
 
   @override
   _AddTechnicianCheckListState createState() => _AddTechnicianCheckListState();
@@ -280,8 +280,8 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  fillColor: MaterialStateProperty.resolveWith<Color>((states) {
-                    if (states.contains(MaterialState.selected)) {
+                  fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+                    if (states.contains(WidgetState.selected)) {
                       return AppColors.primary;
                     }
                     return AppColors.gray300;
@@ -407,10 +407,10 @@ class _Controller {
 
   Future<List<_Model>> get list async {
     final url = "/wo_task_assist/dropdown_list/";
-    final Provider _provider = Provider(fetchURL: url, taskID: id);
+    final Provider provider = Provider(fetchURL: url, taskID: id);
 
     try {
-      final result = await _provider.getJson(url: url);
+      final result = await provider.getJson(url: url);
       if (result.length > 0) {
         return result.map<_Model>((v) => _Model.fromJson(v)).toList();
       }
@@ -423,9 +423,9 @@ class _Controller {
 
   Future<List<_Model>> get selected async {
     final url = "/wo_task_assist/assistant_list/";
-    final Provider _provider = Provider(fetchURL: url, taskID: id);
+    final Provider provider = Provider(fetchURL: url, taskID: id);
     try {
-      final result = await _provider.getJson(url: url);
+      final result = await provider.getJson(url: url);
       if (result.length > 0) {
         return result.map<_Model>((v) => _Model.fromJson(v)).toList();
       }
@@ -438,7 +438,7 @@ class _Controller {
 
   Future<void> add(_Model model) async {
     final url = "/wo_task_assist";
-    final Provider _provider = Provider(fetchURL: url);
+    final Provider provider = Provider(fetchURL: url);
 
     final body = {
       "woTaskId": id,
@@ -446,7 +446,7 @@ class _Controller {
     };
 
     try {
-      final _ = await _provider.post(url: url, body: body);
+      final _ = await provider.post(url: url, body: body);
       return;
     } catch (e) {
       rethrow;
@@ -455,9 +455,9 @@ class _Controller {
 
   Future<bool> delete(_Model model) async {
     final url = "/wo_task_assist/${model.assistantId}";
-    final Provider _provider = Provider(fetchURL: url, taskID: id);
+    final Provider provider = Provider(fetchURL: url, taskID: id);
     try {
-      final _ = await _provider.delete(url: url);
+      final _ = await provider.delete(url: url);
       return true;
     } catch (e) {
       return false;
@@ -466,9 +466,9 @@ class _Controller {
 
   Future<void> submit() async {
     final url = "/wo_v2/save_assistant_list/$id";
-    final Provider _provider = Provider(fetchURL: url);
+    final Provider provider = Provider(fetchURL: url);
     try {
-      final _ = await _provider.post(url: url);
+      final _ = await provider.post(url: url);
 
       return;
     } catch (e) {

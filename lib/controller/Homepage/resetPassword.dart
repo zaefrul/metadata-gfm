@@ -16,7 +16,7 @@ class ResetArguments {
 class ResetPassword extends StatefulWidget {
   static const routeName = '/reset';
 
-  ResetPassword();
+  const ResetPassword({super.key});
 
   @override
   _ResetPasswordState createState() => _ResetPasswordState();
@@ -38,13 +38,13 @@ class _ResetPasswordState extends State<ResetPassword> {
 
     void pressed() {
       String p =
-          "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})";
+          "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%^&*])(?=.{8,})";
       RegExp regExp = RegExp(p);
 
       var text = "Password Updating";
-      if (newPassword.isEmpty || confirmPassword.isEmpty)
+      if (newPassword.isEmpty || confirmPassword.isEmpty) {
         text = "Fill all field!";
-      else if (newPassword.length < 8 || confirmPassword.length < 8)
+      } else if (newPassword.length < 8 || confirmPassword.length < 8)
         text = "Passwords must be at least 8 characters long";
       else if (newPassword.length > 20 || confirmPassword.length > 20)
         text = "Password must be less than 20 characters!";
@@ -97,7 +97,7 @@ class _ResetPasswordState extends State<ResetPassword> {
               },
             )),
         SizedBox(height: 80),
-        Container(
+        SizedBox(
             width: 200,
             height: 50,
             child: Button(
@@ -120,10 +120,10 @@ class _ResetPasswordState extends State<ResetPassword> {
                 children: <Widget>[
                   body,
                   Container(
+                    color: Colors.black.withOpacity(0.5),
                     child: Center(
                       child: CircularProgressIndicator(),
                     ),
-                    color: Colors.black.withOpacity(0.5),
                   )
                 ],
               )

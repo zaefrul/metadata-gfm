@@ -7,7 +7,7 @@ class MyDashboard extends StatelessWidget {
   // Explicitly type the BehaviorSubject to hold dynamic data.
   final BehaviorSubject<dynamic> _data = BehaviorSubject<dynamic>();
 
-  MyDashboard() {
+  MyDashboard({super.key}) {
     refresh();
   }
   
@@ -56,7 +56,7 @@ class MyDashboard extends StatelessWidget {
                   child: Table(
                     columnWidths: const {0: FractionColumnWidth(0.5)},
                     children: <TableRow>[
-                      row("TOTAL VALUE : ", "RM " + totalValue.toString()),
+                      row("TOTAL VALUE : ", "RM $totalValue"),
                     ],
                   ),
                 ),

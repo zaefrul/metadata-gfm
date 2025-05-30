@@ -14,7 +14,7 @@ class ListReading extends StatelessWidget {
 
   ListReading(
     this.bloc,
-    this.reading, {
+    this.reading, {super.key, 
     this.isWater = false,
     this.isElectric = false,
   })  : streamMonthly = isWater
@@ -92,9 +92,9 @@ class TileMonthly extends StatelessWidget {
   final bool isWater;
   final bool isElectric;
 
-  TileMonthly(
+  const TileMonthly(
     this.bloc,
-    this.value, {
+    this.value, {super.key, 
     this.isElectric = false,
     this.isWater = false,
   });
@@ -103,7 +103,7 @@ class TileMonthly extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(
-        "Amount : RM " + (value.utilityTotalRm ?? "0.00"),
+        "Amount : RM ${value.utilityTotalRm ?? "0.00"}",
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
       subtitle: Padding(
@@ -111,9 +111,9 @@ class TileMonthly extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Total(kWh) : " + (value.utilityReading ?? "N/A")),
+            Text("Total(kWh) : ${value.utilityReading ?? "N/A"}"),
             SizedBox(height: 6),
-            Text("Max Demand : " + (value.utilityMaxDemand ?? "N/A")),
+            Text("Max Demand : ${value.utilityMaxDemand ?? "N/A"}"),
           ],
         ),
       ),
@@ -124,7 +124,7 @@ class TileMonthly extends StatelessWidget {
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5), color: colorTheme2),
         child: Text(
-          value.month + " " + value.year,
+          "${value.month} ${value.year}",
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
@@ -140,13 +140,13 @@ class TileMonthly extends StatelessWidget {
 class TileDaily extends StatelessWidget {
   final Reading value;
   final bool isWater;
-  TileDaily(this.value, {this.isWater = false});
+  const TileDaily(this.value, {super.key, this.isWater = false});
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(
-        "Consumption : " + (value.utilityReading ?? "N/A"),
+        "Consumption : ${value.utilityReading ?? "N/A"}",
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
       subtitle: Padding(
@@ -154,11 +154,11 @@ class TileDaily extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Timestamp : " + value.time),
+            Text("Timestamp : ${value.time}"),
             SizedBox(height: 6),
-            Text("By : " + (value.utilityRecordedBy ?? "Unknown")),
+            Text("By : ${value.utilityRecordedBy ?? "Unknown"}"),
             if (isWater) SizedBox(height: 6),
-            if (isWater) Text("Submission Shift : " + (value.utilityShift ?? "")),
+            if (isWater) Text("Submission Shift : ${value.utilityShift ?? ""}"),
           ],
         ),
       ),
@@ -169,7 +169,7 @@ class TileDaily extends StatelessWidget {
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5), color: colorTheme2),
         child: Text(
-          value.day + " " + value.month + " " + value.year,
+          "${value.day} ${value.month} ${value.year}",
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
@@ -185,7 +185,7 @@ class TileDaily extends StatelessWidget {
 class ViewImage extends StatelessWidget {
   final String url;
 
-  const ViewImage({Key? key, required this.url}) : super(key: key);
+  const ViewImage({super.key, required this.url});
 
   @override
   Widget build(BuildContext context) {

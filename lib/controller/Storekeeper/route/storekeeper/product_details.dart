@@ -28,7 +28,7 @@ class ComplaintMaterialImage {
 class MaterialDetails extends StatefulWidget {
   final String id;
 
-  const MaterialDetails({Key? key, required this.id}) : super(key: key);
+  const MaterialDetails({super.key, required this.id});
 
   @override
   _MaterialDetailsState createState() => _MaterialDetailsState();
@@ -188,7 +188,7 @@ Widget setMaximum(BlocMaterial bloc) => StreamBuilder<int>(
 class _Info extends StatelessWidget {
   final ComplaintMaterial value;
 
-  const _Info(this.value, {Key? key}) : super(key: key);
+  const _Info(this.value, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -229,7 +229,7 @@ class _Info extends StatelessWidget {
 class Images extends StatelessWidget {
   final List<ComplaintMaterialImage> items;
 
-  const Images(this.items, {Key? key}) : super(key: key);
+  const Images(this.items, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -256,7 +256,7 @@ class Images extends StatelessWidget {
 class ViewImage extends StatelessWidget {
   final String url;
 
-  const ViewImage({Key? key, required this.url}) : super(key: key);
+  const ViewImage({super.key, required this.url});
 
   @override
   Widget build(BuildContext context) {

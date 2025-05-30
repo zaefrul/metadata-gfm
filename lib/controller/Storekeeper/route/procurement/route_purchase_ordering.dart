@@ -5,7 +5,7 @@ import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 class PurchaseOrderList extends StatelessWidget {
   final BlocProcurement bloc;
 
-  PurchaseOrderList(this.bloc);
+  const PurchaseOrderList(this.bloc, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class _Tile extends StatelessWidget {
   final String status;
   final int index;
 
-  _Tile(this.status, this.index);
+  const _Tile(this.status, this.index);
 
   @override
   Widget build(BuildContext context) {

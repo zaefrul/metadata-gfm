@@ -6,13 +6,15 @@ import '../../view/drawer.dart';
 import 'ri_task_view.dart';
 
 class RoutineInspection extends StatefulWidget {
+  const RoutineInspection({super.key});
+
   @override
   _RoutineInspectionState createState() => _RoutineInspectionState();
 }
 
 class _RoutineInspectionState extends State<RoutineInspection>
     with TickerProviderStateMixin {
-  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   bool isOpened = false;
 

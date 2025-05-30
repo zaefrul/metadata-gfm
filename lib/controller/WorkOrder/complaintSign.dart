@@ -16,11 +16,11 @@ class ComplaintSignature extends StatefulWidget {
   final int checkpoint;
 
   const ComplaintSignature({
-    Key? key,
+    super.key,
     required this.id,
     required this.result,
     required this.checkpoint,
-  }) : super(key: key);
+  });
 
   @override
   ComplaintSignatureState createState() => ComplaintSignatureState();

@@ -9,6 +9,8 @@ import '../../view/dialog.dart';
 import '../../main.dart';
 
 class Change extends StatefulWidget {
+  const Change({super.key});
+
   @override
   _ChangeState createState() => _ChangeState();
 }
@@ -31,15 +33,15 @@ class _ChangeState extends State<Change> {
     ToastContext().init(context);
     pressed() {
       String p =
-          "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})";
+          "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%^&*])(?=.{8,})";
       RegExp regExp = RegExp(p);
 
       var text = "Password Updating";
-      if (oldPassword.length == 0 ||
-          newPassword.length == 0 ||
-          confirmPassword.length == 0)
+      if (oldPassword.isEmpty ||
+          newPassword.isEmpty ||
+          confirmPassword.isEmpty) {
         text = "Fill all field!";
-      else if (oldPassword.length < 8 ||
+      } else if (oldPassword.length < 8 ||
           newPassword.length < 8 ||
           confirmPassword.length < 8)
         text = "Passwords must be at least 8 characters long";
@@ -60,10 +62,10 @@ class _ChangeState extends State<Change> {
       Toast.show(text, backgroundColor: colorTheme3);
     }
 
-    var body = new Column(
+    var body = Column(
       children: <Widget>[
         SizedBox(height: 40),
-        new Image.asset(
+        Image.asset(
           "assets/changepassword.png",
           height: 100,
         ),
@@ -112,7 +114,7 @@ class _ChangeState extends State<Change> {
               },
             )),
         SizedBox(height: 80),
-        new Container(
+        SizedBox(
             width: 200,
             height: 50,
             child: Button(
@@ -131,21 +133,21 @@ class _ChangeState extends State<Change> {
             centerTitle: true,
             iconTheme: IconThemeData(color: colorTheme3)),
         body: loading
-            ? new Stack(
+            ? Stack(
                 children: <Widget>[
                   body,
-                  new Container(
+                  Container(
+                    color: Colors.black.withOpacity(0.5),
                     child: Center(
                       child: CircularProgressIndicator(),
                     ),
-                    color: Colors.black.withOpacity(0.5),
                   )
                 ],
               )
             : body);
   }
 
-  Widget title(text, {double size = 30.0}) => new Text(text,
+  Widget title(text, {double size = 30.0}) => Text(text,
       textAlign: TextAlign.center,
       style: TextStyle(
         color: colorTheme3,
@@ -154,9 +156,9 @@ class _ChangeState extends State<Change> {
 
   Widget info() => Container(
           child: Column(children: <Widget>[
-        new Center(child: title(titleTxt, size: 32)),
-        new SizedBox(height: 30),
-        new Center(child: title(noticeTxt, size: 20)),
+        Center(child: title(titleTxt, size: 32)),
+        SizedBox(height: 30),
+        Center(child: title(noticeTxt, size: 20)),
       ]));
 
   get action async {

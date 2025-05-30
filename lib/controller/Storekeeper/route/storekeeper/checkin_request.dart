@@ -9,12 +9,14 @@ import 'package:toast/toast.dart';
 import '../../../../main.dart';
 
 class CheckinRequest extends StatefulWidget {
+  const CheckinRequest({super.key});
+
   @override
   _CheckinRequestState createState() => _CheckinRequestState();
 }
 
 class _CheckinRequestState extends State<CheckinRequest> {
-  BlocCheckin _controller = BlocCheckin();
+  final BlocCheckin _controller = BlocCheckin();
   List<ComplaintDStore> stores = [];
 
   @override
@@ -24,12 +26,12 @@ class _CheckinRequestState extends State<CheckinRequest> {
         .fetchStore(context)
         .then((value) => setState(() => stores = value));
     _controller.loadingState$.listen((event) {
-      if (event ?? false)
+      if (event ?? false) {
         showDialog(
           context: navigatorKey.currentContext!,
           builder: (_) => Center(child: CircularProgressIndicator()),
         );
-      else if (event == false) Navigator.pop(context);
+      } else if (event == false) Navigator.pop(context);
     });
     _controller.err$.listen((event) => Toast.show(event, duration: 4));
   }
@@ -113,7 +115,7 @@ class _CheckinRequestState extends State<CheckinRequest> {
                 style: TextStyle(fontSize: 16),
               ),
               DropdownButton<ComplaintDStore>(
-                underline: new Container(),
+                underline: Container(),
                 value: snapshot.data,
                 hint: Text("Select Store"),
                 onChanged: (ComplaintDStore? newValue) {
@@ -138,7 +140,7 @@ class _CheckinRequestState extends State<CheckinRequest> {
 class _Info extends StatelessWidget {
   final BlocCheckin _controller;
 
-  _Info(this._controller);
+  const _Info(this._controller);
 
   @override
   Widget build(BuildContext context) {
@@ -196,7 +198,7 @@ class _Material extends StatelessWidget {
   final int index;
   final Function onDeleteItem;
 
-  _Material(this.index, this.data, this.onDeleteItem);
+  const _Material(this.index, this.data, this.onDeleteItem);
 
   @override
   Widget build(BuildContext context) {
@@ -213,7 +215,7 @@ class _Material extends StatelessWidget {
       title: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: Text(
-          index.toString() + '.  $doNo',
+          '$index.  $doNo',
           overflow: TextOverflow.fade,
         ),
       ),
@@ -260,7 +262,7 @@ class _Material extends StatelessWidget {
       padding: EdgeInsets.only(top: top),
       child: Text(
         value,
-        style: TextStyle(color: color == null ? colorTheme3 : color),
+        style: TextStyle(color: color ?? colorTheme3),
       ),
     );
   }
@@ -268,7 +270,7 @@ class _Material extends StatelessWidget {
 
 class AttachmentsDO extends StatelessWidget {
   final BlocCheckin controller;
-  AttachmentsDO(this.controller);
+  const AttachmentsDO(this.controller, {super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -18,12 +18,12 @@ Widget bar(
   final List<Widget>? actions = search
       ? [
           GestureDetector(
+            onTap: onTap,
             child: Icon(
               Icons.search,
               color: colorTheme3,
               size: 30,
             ),
-            onTap: onTap,
           ),
           SizedBox(width: 20),
         ]

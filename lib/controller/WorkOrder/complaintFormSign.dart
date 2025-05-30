@@ -12,8 +12,7 @@ import '../../main.dart';
 class ComplaintFormSignature extends StatefulWidget {
   final Map<String, String> map;
 
-  const ComplaintFormSignature({Key? key, required this.map})
-      : super(key: key);
+  const ComplaintFormSignature({super.key, required this.map});
 
   @override
   ComplaintFormSignatureState createState() => ComplaintFormSignatureState();
@@ -38,6 +37,7 @@ class ComplaintFormSignatureState extends State<ComplaintFormSignature> {
     super.dispose();
   }
 
+  @override
   Widget build(BuildContext context) {
     ToastContext().init(context);
     return Scaffold(

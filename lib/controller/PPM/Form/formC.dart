@@ -14,8 +14,7 @@ class FormC extends StatefulWidget {
   final ValueChanged<bool> refreshStatus;
   final bool disable;
 
-  const FormC(this.id, this.verified, this.refreshStatus, this.disable, {Key? key})
-      : super(key: key);
+  const FormC(this.id, this.verified, this.refreshStatus, this.disable, {super.key});
 
   @override
   _FormCState createState() => _FormCState();
@@ -102,9 +101,9 @@ class _FormCState extends State<FormC> {
                     "ppmTaskId": widget.id,
                   };
 
-                  items.forEach((f) {
+                  for (var f in items) {
                     body.addAll(f.body);
-                  });
+                  }
 
                   provider
                       .post(url: "/api/m_ppm.php", body: body)
@@ -143,7 +142,7 @@ class _FormCState extends State<FormC> {
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          getTitle(item.number + ". " + item.desc),
+          getTitle("${item.number}. ${item.desc}"),
           filter(item),
           field(
             "Remark",
@@ -162,8 +161,8 @@ class _FormCState extends State<FormC> {
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          getTitle(item.number + ". " + item.desc),
-          field("Status", (_) => null,
+          getTitle("${item.number}. ${item.desc}"),
+          field("Status", (_) {},
               value: item.statusCheck == "N/A" ? "N/A" : item.result,
               horizontal: 0.0,
               enable: false),
@@ -246,9 +245,9 @@ class UploadItem {
   }
 
   String get statusCheck {
-    if (result == "Pass")
+    if (result == "Pass") {
       return "1";
-    else if (result == "Fail")
+    } else if (result == "Fail")
       return "0";
     else if (result == "N/A")
       return "2";

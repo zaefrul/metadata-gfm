@@ -7,7 +7,7 @@ import '../../../../main.dart';
 class RouteTechnicianDetail extends StatefulWidget {
   final Item item;
 
-  RouteTechnicianDetail({required this.item});
+  const RouteTechnicianDetail({super.key, required this.item});
 
   @override
   _RouteTechnicianDetailState createState() =>
@@ -15,7 +15,7 @@ class RouteTechnicianDetail extends StatefulWidget {
 }
 
 class _RouteTechnicianDetailState extends State<RouteTechnicianDetail> {
-  BlocTechnicianDetails _bloc = BlocTechnicianDetails();
+  final BlocTechnicianDetails _bloc = BlocTechnicianDetails();
 
   _RouteTechnicianDetailState(item) {
     if (item != null) {
@@ -27,13 +27,14 @@ class _RouteTechnicianDetailState extends State<RouteTechnicianDetail> {
     }
 
     _bloc.loadingState.listen((value) {
-      if (value == true)
+      if (value == true) {
         showDialog(
           context: navigatorKey.currentContext!,
           builder: (_) => Center(child: CircularProgressIndicator()),
         );
-      else
+      } else {
         Navigator.pop(context);
+      }
     });
   }
 
@@ -47,7 +48,7 @@ class _RouteTechnicianDetailState extends State<RouteTechnicianDetail> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: new Text("Material Information"),
+        title: Text("Material Information"),
         backgroundColor: Colors.white,
         centerTitle: true,
       ),
@@ -76,7 +77,7 @@ class _Dropdown extends StatelessWidget {
   final Stream<String> listen;
   final String label;
 
-  _Dropdown(this.subscribe, this.dispatch, this.listen, this.label);
+  const _Dropdown(this.subscribe, this.dispatch, this.listen, this.label);
 
   @override
   Widget build(BuildContext context) {
@@ -114,17 +115,18 @@ class _Dropdown extends StatelessWidget {
   }
 
   StreamBuilder streaming<T>(Stream<T> subscribe, Widget Function(T) builder) {
-    return new StreamBuilder<T>(
+    return StreamBuilder<T>(
       stream: subscribe,
       builder: (ctx, snapshot) {
         // if (T is String)
         //   return builder(snapshot.data);
-        if (snapshot.data == null && snapshot.error != null)
+        if (snapshot.data == null && snapshot.error != null) {
           return TextField(
             decoration: InputDecoration(
                 labelText: label, suffixIcon: Icon(Icons.arrow_drop_down)),
             enabled: false,
           );
+        }
 
         if (snapshot.hasData) {
           return builder(snapshot.data as T);
@@ -139,7 +141,7 @@ class _Dropdown extends StatelessWidget {
 class _Quantity extends StatelessWidget {
   final BlocTechnicianDetails bloc;
 
-  _Quantity(this.bloc);
+  const _Quantity(this.bloc);
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +158,7 @@ class _Quantity extends StatelessWidget {
 class _Description extends StatelessWidget {
   final BlocTechnicianDetails bloc;
 
-  _Description(this.bloc);
+  const _Description(this.bloc);
 
   @override
   Widget build(BuildContext context) {
@@ -174,7 +176,7 @@ class _Description extends StatelessWidget {
 class _FloatingButton extends StatelessWidget {
   final BlocTechnicianDetails bloc;
 
-  _FloatingButton(this.bloc);
+  const _FloatingButton(this.bloc);
 
   @override
   Widget build(BuildContext context) {

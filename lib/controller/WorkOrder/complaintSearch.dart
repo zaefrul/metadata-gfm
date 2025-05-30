@@ -15,7 +15,7 @@ class SearchComplaintArguments {
 class SearchComplaint extends StatefulWidget {
   static const routeName = '/search_complaint';
 
-  const SearchComplaint({Key? key}) : super(key: key);
+  const SearchComplaint({super.key});
 
   @override
   _SearchState createState() => _SearchState();
@@ -51,10 +51,11 @@ class _SearchState extends State<SearchComplaint> {
       _fetchQuery(controller.text, index);
     } on PlatformException catch (e) {
       setState(() {
-        if (e.code == BarcodeScanner.cameraAccessDenied)
+        if (e.code == BarcodeScanner.cameraAccessDenied) {
           keyword = 'The user did not grant the camera permission!';
-        else
+        } else {
           keyword = 'Unknown error: $e';
+        }
       });
     } on FormatException {
       setState(() => keyword = 'Cancel');
@@ -92,12 +93,12 @@ class _SearchState extends State<SearchComplaint> {
         ),
         actions: <Widget>[
           GestureDetector(
+            onTap: scan,
             child: Icon(
               Icons.camera,
               color: colorTheme3,
               size: 30,
             ),
-            onTap: scan,
           ),
           SizedBox(width: 20),
         ],
@@ -123,7 +124,7 @@ class _SearchState extends State<SearchComplaint> {
 
   void _fetchQuery(String text, int index) {
     var url = _url;
-    url += "&searchTxt=" + text;
+    url += "&searchTxt=$text";
     setState(() {
       body = ComplaintView(url, Container(), index);
     });

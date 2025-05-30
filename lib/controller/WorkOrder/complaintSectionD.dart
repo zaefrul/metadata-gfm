@@ -15,11 +15,11 @@ class ComplaintSectionD extends StatefulWidget {
   final String name;
 
   const ComplaintSectionD({
-    Key? key,
+    super.key,
     this.name = "D",
     required this.id,
     required this.viewer,
-  }) : super(key: key);
+  });
 
   @override
   _ComplaintSectionDState createState() => _ComplaintSectionDState();
@@ -127,8 +127,8 @@ class _ComplaintSectionDState extends State<ComplaintSectionD> {
                       borderRadius: BorderRadius.circular(8)),
                   backgroundColor: colorTheme2,
                 ),
-                child: Text("Save", style: TextStyle(color: Colors.white)),
                 onPressed: _saveAssetNo,
+                child: Text("Save", style: TextStyle(color: Colors.white)),
               ),
             ),
         ],
@@ -238,7 +238,7 @@ class ComplaintSectionE extends StatelessWidget {
   final String text;
   final String sect;
 
-  const ComplaintSectionE(this.text, this.sect, {Key? key}) : super(key: key);
+  const ComplaintSectionE(this.text, this.sect, {super.key});
 
   @override
   Widget build(BuildContext context) {

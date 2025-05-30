@@ -6,6 +6,8 @@ import 'package:rxdart/subjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CheckinMaterial extends StatefulWidget {
+  const CheckinMaterial({super.key});
+
   @override
   _CheckinMaterialState createState() => _CheckinMaterialState();
 }
@@ -30,7 +32,7 @@ class _CheckinMaterialState extends State<CheckinMaterial> {
 class _ListMaterial extends StatelessWidget {
   final Stream<List<Item>> stream;
 
-  _ListMaterial(this.stream);
+  const _ListMaterial(this.stream);
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +50,7 @@ class _ListMaterial extends StatelessWidget {
 
 class _MaterialTile extends StatelessWidget {
   final Item item;
-  _MaterialTile(this.item);
+  const _MaterialTile(this.item);
 
   @override
   Widget build(BuildContext context) {

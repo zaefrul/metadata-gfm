@@ -21,8 +21,7 @@ class FormH extends StatefulWidget {
   final bool disable;
   final Function refreshStatus;
 
-  const FormH(this.id, this.verified, this.refreshStatus, this.disable, {Key? key})
-      : super(key: key);
+  const FormH(this.id, this.verified, this.refreshStatus, this.disable, {super.key});
 
   @override
   _FormHState createState() => _FormHState();
@@ -181,7 +180,7 @@ class _FormHState extends State<FormH> {
 
     var latitude = item.ppmTaskUploadLatitude;
     var longitude = item.ppmTaskUploadLongitude;
-    var src = "http:" + item.documentSrc;
+    var src = "http:${item.documentSrc}";
 
     return Column(
       children: <Widget>[
@@ -227,9 +226,9 @@ class _FormHState extends State<FormH> {
       if (value.isNotEmpty) {
         for (var f in value) {
           _notes[f.ppmTaskUploadId] = f.ppmTaskUploadDesc;
-          if (f.ppmTaskUploadType == "Before")
+          if (f.ppmTaskUploadType == "Before") {
             before = f;
-          else if (f.ppmTaskUploadType == "During")
+          } else if (f.ppmTaskUploadType == "During")
             during.add(f);
           else if (f.ppmTaskUploadType == "After") after = f;
         }
@@ -248,7 +247,7 @@ class _FormHState extends State<FormH> {
 
   void _postImage() {
     int count = 0;
-    if (listItem.isNotEmpty)
+    if (listItem.isNotEmpty) {
       listItem.forEach((item) async {
         try {
           var value = await _provider.post(url: "/api/m_ppm.php", body: item.body);
@@ -267,6 +266,7 @@ class _FormHState extends State<FormH> {
           }
         }
       });
+    }
   }
 
   void _postNotes() {
@@ -305,9 +305,9 @@ class _FormHState extends State<FormH> {
       _getTitle("Requires at least one photo for each of the following image section below:")
     ];
 
-    var beforeItem;
-    var duringItems;
-    var afterItem;
+    UploadItem beforeItem;
+    List<UploadItem> duringItems;
+    UploadItem afterItem;
 
     // empty UploadItem
     UploadItem emptyUp = UploadItem(
@@ -342,10 +342,11 @@ class _FormHState extends State<FormH> {
       } else if (item is List) {
         List<FormHItem> duringList = item.cast<FormHItem>();
         for (var j = 0; j < 3; j++) {
-          if (j < duringList.length)
+          if (j < duringList.length) {
             _children.add(_section(duringList[j]));
-          else
+          } else {
             _children.add(_emptySection(i));
+          }
         }
       } else if (beforeItem != null && i == 0) {
         _children.add(_sectionUploadItem(beforeItem));
@@ -358,8 +359,8 @@ class _FormHState extends State<FormH> {
   }
 
   void _createUploadItem(int number) async {
-    var latitude;
-    var longitude;
+    String latitude;
+    String longitude;
 
     Future<XFile> getImage() async {
       final XFile? pickedFile = await ImagePicker().pickImage(
@@ -433,23 +434,23 @@ class _FormHState extends State<FormH> {
   // FUNCTIONALITY - WIDGET
 
   Widget _bottomSheet({required String latitude, required String longitude, String? src, File? file}) {
-    _openMap() async {
+    openMap() async {
       final googleUrl = 'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
       final appleUrl = 'https://maps.apple.com/?sll=$latitude,$longitude';
       final Uri googleUri = Uri.parse(googleUrl);
       final Uri appleUri = Uri.parse(appleUrl);
-      if (await canLaunchUrl(googleUri))
+      if (await canLaunchUrl(googleUri)) {
         await launchUrl(googleUri);
-      else if (await canLaunchUrl(appleUri))
+      } else if (await canLaunchUrl(appleUri))
         await launchUrl(appleUri);
       else
         throw 'Could not launch url';
     }
 
-    _openViewer() {
-      if (src != null)
+    openViewer() {
+      if (src != null) {
         Navigator.push(context, MaterialPageRoute(builder: (context) => ImageViewer(url: src)));
-      else if (file != null)
+      } else if (file != null)
         Navigator.push(context, MaterialPageRoute(builder: (context) => ImageViewer(path: file.path)));
     }
 
@@ -461,11 +462,11 @@ class _FormHState extends State<FormH> {
                   ListTile(
                       leading: Icon(Icons.image),
                       title: Text('View Image'),
-                      onTap: () => _openViewer()),
+                      onTap: () => openViewer()),
                   ListTile(
                       leading: Icon(Icons.map),
                       title: Text('Open Map'),
-                      onTap: () => _openMap()),
+                      onTap: () => openMap()),
                 ],
               ),
             )) as Widget;

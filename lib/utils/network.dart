@@ -83,7 +83,7 @@ class Provider {
 
     var pref = await User.getPrefUser;
     var user = User.fromMap(pref);
-    token = "Bearer " + user.token;
+    token = "Bearer ${user.token}";
   }
 
   Future<ResponseValue> fetch() async {

@@ -18,8 +18,8 @@ class MaterialRequestScreen extends StatefulWidget {
     required this.value,
     this.isApproval = false,
     this.isCheckout = false,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _MaterialRequestScreenState createState() => _MaterialRequestScreenState();
@@ -205,8 +205,8 @@ class _MaterialCard extends StatelessWidget {
   const _MaterialCard({
     required this.mat,
     required this.isApproval,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -323,8 +323,7 @@ class _BuildRejectButton extends StatelessWidget {
   final Future<void> Function(String) reject;
   final Function(String) alert;
 
-  const _BuildRejectButton(this.reject, this.alert, {Key? key})
-      : super(key: key);
+  const _BuildRejectButton(this.reject, this.alert, {super.key});
 
   @override
   Widget build(BuildContext context) {

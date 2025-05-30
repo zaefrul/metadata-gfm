@@ -23,13 +23,13 @@ class ComplaintPDF extends StatefulWidget {
   final int checkpoint;
 
   const ComplaintPDF({
-    Key? key,
+    super.key,
     required this.viewer,
     required this.id,
     required this.transactionNo,
     this.submitted,
     required this.checkpoint,
-  }) : super(key: key);
+  });
 
   @override
   _ComplaintPDFState createState() => _ComplaintPDFState();
@@ -51,7 +51,7 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
 
     provider.fetch().then((value) {
       debugPrint(value.toString());
-      src = "http:" + (value.result ?? "");
+      src = "http:${value.result ?? ""}";
       return createFileOfPdfUrl(src);
     }).then((file) {
       setState(() => assetPDFPath = file.path);
@@ -86,7 +86,7 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
   @override
   void dispose() {
     // Dispose dialog's controller only if it has been initialized
-    dialog.controller?.dispose();
+    dialog.controller.dispose();
     super.dispose();
   }
 
@@ -181,7 +181,7 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
                 onError: (error) {
                   print("PDFView error: $error");
                 },
-                onRender: (_pages) {
+                onRender: (pages) {
                   setState(() {
                     pdfReady = true;
                   });
@@ -245,8 +245,8 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
 class UploadItem extends Upload {
   final String remark;
 
-  UploadItem({required String id, required String action, required this.remark})
-      : super(ppmTaskId: id, action: action);
+  UploadItem({required String id, required super.action, required this.remark})
+      : super(ppmTaskId: id);
 
   @override
   Map<String, dynamic> get body => {

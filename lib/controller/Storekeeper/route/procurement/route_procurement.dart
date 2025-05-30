@@ -5,6 +5,8 @@ import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc_procurement.dart';
 import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 
 class ProcumentHomepage extends StatefulWidget {
+  const ProcumentHomepage({super.key});
+
   @override
   _ProcumentHomepageState createState() => _ProcumentHomepageState();
 }
@@ -36,7 +38,7 @@ class _ProcumentHomepageState extends State<ProcumentHomepage>
 
 class _AppBar extends StatelessWidget implements PreferredSizeWidget {
   final TabController _controller;
-  _AppBar(this._controller);
+  const _AppBar(this._controller);
 
   @override
   Widget build(BuildContext context) {
@@ -52,8 +54,8 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
 
   Widget get leading {
     return Container(
-      child: Image.asset("assets/icon_trans.png", height: 30, width: 30),
       padding: EdgeInsets.all(14),
+      child: Image.asset("assets/icon_trans.png", height: 30, width: 30),
     );
   }
 
@@ -115,7 +117,7 @@ class _Body extends StatelessWidget {
 class _DropdownFilter extends StatelessWidget {
   final BlocProcurement bloc;
 
-  _DropdownFilter(this.bloc);
+  const _DropdownFilter(this.bloc);
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +129,7 @@ class _DropdownFilter extends StatelessWidget {
           underline: Container(),
           value: snapshot.data,
           items: statuses
-              .map((f) => DropdownMenuItem(child: Text(f), value: f))
+              .map((f) => DropdownMenuItem(value: f, child: Text(f)))
               .toList(),
           onChanged: (String? value) => bloc.setSelected(value),
         ),

@@ -12,7 +12,7 @@ import '../../main.dart';
 class SignatureView extends StatefulWidget {
   final String id;
 
-  const SignatureView({required this.id, Key? key}) : super(key: key);
+  const SignatureView({required this.id, super.key});
 
   @override
   SignatureViewState createState() => SignatureViewState();
@@ -84,8 +84,8 @@ class SignatureViewState extends State<SignatureView> {
               children: <Widget>[
                 _signatureCanvas,
                 Container(
-                  child: Center(child: CircularProgressIndicator()),
                   color: Colors.black.withOpacity(0.5),
+                  child: Center(child: CircularProgressIndicator()),
                 )
               ],
             )

@@ -8,8 +8,7 @@ class ComplaintView extends StatefulWidget {
   final String url;
   final Widget? headers;
 
-  const ComplaintView(this.url, this.headers, this.index, {Key? key})
-      : super(key: key);
+  const ComplaintView(this.url, this.headers, this.index, {super.key});
 
   @override
   _ComplaintViewState createState() => _ComplaintViewState();
@@ -29,12 +28,11 @@ class _ComplaintViewState extends State<ComplaintView> {
 
   Future<List<WorkOrderTask>> _fetch() async {
     try {
-      String filter = "&woType=" +
-          (dropdownType == "Work Order"
+      String filter = "&woType=${dropdownType == "Work Order"
               ? "WO"
               : dropdownType == "Work Request"
                   ? "WR"
-                  : "");
+                  : ""}";
       Provider provider = Provider(fetchURL: widget.url + filter);
       provider.context = context;
 
@@ -60,12 +58,13 @@ class _ComplaintViewState extends State<ComplaintView> {
         onChanged: (String? newValue) {
           setState(() {
             dropdownValue = newValue ?? "All Status";
-            if (dropdownValue != "All Status")
+            if (dropdownValue != "All Status") {
               _filterTask = _listTask
                   .where((test) => test.woTaskStatus == dropdownValue)
                   .toList();
-            else
+            } else {
               _filterTask = _listTask;
+            }
           });
         },
         items: <String>[

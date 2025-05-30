@@ -20,7 +20,7 @@ class ComplaintSectionC extends StatefulWidget {
   final String id;
   final bool disable;
 
-  const ComplaintSectionC(this.id, this.disable, {Key? key}) : super(key: key);
+  const ComplaintSectionC(this.id, this.disable, {super.key});
 
   @override
   _ComplaintSectionCState createState() => _ComplaintSectionCState();
@@ -38,7 +38,7 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
   List<TechnicianImageRepair> _before = [];
   List<TechnicianImageRepair> _during = [];
   List<TechnicianImageRepair> _after  = [];
-  Map<String, String> _notes = {};
+  final Map<String, String> _notes = {};
 
   @override
   void initState() {

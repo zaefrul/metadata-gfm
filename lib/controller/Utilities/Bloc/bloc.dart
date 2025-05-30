@@ -135,10 +135,10 @@ class Request {
   final _pReading = Provider(fetchURL: readingAPI);
   final _pReadingW = Provider(fetchURL: readingAPI + water);
   final _pReadingE = Provider(fetchURL: readingAPI + elec);
-  final _pReadingDW = Provider(fetchURL: readingAPI + water + "Daily");
-  final _pReadingMW = Provider(fetchURL: readingAPI + water + "Monthly");
-  final _pReadingDE = Provider(fetchURL: readingAPI + elec + "Daily");
-  final _pReadingME = Provider(fetchURL: readingAPI + elec + "Monthly");
+  final _pReadingDW = Provider(fetchURL: "$readingAPI${water}Daily");
+  final _pReadingMW = Provider(fetchURL: "$readingAPI${water}Monthly");
+  final _pReadingDE = Provider(fetchURL: "$readingAPI${elec}Daily");
+  final _pReadingME = Provider(fetchURL: "$readingAPI${elec}Monthly");
 
   Future<List> fetchMetersE() => _pMetersE.fetchUtilities(meter: true);
   Future<List> fetchMetersW() => _pMetersW.fetchUtilities(meter: true);

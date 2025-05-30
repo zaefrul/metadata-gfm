@@ -21,7 +21,7 @@ class WaterBillScreen extends StatefulWidget {
   final bool isMontly;
   final bool isDaily;
 
-  WaterBillScreen({this.isDaily = false, this.isMontly = false});
+  const WaterBillScreen({super.key, this.isDaily = false, this.isMontly = false});
 
   @override
   _WaterBillScreenState createState() =>
@@ -46,16 +46,18 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
   @override
   void dispose() {
     dropdownValue.close();
-    _controllers.forEach((element) => element.dispose());
+    for (var element in _controllers) {
+      element.dispose();
+    }
     super.dispose();
   }
 
   @override
   void didChangeDependencies() {
-    final Provider _providerMeter = Provider(fetchURL: "/utility_meter/Water");
-    _providerMeter.context = context;
+    final Provider providerMeter = Provider(fetchURL: "/utility_meter/Water");
+    providerMeter.context = context;
 
-    _providerMeter.getJson(url: "/utility_meter/Water").then((value) {
+    providerMeter.getJson(url: "/utility_meter/Water").then((value) {
       final values = deserializeListOf<Meter>(value).toList();
       setState(() {
         list = values;
@@ -73,7 +75,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
         centerTitle: true,
         backgroundColor: Colors.white,
       ),
-      body: list.length == 0
+      body: list.isEmpty
           ? Container(
               child: Center(
                 child: CircularProgressIndicator(),
@@ -155,7 +157,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
       }
     }
 
-    checkEmpty = listItem.length == 0;
+    checkEmpty = listItem.isEmpty;
 
     if (checkEmpty) {
       Toast.show("Please insert image");
@@ -167,8 +169,8 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
       builder: (_) => Center(child: CircularProgressIndicator()),
     );
 
-    final Provider _provider = Provider(fetchURL: "/utility/Water/");
-    _provider.context = context;
+    final Provider provider = Provider(fetchURL: "/utility/Water/");
+    provider.context = context;
 
     File file = listItem.first;
     String url = "/utility/Water/";
@@ -184,7 +186,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
     String size = bytes.length.toString();
     String base64Image = base64Encode(bytes);
     String name =
-        DateFormat('kk:mm:ss EEE d MMM').format(DateTime.now()) + ".jpg";
+        "${DateFormat('kk:mm:ss EEE d MMM').format(DateTime.now())}.jpg";
     final Image image = Image.file(File(file.path));
     image.image
         .resolve(ImageConfiguration())
@@ -215,7 +217,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
         'readingImage[height]': height,
         'readingImage[width]': width,
       };
-      _provider.postUtilities(url: url, body: param).then((value) {
+      provider.postUtilities(url: url, body: param).then((value) {
         Toast.show("Submitted");
         Navigator.pop(context);
       }).catchError((err) {
@@ -264,9 +266,9 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
     var plus = MaterialButton(
       shape: CircleBorder(),
       height: 25,
-      child: plustext,
       color: colorTheme2.withOpacity(0.5),
       onPressed: () => _createUploadItem(),
+      child: plustext,
     );
 
     return ListTile(
@@ -297,8 +299,8 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
           setState(() => listItem.removeWhere((value) => value == item)),
     );
 
-    var _latitude = "0.0";
-    var _longitude = "0.0";
+    var latitude = "0.0";
+    var longitude = "0.0";
     var date = DateTime.now().toString();
 
     return Padding(
@@ -312,30 +314,30 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(date),
-                Text(_latitude + ", " + _longitude)
+                Text(latitude + ", " + longitude)
               ],
             ),
             onTap: () async => _bottomSheet(
-                latitude: _latitude, longitude: _longitude, src: item)),
+                latitude: latitude, longitude: longitude, src: item)),
       ]),
     );
   }
 
   void _bottomSheet({latitude, longitude, src}) {
-    _openMap() async {
+    openMap() async {
       String googleUrl =
           'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
       String appleUrl = 'https://maps.apple.com/?sll=$latitude,$longitude';
 
-      if (await canLaunch(googleUrl))
+      if (await canLaunch(googleUrl)) {
         await launch(googleUrl);
-      else if (await canLaunch(appleUrl))
+      } else if (await canLaunch(appleUrl))
         await launch(appleUrl);
       else
         throw 'Could not launch url';
     }
 
-    _openViewer() => Navigator.push(context,
+    openViewer() => Navigator.push(context,
         MaterialPageRoute(builder: (context) => ImageViewer(file: src)));
 
     showModalBottomSheet(
@@ -346,12 +348,12 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
             ListTile(
               leading: Icon(Icons.image),
               title: Text('View Image'),
-              onTap: () => _openViewer(),
+              onTap: () => openViewer(),
             ),
             ListTile(
               leading: Icon(Icons.map),
               title: Text('Open Map'),
-              onTap: () => _openMap(),
+              onTap: () => openMap(),
             ),
           ],
         ),
@@ -363,7 +365,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
 class _Monthly extends StatelessWidget {
   final Widget location;
   final List<TextEditingController> _controllers;
-  _Monthly(List<TextEditingController> values, this.location)
+  const _Monthly(List<TextEditingController> values, this.location)
       : _controllers = values;
 
   @override
@@ -384,7 +386,7 @@ class _Daily extends StatelessWidget {
   final Widget location;
   final List<TextEditingController> _controllers;
 
-  _Daily(List<TextEditingController> values, this.location)
+  const _Daily(List<TextEditingController> values, this.location)
       : _controllers = values;
 
   @override
@@ -406,7 +408,7 @@ class _Field extends StatelessWidget {
   final bool enabled;
   final TextEditingController controller;
 
-  _Field(this.label, this.controller, {this.enabled = true});
+  const _Field(this.label, this.controller, {this.enabled = true});
 
   @override
   Widget build(BuildContext context) {

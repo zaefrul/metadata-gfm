@@ -14,8 +14,7 @@ class ComplaintSectionA extends StatefulWidget {
   final bool viewer;
   final String id;
 
-  const ComplaintSectionA({Key? key, required this.id, this.viewer = false})
-      : super(key: key);
+  const ComplaintSectionA({super.key, required this.id, this.viewer = false});
 
   @override
   _ComplaintSectionAState createState() => _ComplaintSectionAState(id);
@@ -40,11 +39,12 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
       }
       debugPrint(result.woDetail.toString());
       return result.woDetail!;
-    } catch (err, st) {
+    } catch (err) {
       rethrow;
     }
   }
 
+  @override
   Widget build(BuildContext context) {
     final isWide = MediaQuery.of(context).size.width > 600;
 
@@ -232,6 +232,14 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
                     color: Colors.black54,
                   ),
                 ),
+                const SizedBox(height: 4),
+                Text(
+                  img.woTaskUploadDesc,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.black54,
+                  ),
+                ),
               ],
             ),
           ),
@@ -250,19 +258,7 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
   final lng = img.woTaskUploadLongitude;
   final src = img.documentSrc;
 
-  Future<void> _openMap() async {
-    final googleUrl = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
-    final appleUrl  = Uri.parse('https://maps.apple.com/?sll=$lat,$lng');
-    if (await canLaunchUrl(googleUrl)) {
-      await launchUrl(googleUrl);
-    } else if (await canLaunchUrl(appleUrl)) {
-      await launchUrl(appleUrl);
-    } else {
-      throw 'Could not launch map for $lat,$lng';
-    }
-  }
-
-  void _openViewer() {
+  void openViewer() {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => ImageViewer(url: "https:$src")),
@@ -279,7 +275,7 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
             title: Text('View Image'),
             onTap: () {
               Navigator.pop(context);
-              _openViewer();
+              openViewer();
             },
           ),
           ListTile(
@@ -287,7 +283,6 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
             title: Text('Open Map'),
             onTap: () {
               Navigator.pop(context);
-              _openMap();
             },
           ),
         ],
@@ -319,7 +314,7 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
           onTap: () {
             Navigator.pop(context);
             Navigator.push(context,
-                MaterialPageRoute(builder: (_) => ImageViewer(url: "https:" + img.documentSrc)));
+                MaterialPageRoute(builder: (_) => ImageViewer(url: "https:${img.documentSrc}")));
           },
         ),
         ListTile(
@@ -327,13 +322,27 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
           title: Text("Open Map"),
           onTap: () {
             Navigator.pop(context);
-            launch(
-              'https://maps.google.com/?q=${img.woTaskUploadLatitude},${img.woTaskUploadLongitude}'
-            );
+            _openMap(img.woTaskUploadLatitude as double, img.woTaskUploadLongitude as double);
           },
         ),
       ]),
     );
+  }
+}
+
+Future<void> _openMap(double lat, double lng) async {
+  final String googleMapsUrl = 'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
+  final String appleMapsUrl = 'https://maps.apple.com/?q=$lat,$lng&sll=$lat,$lng&z=16';
+
+  final Uri googleUri = Uri.parse(googleMapsUrl);
+  final Uri appleUri = Uri.parse(appleMapsUrl);
+
+  if (await canLaunchUrl(googleUri)) {
+    await launchUrl(googleUri);
+  } else if (await canLaunchUrl(appleUri)) {
+    await launchUrl(appleUri);
+  } else {
+    throw 'Could not launch any map for $lat,$lng';
   }
 }
 

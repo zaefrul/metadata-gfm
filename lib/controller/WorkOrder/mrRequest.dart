@@ -23,7 +23,7 @@ class MRTaskList extends StatefulWidget {
     "48": "Waiting for Purchase",
   };
 
-  const MRTaskList({Key? key}) : super(key: key);
+  const MRTaskList({super.key});
   @override _MRTaskListState createState() => _MRTaskListState();
 }
 

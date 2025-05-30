@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../constant.dart';
 
 class AwesomeFAB extends StatefulWidget {
+  const AwesomeFAB({super.key});
+
   @override
   _AwesomeFABState createState() => _AwesomeFABState();
 }
@@ -171,16 +173,16 @@ class _AwesomeFABState extends State<AwesomeFAB>
           onPressed: value == null
               ? () => _animationController.reverse()
               : () => Navigator.pop(context, value),
+          shape: const CircleBorder(),
+          elevation: 2.0,
+          fillColor: color,
+          padding: const EdgeInsets.all(15.0),
           child: aIcon ??
               Icon(
                 icon,
                 color: Colors.white,
                 size: 27.0,
               ),
-          shape: const CircleBorder(),
-          elevation: 2.0,
-          fillColor: color,
-          padding: const EdgeInsets.all(15.0),
         ),
       ],
     );

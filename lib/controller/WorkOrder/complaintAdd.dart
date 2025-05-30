@@ -367,10 +367,8 @@ class Controller {
       invalid = true;
       remark.text = "";
       quantity.text = "";
-      if (value != null) {
-        getSecond();
-      }
-    });
+      getSecond();
+        });
 
     _valueSecond.listen((value) {
       setthird(null);

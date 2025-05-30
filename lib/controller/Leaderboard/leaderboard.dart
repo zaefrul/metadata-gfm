@@ -7,6 +7,8 @@ import 'package:month_year_picker/month_year_picker.dart';
 import '../../../main.dart';
 
 class LeaderboardView extends StatefulWidget {
+  const LeaderboardView({super.key});
+
   @override
   _LeaderboardViewState createState() => _LeaderboardViewState();
 }
@@ -139,8 +141,8 @@ class _LeaderboardViewState extends State<LeaderboardView>
       value: item,
       items: ["Yearly", "Monthly", "Weekly"]
           .map<DropdownMenuItem<String>>((e) => DropdownMenuItem(
-                child: Text(e),
                 value: e,
+                child: Text(e),
               ))
           .toList(),
       onChanged: onChange,

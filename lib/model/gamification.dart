@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 extension StringExtension on String {
   String capitalize() {
     // return this;
-    final list = this.split(" ");
+    final list = split(" ");
     final newList = list.map((element) {
       if (element.length > 1) {
         final first = element.substring(0, 1).toUpperCase();

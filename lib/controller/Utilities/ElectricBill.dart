@@ -20,7 +20,7 @@ class ElectricBillScreen extends StatefulWidget {
   final bool isMontly;
   final bool isDaily;
 
-  ElectricBillScreen({this.isDaily = false, this.isMontly = false});
+  const ElectricBillScreen({super.key, this.isDaily = false, this.isMontly = false});
 
   @override
   _ElectricBillScreenState createState() =>
@@ -58,11 +58,11 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
 
   @override
   void didChangeDependencies() {
-    final Provider _providerMeter =
+    final Provider providerMeter =
         Provider(fetchURL: "/utility_meter/Electricity");
-    _providerMeter.context = context;
+    providerMeter.context = context;
 
-    _providerMeter.getJson(url: "/utility_meter/Electricity").then((value) {
+    providerMeter.getJson(url: "/utility_meter/Electricity").then((value) {
       final values = deserializeListOf<Meter>(value).toList();
       setState(() {
         list = values;
@@ -160,8 +160,8 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
         context: navigatorKey.currentContext!,
         builder: (_) => Center(child: CircularProgressIndicator()));
 
-    final Provider _provider = Provider(fetchURL: "/utility/Electricity/");
-    _provider.context = context;
+    final Provider provider = Provider(fetchURL: "/utility/Electricity/");
+    provider.context = context;
 
     File file = listItem.first;
     String url = "/utility/Electricity/";
@@ -178,7 +178,7 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
     String size = bytes.length.toString();
     String base64Image = base64Encode(bytes);
     String name =
-        DateFormat('kk:mm:ss EEE d MMM').format(DateTime.now()) + ".jpg";
+        "${DateFormat('kk:mm:ss EEE d MMM').format(DateTime.now())}.jpg";
     final Image image = Image.file(File(file.path));
 
     // Listen on image resolution.
@@ -212,7 +212,7 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
         'readingImage[height]': height,
         'readingImage[width]': width,
       };
-      _provider.postUtilities(url: url, body: param).then((value) {
+      provider.postUtilities(url: url, body: param).then((value) {
         Toast.show("Submitted");
         Navigator.pop(context);
       }).catchError((err) {
@@ -259,9 +259,9 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
     var plus = MaterialButton(
       shape: CircleBorder(),
       height: 25,
-      child: plustext,
       color: colorTheme2.withOpacity(0.5),
       onPressed: _createUploadItem,
+      child: plustext,
     );
 
     return ListTile(
@@ -290,8 +290,8 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
       onPressed: () => setState(() => listItem.remove(item)),
     );
 
-    var _latitude = "0.0";
-    var _longitude = "0.0";
+    var latitude = "0.0";
+    var longitude = "0.0";
     var date = DateTime.now().toString();
 
     return Padding(
@@ -305,17 +305,17 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(date),
-                Text("$_latitude, $_longitude")
+                Text("$latitude, $longitude")
               ],
             ),
             onTap: () async => _bottomSheet(
-                latitude: _latitude, longitude: _longitude, src: item)),
+                latitude: latitude, longitude: longitude, src: item)),
       ]),
     );
   }
 
   void _bottomSheet({required String latitude, required String longitude, required File src}) {
-    Future<void> _openMap() async {
+    Future<void> openMap() async {
       final String googleUrl =
           'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
       final String appleUrl = 'https://maps.apple.com/?sll=$latitude,$longitude';
@@ -329,7 +329,7 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
       }
     }
 
-    void _openViewer() => Navigator.push(context,
+    void openViewer() => Navigator.push(context,
         MaterialPageRoute(builder: (context) => ImageViewer(file: src)));
 
     showModalBottomSheet(
@@ -340,12 +340,12 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
             ListTile(
               leading: Icon(Icons.image),
               title: Text('View Image'),
-              onTap: _openViewer,
+              onTap: openViewer,
             ),
             ListTile(
               leading: Icon(Icons.map),
               title: Text('Open Map'),
-              onTap: _openMap,
+              onTap: openMap,
             ),
           ],
         ),
@@ -357,7 +357,7 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
 class _Monthly extends StatelessWidget {
   final List<TextEditingController> _controllers;
   final Widget location;
-  _Monthly(List<TextEditingController> values, this.location)
+  const _Monthly(List<TextEditingController> values, this.location)
       : _controllers = values;
 
   @override
@@ -380,7 +380,7 @@ class _Daily extends StatelessWidget {
   final List<TextEditingController> _controllers;
   final Widget location;
 
-  _Daily(List<TextEditingController> values, this.location)
+  const _Daily(List<TextEditingController> values, this.location)
       : _controllers = values;
 
   @override
@@ -403,7 +403,7 @@ class _Field extends StatelessWidget {
   final bool enabled;
   final TextEditingController controller;
 
-  _Field(this.label, this.controller, {this.enabled = true});
+  const _Field(this.label, this.controller, {this.enabled = true});
 
   @override
   Widget build(BuildContext context) {

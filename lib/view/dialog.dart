@@ -33,7 +33,7 @@ class CustomDialog extends StatelessWidget {
   final TextEditingController controller = TextEditingController();
 
   CustomDialog({
-    Key? key,
+    super.key,
     this.title,
     required this.description,
     required this.buttonText,
@@ -49,7 +49,7 @@ class CustomDialog extends StatelessWidget {
     this.secondTapped,
     this.showError = false,
     this.remark = "",
-  }) : super(key: key) {
+  }) {
     controller.addListener(_updateRemark);
   }
 

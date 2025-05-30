@@ -32,7 +32,7 @@ class ComplaintSection extends StatefulWidget {
   final String woTaskType;
 
   const ComplaintSection({
-    Key? key,
+    super.key,
     required this.id,
     required this.taskNo,
     required this.siteName,
@@ -41,7 +41,7 @@ class ComplaintSection extends StatefulWidget {
     this.isAssign = false,
     this.isComplaintProgress = false,
     required this.woTaskType,
-  }) : super(key: key);
+  });
 
   @override
   _ComplaintSectionState createState() => _ComplaintSectionState();
@@ -239,10 +239,10 @@ class BuildTile extends StatelessWidget {
   final VoidCallback onTap;
 
   const BuildTile({
-    Key? key,
+    super.key,
     required this.workOrderStatus,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   Color _getStatusColor(String? status) {
     switch (status) {
@@ -368,8 +368,8 @@ class _BuildTempTile extends StatelessWidget {
     this.title,
     this.status,
     this.onTap, {
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -441,8 +441,8 @@ class _BuildViewButton extends StatelessWidget {
     this.button,
     this.reject,
     this.alert, {
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   String getButtonLabel(String status) {
     switch (status) {
@@ -528,17 +528,16 @@ class _BuildRejectButton extends StatelessWidget {
   final Function(String) alert;
   final Future<void> Function(String) reject;
 
-  _BuildRejectButton(
+  const _BuildRejectButton(
     String status,
     this.reject,
     this.alert, {
-    Key? key,
+    super.key,
   })  : label = status == "Assign"
             ? "Reject"
             : status == "WR Verified"
                 ? "Re-Open"
-                : "Revisit",
-        super(key: key);
+                : "Revisit";
 
   @override
   Widget build(BuildContext context) {
@@ -592,8 +591,8 @@ class _BuildStandardButton extends StatelessWidget {
     this.mainStatus, 
     this.woTaskStatus, 
     this.outOfScopeOnPressAction, {
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   void alert(String txt) {
     showDialog(
@@ -730,7 +729,7 @@ class _BuildStandardButton extends StatelessWidget {
 ///
 class _TimeDuration extends StatelessWidget {
   final Stream<ExecutionModel> stream;
-  const _TimeDuration({Key? key, required this.stream}) : super(key: key);
+  const _TimeDuration({super.key, required this.stream});
 
   @override
   Widget build(BuildContext context) {
@@ -837,7 +836,7 @@ class _TimeSection extends StatelessWidget {
   final bool exceeded;
 
   const _TimeSection({
-    Key? key,
+    super.key,
     required this.title,
     required this.slaLabel,
     required this.slaValue,
@@ -845,7 +844,7 @@ class _TimeSection extends StatelessWidget {
     required this.dueValue,
     required this.accent,
     required this.exceeded,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -888,12 +887,12 @@ class _TimeSmall extends StatelessWidget {
   final bool exceeded;
 
   const _TimeSmall({
-    Key? key,
+    super.key,
     required this.label,
     required this.value,
     required this.accent,
     required this.exceeded,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

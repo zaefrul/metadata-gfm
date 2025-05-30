@@ -11,6 +11,8 @@ import 'complaintForm.dart';
 import 'mrRequest.dart';
 
 class WorkOrderView extends StatefulWidget {
+  const WorkOrderView({super.key});
+
   @override
   _WorkOrderState createState() => _WorkOrderState();
 }
@@ -18,7 +20,7 @@ class WorkOrderView extends StatefulWidget {
 class _WorkOrderState extends State<WorkOrderView> with TickerProviderStateMixin, RouteAware {
   final String selfFindingURL = "/api/m_wo.php?type=submitted_wo";
   final String myTaskURL = "/api/m_wo.php?type=pending_task";
-  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   TabController? _tabController;
   bool isSupervisor = false;
 
@@ -115,7 +117,7 @@ class _WorkOrderState extends State<WorkOrderView> with TickerProviderStateMixin
   }
 
   Widget get _addComplaint {
-    Text _text(String word) => Text(
+    Text text(String word) => Text(
           word,
           style: TextStyle(
               color: Colors.white,
@@ -128,7 +130,7 @@ class _WorkOrderState extends State<WorkOrderView> with TickerProviderStateMixin
           padding: EdgeInsets.all(6),
           decoration: BoxDecoration(
               shape: BoxShape.circle, color: colorTheme2),
-          child: _text("+")),
+          child: text("+")),
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => FormComplaint()));

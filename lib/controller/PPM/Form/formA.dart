@@ -21,8 +21,8 @@ class FormA extends StatefulWidget {
     this.verification,
     this.viewer = false,
     this.verified = false,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _FormAState createState() => _FormAState();
@@ -66,12 +66,12 @@ class _FormAState extends State<FormA> {
             ? null
             : <Widget>[
                 GestureDetector(
+                  onTap: scan,
                   child: Icon(
                     Icons.camera,
                     color: colorTheme3,
                     size: 30,
                   ),
-                  onTap: scan,
                 ),
                 SizedBox(width: 20),
               ],

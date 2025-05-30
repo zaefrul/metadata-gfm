@@ -14,6 +14,8 @@ class Support extends StatelessWidget {
   final String phone = "+603-4101-0555";
   final String email = "operationalexcellence@globalfm.com.my";
 
+  const Support({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

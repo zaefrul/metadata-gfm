@@ -5,7 +5,7 @@ import 'package:GEMS/model/complaint.dart';
 
 class TaskList extends StatelessWidget {
   final BlocInventory bloc;
-  TaskList(this.bloc);
+  const TaskList(this.bloc, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +49,7 @@ class _Tile extends StatelessWidget {
   final int index;
   final Function refresh;
 
-  _Tile(this.status, this.value, this.index, this.color, this.refresh);
+  const _Tile(this.status, this.value, this.index, this.color, this.refresh);
 
   @override
   Widget build(BuildContext context) {

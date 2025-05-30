@@ -13,7 +13,7 @@ class SearchRIArguments {
 class SearchRI extends StatefulWidget {
   static const routeName = '/search_ri';
 
-  const SearchRI({Key? key}) : super(key: key);
+  const SearchRI({super.key});
 
   @override
   _SearchStateRI createState() => _SearchStateRI();
@@ -113,8 +113,8 @@ class _SearchStateRI extends State<SearchRI> {
         ),
         actions: <Widget>[
           GestureDetector(
-            child: Icon(Icons.camera, color: colorTheme3, size: 30),
             onTap: scan,
+            child: Icon(Icons.camera, color: colorTheme3, size: 30),
           ),
           SizedBox(width: 20),
         ],

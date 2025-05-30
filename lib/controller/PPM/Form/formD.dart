@@ -14,8 +14,7 @@ class FormD extends StatefulWidget {
   final VoidCallback refreshStatus;
   final bool disable;
 
-  const FormD(this.id, this.verified, this.refreshStatus, this.disable, {Key? key})
-      : super(key: key);
+  const FormD(this.id, this.verified, this.refreshStatus, this.disable, {super.key});
 
   @override
   _FormDState createState() => _FormDState();
@@ -113,9 +112,9 @@ class _FormDState extends State<FormD> {
                   };
 
                   // Add each UploadItem's data to the request body.
-                  items.forEach((f) {
+                  for (var f in items) {
                     body.addAll(f.body);
-                  });
+                  }
 
                   provider
                       .post(url: "/api/m_ppm.php", body: body)
@@ -158,7 +157,7 @@ class _FormDState extends State<FormD> {
           Row(
             children: <Widget>[
               Flexible(
-                child: field("Units", (text) => null,
+                child: field("Units", (text) {},
                     horizontal: 0.0, value: item.unit, enable: false),
               ),
               SizedBox(width: 16),
@@ -196,7 +195,7 @@ class _FormDState extends State<FormD> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           getTitle("${item.number}. ${item.desc}"),
-          field("Units", (text) => null,
+          field("Units", (text) {},
               horizontal: 0.0, value: item.unit, enable: false),
           field("Set Values", (text) => item.setValues = text,
               horizontal: 0.0, value: item.setValues, enable: false),
@@ -204,7 +203,7 @@ class _FormDState extends State<FormD> {
               horizontal: 0.0, value: item.measuredValues, enable: false),
           field("Limit/ Tolerance", (text) => item.limit = text,
               horizontal: 0.0, value: item.limit, enable: false),
-          field("Status", (_) => null,
+          field("Status", (_) {},
               horizontal: 0.0, value: item.result, enable: false),
           field("Remarks", (text) => item.remark = text,
               horizontal: 0.0, value: item.remark, enable: false),

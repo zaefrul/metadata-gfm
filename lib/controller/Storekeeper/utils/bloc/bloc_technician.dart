@@ -24,15 +24,15 @@ class BlocTechnician extends Bloc {
             (index) => Item(
                 group: "Group A",
                 subgroup: "SubGroup A",
-                name: "ITEM" + index.toString(),
+                name: "ITEM$index",
                 desc: "DESC A",
                 quantity: 1)) {
     _controller.sink.add(items);
   }
 
   BlocTechnician.from(BlocTechnician value)
-      : this.items = value.items,
-        this.type = value.type {
+      : items = value.items,
+        type = value.type {
     _controller.sink.add(items);
   }
 

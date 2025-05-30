@@ -9,7 +9,7 @@ import 'calendar.dart';
 import 'task_view.dart';
 
 class PreventiveMaintenance extends StatefulWidget {
-  const PreventiveMaintenance({Key? key}) : super(key: key);
+  const PreventiveMaintenance({super.key});
 
   @override
   _PreventiveMaintenanceState createState() => _PreventiveMaintenanceState();

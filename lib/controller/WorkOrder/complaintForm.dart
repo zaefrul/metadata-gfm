@@ -16,6 +16,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 
 class FormComplaint extends StatefulWidget {
+  const FormComplaint({super.key});
+
   @override
   _FormComplaintState createState() => _FormComplaintState();
 }

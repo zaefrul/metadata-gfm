@@ -9,7 +9,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'Form/form_view.dart';
 
 class Calendar extends StatefulWidget {
-  const Calendar({Key? key}) : super(key: key);
+  const Calendar({super.key});
 
   @override
   _CalendarState createState() => _CalendarState();
@@ -19,10 +19,10 @@ class _CalendarState extends State<Calendar>
     with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late DateTime _selectedDay;
   late DateTime _currentMonth;
-  Map<DateTime, List<String>> _events = {};
+  final Map<DateTime, List<String>> _events = {};
   Map<DateTime, List<String>> _visibleEvents = {};
-  List<Task> _selectedEvents = [];
-  Map<String, List<int>> _monthsCollected = {};
+  final List<Task> _selectedEvents = [];
+  final Map<String, List<int>> _monthsCollected = {};
   late AnimationController _controller;
   bool typeViewCalendar = true;
   bool typeViewListAll = false;

@@ -14,6 +14,8 @@ class SearchArguments {
 class Search extends StatefulWidget {
   static const routeName = '/search';
 
+  const Search({super.key});
+
   @override
   _SearchState createState() => _SearchState();
 }
@@ -37,26 +39,27 @@ class _SearchState extends State<Search> {
       //   allTaskView.updateQRAll(controller.text);
       // else if (index == 1) taskView.updateQR(controller.text);
 
-      setState(() => controller.text = this.searchText = barcode.rawContent);
+      setState(() => controller.text = searchText = barcode.rawContent);
 
       Toast.show("Loading", duration: 2);
 
-      if (index == 0)
+      if (index == 0) {
         allTaskView.updateAll(controller.text);
-      else if (index == 1) taskView.update(controller.text);
+      } else if (index == 1) taskView.update(controller.text);
     } on PlatformException catch (e) {
-      if (e.code == BarcodeScanner.cameraAccessDenied)
+      if (e.code == BarcodeScanner.cameraAccessDenied) {
         setState(() =>
-            this.keyword = 'The user did not grant the camera permission!');
-      else
-        setState(() => this.keyword = 'Unknown error: $e');
+            keyword = 'The user did not grant the camera permission!');
+      } else {
+        setState(() => keyword = 'Unknown error: $e');
+      }
     } on FormatException {
-      setState(() => this.keyword = 'Cancel');
+      setState(() => keyword = 'Cancel');
     } catch (e) {
-      setState(() => this.keyword = 'Unknown error: $e');
+      setState(() => keyword = 'Unknown error: $e');
     }
 
-    Toast.show(this.keyword);
+    Toast.show(keyword);
   }
 
   @override
@@ -68,13 +71,13 @@ class _SearchState extends State<Search> {
     var body = allTaskView;
     if (index == 1) body = taskView;
 
-    return new Scaffold(
+    return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(color: colorTheme3),
         backgroundColor: Colors.white,
-        title: new TextField(
+        title: TextField(
           controller: controller,
-          style: new TextStyle(fontFamily: 'Avenir', color: colorTheme3),
+          style: TextStyle(fontFamily: 'Avenir', color: colorTheme3),
           autofocus: true,
           decoration: InputDecoration(
               border: InputBorder.none,
@@ -86,21 +89,21 @@ class _SearchState extends State<Search> {
             Toast.show("Loading", duration: 2);
             if (controller.text != searchText) {
               searchText = controller.text;
-              if (index == 0)
+              if (index == 0) {
                 allTaskView.updateAll(controller.text);
-              else if (index == 1) taskView.update(controller.text);
+              } else if (index == 1) taskView.update(controller.text);
             }
           },
         ),
         actions: <Widget>[
-          new GestureDetector(
+          GestureDetector(
+              onTap: scan,
               child: Icon(
                 Icons.camera,
                 color: colorTheme3,
                 size: 30,
-              ),
-              onTap: scan),
-          new SizedBox(width: 20),
+              )),
+          SizedBox(width: 20),
         ],
       ),
       body: body,

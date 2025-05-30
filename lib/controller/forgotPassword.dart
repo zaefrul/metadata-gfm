@@ -88,13 +88,13 @@ class CustomDialog extends StatelessWidget {
   final String? rootPage; // Added from original
 
   const CustomDialog({
-    Key? key,
+    super.key,
     required this.description,
     required this.buttonText,
     required this.image,
     this.okayTapped,
     this.rootPage,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +135,7 @@ class CustomDialog extends StatelessWidget {
 // --- Uplifted Forgot Password Screen ---
 
 class Forgot extends StatefulWidget {
-  const Forgot({Key? key}) : super(key: key);
+  const Forgot({super.key});
 
   @override
   _ForgotState createState() => _ForgotState();

@@ -36,7 +36,7 @@ class MaterialTask extends Bloc {
     "48": colorTheme4
   };
 
-  MaterialTask(String id) : this._request = Request(id) {
+  MaterialTask(String id) : _request = Request(id) {
     refresh();
   }
 
@@ -97,18 +97,18 @@ class Request extends _Utils {
   final Provider _providerREJECT;
 
   Request(String id)
-      : this._providerGET =
+      : _providerGET =
             Provider(fetchURL: "/wo_parts/wo_parts_list/", taskID: id),
-        this._providerINFO =
+        _providerINFO =
             Provider(fetchURL: "/wo_request/request_details/", taskID: id),
-        this._providerSUBMIT =
+        _providerSUBMIT =
             Provider(fetchURL: "/wo_request/approve_request/", taskID: id),
-        this._providerRESERVED =
+        _providerRESERVED =
             Provider(fetchURL: "/wo_request/reserve_request/", taskID: id),
-        this._providerORDER = Provider(fetchURL: "/wo_request/order_request/"),
-        this._providerCHECKOUT =
+        _providerORDER = Provider(fetchURL: "/wo_request/order_request/"),
+        _providerCHECKOUT =
             Provider(fetchURL: "/wo_request/check_out_request/", taskID: id),
-        this._providerREJECT =
+        _providerREJECT =
             Provider(fetchURL: "/wo_request/reject_request/", taskID: id);
 
   Future<RequestTask> get info =>

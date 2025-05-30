@@ -13,8 +13,7 @@ class PPMAddTechnician extends StatefulWidget {
 
   const PPMAddTechnician(
       this.id, this.verified, this.refreshStatus, this.disable,
-      {Key? key})
-      : super(key: key);
+      {super.key});
 
   @override
   PPMAddTechnicianState createState() => PPMAddTechnicianState(id);
@@ -253,10 +252,10 @@ class _Controller {
 
   Future<List<_Model>> get list async {
     final url = "/ppm_task_assist/dropdown_list/";
-    final Provider _provider = Provider(fetchURL: url, taskID: id);
+    final Provider provider = Provider(fetchURL: url, taskID: id);
 
     try {
-      final result = await _provider.getJson(url: url);
+      final result = await provider.getJson(url: url);
       if (result.length > 0) {
         return result.map<_Model>((v) => _Model.fromJson(v)).toList();
       }
@@ -268,9 +267,9 @@ class _Controller {
 
   Future<List<_Model>> get selected async {
     final url = "/ppm_task_assist/assistant_list/";
-    final Provider _provider = Provider(fetchURL: url, taskID: id);
+    final Provider provider = Provider(fetchURL: url, taskID: id);
     try {
-      final result = await _provider.getJson(url: url);
+      final result = await provider.getJson(url: url);
       if (result.length > 0) {
         return result.map<_Model>((v) => _Model.fromJson(v)).toList();
       }
@@ -282,7 +281,7 @@ class _Controller {
 
   Future<void> add(_Model model) async {
     final url = "/ppm_task_assist";
-    final Provider _provider = Provider(fetchURL: url, taskID: id);
+    final Provider provider = Provider(fetchURL: url, taskID: id);
 
     final body = {
       "ppmTaskId": id,
@@ -290,7 +289,7 @@ class _Controller {
     };
 
     try {
-      final result = await _provider.post(url: url, body: body);
+      final result = await provider.post(url: url, body: body);
       print(result);
       Toast.show(result.toString());
     } catch (e) {
@@ -300,9 +299,9 @@ class _Controller {
 
   Future<void> delete(_Model model) async {
     final url = "/ppm_task_assist/${model.userId}";
-    final Provider _provider = Provider(fetchURL: url, taskID: id);
+    final Provider provider = Provider(fetchURL: url, taskID: id);
     try {
-      final result = await _provider.delete(url: url);
+      final result = await provider.delete(url: url);
       print(result);
       Toast.show(result.toString());
     } catch (e) {
@@ -312,9 +311,9 @@ class _Controller {
 
   Future<void> submit() async {
     final url = "/ppm_v2/save_assistant_list/$id";
-    final Provider _provider = Provider(fetchURL: url, taskID: id);
+    final Provider provider = Provider(fetchURL: url, taskID: id);
     try {
-      final result = await _provider.post(url: url);
+      final result = await provider.post(url: url);
       Toast.show(result.toString());
     } catch (e) {
       // Optionally handle error here

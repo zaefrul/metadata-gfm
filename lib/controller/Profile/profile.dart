@@ -12,7 +12,7 @@ import 'changePassword.dart';
 import '../Homepage/homepage.dart';
 
 class Profile extends StatefulWidget {
-  const Profile({Key? key}) : super(key: key);
+  const Profile({super.key});
 
   @override
   _ProfileState createState() => _ProfileState();
@@ -143,7 +143,7 @@ class _ProfileState extends State<Profile> {
   }
 }
 
-Widget get background => Container(
+Widget get background => SizedBox(
   height: double.infinity,
   width: double.infinity,
   child: Image.asset("assets/bg.jpg", fit: BoxFit.fill),

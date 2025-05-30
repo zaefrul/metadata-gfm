@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../utils/reference.dart';
 
 class AwesomeFAB extends StatefulWidget {
+  const AwesomeFAB({super.key});
+
   @override
   _AwesomeFABState createState() => _AwesomeFABState();
 }
@@ -146,16 +148,16 @@ class _AwesomeFABState extends State<AwesomeFAB>
           ),
           RawMaterialButton(
             onPressed: tapped,
+            shape: const CircleBorder(),
+            elevation: 2.0,
+            fillColor: color,
+            padding: const EdgeInsets.all(15.0),
             child: aIcon ??
                 Icon(
                   icon,
                   color: Colors.white,
                   size: 27.0,
                 ),
-            shape: const CircleBorder(),
-            elevation: 2.0,
-            fillColor: color,
-            padding: const EdgeInsets.all(15.0),
           ),
         ],
       );

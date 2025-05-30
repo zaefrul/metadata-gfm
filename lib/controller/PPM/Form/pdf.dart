@@ -23,8 +23,8 @@ class PDF extends StatefulWidget {
     this.submitted,
     required this.checkpoint,
     this.viewer = false,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _PDFState createState() => _PDFState();

@@ -7,7 +7,7 @@ import '../../../../main.dart';
 class RouteEngineer extends StatefulWidget {
   final BlocTechnician bloc;
 
-  RouteEngineer({BlocTechnician? value}) : bloc = value ?? BlocTechnician();
+  RouteEngineer({super.key, BlocTechnician? value}) : bloc = value ?? BlocTechnician();
 
   @override
   _RouteEngineerState createState() => _RouteEngineerState();
@@ -24,7 +24,7 @@ class _RouteEngineerState extends State<RouteEngineer> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: new Text("Material Requisition Form"),
+        title: Text("Material Requisition Form"),
         backgroundColor: Colors.white,
         centerTitle: true,
       ),
@@ -96,7 +96,7 @@ class _Info extends StatelessWidget {
 class _Title extends StatelessWidget {
   final BlocTechnician bloc;
 
-  _Title(this.bloc);
+  const _Title(this.bloc);
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +120,7 @@ class _ListView extends StatefulWidget {
   final List<Item> items;
   final BlocTechnician bloc;
 
-  _ListView(this.items, this.bloc);
+  const _ListView(this.items, this.bloc);
 
   @override
   _ListViewState createState() => _ListViewState();
@@ -200,13 +200,13 @@ class _ListViewState extends State<_ListView> {
 class _FloatingButton extends StatelessWidget {
   final BlocTechnician bloc;
 
-  _FloatingButton(this.bloc);
+  const _FloatingButton(this.bloc);
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: <Widget>[reject(context), SizedBox(width: 20), submit(context)],
       mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[reject(context), SizedBox(width: 20), submit(context)],
     );
   }
 

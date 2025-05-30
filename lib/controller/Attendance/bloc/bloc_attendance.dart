@@ -84,10 +84,10 @@ class BlocAttendance extends Bloc {
 
   /// Refreshes the main attendance info.
   Future<void> refreshAttendance() async {
-    final Provider _provider =
+    final Provider provider =
         Provider(fetchURL: "/att_transaction/mobile/main_info");
 
-    _provider.getJson(url: "/att_transaction/mobile/main_info")
+    provider.getJson(url: "/att_transaction/mobile/main_info")
         .then((value) => Attendance.fromJson(value))
         .then((value) {
       _kAttendance.sink.add(value);
@@ -99,10 +99,10 @@ class BlocAttendance extends Bloc {
 
   /// Refreshes the attendance detail for a specific day.
   void refreshAttendanceInfo(int year, int month, int day) {
-    final Provider _provider = Provider(
+    final Provider provider = Provider(
         fetchURL: "/att_transaction/mobile/calendar_daily_info/$year-$month-$day");
 
-    _provider.getJson(url: "/att_transaction/mobile/calendar_daily_info/$year-$month-$day")
+    provider.getJson(url: "/att_transaction/mobile/calendar_daily_info/$year-$month-$day")
         .then((value) => EventDetail.fromJson(value))
         .then((value) {
       if (value != null) {
@@ -143,10 +143,10 @@ class BlocAttendance extends Bloc {
   }
 
   Future<List<EventAtt>> fillCalendar(int year, int month) async {
-    final Provider _provider =
+    final Provider provider =
         Provider(fetchURL: "/att_transaction/mobile/calendar_dot/$year/$month");
 
-    final Map<String, dynamic> result = await _provider.getJson(url: "/att_transaction/mobile/calendar_dot/$year/$month");
+    final Map<String, dynamic> result = await provider.getJson(url: "/att_transaction/mobile/calendar_dot/$year/$month");
     final List<String> keys = result.keys.toList();
     List<EventAtt> values = keys.map((e) => EventAtt.fromJson(result[e])).whereType<EventAtt>().toList();
 
@@ -190,9 +190,7 @@ class BlocAttendance extends Bloc {
           permission == LocationPermission.whileInUse;
     }
     var pos = await Geolocator.getLastKnownPosition(forceAndroidLocationManager: true);
-    if (pos == null) {
-      pos = await Geolocator.getCurrentPosition(forceAndroidLocationManager: true);
-    }
+    pos ??= await Geolocator.getCurrentPosition(forceAndroidLocationManager: true);
     return pos;
   }
 }

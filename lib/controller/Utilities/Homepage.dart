@@ -8,7 +8,7 @@ import 'util.dart';
 import 'MonthlyReading.dart' as page;
 
 class UtilitiesHome extends StatefulWidget {
-  const UtilitiesHome({Key? key}) : super(key: key);
+  const UtilitiesHome({super.key});
 
   @override
   _UtilitiesHomeState createState() => _UtilitiesHomeState();
@@ -85,7 +85,7 @@ class _UtilitiesHomeState extends State<UtilitiesHome> {
 class _BuildAddButton extends StatelessWidget {
   final VoidCallback onRefresh;
 
-  const _BuildAddButton({Key? key, required this.onRefresh}) : super(key: key);
+  const _BuildAddButton({super.key, required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -110,8 +110,8 @@ class ListReading extends StatelessWidget {
     this.stream, {
     this.isElectric = false,
     this.isWater = false,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -154,8 +154,8 @@ class TileMeter extends StatelessWidget {
     this.value, {
     this.isElectric = false,
     this.isWater = false,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -175,12 +175,12 @@ class TileMeter extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Monthly Total(RM) : " + (value.monthlyTotalRm ?? "N/A")),
+            Text("Monthly Total(RM) : ${value.monthlyTotalRm ?? "N/A"}"),
             Padding(
               padding: EdgeInsets.symmetric(vertical: 4),
-              child: Text("Daily Total($readingType) : " + (value.dailyLatestReading ?? "N/A")),
+              child: Text("Daily Total($readingType) : ${value.dailyLatestReading ?? "N/A"}"),
             ),
-            Text("Reading($readingType) : " + (value.dailyLatestReading ?? "N/A")),
+            Text("Reading($readingType) : ${value.dailyLatestReading ?? "N/A"}"),
           ],
         ),
       ),

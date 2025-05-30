@@ -6,11 +6,11 @@ class FancyFab extends StatefulWidget {
   final IconData icon;
 
   const FancyFab({
-    Key? key,
+    super.key,
     required this.onPressed,
     required this.tooltip,
     required this.icon,
-  }) : super(key: key);
+  });
 
   @override
   _FancyFabState createState() => _FancyFabState();

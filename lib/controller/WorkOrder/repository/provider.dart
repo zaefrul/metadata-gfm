@@ -7,15 +7,16 @@ import 'package:GEMS/utils/reference.dart';
 class WOProvider {
   final Provider _provider;
 
-  WOProvider({required BuildContext context}) : this._provider = Provider(fetchURL: "") {
+  WOProvider({required BuildContext context}) : _provider = Provider(fetchURL: "") {
     _provider.context = context;
   }
 
   Future<void> reject(String status, String id, String remark) {
+    debugPrint('The status is: $status');
     var body = UploadItem(
       action: status == "Assign"
           ? "reject_complaint"
-          : status == "WR Verified"
+          : status == "WR Verified" || status == "Check"
               ? "return_by_verifier"
               : "return_by_technician",
       id: id,
@@ -55,15 +56,15 @@ class WOProvider {
 
       return result?.toList() ?? [];
     } catch (err) {
-      throw err;
+      rethrow;
     }
   }
 
   Future<Map<String, dynamic>> fetchExecution(String id) async {
-    Provider _provider =
+    Provider provider =
         Provider(fetchURL: "/wo_v2/execution_info/", taskID: id);
 
-    final result = await _provider.getJson(url: "/wo_v2/execution_info/");
+    final result = await provider.getJson(url: "/wo_v2/execution_info/");
     return result as Map<String, dynamic>;
   }
 }
@@ -73,9 +74,9 @@ class UploadItem extends Upload {
 
   UploadItem({
     required String id,
-    required String action,
+    required super.action,
     required this.remark,
-  }) : super(ppmTaskId: id, action: action);
+  }) : super(ppmTaskId: id);
 
   @override
   Map<String, dynamic> get body => {

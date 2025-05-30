@@ -21,7 +21,7 @@ class FormF extends StatefulWidget {
   final bool disable;
   final String status;
 
-  const FormF(this.id, this.verified, this.refreshStatus, this.disable, this.status, {Key? key}) : super(key: key);
+  const FormF(this.id, this.verified, this.refreshStatus, this.disable, this.status, {super.key});
 
   @override
   _FormFState createState() => _FormFState();
@@ -185,7 +185,7 @@ class _FormFState extends State<FormF> {
 
   Widget getListTile(int index, {FormHItem? item, UploadItem? unsaveItem}) {
     return ListTile(
-      title: Text("$index. " + (item != null ? item.uploadName : unsaveItem!.name)),
+      title: Text("$index. ${item != null ? item.uploadName : unsaveItem!.name}"),
       trailing: Container(
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -198,7 +198,7 @@ class _FormFState extends State<FormF> {
               ),
               onTap: () {
                 if (unsaveItem == null) {
-                  _openViewer(src: "http:" + item!.documentSrc);
+                  _openViewer(src: "http:${item!.documentSrc}");
                 } else {
                   _openViewer(path: unsaveItem.path);
                 }

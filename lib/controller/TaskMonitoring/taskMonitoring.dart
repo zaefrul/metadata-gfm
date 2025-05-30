@@ -11,6 +11,8 @@ import 'package:GEMS/view/bar.dart';
 import 'package:GEMS/view/drawer.dart';
 
 class TaskMonitoringScreen extends StatefulWidget {
+  const TaskMonitoringScreen({super.key});
+
   @override
   _TaskMonitoringScreenState createState() => _TaskMonitoringScreenState();
 }
@@ -139,7 +141,7 @@ class _TaskMonitoringScreenState extends State<TaskMonitoringScreen> {
                 const SizedBox(height: 12),
 
                 // — task cards —
-                ..._tasks.map((t) => _buildCard(context, t)).toList(),
+                ..._tasks.map((t) => _buildCard(context, t)),
                 if (_tasks.isEmpty && !_loading)
                   Padding(
                     padding: const EdgeInsets.only(top: 32),

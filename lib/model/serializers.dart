@@ -22,7 +22,7 @@ import 'monitor.dart';
 
 part 'serializers.g.dart';
 
-@SerializersFor(const [
+@SerializersFor([
   Task,
   WorkOrderTask,
   WorkOrderStatus,

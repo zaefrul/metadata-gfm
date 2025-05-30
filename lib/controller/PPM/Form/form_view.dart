@@ -32,8 +32,8 @@ class FormView extends StatefulWidget {
     required this.taskStatus,
     required this.refresh,
     this.viewer = false,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _FormViewState createState() => _FormViewState(id: id);
@@ -151,15 +151,15 @@ class _FormViewState extends State<FormView> {
                     );
                   }
 
-                  formModel.Form _form =
+                  formModel.Form form =
                       responseValue?.statusList != null
                           ? responseValue!.statusList![item - 1]
                           : formModel.Form(); // Provide a default value if null
                   return tile(
-                      _form.ppmTaskSectionName,
-                      _form.ppmTaskSectionStatus,
-                      _form.checkParts,
-                      _form.checkAdditionalReport);
+                      form.ppmTaskSectionName,
+                      form.ppmTaskSectionStatus,
+                      form.checkParts,
+                      form.checkAdditionalReport);
                 },
               ),
             ),
@@ -315,14 +315,14 @@ class _FormViewState extends State<FormView> {
 
   Future<ExecutionModel> get _time async {
     try {
-      final _future = await Provider(
+      final future = await Provider(
         fetchURL: '/ppm_v2/execution_info/',
         taskID: widget.id,
       ).getJson(url: '/ppm_v2/execution_info/');
-      final _model = ExecutionModel.fromJson(_future);
-      return _model;
+      final model = ExecutionModel.fromJson(future);
+      return model;
     } catch (err) {
-      throw err;
+      rethrow;
     }
   }
 }

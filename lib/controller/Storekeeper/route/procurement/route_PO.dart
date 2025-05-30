@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class PurchaseOrder extends StatefulWidget {
+  const PurchaseOrder({super.key});
+
   @override
   _PurchaseOrderState createState() => _PurchaseOrderState();
 }

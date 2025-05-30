@@ -7,7 +7,7 @@ import '../../../../main.dart';
 class MyStock extends StatelessWidget {
   final BlocInventory bloc;
 
-  const MyStock(this.bloc, {Key? key}) : super(key: key);
+  const MyStock(this.bloc, {super.key});
 
   @override
   Widget build(BuildContext context) {

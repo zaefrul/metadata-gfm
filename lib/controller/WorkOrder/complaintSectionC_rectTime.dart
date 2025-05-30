@@ -9,8 +9,7 @@ class ComplaintSectionC_RectTime extends StatefulWidget {
   final bool viewer;
   final String id;
 
-  const ComplaintSectionC_RectTime({Key? key, required this.viewer, required this.id})
-      : super(key: key);
+  const ComplaintSectionC_RectTime({super.key, required this.viewer, required this.id});
 
   @override
   _ComplaintSectionC_RectTimeState createState() =>

@@ -12,11 +12,11 @@ class ComplaintSectionB extends StatefulWidget {
   final String name;           // re‑add this
 
   const ComplaintSectionB({
-    Key? key,
+    super.key,
     this.name = "B",           // default “B”
     required this.id,
     this.viewer = false,
-  }) : super(key: key);
+  });
 
   @override
   _ComplaintSectionBState createState() => _ComplaintSectionBState();

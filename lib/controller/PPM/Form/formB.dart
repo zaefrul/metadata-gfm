@@ -7,7 +7,7 @@ class FormB extends StatelessWidget {
   final String id;
   final Provider provider;
 
-  FormB(this.id)
+  FormB(this.id, {super.key})
       : provider = Provider(
             taskID: id,
             fetchURL: "/api/m_ppm.php?type=ppm_section_b&ppmTaskId=");

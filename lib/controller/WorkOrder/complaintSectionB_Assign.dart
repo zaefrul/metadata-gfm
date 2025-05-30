@@ -12,10 +12,10 @@ class ComplaintAssign extends StatefulWidget {
   final bool viewer;
 
   const ComplaintAssign({
-    Key? key,
+    super.key,
     required this.id,
     required this.viewer,
-  }) : super(key: key);
+  });
 
   @override
   _ComplaintAssignState createState() => _ComplaintAssignState();
@@ -29,8 +29,8 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
   List<WorkOrderStatus> groupList = [];
   List<WorkOrderStatus> executorList = [];
   List<WorkOrderStatus> severityList = [];
-  List<WorkOrderStatus> _internalCategory = [];
-  List<WorkOrderStatus> _externalCategory = [];
+  final List<WorkOrderStatus> _internalCategory = [];
+  final List<WorkOrderStatus> _externalCategory = [];
 
   String? dropdownValue1, dropdownValue2, dropdownValue3, dropdownValue4, dropdownAssist;
   String? dropdownId1, dropdownId2, dropdownId3, dropdownId4;
@@ -567,7 +567,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
               ),
             )
           else
-            ...tasks.map((task) => _buildTaskItem(task)).toList(),
+            ...tasks.map((task) => _buildTaskItem(task)),
         ],
       ),
     );
@@ -622,7 +622,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
   }
 
   Widget _buildSaveButton() {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: _onSavePressed,

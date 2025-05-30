@@ -1,0 +1,2 @@
+/Users/zaefrul/Project/metadata/GEMS/metadata-gfm/android/app/.cxx/Debug/m9321o73/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/zaefrul/Project/metadata/GEMS/metadata-gfm/android/app/.cxx/Debug/m9321o73/arm64-v8a/CMakeFiles/rebuild_cache.dir

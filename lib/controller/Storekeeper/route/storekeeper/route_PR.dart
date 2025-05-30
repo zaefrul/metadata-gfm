@@ -3,6 +3,8 @@ import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 import 'package:toast/toast.dart';
 
 class PurchaseRequest extends StatefulWidget {
+  const PurchaseRequest({super.key});
+
   @override
   _PurchaseRequestState createState() => _PurchaseRequestState();
 }
@@ -12,7 +14,7 @@ class _PurchaseRequestState extends State<PurchaseRequest> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: new Text("Purchase Requisition Form"),
+        title: Text("Purchase Requisition Form"),
         backgroundColor: Colors.white,
         centerTitle: true,
       ),
@@ -107,7 +109,7 @@ class _ListTask extends StatelessWidget {
 class _Material extends StatefulWidget {
   final int index;
 
-  _Material(this.index);
+  const _Material(this.index);
 
   @override
   _MaterialState createState() => _MaterialState();
@@ -125,7 +127,7 @@ class _MaterialState extends State<_Material> {
       title: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: Text(
-          widget.index.toString() + '.  Material ${widget.index}',
+          '${widget.index}.  Material ${widget.index}',
           overflow: TextOverflow.fade,
         ),
       ),
@@ -139,10 +141,11 @@ class _MaterialState extends State<_Material> {
             IconButton(
               icon: Icon(Icons.remove, color: Colors.grey),
               onPressed: () => setState(() {
-                if (quantity > minQuantity)
+                if (quantity > minQuantity) {
                   quantity--;
-                else
+                } else {
                   Toast.show("Cannot less than MIN order");
+                }
               }),
             ),
             Padding(
@@ -155,10 +158,11 @@ class _MaterialState extends State<_Material> {
             IconButton(
               icon: Icon(Icons.add, color: Colors.grey),
               onPressed: () => setState(() {
-                if (maxQuantity > quantity)
+                if (maxQuantity > quantity) {
                   quantity++;
-                else
+                } else {
                   Toast.show("Cannot more than MAX order");
+                }
               }),
             ),
           ],
@@ -181,7 +185,7 @@ class _MaterialState extends State<_Material> {
 class _Tile extends StatelessWidget {
   final int index;
 
-  _Tile(this.index);
+  const _Tile(this.index);
 
   @override
   Widget build(BuildContext context) {

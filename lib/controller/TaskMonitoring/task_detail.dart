@@ -15,12 +15,11 @@ class TaskInformation extends StatelessWidget {
   final MonitorTask task;
   final Provider _provider;
 
-  TaskInformation({Key? key, required this.task})
+  TaskInformation({super.key, required this.task})
       : _provider = Provider(
           fetchURL:
               "/api/m_ppm.php?type=tnm_details&transactionId=${task.transactionId}",
-        ),
-        super(key: key);
+        );
 
   Future<MonitorDetail> get _detail async {
     _provider.context = navigatorKey.currentContext!;
@@ -28,7 +27,7 @@ class TaskInformation extends StatelessWidget {
     final detail = raw.monitorDetail;
     if (detail == null) throw Exception("No monitorDetail");
     // sometimes it's a Map:
-    if (detail is MonitorDetail) return detail;
+    return detail;
     return MonitorDetail.fromJson(jsonEncode(detail));
   }
 
@@ -277,7 +276,7 @@ class TaskInformation extends StatelessWidget {
 
   Widget _metaItem(String label, String value) {
     return SizedBox(
-      width: (MediaQueryData.fromWindow(WidgetsBinding.instance.window)
+      width: (MediaQueryData.fromView(WidgetsBinding.instance.window)
                   .size
                   .width -
               60) /
@@ -303,8 +302,8 @@ class TaskInformation extends StatelessWidget {
         shape: StadiumBorder(),
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       ),
-      child: Text(text, style: GoogleFonts.poppins(color: Colors.white)),
       onPressed: onTap,
+      child: Text(text, style: GoogleFonts.poppins(color: Colors.white)),
     );
   }
 

@@ -6,6 +6,8 @@ import 'package:GEMS/utils/network.dart';
 import 'package:rxdart/subjects.dart';
 
 class ThresholdListView extends StatefulWidget {
+  const ThresholdListView({super.key});
+
   @override
   _ThresholdListViewState createState() => _ThresholdListViewState();
 }
@@ -32,8 +34,9 @@ class _ThresholdListViewState extends State<ThresholdListView> {
             StreamBuilder<List<Map<String, String>>>(
                 stream: _controller._materials,
                 builder: (context, snapshot) {
-                  if (snapshot.data == null)
+                  if (snapshot.data == null) {
                     return Center(child: CircularProgressIndicator());
+                  }
 
                   final data = snapshot.data;
 
@@ -70,7 +73,7 @@ class _ThresholdListViewState extends State<ThresholdListView> {
                       style: TextStyle(fontSize: 16),
                     ),
                     DropdownButton<ComplaintDStore>(
-                      underline: new Container(),
+                      underline: Container(),
                       value: snapshot.data,
                       hint: Text("Select Store"),
                       onChanged: (ComplaintDStore? newValue) {
@@ -106,14 +109,14 @@ class _Material extends StatelessWidget {
   final String partRemark;
 
   _Material(this.index, Map<String, String> data)
-      : this.assetGroupName = data["assetGroupName"] ?? '',
-        this.itemTypeDesc = data["itemTypeDesc"] ?? '',
-        this.itemDescription = data["itemDescription"] ?? '',
-        this.partCount = data["partCount"] ?? '',
-        this.partId = data["partId"] ?? '',
-        this.partAvailable = data["partAvailable"] ?? '',
-        this.partThreshold = data["partThreshold"] ?? '',
-        this.partRemark = data["partRemark"] ?? '';
+      : assetGroupName = data["assetGroupName"] ?? '',
+        itemTypeDesc = data["itemTypeDesc"] ?? '',
+        itemDescription = data["itemDescription"] ?? '',
+        partCount = data["partCount"] ?? '',
+        partId = data["partId"] ?? '',
+        partAvailable = data["partAvailable"] ?? '',
+        partThreshold = data["partThreshold"] ?? '',
+        partRemark = data["partRemark"] ?? '';
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +124,7 @@ class _Material extends StatelessWidget {
       title: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: Text(
-          index.toString() + '.  $itemDescription',
+          '$index.  $itemDescription',
           overflow: TextOverflow.ellipsis,
         ),
       ),
@@ -194,11 +197,11 @@ class Controller {
   get store$ => _store.stream;
 
   Future<void> getStore(BuildContext context) async {
-    final Provider _provider =
+    final Provider provider =
         Provider(fetchURL: "/store/purchase_option_store");
-    _provider.context = context;
+    provider.context = context;
 
-    final result = await _provider.getJson(url: "/store/purchase_option_store");
+    final result = await provider.getJson(url: "/store/purchase_option_store");
     final values = deserializeListOf<ComplaintDStore>(result).toList();
 
     stores = values;
@@ -206,11 +209,11 @@ class Controller {
   }
 
   void getMaterails(BuildContext context, String id) async {
-    final Provider _provider =
+    final Provider provider =
         Provider(fetchURL: "/part/list_mobile_threshold/", taskID: id);
-    _provider.context = context;
+    provider.context = context;
 
-    final result = await _provider.getJson(url: "/part/list_mobile_threshold/") as List<dynamic>;
+    final result = await provider.getJson(url: "/part/list_mobile_threshold/") as List<dynamic>;
     final List<Map<String, String>> values = result
         .map((value) => Map<String, String>.from(value))
         .toList();

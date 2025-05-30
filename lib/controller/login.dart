@@ -11,7 +11,7 @@ import '../utils/network.dart';
 import 'forgotPassword.dart';
 
 class Login extends StatefulWidget {
-  const Login({Key? key}) : super(key: key);
+  const Login({super.key});
   @override
   _LoginState createState() => _LoginState();
 }
@@ -134,7 +134,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget get _background => Container(
+  Widget get _background => SizedBox(
         height: double.infinity,
         width: double.infinity,
         child: Image.asset("assets/bg.jpg", fit: BoxFit.fill),
@@ -192,7 +192,6 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
     try {
       final user = await login(_username!, _password!);
-      if (user == null) throw "Invalid credentials";
       user.saveUser();
       Navigator.pushReplacementNamed(context, "/homepage");
       Toast.show("Welcome to GEMS, ${user.username}!", backgroundColor: AppColors.success);

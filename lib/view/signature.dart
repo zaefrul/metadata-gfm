@@ -14,11 +14,11 @@ class SignatureView extends StatefulWidget {
   final String checkpoint;
 
   const SignatureView({
-    Key? key,
+    super.key,
     required this.id,
     required this.result,
     required this.checkpoint,
-  }) : super(key: key);
+  });
 
   @override
   SignatureViewState createState() => SignatureViewState();

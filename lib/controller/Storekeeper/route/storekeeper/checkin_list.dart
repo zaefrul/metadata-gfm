@@ -11,9 +11,9 @@ class CheckinDetails extends StatelessWidget {
   const CheckinDetails({required Key key, required this.id}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    final Provider _provider =
+    final Provider provider =
         Provider(fetchURL: "/do/check_in_mobile_details/", taskID: id);
-    _provider.context = context;
+    provider.context = context;
 
     return Scaffold(
       appBar: AppBar(
@@ -22,10 +22,11 @@ class CheckinDetails extends StatelessWidget {
         centerTitle: true,
       ),
       body: FutureBuilder<dynamic>(
-          future: _provider.getJson(url: "/do/check_in_mobile_details/"),
+          future: provider.getJson(url: "/do/check_in_mobile_details/"),
           builder: (context, snapshot) {
-            if (snapshot.data == null)
+            if (snapshot.data == null) {
               return Center(child: CircularProgressIndicator());
+            }
 
             final data = snapshot.data;
 
@@ -70,13 +71,13 @@ class _Info extends StatelessWidget {
   final String userFirstName;
 
   _Info(Map data)
-      : this.doDate = data["doDate"],
-        this.doId = data["doId"],
-        this.doNo = data["doNo"],
-        this.doTimestamp = data["doTimestamp"],
-        this.supplierName = data["supplierName"],
-        this.totalCost = data["totalCost"],
-        this.userFirstName = data["userFirstName"];
+      : doDate = data["doDate"],
+        doId = data["doId"],
+        doNo = data["doNo"],
+        doTimestamp = data["doTimestamp"],
+        supplierName = data["supplierName"],
+        totalCost = data["totalCost"],
+        userFirstName = data["userFirstName"];
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +142,7 @@ class _Material extends StatelessWidget {
   final Map data;
   final int index;
 
-  _Material(this.index, this.data);
+  const _Material(this.index, this.data);
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +160,7 @@ class _Material extends StatelessWidget {
       title: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: Text(
-          index.toString() + '.  $itemDesc',
+          '$index.  $itemDesc',
           overflow: TextOverflow.fade,
         ),
       ),
@@ -207,7 +208,7 @@ class _Material extends StatelessWidget {
       padding: EdgeInsets.only(top: top),
       child: Text(
         value,
-        style: TextStyle(color: color == null ? colorTheme3 : color),
+        style: TextStyle(color: color ?? colorTheme3),
       ),
     );
   }
@@ -239,7 +240,7 @@ class _Material extends StatelessWidget {
 
 class AttachmentsDO extends StatelessWidget {
   final List items;
-  AttachmentsDO(this.items);
+  const AttachmentsDO(this.items, {super.key});
 
   @override
   Widget build(BuildContext context) {

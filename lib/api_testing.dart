@@ -9,7 +9,7 @@ final String api_save = 'save_wr_rectification_time, woTaskId=';
 final String id = '90';
 
 class APILIST extends StatefulWidget {
-  const APILIST({Key? key}) : super(key: key);
+  const APILIST({super.key});
 
   @override
   _APILISTState createState() => _APILISTState();
@@ -30,7 +30,7 @@ class _APILISTState extends State<APILIST> {
       appBar: AppBar(
         title: const Text("testing"),
       ),
-      body: Container(
+      body: SizedBox(
         height: MediaQuery.of(context).size.height,
         child: Column(
           children: [
@@ -69,17 +69,17 @@ class TileBuild extends StatelessWidget {
   final bool isPost;
 
   const TileBuild({
-    Key? key,
+    super.key,
     required this.url,
     required this.sink,
     this.isGet = false,
     this.isPost = false,
-  }) : super(key: key);
+  });
 
   void onTap() {
     final Provider provider = Provider(fetchURL: url, taskID: id);
     try {
-      var result;
+      Future result;
       if (isGet) {
         result = provider.fetch();
       } else {
@@ -97,15 +97,15 @@ class TileBuild extends StatelessWidget {
       title: Text("API $url"),
       onTap: onTap,
       trailing: TextButton(
-        child: const Text('TEST'),
         onPressed: onTap,
+        child: const Text('TEST'),
       ),
     );
   }
 }
 
 class SampleScreen extends StatelessWidget {
-  const SampleScreen({Key? key}) : super(key: key);
+  const SampleScreen({super.key});
 
   Widget status(String title, Color color) => Container(
         alignment: Alignment.center,

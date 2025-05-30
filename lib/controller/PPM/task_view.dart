@@ -9,7 +9,7 @@ import 'Form/form_view.dart';
 class TaskView extends StatefulWidget {
   final _TaskViewState view;
 
-  TaskView({int index = 0}) : view = _TaskViewState(index);
+  TaskView({super.key, int index = 0}) : view = _TaskViewState(index);
 
   update(String text) => view.fetch(text);
   updateQR(String text) => view.fetchQR(text);
@@ -35,9 +35,9 @@ class _TaskViewState extends State<TaskView>
     _refresh();
   }
 
-  List<Widget> fetchGenerate(List<Task> _listTask) {
+  List<Widget> fetchGenerate(List<Task> listTask) {
     List<Widget> values = List<Widget>.empty(growable: true);
-    values = List.generate(_listTask.length, (item) => tile(_listTask[item]));
+    values = List.generate(listTask.length, (item) => tile(listTask[item]));
 
     values.insert(0, filter);
 
@@ -45,38 +45,38 @@ class _TaskViewState extends State<TaskView>
   }
 
   fetch(String text) {
-    String _url = "/api/m_ppm.php?type=pending_task";
-    _url += "_search&assetNo=$text";
+    String url = "/api/m_ppm.php?type=pending_task";
+    url += "_search&assetNo=$text";
 
-    _fetch(_url);
+    _fetch(url);
   }
 
   fetchQR(String text) {
-    String _url = "/api/m_ppm.php?type=pending_task";
-    _url += "_scan_asset&assetNo=$text";
+    String url = "/api/m_ppm.php?type=pending_task";
+    url += "_scan_asset&assetNo=$text";
 
-    _fetch(_url);
+    _fetch(url);
   }
 
   fetchQRAll(String text) {
-    String _url = "/api/m_ppm.php?type=all_task";
-    _url += "_scan_asset&assetNo=$text";
+    String url = "/api/m_ppm.php?type=all_task";
+    url += "_scan_asset&assetNo=$text";
 
-    _fetch(_url);
+    _fetch(url);
   }
 
   fetchAll(String text) {
-    String _url = "/api/m_ppm.php?type=all_task";
-    _url += "_search&searchTxt=$text";
+    String url = "/api/m_ppm.php?type=all_task";
+    url += "_search&searchTxt=$text";
 
-    _fetch(_url);
+    _fetch(url);
   }
 
   void _fetch(String url) {
     _provider = Provider(fetchURL: url);
 
     _provider.fetch().then((value) {
-      _listTask = (value.taskList?.toList() as List<Task>?) ?? [];
+      _listTask = value.taskList?.toList() ?? [];
       tiles = fetchGenerate(_listTask);
       children = tiles;
       if (builded) setState(() {});
@@ -88,9 +88,9 @@ class _TaskViewState extends State<TaskView>
   }
 
   Future<void> _refresh() {
-    if (index == 0)
+    if (index == 0) {
       fetchAll("");
-    else if (index == 1) {
+    } else if (index == 1) {
       fetch("");
       viewer = false;
     }
@@ -106,7 +106,7 @@ class _TaskViewState extends State<TaskView>
     _provider.context = context;
 
     builded = true;
-    return children.length > 0
+    return children.isNotEmpty
         ? RefreshIndicator(
             onRefresh: _refresh,
             child: ListView.separated(
@@ -124,9 +124,9 @@ class _TaskViewState extends State<TaskView>
           );
   }
 
-  Widget getTitle(String text, {bold = false}) => new Container(
+  Widget getTitle(String text, {bold = false}) => Container(
         alignment: Alignment.centerLeft,
-        child: new Text(text,
+        child: Text(text,
             style: TextStyle(
                 fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
       );
@@ -134,33 +134,33 @@ class _TaskViewState extends State<TaskView>
   Widget status(String value) {
     var text = value;
     var color = colorTheme1;
-    if (text == "In Progress")
+    if (text == "In Progress") {
       color = colorTheme5;
-    else if (text == "Closed")
+    } else if (text == "Closed")
       color = colorTheme4;
     else if (text == "Check") {
       color = colorTheme2;
     } else if (text == "Verify") {
       color = colorTheme3;
     }
-    return new Container(
+    return Container(
         alignment: Alignment.center,
         height: 30.0,
         width: 100.0,
         decoration: BoxDecoration(
-            color: color, borderRadius: new BorderRadius.circular(20.0)),
-        child: new Text(text,
+            color: color, borderRadius: BorderRadius.circular(20.0)),
+        child: Text(text,
             style: TextStyle(
               color: Colors.white,
             )));
   }
 
-  ListTile tile(Task task) => new ListTile(
+  ListTile tile(Task task) => ListTile(
         contentPadding: EdgeInsets.all(12),
-        title: new Row(
+        title: Row(
           children: <Widget>[
-            new Expanded(
-                child: new Column(
+            Expanded(
+                child: Column(
               children: <Widget>[
                 getTitle(task.transactionNo, bold: true),
                 getTitle(task.assetTypeName),
@@ -173,16 +173,16 @@ class _TaskViewState extends State<TaskView>
           ],
         ),
         onTap: () {
-          Widget page = new FormView(
+          Widget page = FormView(
             id: task.ppmTaskId,
             siteName: task.siteName,
             taskNo: task.transactionNo,
             taskStatus: task.statusDesc,
             refresh: () => fetch(""),
-            viewer: this.viewer,
+            viewer: viewer,
           );
           Navigator.of(context)
-              .push(new MaterialPageRoute(
+              .push(MaterialPageRoute(
             builder: (BuildContext context) => page,
           ))
               .then((onValue) {
@@ -192,7 +192,7 @@ class _TaskViewState extends State<TaskView>
       );
 
   DropdownButton get filter => DropdownButton<String>(
-        underline: new Container(),
+        underline: Container(),
         value: dropdownValue,
         onChanged: (String? newValue) {
           setState(() {

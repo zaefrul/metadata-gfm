@@ -14,7 +14,7 @@ import 'package:intl/intl.dart';
 import '../../main.dart';
 
 class Dashboard extends StatefulWidget {
-  const Dashboard({Key? key}) : super(key: key);
+  const Dashboard({super.key});
   @override
   _DashboardState createState() => _DashboardState();
 }
@@ -33,8 +33,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     final clockin = (_timeClockIn ?? "").substring(0, 8);
     final clockout = (_timeClockOut ?? "").substring(0, 8);
     try {
-      final t1 = DateTime.parse("2021-09-09 " + clockin);
-      final t2 = DateTime.parse("2021-09-09 " + clockout);
+      final t1 = DateTime.parse("2021-09-09 $clockin");
+      final t2 = DateTime.parse("2021-09-09 $clockout");
       final d = t2.difference(t1);
       String sDuration =
           "${d.inHours} Hours ${d.inMinutes.remainder(60)} Minutes ${d.inSeconds.remainder(60)} Seconds";
@@ -177,7 +177,7 @@ class _Calendar extends StatelessWidget {
   late final DateTime _kFirstDay;
   late final DateTime _kLastDay;
 
-  _Calendar(this._bloc, {Key? key}) : super(key: key) {
+  _Calendar(this._bloc, {super.key}) {
     _kFirstDay = DateTime(kToday.year, 1, 1);
     _kLastDay = DateTime(kToday.year, kToday.month + 1, kToday.day);
   }
@@ -210,7 +210,7 @@ class _Calendar extends StatelessWidget {
 
 class _Details extends StatelessWidget {
   final Stream<EventDetail> stream;
-  const _Details(this.stream, {Key? key}) : super(key: key);
+  const _Details(this.stream, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -253,7 +253,7 @@ class _Details extends StatelessWidget {
 
 class ItemDetail extends StatelessWidget {
   final EventDetail event;
-  const ItemDetail(this.event, {Key? key}) : super(key: key);
+  const ItemDetail(this.event, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -344,7 +344,7 @@ class _TextCell extends StatelessWidget {
   final String? value;
   final bool bold;
   final double size;
-  const _TextCell(this.value, {this.bold = false, this.size = 14, Key? key}) : super(key: key);
+  const _TextCell(this.value, {this.bold = false, this.size = 14, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -366,7 +366,7 @@ class ProgressClock extends StatelessWidget {
   final Stream<Attendance> stream;
   final Stream<String> clock;
 
-  const ProgressClock(this.clockin, this.clockout, this.duration, this.stream, this.clock, {Key? key}) : super(key: key);
+  const ProgressClock(this.clockin, this.clockout, this.duration, this.stream, this.clock, {super.key});
 
   @override
   Widget build(BuildContext context) {

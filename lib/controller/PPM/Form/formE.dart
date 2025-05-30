@@ -19,8 +19,8 @@ class FormE extends StatefulWidget {
     this.refreshStatus,
     this.disable,
     this.status, {
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _FormEState createState() => _FormEState();

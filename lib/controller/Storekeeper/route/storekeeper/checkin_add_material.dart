@@ -14,7 +14,7 @@ import '../../../../main.dart';
 class CheckinAdd extends StatefulWidget {
   final Controller _controller;
 
-  CheckinAdd() : _controller = Controller();
+  CheckinAdd({super.key}) : _controller = Controller();
 
   @override
   _CheckinAddState createState() => _CheckinAddState();
@@ -180,63 +180,67 @@ class _CheckinAddState extends State<CheckinAdd> {
       builder: (context, snapshot) => StreamBuilder<T>(
         stream: value,
         builder: (context, AsyncSnapshot<T> selected) {
-          final List<DropdownMenuItem<T>> _items = [];
-          String _hint = "";
-          String _hintDisable = "";
+          final List<DropdownMenuItem<T>> items = [];
+          String hint = "";
+          String hintDisable = "";
           if (T.toString() == "ComplaintDStore") {
-            _hint = "Select Store";
+            hint = "Select Store";
             final list = <ComplaintDStore>[];
-            if (snapshot.hasData && snapshot.data != null)
+            if (snapshot.hasData && snapshot.data != null) {
               list.addAll(snapshot.data!.map((e) => e as ComplaintDStore));
-            _items.addAll(list
+            }
+            items.addAll(list
                 .map((item) => DropdownMenuItem<T>(
-                      child: Text(item.itemName ?? 'Unknown'),
                       value: item as T,
+                      child: Text(item.itemName ?? 'Unknown'),
                     ))
                 .toList());
           } else if (T.toString() == "ComplaintDGroupStore") {
-            _hint = "Select Group";
-            _hintDisable = "Select Group";
+            hint = "Select Group";
+            hintDisable = "Select Group";
             final list = <ComplaintDGroupStore>[];
-            if (snapshot.hasData && snapshot.data != null)
+            if (snapshot.hasData && snapshot.data != null) {
               list.addAll(snapshot.data!.map((e) => e as ComplaintDGroupStore));
-            _items.addAll(list
+            }
+            items.addAll(list
                 .map((item) => DropdownMenuItem<T>(
-                      child: Text(item.itemName ?? 'Unknown'),
                       value: item as T,
+                      child: Text(item.itemName ?? 'Unknown'),
                     ))
                 .toList());
           } else if (T.toString() == "ComplaintDStoreType") {
-            _hint = "Select Type";
-            _hintDisable = "Select Type";
+            hint = "Select Type";
+            hintDisable = "Select Type";
             final list = <ComplaintDStoreType>[];
-            if (snapshot.hasData && snapshot.data != null)
+            if (snapshot.hasData && snapshot.data != null) {
               list.addAll(snapshot.data!.map((e) => e as ComplaintDStoreType));
-            _items.addAll(list
+            }
+            items.addAll(list
                 .map((item) => DropdownMenuItem<T>(
-                      child: Text(item.itemName ?? 'Unknown'),
                       value: item as T,
+                      child: Text(item.itemName ?? 'Unknown'),
                     ))
                 .toList());
           } else if (T.toString() == "MaterialStorePart") {
-            _hint = "Select Part";
-            _hintDisable = "Select Part";
+            hint = "Select Part";
+            hintDisable = "Select Part";
             final list = <MaterialStorePart>[];
-            if (snapshot.hasData && snapshot.data != null)
+            if (snapshot.hasData && snapshot.data != null) {
               list.addAll(snapshot.data!.map((e) => e as MaterialStorePart));
-            _items.addAll(list
+            }
+            items.addAll(list
                 .map((item) => DropdownMenuItem<T>(
-                      child: Text(item.itemDescription ?? 'No Description'),
                       value: item as T,
+                      child: Text(item.itemDescription ?? 'No Description'),
                     ))
                 .toList());
           }
 
           return DropdownButton<T>(
-            hint: Text(_hint),
-            disabledHint: Text(_hintDisable),
+            hint: Text(hint),
+            disabledHint: Text(hintDisable),
             isExpanded: true,
-            items: _items,
+            items: items,
             value: selected.data,
             onChanged: enable ? (item) => sink(item) : null,
           );
@@ -461,11 +465,11 @@ class Request {
       .then((value) => value.map((e) => e as ComplaintDGroupStore).toList());
   Future<List<ComplaintDStoreType>> listSecond(String id, String storeId) =>
       _providerSecond
-          .fetchComplaint(additionalParam: storeId + "/" + id, storeType: true)
+          .fetchComplaint(additionalParam: "$storeId/$id", storeType: true)
           .then((value) => value.map((e) => e as ComplaintDStoreType).toList());
   Future<List<MaterialStorePart>> listThird(String id, String storeId) =>
       _providerThird
-          .fetchComplaint(additionalParam: storeId + "/" + id, storePart: true)
+          .fetchComplaint(additionalParam: "$storeId/$id", storePart: true)
           .then((value) => value.map((e) => e as MaterialStorePart).toList());
   Future<List<ComplaintDStore>> listFourth() => _providerFourth
       .fetchComplaint(store: true)

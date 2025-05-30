@@ -5,8 +5,8 @@ import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 class RouteTechnician extends StatefulWidget {
   final BlocTechnician bloc;
 
-  RouteTechnician({required BlocTechnician value})
-      : this.bloc = value ?? BlocTechnician();
+  RouteTechnician({super.key, required BlocTechnician value})
+      : bloc = value ?? BlocTechnician();
 
   @override
   _RouteTechnicianState createState() => _RouteTechnicianState();
@@ -23,7 +23,7 @@ class _RouteTechnicianState extends State<RouteTechnician> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: new Text("Material Requisition Form"),
+        title: Text("Material Requisition Form"),
         backgroundColor: Colors.white,
         centerTitle: true,
       ),
@@ -35,9 +35,9 @@ class _RouteTechnicianState extends State<RouteTechnician> {
           StreamBuilder<List<Item>>(
             stream: widget.bloc.stream as Stream<List<Item>>?,
             builder: (ctx, snapshot) {
-              if (snapshot.data == null || snapshot.error != null)
+              if (snapshot.data == null || snapshot.error != null) {
                 return Container();
-              else if (snapshot.data!.length == 0) return Container();
+              } else if (snapshot.data!.isEmpty) return Container();
 
               return _ListView(snapshot.data ?? [], widget.bloc);
             },
@@ -53,7 +53,7 @@ class _RouteTechnicianState extends State<RouteTechnician> {
 
 class _Info extends StatelessWidget {
   final BlocTechnician bloc;
-  _Info(this.bloc);
+  const _Info(this.bloc);
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +101,7 @@ class _Info extends StatelessWidget {
 class _Title extends StatelessWidget {
   final BlocTechnician bloc;
 
-  _Title(this.bloc);
+  const _Title(this.bloc);
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +125,7 @@ class _ListView extends StatefulWidget {
   final List<Item> items;
   final BlocTechnician bloc;
 
-  _ListView(this.items, this.bloc);
+  const _ListView(this.items, this.bloc);
 
   @override
   __ListViewState createState() => __ListViewState();
@@ -149,7 +149,7 @@ class __ListViewState extends State<_ListView> {
       title: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: Text(
-          index.toString() + '.  ' + item.name,
+          '$index.  ${item.name}',
           overflow: TextOverflow.fade,
         ),
       ),
@@ -189,7 +189,7 @@ class __ListViewState extends State<_ListView> {
           alignment: Alignment.centerLeft,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 22.0, vertical: 16),
-            child: Text(item.desc != null ? item.desc : 'no description'),
+            child: Text(item.desc ?? 'no description'),
           ),
         ),
       ],
@@ -200,7 +200,7 @@ class __ListViewState extends State<_ListView> {
 class _FloatingButton extends StatelessWidget {
   final BlocTechnician bloc;
 
-  _FloatingButton(this.bloc);
+  const _FloatingButton(this.bloc);
 
   @override
   Widget build(BuildContext context) {

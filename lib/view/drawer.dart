@@ -8,8 +8,7 @@ class BuildDrawer extends StatelessWidget {
   final Function backFunc;
   final String email = "operationalexcellence@globalfm.com.my";
 
-  BuildDrawer(this.backFunc, {this.isHome = false, Key? key})
-      : super(key: key);
+  BuildDrawer(this.backFunc, {this.isHome = false, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +107,7 @@ class BuildDrawer extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           image: DecorationImage(
-            image: NetworkImage("http:" + user.imageUrl),
+            image: NetworkImage("http:${user.imageUrl}"),
             fit: BoxFit.fitWidth,
           ),
         ),

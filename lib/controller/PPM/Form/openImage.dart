@@ -7,7 +7,7 @@ class ImageViewer extends StatelessWidget {
   final String? path;
   final Image image;
 
-  ImageViewer({this.url, this.path, this.file})
+  ImageViewer({super.key, this.url, this.path, this.file})
       : assert(url != null || path != null || file != null,
             'One of url, path, or file must be provided.'),
         image = url != null

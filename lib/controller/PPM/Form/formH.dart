@@ -29,8 +29,8 @@ class FormH extends StatefulWidget {
     this.verified,
     this.refreshStatus,
     this.disable, {
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   _FormHState createState() => _FormHState();
@@ -178,8 +178,8 @@ class _FormHState extends State<FormH> {
   Widget _section(FormHItem item) {
     var latitude = item.ppmTaskUploadLatitude ?? "N/A"; // Handle null
     var longitude = item.ppmTaskUploadLongitude ?? "N/A"; // Handle null
-    var src = item.documentSrc != null && item.documentSrc.isNotEmpty
-        ? (item.documentSrc.startsWith("http") ? item.documentSrc : "http:" + item.documentSrc)
+    var src = item.documentSrc.isNotEmpty
+        ? (item.documentSrc.startsWith("http") ? item.documentSrc : "http:${item.documentSrc}")
         : null; // Handle null or empty src and ensure it has a scheme
 
     return Card( // Wrap in a card
@@ -200,7 +200,7 @@ class _FormHState extends State<FormH> {
                         errorBuilder: (context, error, stackTrace) => Icon(Icons.broken_image, size: 60, color: Colors.grey),
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) return child;
-                          return Container(
+                          return SizedBox(
                             width: 60, height: 60,
                             child: Center(child: CircularProgressIndicator(
                               value: loadingProgress.expectedTotalBytes != null
@@ -267,17 +267,16 @@ class _FormHState extends State<FormH> {
 
       if (value.isNotEmpty) {
         for (var f in value) {
-          if (f != null) { // Ensure 'f' itself is not null if sectionHList can contain nulls
-            _notes[f.ppmTaskUploadId] = f.ppmTaskUploadDesc ?? ""; // Handle null description
-            if (f.ppmTaskUploadType == "Before") {
-              before = f;
-            } else if (f.ppmTaskUploadType == "During") {
-              during.add(f);
-            } else if (f.ppmTaskUploadType == "After") {
-              after = f;
-            }
+ // Ensure 'f' itself is not null if sectionHList can contain nulls
+          _notes[f.ppmTaskUploadId] = f.ppmTaskUploadDesc ?? ""; // Handle null description
+          if (f.ppmTaskUploadType == "Before") {
+            before = f;
+          } else if (f.ppmTaskUploadType == "During") {
+            during.add(f);
+          } else if (f.ppmTaskUploadType == "After") {
+            after = f;
           }
-        }
+                }
       }
       // Ensure 'during' list doesn't exceed 3 items for UI consistency
       if (during.length > 3) {
@@ -508,7 +507,7 @@ class _FormHState extends State<FormH> {
   void _showImageOptionsBottomSheet({required String latitude, required String longitude, required String src}) {
     if (!mounted) return;
 
-    _openMap() async {
+    openMap() async {
       String googleMapsUrl = 'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
       String appleMapsUrl = 'https://maps.apple.com/?q=$latitude,$longitude';
       
@@ -547,7 +546,7 @@ class _FormHState extends State<FormH> {
               title: Text('Show on Map'),
               onTap: () {
                 Navigator.pop(bc); 
-                _openMap();
+                openMap();
               },
             ),
           ],
