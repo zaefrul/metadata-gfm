@@ -219,12 +219,12 @@ class _ComplaintSectionState extends State<ComplaintSection> {
         image: Image.asset("assets/icon_trans.png", height: 40),
         remarkTapped: (text) {
           Navigator.pop(context);
-          _bloc.reject(text /* you'll need to signal “out_of_scope” */,
+          _bloc.reject(text /* you'll need to signal "out_of_scope" */,
                         /* optionally pass a flag or use a dedicated reject variant */)
             .then((_) {
               alert("Ticket marked Out-of-Scope");
             })
-            .catchError((e) => alert(e.toString()));
+            .catchError((e) => alert("We couldn't process your request at this moment. Please try again later. If the issue persists, contact support."));
         },
       ),
     );
@@ -513,7 +513,7 @@ class _BuildViewButton extends StatelessWidget {
           Navigator.pop(context);
           reject(text)
               .then((_) => alert("Operation successful"))
-              .catchError(alert);
+              .catchError((e) => alert("We couldn't process your request at this moment. Please try again later. If the issue persists, contact support."));
         },
       ),
     );
@@ -535,7 +535,7 @@ class _BuildRejectButton extends StatelessWidget {
     super.key,
   })  : label = status == "Assign"
             ? "Reject"
-            : status == "WR Verified"
+            : status == "Verify"
                 ? "Re-Open"
                 : "Revisit";
 
@@ -569,7 +569,7 @@ class _BuildRejectButton extends StatelessWidget {
         Navigator.pop(context);
         reject(text)
             .then((_) => alert("Operation successful"))
-            .catchError(alert);
+            .catchError((e) => alert("We couldn't process your request at this moment. Please try again later. If the issue persists, contact support."));
       },
     );
   }
@@ -675,6 +675,7 @@ class _BuildStandardButton extends StatelessWidget {
                     // DEFAULT for everything *else* (including WR Verified):
                     // if enabled → open the form; otherwise toast
                     debugPrint("snapshot : ${snapshot.data.toString()}");
+                    debugPrint("mainStatus : $mainStatus");
                     if (snapshot.data == true ||
                         mainStatus == "WR Verified" ||
                         mainStatus == "WR Re-Open") {
@@ -688,9 +689,7 @@ class _BuildStandardButton extends StatelessWidget {
 
                         provider.post(url: "/api/m_wo.php", body: body).then((resp) {
                           alert("Request submitted successfully");
-                        }).catchError((err) {
-                          Toast.show(err.toString(), backgroundColor: AppColors.danger);
-                        });
+                        }).catchError((err) => Toast.show(err.toString(), backgroundColor: AppColors.danger));
                       } else {
                         bloc.openComplaint(context, viewOnly: viewOnly);
                       }
@@ -712,8 +711,8 @@ class _BuildStandardButton extends StatelessWidget {
 
   Widget _buildDialog(BuildContext context) {
     return CustomDialog(
-      rootPage: "/workorder",
       title: "Assignation Completed",
+      rootPage: '/workorder',
       description: "Assignation technician has successfully updated.",
       buttonText: "Okay",
       image: Image.asset(
