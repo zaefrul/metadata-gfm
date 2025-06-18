@@ -21,6 +21,7 @@ class ComplaintPDF extends StatefulWidget {
   final String transactionNo;
   final Function? submitted;
   final int checkpoint;
+  final String taskCategory;
 
   const ComplaintPDF({
     super.key,
@@ -29,6 +30,7 @@ class ComplaintPDF extends StatefulWidget {
     required this.transactionNo,
     this.submitted,
     required this.checkpoint,
+    required this.taskCategory,
   });
 
   @override
@@ -155,6 +157,7 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
                                     id: widget.id,
                                     result: "Check",
                                     checkpoint: widget.checkpoint,
+                                    taskCategory: widget.taskCategory,
                                   )));
                     },
                     child: Container(

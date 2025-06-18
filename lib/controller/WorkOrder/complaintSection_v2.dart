@@ -1,4 +1,4 @@
-// ignore_for_file: unused_element
+// ignore_for_file: unused_element, curly_braces_in_flow_control_structures
 
 import 'package:flutter/material.dart';
 import 'package:GEMS/controller/WorkOrder/bloc/mainBloc.dart';
@@ -30,6 +30,7 @@ class ComplaintSection extends StatefulWidget {
   final bool isComplaintProgress;
   final bool isAssign;
   final String woTaskType;
+  final String woTaskCategory;
 
   const ComplaintSection({
     super.key,
@@ -41,6 +42,7 @@ class ComplaintSection extends StatefulWidget {
     this.isAssign = false,
     this.isComplaintProgress = false,
     required this.woTaskType,
+    required this.woTaskCategory,
   });
 
   @override
@@ -62,6 +64,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
         status: widget.taskStatus,
         taskNo: widget.taskNo,
         context: navigatorKey.currentContext!,
+        woTaskCategory: widget.woTaskType,
       );
       _blocInitialized = true;
       // Check user preferences to decide if the time view should be shown.
@@ -98,7 +101,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
     );
 
     debugPrint("widget parameters are ${widget.taskNo}, ${widget.taskStatus}, ${widget.viewer}, ${widget.isAssign}, ${widget.woTaskType}");
-
+    debugPrint("bloc parameters are ${_bloc.id}, ${_bloc.checkpoint}");
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.taskNo, style: TextStyle(color: AppColors.dark, fontWeight: FontWeight.w600)),
@@ -180,6 +183,9 @@ class _ComplaintSectionState extends State<ComplaintSection> {
                       );
                     }
 
+                    debugPrint("Masuk kat condition 2");
+                    debugPrint("widget.viewer: ${widget.viewer}, _bloc.checkpoint: ${_bloc.checkpoint}");
+
                     // 2) Otherwise, your original buttons:
                     return (!widget.viewer && _bloc.checkpoint != 1)
                       ? viewButton
@@ -219,8 +225,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
         image: Image.asset("assets/icon_trans.png", height: 40),
         remarkTapped: (text) {
           Navigator.pop(context);
-          _bloc.reject(text /* you'll need to signal "out_of_scope" */,
-                        /* optionally pass a flag or use a dedicated reject variant */)
+          _bloc.returnOutOfScope(text)
             .then((_) {
               alert("Ticket marked Out-of-Scope");
             })
@@ -458,6 +463,7 @@ class _BuildViewButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('button created. progress: $progress, isAssign: $isAssign, viewer: $viewer, status: $status');
     // If in progress or assign mode, just show the single FAB you passed in
     if (progress || isAssign) {
       return button;
@@ -606,6 +612,16 @@ class _BuildStandardButton extends StatelessWidget {
     );
   }
 
+  bool hideOutOfScopeButton() {
+    if(mainStatus == "Assign" && woTaskStatus == "Self Finding") {
+      return true;
+    } else if(mainStatus == "WR Verified" && woTaskStatus == "Client Complaint") {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     ToastContext().init(context);
@@ -616,7 +632,7 @@ class _BuildStandardButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // New button (conditionally displayed)
-            if (mainStatus == "Assign" && woTaskStatus == "Self Finding")
+            if (hideOutOfScopeButton())
               Expanded(
                 child: FloatingActionButton.extended(
                   heroTag: "out_of_scope_button",
@@ -630,8 +646,47 @@ class _BuildStandardButton extends StatelessWidget {
                   },
                 ),
               ),
-            if (mainStatus == "Assign" && woTaskStatus == "Self Finding")
+            if (hideOutOfScopeButton())
               const SizedBox(width: 16), // Add spacing between buttons
+
+            // if status is verify then
+            if (mainStatus == "Verify" && woTaskStatus != "Client Complaint")
+              Expanded(
+                child: FloatingActionButton.extended(
+                  heroTag: "reopen_button",
+                  label: const Text(
+                    "Re-Open",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  backgroundColor: AppColors.warning,
+                  onPressed: () {
+                    showDialog(
+                      context: navigatorKey.currentContext!,
+                      builder: (_) => CustomDialog(
+                        rootPage: "/workorder",
+                        title: "Remark",
+                        description: "Remark",
+                        buttonText: "Okay",
+                        secondButton: false,
+                        cancel: true,
+                        okayTapped: () {
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        },
+                        image: Image.asset("assets/icon_trans.png", height: 40),
+                        remarkTapped: (text) {
+                          Navigator.pop(context);
+                          bloc.reOpen(text)
+                              .then((_) => alert("Operation successful"))
+                              .catchError((e) => alert("We couldn't process your request at this moment. Please try again later. If the issue persists, contact support."));
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+            if (mainStatus == "Verify" && woTaskStatus != "Client Complaint") const SizedBox(width: 16), // Add spacing between buttons
 
             // Existing Submit button
             Expanded(

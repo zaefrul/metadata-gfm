@@ -179,6 +179,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
                 transactionNo: widget.taskNo,
                 viewer: widget.viewer,
                 checkpoint: checkpoint,
+                taskCategory: "",
                 submitted: () {});
             Navigator.of(context)
                 .push(MaterialPageRoute(
@@ -223,6 +224,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
                   transactionNo: widget.taskNo,
                   viewer: widget.viewer,
                   checkpoint: checkpoint,
+                  taskCategory: "",
                   submitted: () {});
               Navigator.of(context)
                   .push(MaterialPageRoute(

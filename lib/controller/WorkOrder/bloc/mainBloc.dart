@@ -25,6 +25,7 @@ class MainBloc {
   final String _id;
   final String _status;
   final String _taskNo;
+  late String _taskCategory;
 
   // -- STATE SUBJECTS
   final BehaviorSubject<List<WorkOrderStatus>> _sections =
@@ -37,10 +38,11 @@ class MainBloc {
       BehaviorSubject<ExecutionModel>();
 
   // -- INITIALIZER
-  MainBloc({required String id, String status = '', required String taskNo, required BuildContext context})
+  MainBloc({required String id, String status = '', required String taskNo, required BuildContext context, required String woTaskCategory})
       : _id = id,
         _status = status,
-        _taskNo = taskNo {
+        _taskNo = taskNo,
+        _taskCategory = woTaskCategory {
     _provider = WOProvider(context: navigatorKey.currentContext!);
     setCheckpoint(_status);
     refresh();
@@ -81,12 +83,14 @@ class MainBloc {
       checkpoint = 1;
     } else if (status == "WR Check") {
       checkpoint = 4;
-    } else if (status == "WR Re-Open") {
-      checkpoint = 4;
+    // } else if (status == "WR Re-Open") {
+    //   checkpoint = 4;
     } else if (status == "WR Verified") {
       checkpoint = 5;
     } else if (status == "Check") {
       checkpoint = 6;
+    } else if (status == "Assign" && _taskCategory == "Client Complaint") {
+      checkpoint = 7;
     }
   }
 
@@ -177,6 +181,14 @@ class MainBloc {
     return _provider.reject(_status, _id, value);
   }
 
+  Future<void> reOpen(String value) {
+    return _provider.reOpenWorkOrder(_status, _id, value);
+  }
+
+  Future<void> returnOutOfScope(String value) {
+    return _provider.rejectOutOfScope(_id, value);
+  }
+
   void openScreen(BuildContext context, WorkOrderStatus order,
       {bool viewOnly = false}) {
     String named = order.sectionName ?? '';
@@ -255,6 +267,7 @@ class MainBloc {
       transactionNo: _taskNo,
       viewer: viewOnly,
       checkpoint: checkpoint,
+      taskCategory: _taskCategory,
     );
 
     Navigator.of(context)

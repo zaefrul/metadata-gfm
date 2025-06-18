@@ -6,6 +6,7 @@ import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 import 'package:GEMS/model/serializers.dart';
+import 'package:flutter/foundation.dart';
 
 part 'monitor.g.dart';
 
@@ -105,6 +106,7 @@ abstract class MonitorHistory implements Built<MonitorHistory, MonitorHistoryBui
   }
 
   static MonitorHistory fromJson(String jsonString) {
+    debugPrint('MonitorHistory fromJson: $jsonString');
     return serializers.deserializeWith(
         MonitorHistory.serializer, json.decode(jsonString))!;
   }

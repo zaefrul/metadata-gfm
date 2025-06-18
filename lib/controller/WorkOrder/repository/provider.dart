@@ -11,6 +11,48 @@ class WOProvider {
     _provider.context = context;
   }
 
+  Future<void> rejectOutOfScope(String id, String remark) {
+    debugPrint("======================== THE BODY IS ========================");
+    debugPrint("Action: reject_complaint");
+    debugPrint("ID: $id");
+    debugPrint("Remark: $remark");
+    debugPrint("=============================================================");
+
+    UploadItem body = UploadItem(
+      action: "reject_complaint",
+      id: id,
+      remark: remark,
+    );
+
+    Provider provider = Provider(fetchURL: "/api/m_wo.php");
+
+    return provider.post(url: "/api/m_wo.php", body: body.body);
+  }
+
+  Future<void> reOpenWorkOrder(String status, String id, String remark) {
+    debugPrint("======================== THE BODY IS ========================");
+    debugPrint("Action: reopen_wo");
+    debugPrint("ID: $id");
+    debugPrint("Remark: $remark");
+    debugPrint("=============================================================");
+
+    var action = "return_verify";
+
+    // if(status == "WR Verified" || status == "Check") {
+    //   action = "return_by_verifier";
+    // }
+
+    UploadItem body = UploadItem(
+      action: action,
+      id: id,
+      remark: remark,
+    );
+
+    Provider provider = Provider(fetchURL: "/api/m_wo.php");
+
+    return provider.post(url: "/api/m_wo.php", body: body.body);
+  }
+
   Future<void> reject(String status, String id, String remark) {
     debugPrint('The status is: $status');
     var body = UploadItem(
