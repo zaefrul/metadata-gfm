@@ -206,7 +206,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
 
     debugPrint('taskType: ${widget.taskCategory}');
 
-    if(widget.checkpoint != 6 && (widget.taskCategory != "Self Finding" || widget.taskCategory != "Public Complaint")) {
+    if(widget.checkpoint != 6 && (widget.taskCategory != "Self Finding" && widget.taskCategory != "Public Complaint")) {
       // Pass the ComplaintSignature's context (this.context)
       _ratingDialog(context, body); // MODIFIED
     }
@@ -223,6 +223,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
     // which is stable for showing this final dialog and for navigation.
     showDialog<void>(
       context: scaffoldCtx,
+      barrierDismissible: false,
       builder: (_) => CustomDialog(
         rootPage: "/workorder",
         description: msg,
@@ -266,6 +267,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
     void dialogConfirmation() {
       showDialog<void>(
         context: dialogHostCtx, // Use the provided context to show this dialog
+        barrierDismissible: false,
         builder: (dialogCtx) => CustomDialog(
           title: "Remark",
           rootPage: "/workorder",
@@ -295,6 +297,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
         // FIRST step for checkpoint 4
         showDialog<void>(
           context: dialogHostCtx, // Use the provided context to show this dialog
+          barrierDismissible: false,
           builder: (dialogCtx) => CustomDialog(
             title: "Remark",
             description: "Remark",
@@ -358,6 +361,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
       // checkpoint 1: show RatingDialog
       showDialog<void>(
         context: dialogHostCtx, // Use the provided context to show this dialog
+        barrierDismissible: false,
         builder: (dialogCtx) => RatingDialog(
           image: Material(
             elevation: 6,

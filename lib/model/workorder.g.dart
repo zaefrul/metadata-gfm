@@ -45,6 +45,9 @@ class _$WorkOrderTaskSerializer implements StructuredSerializer<WorkOrderTask> {
       'woTaskType',
       serializers.serialize(object.woTaskType,
           specifiedType: const FullType(String)),
+      'woTaskTypeInit',
+      serializers.serialize(object.woTaskTypeInit,
+          specifiedType: const FullType(String)),
       'reportedBy',
       serializers.serialize(object.reportedBy,
           specifiedType: const FullType(String)),
@@ -88,6 +91,10 @@ class _$WorkOrderTaskSerializer implements StructuredSerializer<WorkOrderTask> {
           break;
         case 'woTaskType':
           result.woTaskType = serializers.deserialize(value,
+              specifiedType: const FullType(String))! as String;
+          break;
+        case 'woTaskTypeInit':
+          result.woTaskTypeInit = serializers.deserialize(value,
               specifiedType: const FullType(String))! as String;
           break;
         case 'reportedBy':
@@ -319,6 +326,9 @@ class _$WorkOrderDetailSerializer
       'woTaskCategory',
       serializers.serialize(object.woTaskCategory,
           specifiedType: const FullType(String)),
+      'woTaskCategoryInit',
+      serializers.serialize(object.woTaskCategoryInit,
+          specifiedType: const FullType(String)),
       'woTaskClient',
       serializers.serialize(object.woTaskClient,
           specifiedType: const FullType(String)),
@@ -390,6 +400,10 @@ class _$WorkOrderDetailSerializer
           break;
         case 'woTaskCategory':
           result.woTaskCategory = serializers.deserialize(value,
+              specifiedType: const FullType(String))! as String;
+          break;
+        case 'woTaskCategoryInit':
+          result.woTaskCategoryInit = serializers.deserialize(value,
               specifiedType: const FullType(String))! as String;
           break;
         case 'woTaskClient':
@@ -904,6 +918,8 @@ class _$WorkOrderTask extends WorkOrderTask {
   @override
   final String woTaskType;
   @override
+  final String woTaskTypeInit;
+  @override
   final String reportedBy;
   @override
   final String woTaskTimeCreated;
@@ -920,6 +936,7 @@ class _$WorkOrderTask extends WorkOrderTask {
       required this.woTaskNo,
       required this.woTaskLocation,
       required this.woTaskType,
+      required this.woTaskTypeInit,
       required this.reportedBy,
       required this.woTaskTimeCreated,
       required this.woTaskStatus,
@@ -933,6 +950,8 @@ class _$WorkOrderTask extends WorkOrderTask {
         woTaskLocation, r'WorkOrderTask', 'woTaskLocation');
     BuiltValueNullFieldError.checkNotNull(
         woTaskType, r'WorkOrderTask', 'woTaskType');
+    BuiltValueNullFieldError.checkNotNull(
+        woTaskTypeInit, r'WorkOrderTask', 'woTaskTypeInit');
     BuiltValueNullFieldError.checkNotNull(
         reportedBy, r'WorkOrderTask', 'reportedBy');
     BuiltValueNullFieldError.checkNotNull(
@@ -958,6 +977,7 @@ class _$WorkOrderTask extends WorkOrderTask {
         woTaskNo == other.woTaskNo &&
         woTaskLocation == other.woTaskLocation &&
         woTaskType == other.woTaskType &&
+        woTaskTypeInit == other.woTaskTypeInit &&
         reportedBy == other.reportedBy &&
         woTaskTimeCreated == other.woTaskTimeCreated &&
         woTaskStatus == other.woTaskStatus &&
@@ -971,6 +991,7 @@ class _$WorkOrderTask extends WorkOrderTask {
     _$hash = $jc(_$hash, woTaskNo.hashCode);
     _$hash = $jc(_$hash, woTaskLocation.hashCode);
     _$hash = $jc(_$hash, woTaskType.hashCode);
+    _$hash = $jc(_$hash, woTaskTypeInit.hashCode);
     _$hash = $jc(_$hash, reportedBy.hashCode);
     _$hash = $jc(_$hash, woTaskTimeCreated.hashCode);
     _$hash = $jc(_$hash, woTaskStatus.hashCode);
@@ -986,6 +1007,7 @@ class _$WorkOrderTask extends WorkOrderTask {
           ..add('woTaskNo', woTaskNo)
           ..add('woTaskLocation', woTaskLocation)
           ..add('woTaskType', woTaskType)
+          ..add('woTaskTypeInit', woTaskTypeInit)
           ..add('reportedBy', reportedBy)
           ..add('woTaskTimeCreated', woTaskTimeCreated)
           ..add('woTaskStatus', woTaskStatus)
@@ -1015,6 +1037,11 @@ class WorkOrderTaskBuilder
   String? get woTaskType => _$this._woTaskType;
   set woTaskType(String? woTaskType) => _$this._woTaskType = woTaskType;
 
+  String? _woTaskTypeInit;
+  String? get woTaskTypeInit => _$this._woTaskTypeInit;
+  set woTaskTypeInit(String? woTaskTypeInit) =>
+      _$this._woTaskTypeInit = woTaskTypeInit;
+
   String? _reportedBy;
   String? get reportedBy => _$this._reportedBy;
   set reportedBy(String? reportedBy) => _$this._reportedBy = reportedBy;
@@ -1042,6 +1069,7 @@ class WorkOrderTaskBuilder
       _woTaskNo = $v.woTaskNo;
       _woTaskLocation = $v.woTaskLocation;
       _woTaskType = $v.woTaskType;
+      _woTaskTypeInit = $v.woTaskTypeInit;
       _reportedBy = $v.reportedBy;
       _woTaskTimeCreated = $v.woTaskTimeCreated;
       _woTaskStatus = $v.woTaskStatus;
@@ -1076,6 +1104,8 @@ class WorkOrderTaskBuilder
               woTaskLocation, r'WorkOrderTask', 'woTaskLocation'),
           woTaskType: BuiltValueNullFieldError.checkNotNull(
               woTaskType, r'WorkOrderTask', 'woTaskType'),
+          woTaskTypeInit: BuiltValueNullFieldError.checkNotNull(
+              woTaskTypeInit, r'WorkOrderTask', 'woTaskTypeInit'),
           reportedBy: BuiltValueNullFieldError.checkNotNull(
               reportedBy, r'WorkOrderTask', 'reportedBy'),
           woTaskTimeCreated: BuiltValueNullFieldError.checkNotNull(
@@ -1337,6 +1367,8 @@ class _$WorkOrderDetail extends WorkOrderDetail {
   @override
   final String woTaskCategory;
   @override
+  final String woTaskCategoryInit;
+  @override
   final String woTaskClient;
   @override
   final String woTaskLocation;
@@ -1365,6 +1397,7 @@ class _$WorkOrderDetail extends WorkOrderDetail {
       required this.woTaskReportedBy,
       required this.woTaskTimeResponded,
       required this.woTaskCategory,
+      required this.woTaskCategoryInit,
       required this.woTaskClient,
       required this.woTaskLocation,
       required this.woTaskComplaint,
@@ -1387,6 +1420,8 @@ class _$WorkOrderDetail extends WorkOrderDetail {
         woTaskTimeResponded, r'WorkOrderDetail', 'woTaskTimeResponded');
     BuiltValueNullFieldError.checkNotNull(
         woTaskCategory, r'WorkOrderDetail', 'woTaskCategory');
+    BuiltValueNullFieldError.checkNotNull(
+        woTaskCategoryInit, r'WorkOrderDetail', 'woTaskCategoryInit');
     BuiltValueNullFieldError.checkNotNull(
         woTaskClient, r'WorkOrderDetail', 'woTaskClient');
     BuiltValueNullFieldError.checkNotNull(
@@ -1423,6 +1458,7 @@ class _$WorkOrderDetail extends WorkOrderDetail {
         woTaskReportedBy == other.woTaskReportedBy &&
         woTaskTimeResponded == other.woTaskTimeResponded &&
         woTaskCategory == other.woTaskCategory &&
+        woTaskCategoryInit == other.woTaskCategoryInit &&
         woTaskClient == other.woTaskClient &&
         woTaskLocation == other.woTaskLocation &&
         woTaskComplaint == other.woTaskComplaint &&
@@ -1443,6 +1479,7 @@ class _$WorkOrderDetail extends WorkOrderDetail {
     _$hash = $jc(_$hash, woTaskReportedBy.hashCode);
     _$hash = $jc(_$hash, woTaskTimeResponded.hashCode);
     _$hash = $jc(_$hash, woTaskCategory.hashCode);
+    _$hash = $jc(_$hash, woTaskCategoryInit.hashCode);
     _$hash = $jc(_$hash, woTaskClient.hashCode);
     _$hash = $jc(_$hash, woTaskLocation.hashCode);
     _$hash = $jc(_$hash, woTaskComplaint.hashCode);
@@ -1465,6 +1502,7 @@ class _$WorkOrderDetail extends WorkOrderDetail {
           ..add('woTaskReportedBy', woTaskReportedBy)
           ..add('woTaskTimeResponded', woTaskTimeResponded)
           ..add('woTaskCategory', woTaskCategory)
+          ..add('woTaskCategoryInit', woTaskCategoryInit)
           ..add('woTaskClient', woTaskClient)
           ..add('woTaskLocation', woTaskLocation)
           ..add('woTaskComplaint', woTaskComplaint)
@@ -1509,6 +1547,11 @@ class WorkOrderDetailBuilder
   String? get woTaskCategory => _$this._woTaskCategory;
   set woTaskCategory(String? woTaskCategory) =>
       _$this._woTaskCategory = woTaskCategory;
+
+  String? _woTaskCategoryInit;
+  String? get woTaskCategoryInit => _$this._woTaskCategoryInit;
+  set woTaskCategoryInit(String? woTaskCategoryInit) =>
+      _$this._woTaskCategoryInit = woTaskCategoryInit;
 
   String? _woTaskClient;
   String? get woTaskClient => _$this._woTaskClient;
@@ -1562,6 +1605,7 @@ class WorkOrderDetailBuilder
       _woTaskReportedBy = $v.woTaskReportedBy;
       _woTaskTimeResponded = $v.woTaskTimeResponded;
       _woTaskCategory = $v.woTaskCategory;
+      _woTaskCategoryInit = $v.woTaskCategoryInit;
       _woTaskClient = $v.woTaskClient;
       _woTaskLocation = $v.woTaskLocation;
       _woTaskComplaint = $v.woTaskComplaint;
@@ -1607,6 +1651,8 @@ class WorkOrderDetailBuilder
                 woTaskTimeResponded, r'WorkOrderDetail', 'woTaskTimeResponded'),
             woTaskCategory: BuiltValueNullFieldError.checkNotNull(
                 woTaskCategory, r'WorkOrderDetail', 'woTaskCategory'),
+            woTaskCategoryInit: BuiltValueNullFieldError.checkNotNull(
+                woTaskCategoryInit, r'WorkOrderDetail', 'woTaskCategoryInit'),
             woTaskClient: BuiltValueNullFieldError.checkNotNull(
                 woTaskClient, r'WorkOrderDetail', 'woTaskClient'),
             woTaskLocation: BuiltValueNullFieldError.checkNotNull(

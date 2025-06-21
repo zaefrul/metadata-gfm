@@ -31,6 +31,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
   List<WorkOrderStatus> severityList = [];
   final List<WorkOrderStatus> _internalCategory = [];
   final List<WorkOrderStatus> _externalCategory = [];
+  final List<WorkOrderStatus> _publicCategory = [];
 
   String? dropdownValue1, dropdownValue2, dropdownValue3, dropdownValue4, dropdownAssist;
   String? dropdownId1, dropdownId2, dropdownId3, dropdownId4;
@@ -47,13 +48,48 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
   }
 
   void _prepareCategories() {
-    final m1 = {"Self Finding":"2","Request":"3","Breakdown":"4","Defect":"5"};
-    final m2 = {"Complaint":"1","Request":"3","Breakdown":"4","Defect":"5"};
+    // internal complaint
+    final m1 = {
+      "Breakdown": "4",
+      "Defect": "5",
+      "Request": "3",
+      "Self Finding": "2"
+    };
+
+    final m2 = {
+      "Breakdown": "4",
+      "Complaint": "1",
+      "Defect": "5",
+      "Request": "3"
+    };
+
+    final m3 = {
+      "Breakdown": "4",
+      "Complaint": "1",
+      "Defect": "5"
+    };
+
     m1.forEach((k,v) => _internalCategory.add(WorkOrderStatus((b) => b
       ..groupName = k..groupId = v)));
     m2.forEach((k,v) => _externalCategory.add(WorkOrderStatus((b) => b
       ..groupName = k..groupId = v)));
+    m3.forEach((k,v) => _publicCategory.add(WorkOrderStatus((b) => b
+      ..groupName = k..groupId = v)));
   }
+
+  bool get isInternal => typeCategory == "Internal";
+  bool get isExternal => typeCategory == "External";
+
+  List<WorkOrderStatus> getDropdown4() {
+    if (isExternal) {
+      return _externalCategory;
+    } else if (isInternal) {
+      return _internalCategory;
+    } else {
+      return _publicCategory;
+    }
+  }
+
 
   Future<void> _loadInitial() async {
     setState(() => loading = true);
@@ -277,9 +313,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
                     icon: Icons.category,
                     label: "Task Category",
                     value: dropdownValue4,
-                    items: (dropdownValue1 == "Internal" 
-                        ? _internalCategory 
-                        : _externalCategory)
+                    items: getDropdown4()
                         .map((c) => c.groupName ?? '')
                         .whereType<String>()
                         .toList(),
@@ -287,9 +321,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
                       if (v == null) return;
                       setState(() {
                         dropdownValue4 = v;
-                        dropdownId4 = (dropdownValue1 == "Internal" 
-                            ? _internalCategory 
-                            : _externalCategory)
+                        dropdownId4 = getDropdown4()
                             .firstWhere((c) => c.groupName == v)
                             .groupId;
                       });

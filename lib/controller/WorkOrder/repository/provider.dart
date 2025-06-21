@@ -29,7 +29,7 @@ class WOProvider {
     return provider.post(url: "/api/m_wo.php", body: body.body);
   }
 
-  Future<void> reOpenWorkOrder(String status, String id, String remark) {
+  Future<void> reOpenWorkOrder(String status, String id, String remark, String taskCategory) {
     debugPrint("======================== THE BODY IS ========================");
     debugPrint("Action: reopen_wo");
     debugPrint("ID: $id");
@@ -37,6 +37,13 @@ class WOProvider {
     debugPrint("=============================================================");
 
     var action = "return_verify";
+
+
+    if(status == "Check") {
+      action = "return_from_check";
+    }
+
+    debugPrint("The action is: $action");
 
     // if(status == "WR Verified" || status == "Check") {
     //   action = "return_by_verifier";

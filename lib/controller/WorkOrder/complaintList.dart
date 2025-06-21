@@ -44,7 +44,7 @@ class ComplaintList extends StatelessWidget {
                 isAssign:      task.woTaskStatus == "Assign" ||
                                task.woTaskStatus == "Revisit" ||
                                task.woTaskStatus == "WR Reassign",
-                woTaskType: task.woTaskType,
+                woTaskType: task.woTaskTypeInit,
                 woTaskCategory: "",
               );
               Navigator.of(context)

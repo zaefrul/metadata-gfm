@@ -1,21 +1,21 @@
 import 'dart:async';
-import 'dart:ui'; // Keep if used by other parts of your app, not directly used here after changes
+import 'dart:ui';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-// Assuming these are your project's local imports
-import 'package:GEMS/controller/Storekeeper/utils/constant.dart'; // For AppColors, routeDashboard etc.
-import 'package:GEMS/controller/Storekeeper/utils/widget/dialog.dart'; // For CustomDialog
-import 'package:GEMS/model/user.dart'; // Your User model
-import 'package:GEMS/utils/network.dart'; // Your custom Provider
-import 'package:GEMS/utils/reference.dart'; // For kUserSignature, routeSignature etc.
-import 'package:GEMS/view/drawer.dart'; // Your BuildDrawer widget
+import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
+import 'package:GEMS/controller/Storekeeper/utils/widget/dialog.dart';
+import 'package:GEMS/model/user.dart';
+import 'package:GEMS/utils/network.dart';
+import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/drawer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:toast/toast.dart'; // Ensure this is the intended toast package
+import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart'; // Import package_info_plus
 
-import 'resetPassword.dart'; // Your ResetPassword screen
+import 'resetPassword.dart';
 
 // --- Constants for Role IDs ---
 const String _roleAdminId = "1";
@@ -26,7 +26,6 @@ const String _roleUtilitiesId = "18";
 // const String routePPM = "/ppm";
 // const String routeWorkOrder = "/workorder";
 // const String routeNotifications = "/notifications";
-// Example: if routeDashboard is not in constant.dart, define it here.
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -42,16 +41,34 @@ class _HomepageState extends State<Homepage> {
   User? _currentUser;
   bool _isStorekeeperFeatureEnabled = false;
   bool _isUtilitiesFeatureEnabled = false;
-  bool _isLoading = true; // To show a loading indicator initially
+  bool _isLoading = true;
+  String _appVersion = ''; // New state variable for app version
 
   @override
   void initState() {
     super.initState();
-    // It's generally better to initialize ToastContext once at the app root,
-    // for example, in your MaterialApp's builder.
-    // However, keeping it here to match original structure if it's intended.
     ToastContext().init(context);
     _initializeHomepage();
+    _getAppVersion(); // Fetch app version
+  }
+
+  Future<void> _getAppVersion() async {
+    try {
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      if (mounted) {
+        setState(() {
+          _appVersion = packageInfo.version;
+          // If you also want build number: _appVersion = '${packageInfo.version}+${packageInfo.buildNumber}';
+        });
+      }
+    } catch (e) {
+      debugPrint("Error getting app version: $e");
+      if (mounted) {
+        setState(() {
+          _appVersion = 'N/A'; // Fallback if unable to get version
+        });
+      }
+    }
   }
 
   Future<void> _initializeHomepage() async {
@@ -62,7 +79,6 @@ class _HomepageState extends State<Homepage> {
         await _handleInitialUserFlow(_currentUser!);
       }
     } catch (e) {
-      // Log error more formally if you have a logging service
       debugPrint("Error during homepage initialization: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -82,9 +98,7 @@ class _HomepageState extends State<Homepage> {
     try {
       String? token = await _firebaseMessaging.getToken();
       if (token != null && mounted) {
-        // Use a local context if Provider doesn't need the Scaffold's context specifically
         final provider = Provider(fetchURL: "/api/m_ppm.php")..context = context;
-        // Consider adding error handling for this network call
         await provider.post(url: "/api/m_ppm.php", body: {
           "action": "save_token",
           "token": token,
@@ -93,13 +107,12 @@ class _HomepageState extends State<Homepage> {
       }
     } catch (e) {
       debugPrint("Error setting up Firebase Messaging: $e");
-      // Optionally show a non-blocking error to the user
     }
   }
 
   Future<void> _loadUserDataAndPermissions() async {
     try {
-      final prefs = await User.getPrefUser; // Assuming this fetches from SharedPreferences
+      final prefs = await User.getPrefUser;
       final user = User.fromMap(prefs);
 
       bool tempIsStorekeeper = false;
@@ -109,7 +122,7 @@ class _HomepageState extends State<Homepage> {
         if (role.id == _roleAdminId) {
           tempIsStorekeeper = true;
           tempIsUtilities = true;
-          break; // Admin has all permissions, no need to check further
+          break;
         }
         if (role.id == _roleStorekeeperId) {
           tempIsStorekeeper = true;
@@ -129,34 +142,26 @@ class _HomepageState extends State<Homepage> {
     } catch (e) {
       debugPrint("Error loading user data: $e");
       if (mounted) {
-        // Show an error message or handle appropriately
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Failed to load user data.")),
         );
       }
-      // Rethrow if this is a critical failure for the page
-      // throw Exception("Failed to load user data: $e");
     }
   }
 
   Future<void> _handleInitialUserFlow(User user) async {
+    if (!mounted) return;
+
+    final requestHandler = Request(context, user.userID);
+
     try {
-      // Ensure context is still valid if operations are long
-      if (!mounted) return;
-
-      final requestHandler = Request(context, user.userID);
-
       if (user.isFirstTime == "Yes") {
-        // Navigate to ResetPassword and wait for it to complete
         await Navigator.pushNamed(
           context,
           ResetPassword.routeName,
           arguments: ResetArguments(user.username),
         );
-        // After password reset, update first time status
-        // Assuming updateFirstTime is an async operation that persists the change
         await user.updateFirstTime("No");
-        // Then check for signature
         final signaturePath = await requestHandler.checkSignature();
         if (signaturePath.isEmpty && mounted) {
           requestHandler.promptSignatureSetup(user.userID);
@@ -184,21 +189,21 @@ class _HomepageState extends State<Homepage> {
       backgroundColor: Colors.white,
       drawer: BuildDrawer(() => Navigator.pop(context), isHome: true),
       appBar: _buildAppBar(),
-      extendBodyBehindAppBar: true, // Keep if the design requires it with the new background
+      extendBodyBehindAppBar: true,
       body: _buildBody(),
     );
   }
 
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.transparent, // Or Colors.white if extendBodyBehindAppBar is false
+      backgroundColor: Colors.transparent,
       elevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.menu, color: Colors.black87),
         onPressed: () => _scaffoldKey.currentState?.openDrawer(),
       ),
       title: Text(
-        "GEMS", // Consider making this a constant or configurable
+        "GEMS",
         style: GoogleFonts.poppins(
           fontSize: 20,
           fontWeight: FontWeight.w600,
@@ -208,7 +213,6 @@ class _HomepageState extends State<Homepage> {
       actions: [
         IconButton(
           icon: const Icon(Icons.notifications, color: Colors.black87),
-          // Ensure "/notifications" is a defined route
           onPressed: () => Navigator.pushNamed(context, "/notifications"),
         ),
       ],
@@ -220,7 +224,6 @@ class _HomepageState extends State<Homepage> {
       return const Center(child: CircularProgressIndicator());
     }
     if (_currentUser == null) {
-      // This state could occur if user data fails to load critically
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -240,7 +243,7 @@ class _HomepageState extends State<Homepage> {
                   setState(() {
                     _isLoading = true;
                   });
-                  _initializeHomepage(); // Retry initialization
+                  _initializeHomepage();
                 },
                 child: const Text("Retry"),
               )
@@ -252,9 +255,7 @@ class _HomepageState extends State<Homepage> {
 
     return Stack(
       children: [
-        // The background image
         Positioned.fill(child: _backgroundImage),
-        // The main content
         SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,7 +274,21 @@ class _HomepageState extends State<Homepage> {
                 ),
               ),
               const SizedBox(height: 16),
-              Expanded(child: _buildFeatureList(context)), // Changed from _buildList
+              Expanded(child: _buildFeatureList(context)),
+              // --- Version Text at the bottom ---
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0), // Adjust padding as needed
+                  child: Text(
+                    'Version: $_appVersion',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Colors.black54, // Or a color that stands out against your background
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -282,20 +297,18 @@ class _HomepageState extends State<Homepage> {
   }
 
   Widget _buildHeader(User user) {
-    // Extracting username display logic for clarity
     String displayName = user.username.split('@').first;
-    // Capitalize the first letter of the display name
     if (displayName.isNotEmpty) {
       displayName = displayName[0].toUpperCase() + displayName.substring(1);
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16), // Increased vertical padding
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Row(
         children: [
           _buildProfileImage(user),
           const SizedBox(width: 16),
-          Expanded( // Use Expanded to prevent overflow if name is too long
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -313,7 +326,7 @@ class _HomepageState extends State<Homepage> {
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
                   ),
-                  overflow: TextOverflow.ellipsis, // Handle long names
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -329,28 +342,26 @@ class _HomepageState extends State<Homepage> {
 
     if (imageUrl.isNotEmpty) {
       if (!imageUrl.startsWith("http://") && !imageUrl.startsWith("https://")) {
-        imageUrl = "https:$imageUrl"; // Assuming HTTPS if no scheme
+        imageUrl = "https:$imageUrl";
       }
-      // Basic validation for URL format (can be more robust)
       if (Uri.tryParse(imageUrl)?.hasAbsolutePath ?? false) {
          hasValidUrl = true;
       } else {
-        imageUrl = null; // Invalid URL, fallback to initials
+        imageUrl = null;
       }
     }
 
-
     return Container(
-      width: 52, // Slightly larger
+      width: 52,
       height: 52,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: LinearGradient(
-          colors: [Colors.blue.shade400, Colors.blue.shade700], // Adjusted gradient
+          colors: [Colors.blue.shade400, Colors.blue.shade700],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        boxShadow: [ // Adding a subtle shadow for depth
+        boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.15),
             blurRadius: 5,
@@ -359,23 +370,20 @@ class _HomepageState extends State<Homepage> {
         ]
       ),
       child: CircleAvatar(
-        radius: 26, // Should match container size
-        backgroundColor: Colors.transparent, // Transparent to show gradient
+        radius: 26,
+        backgroundColor: Colors.transparent,
         backgroundImage: hasValidUrl
             ? NetworkImage(imageUrl!)
-            : AssetImage('assets/profile_plain.png') as ImageProvider, // Fallback asset
+            : const AssetImage('assets/profile_plain.png') as ImageProvider,
         onBackgroundImageError: hasValidUrl ? (dynamic exception, StackTrace? stackTrace) {
-          // Log error or handle
           debugPrint("Error loading profile image: $exception");
-          // Optionally update UI to show initials if image fails
         } : null,
-        child: (!hasValidUrl || (imageUrl == null) ) // Show initials if no valid URL or if asset is primary
-            ? _buildInitialsAvatar(user) // Fallback to initials if URL is invalid or empty
-            : null, // If NetworkImage is supposed to load, don't show initials on top
+        child: (!hasValidUrl || (imageUrl == null) )
+            ? _buildInitialsAvatar(user)
+            : null,
       ),
     );
   }
-
 
   Widget _buildInitialsAvatar(User user) {
     final String initials = user.username.isNotEmpty
@@ -384,32 +392,30 @@ class _HomepageState extends State<Homepage> {
     return Center(
       child: Text(
         initials,
-        style: GoogleFonts.poppins( // Using Poppins for consistency
+        style: GoogleFonts.poppins(
           color: Colors.white,
-          fontSize: 22, // Adjusted size
+          fontSize: 22,
           fontWeight: FontWeight.w600,
         ),
       ),
     );
   }
 
-  // Using ListView by default as per your commented out GridView
   Widget _buildFeatureList(BuildContext context) {
-    // Define features here or pass them if they become dynamic
     final features = <_FeatureUIData>[
-      _FeatureUIData("Preventive Maintenance", Icons.build_circle_outlined, "/ppm"), // Using outlined icons
+      _FeatureUIData("Preventive Maintenance", Icons.build_circle_outlined, "/ppm"),
       _FeatureUIData("Work Order", Icons.assignment_outlined, "/workorder"),
       _FeatureUIData("StoreKeeper", Icons.inventory_2_outlined, routeDashboard, enabled: _isStorekeeperFeatureEnabled),
       _FeatureUIData("Utilities", Icons.folder_special_outlined, routeUtilities, enabled: _isUtilitiesFeatureEnabled),
       _FeatureUIData("Leaderboard", Icons.emoji_events_outlined, routeLeaderboard),
-      _FeatureUIData("Attendance", Icons.event_available_outlined, null, onTap: _openAttendanceForm), // Specific handler
-      _FeatureUIData("Suggestion", Icons.lightbulb_outline, null, onTap: _openSuggestionForm), // Specific handler
+      _FeatureUIData("Attendance", Icons.event_available_outlined, null, onTap: _openAttendanceForm),
+      _FeatureUIData("Suggestion", Icons.lightbulb_outline, null, onTap: _openSuggestionForm),
     ];
 
     return ListView.separated(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20), // Adjusted padding
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
       itemCount: features.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12), // Increased spacing
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (ctx, i) {
         final feature = features[i];
         return _FeatureListItem(
@@ -428,15 +434,12 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  // Example of opening a specific form (if different URLs or logic)
   void _openAttendanceForm() async {
-    // Assuming this is the correct URL for attendance
     _launchUrlHelper("https://forms.office.com/r/CYvjipHJ4S");
   }
 
   void _openSuggestionForm() async {
-    // Assuming this is the correct URL for suggestions
-    _launchUrlHelper("https://forms.office.com/r/ANOTHER_FORM_ID"); // Replace with actual URL
+    _launchUrlHelper("https://forms.office.com/r/ANOTHER_FORM_ID");
   }
 
   Future<void> _launchUrlHelper(String urlString) async {
@@ -455,12 +458,10 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
-  // Background image getter
   Widget get _backgroundImage => SizedBox(
         height: double.infinity,
         width: double.infinity,
-        // Ensure you have 'assets/bg.jpg' in your pubspec.yaml and project
-        child: Image.asset("assets/bg.jpg", fit: BoxFit.cover), // BoxFit.cover is often better
+        child: Image.asset("assets/bg.jpg", fit: BoxFit.cover),
       );
 }
 
@@ -468,7 +469,7 @@ class _HomepageState extends State<Homepage> {
 class _FeatureUIData {
   final String title;
   final IconData icon;
-  final String? route; // Nullable if onTap is used
+  final String? route;
   final bool enabled;
   final VoidCallback? onTap;
 
@@ -493,17 +494,17 @@ class _FeatureListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isEnabled = feature.enabled && onTap != null; // Enabled only if onTap action is present
+    final bool isEnabled = feature.enabled && onTap != null;
     final Color tileColor = isEnabled ? (AppColors.primary ?? Colors.blue) : (AppColors.secondary ?? Colors.grey.shade400);
     final Color contentColor = isEnabled ? Colors.white : Colors.white70;
 
-    return PressScaleWidget( // Your existing PressScaleWidget
+    return PressScaleWidget(
       onTap: isEnabled ? onTap : null,
       child: Container(
-        height: 65, // Slightly taller
+        height: 65,
         decoration: BoxDecoration(
           color: tileColor,
-          borderRadius: BorderRadius.circular(12), // Softer radius
+          borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -522,13 +523,13 @@ class _FeatureListItem extends StatelessWidget {
                 feature.title,
                 style: GoogleFonts.poppins(
                   fontSize: 15,
-                  fontWeight: FontWeight.w500, // Slightly less bold for list items
+                  fontWeight: FontWeight.w500,
                   color: contentColor,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            if (isEnabled) // Show chevron only if enabled and tappable
+            if (isEnabled)
               Icon(Icons.chevron_right, color: contentColor),
           ],
         ),
@@ -536,7 +537,6 @@ class _FeatureListItem extends StatelessWidget {
     );
   }
 }
-
 
 // --- PressScaleWidget (Your existing widget, ensure AnimationController is disposed) ---
 class PressScaleWidget extends StatefulWidget {
@@ -552,8 +552,6 @@ class PressScaleWidget extends StatefulWidget {
 class _PressScaleWidgetState extends State<PressScaleWidget>
     with SingleTickerProviderStateMixin {
   late final AnimationController _animationController;
-  // static final _scaleTween = Tween<double>(begin: 1.0, end: 0.95); // Original had lowerBound 0.95
-  // static final _duration = const Duration(milliseconds: 100);
 
   @override
   void initState() {
@@ -561,15 +559,15 @@ class _PressScaleWidgetState extends State<PressScaleWidget>
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 100),
-      lowerBound: 0.95, // Scale down to 95%
-      upperBound: 1.0,  // Scale up to 100%
-      value: 1.0,       // Start at normal scale
+      lowerBound: 0.95,
+      upperBound: 1.0,
+      value: 1.0,
     );
   }
 
   @override
   void dispose() {
-    _animationController.dispose(); // IMPORTANT: Dispose the controller
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -609,25 +607,17 @@ class _PressScaleWidgetState extends State<PressScaleWidget>
 
 // --- Request Helper Class (Adjusted for clarity and error handling) ---
 class Request {
-  final BuildContext _buildContext; // Store context passed during construction
+  final BuildContext _buildContext;
   final String _userId;
-  late final Provider _signatureProvider; // Initialized in constructor
+  late final Provider _signatureProvider;
 
   Request(this._buildContext, this._userId) {
-    // Initialize Provider here, ensuring context is available if needed by Provider's constructor
-    // If Provider doesn't need context at construction, this is fine.
-    // If it needs context for EACH call, it should be passed to methods like checkSignature.
     _signatureProvider = Provider(fetchURL: "/user_signature/", taskID: _userId)
-      ..context = _buildContext; // Assign context if Provider implementation requires it this way
+      ..context = _buildContext;
   }
 
-  /// Checks if a user signature exists.
-  /// Returns the file path or identifier if found, otherwise an empty string.
   Future<String> checkSignature() async {
     try {
-      // If your Provider class needs context per call, you might need to re-assign or pass it
-      // _signatureProvider.context = _buildContext; // If needed per call
-
       final dynamic result = await _signatureProvider.getJson(url: "/user_signature/");
 
       if (result == null || result is! Map || result['file'] == null) {
@@ -638,159 +628,32 @@ class Request {
         return "";
       }
 
-      // Persist signature locally
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(kUserSignature, filePath); // kUserSignature from reference.dart
+      await prefs.setString(kUserSignature, filePath);
       return filePath;
     } catch (e) {
       debugPrint("Error checking signature: $e");
-      // Optionally show a non-critical error to the user via SnackBar if context is available
-      // ScaffoldMessenger.of(_buildContext).showSnackBar(
-      //   SnackBar(content: Text("Could not verify signature status.")),
-      // );
-      return ""; // Return empty on error to allow app flow, or rethrow if critical
+      return "";
     }
   }
 
-  /// Prompts the user to set up their signature.
   void promptSignatureSetup(String userId) {
-    // Ensure context is still valid and widget is mounted before showing dialog
     if (!_buildContext.mounted) return;
 
-    showDialog(
-      context: _buildContext,
-      barrierDismissible: false, // User must interact
-      builder: (_) => CustomDialog(
-        // Assuming CustomDialog is designed for this
-        rootPage: "/homepage", // Or null if no specific root page needed after dialog
-        title: "Signature Required", // Added title for clarity
-        description: "For security and verification, please set up your digital signature.",
-        buttonText: "Set Up Signature",
-        image: Image.asset("assets/icon_trans.png", height: 40), // Ensure asset exists
-        okayTapped: () {
-          // Pop the dialog first
-          Navigator.of(_buildContext, rootNavigator: true).pop();
-          // Then navigate to signature setup page
-          Navigator.pushNamed(_buildContext, routeSignature, arguments: userId);
-        },
-        // Optional: Add a cancel button or alternative action if appropriate
-      ),
-    );
+    // showDialog(
+    //   context: _buildContext,
+    //   barrierDismissible: false,
+    //   builder: (_) => CustomDialog(
+    //     title: "Signature Required",
+    //     rootPage: '/homepage',
+    //     description: "For security and verification, please set up your digital signature.",
+    //     buttonText: "Set Up Signature",
+    //     image: Image.asset("assets/icon_trans.png", height: 40),
+    //     okayTapped: () {
+    //       Navigator.of(_buildContext, rootNavigator: true).pop();
+    //       Navigator.pushNamed(_buildContext, routeSignature, arguments: userId);
+    //     },
+    //   ),
+    // );
   }
 }
-
-// The _AnimatedFeatureTile widget was used for the GridView.
-// If you decide to use GridView again, you can uncomment and adapt it.
-// For ListView, the PressScaleWidget is applied directly to each list item.
-
-/*
-// Simple scale‑up animation for Grid Tiles (if you revert to GridView)
-class _AnimatedFeatureTile extends StatelessWidget {
-  final Widget child;
-  const _AnimatedFeatureTile({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.8, end: 1.0),
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeOutBack,
-      builder: (_, scale, childToBuild) => Transform.scale(scale: scale, child: childToBuild),
-      child: child,
-    );
-  }
-}
-
-Widget _buildGrid(BuildContext context) {
-    final features = <_FeatureUIData>[
-      // ... define features ...
-    ];
-
-    final crossCount = MediaQuery.of(context).size.width > 600 ? 4 : 2;
-    return GridView.count(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      crossAxisCount: crossCount,
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      childAspectRatio: 0.9, // Adjusted for potentially more content
-      children: features
-          .map((f) => _AnimatedFeatureTile(child: _buildFeatureGridTile(f))) // New method for grid tile
-          .toList(),
-    );
-  }
-
-Widget _buildFeatureGridTile(_FeatureUIData f) {
-  // Similar to _FeatureListItem but styled for a grid
-  // Ensure you have a PressScaleWidget wrapping this if desired
-  return PressScaleWidget(
-    onTap: f.enabled
-        ? () async {
-            if (f.onTap != null) {
-              f.onTap!();
-            } else if (f.route != null) {
-              // Add a delay before navigating if needed for animation
-              // await Future.delayed(const Duration(milliseconds: 100));
-              Navigator.pushNamed(context, f.route!);
-            }
-          }
-        : null,
-    child: Material( // Material for ink splash effects if desired
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: f.enabled
-              ? LinearGradient(
-                  colors: [Colors.blue.shade300, Colors.blue.shade700],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                )
-              : LinearGradient(
-                  colors: [Colors.grey.shade400, Colors.grey.shade500],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.12),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Hero( // Optional: Hero animation for icon
-              tag: 'tile-icon-${f.title}',
-              child: Icon(f.icon, size: 32, color: Colors.white),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              f.title,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-              maxLines: 2, // Allow for slightly longer titles
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
-*/
-
-// Ensure your User model, Provider network utility, constants (AppColors, route names),
-// and other imported widgets (BuildDrawer, ResetPassword, CustomDialog) are correctly defined
-// and available in your project.
-// Also, ensure 'assets/bg.jpg' and 'assets/profile_plain.png', 'assets/icon_trans.png'
-// are included in your pubspec.yaml and project assets folder.
-

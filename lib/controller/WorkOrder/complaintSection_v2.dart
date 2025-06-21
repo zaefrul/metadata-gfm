@@ -82,6 +82,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('the widget is ${widget.taskNo}, ${widget.taskStatus}, ${widget.viewer}, ${widget.isAssign}, ${widget.woTaskType}');
     final standardButton = _BuildStandardButton(
       _bloc,
       widget.viewer,
@@ -203,6 +204,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
   void alert(String txt) {
     showDialog(
       context: navigatorKey.currentContext!,
+      barrierDismissible: false,
       builder: (BuildContext context) => CustomDialog(
         rootPage: "/workorder",
         description: txt,
@@ -215,6 +217,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
   void _showOutOfScopeDialog(BuildContext context) {
     showDialog(
       context: navigatorKey.currentContext!,
+      barrierDismissible: false,
       builder: (_) => CustomDialog(
         rootPage: "/workorder",
         title: "Remark",
@@ -229,7 +232,10 @@ class _ComplaintSectionState extends State<ComplaintSection> {
             .then((_) {
               alert("Ticket marked Out-of-Scope");
             })
-            .catchError((e) => alert("We couldn't process your request at this moment. Please try again later. If the issue persists, contact support."));
+            .catchError((e) {
+              alert("We couldn't process your request at this moment. Please try again later. If the issue persists, contact support.");
+              debugPrint("Error marking Out-of-Scope: $e");        
+            });
         },
       ),
     );
@@ -465,7 +471,7 @@ class _BuildViewButton extends StatelessWidget {
   Widget build(BuildContext context) {
     debugPrint('button created. progress: $progress, isAssign: $isAssign, viewer: $viewer, status: $status');
     // If in progress or assign mode, just show the single FAB you passed in
-    if (progress || isAssign) {
+    if (isAssign || status == "Check" || status == "WR Verified" || viewer) {
       return button;
     }
 
@@ -503,6 +509,7 @@ class _BuildViewButton extends StatelessWidget {
   void _showRejectDialog(BuildContext context) {
     showDialog(
       context: navigatorKey.currentContext!,
+      barrierDismissible: false,
       builder: (_) => CustomDialog(
         rootPage: "/workorder",
         title: "Remark",
@@ -552,6 +559,7 @@ class _BuildRejectButton extends StatelessWidget {
       label: Text(label, style: const TextStyle(color: Colors.white)),
       backgroundColor: Colors.red,
       onPressed: () => showDialog(
+        barrierDismissible: false,
         context: navigatorKey.currentContext!,
         builder: _buildDialog,
       ),
@@ -603,6 +611,7 @@ class _BuildStandardButton extends StatelessWidget {
   void alert(String txt) {
     showDialog(
       context: navigatorKey.currentContext!,
+      barrierDismissible: false,
       builder: (BuildContext context) => CustomDialog(
         rootPage: "/workorder",
         description: txt,
@@ -612,7 +621,7 @@ class _BuildStandardButton extends StatelessWidget {
     );
   }
 
-  bool hideOutOfScopeButton() {
+  bool DontHideOutOfScopeButton() {
     if(mainStatus == "Assign" && woTaskStatus == "Self Finding") {
       return true;
     } else if(mainStatus == "WR Verified" && woTaskStatus == "Client Complaint") {
@@ -624,34 +633,7 @@ class _BuildStandardButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ToastContext().init(context);
-    return StreamBuilder<bool>(
-      stream: bloc.enable$,
-      builder: (context, snapshot) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // New button (conditionally displayed)
-            if (hideOutOfScopeButton())
-              Expanded(
-                child: FloatingActionButton.extended(
-                  heroTag: "out_of_scope_button",
-                  label: const Text(
-                    "Out-of-Scope",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  backgroundColor: AppColors.dangerDark, // Use your desired color
-                  onPressed: () {
-                    outOfScopeOnPressAction(context);
-                  },
-                ),
-              ),
-            if (hideOutOfScopeButton())
-              const SizedBox(width: 16), // Add spacing between buttons
-
-            // if status is verify then
-            if (mainStatus == "Verify" && woTaskStatus != "Client Complaint")
-              Expanded(
+    var ReOpenButton = Expanded(
                 child: FloatingActionButton.extended(
                   heroTag: "reopen_button",
                   label: const Text(
@@ -662,6 +644,7 @@ class _BuildStandardButton extends StatelessWidget {
                   onPressed: () {
                     showDialog(
                       context: navigatorKey.currentContext!,
+                      barrierDismissible: false,
                       builder: (_) => CustomDialog(
                         rootPage: "/workorder",
                         title: "Remark",
@@ -684,9 +667,49 @@ class _BuildStandardButton extends StatelessWidget {
                     );
                   },
                 ),
-              ),
+              );
 
-            if (mainStatus == "Verify" && woTaskStatus != "Client Complaint") const SizedBox(width: 16), // Add spacing between buttons
+    bool ReOpenCondition () {
+      if(viewOnly) return false;
+      if(mainStatus == "Check" && woTaskStatus == "Client Complaint") return true;
+      if(mainStatus == "Verify" && woTaskStatus != "Client Complaint") return true; // public, internal
+
+      // else if (mainStatus == "Check" && woTaskStatus == "Client Complaint") return true;
+      return false;
+    }
+
+            debugPrint("ReOpenCondition: ${ReOpenCondition()}");
+
+    debugPrint('hideOutOfScopeButton: ${DontHideOutOfScopeButton()}');
+
+    ToastContext().init(context);
+    return StreamBuilder<bool>(
+      stream: bloc.enable$,
+      builder: (context, snapshot) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // New button (conditionally displayed)
+            if (DontHideOutOfScopeButton())
+              Expanded(
+                child: FloatingActionButton.extended(
+                  heroTag: "out_of_scope_button",
+                  label: const Text(
+                    "Out-of-Scope",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: AppColors.dangerDark, // Use your desired color
+                  onPressed: () {
+                    outOfScopeOnPressAction(context);
+                  },
+                ),
+              ),
+            if (DontHideOutOfScopeButton())
+              const SizedBox(width: 16), // Add spacing between buttons
+
+            // if status is verify then
+            if (ReOpenCondition()) ReOpenButton,
+            if (ReOpenCondition()) const SizedBox(width: 16), // Add spacing between buttons
 
             // Existing Submit button
             Expanded(
@@ -717,6 +740,7 @@ class _BuildStandardButton extends StatelessWidget {
                       bloc.submit().then((_) {
                         showDialog(
                           context: navigatorKey.currentContext!,
+                          barrierDismissible: false,
                           builder: _buildDialog,
                         );
                       }).catchError((err) => Toast.show(err));

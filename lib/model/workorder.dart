@@ -15,6 +15,7 @@ abstract class WorkOrderTask
   String get woTaskNo;
   String get woTaskLocation;
   String get woTaskType;
+  String get woTaskTypeInit;
   String get reportedBy;
   String get woTaskTimeCreated;
   String get woTaskStatus;
@@ -79,6 +80,7 @@ abstract class WorkOrderDetail
   String get woTaskReportedBy;
   String get woTaskTimeResponded;
   String get woTaskCategory;
+  String get woTaskCategoryInit;
   String get woTaskClient;
   String get woTaskLocation;
   String get woTaskComplaint;

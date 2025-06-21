@@ -79,6 +79,7 @@ class MainBloc {
   }
 
   void setCheckpoint(String status) {
+    debugPrint('Setting checkpoint for status: $status');
     if (status == "Verify") {
       checkpoint = 1;
     } else if (status == "WR Check") {
@@ -182,7 +183,7 @@ class MainBloc {
   }
 
   Future<void> reOpen(String value) {
-    return _provider.reOpenWorkOrder(_status, _id, value);
+    return _provider.reOpenWorkOrder(_status, _id, value, _taskCategory);
   }
 
   Future<void> returnOutOfScope(String value) {
