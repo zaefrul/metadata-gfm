@@ -33,6 +33,7 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
     _provider.context = context;
     try {
       var result = await _provider.fetch();
+      debugPrint('this is result from fetch, but at complaintSectionA.dart');
       debugPrint(result.toString());
       if (result.woDetail == null) {
         throw Exception("woDetail came back null");

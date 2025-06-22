@@ -7,14 +7,14 @@ import 'package:GEMS/model/dot.dart';
 import 'package:GEMS/model/form.dart';
 import 'package:GEMS/model/task.dart';
 import 'package:GEMS/model/workorder.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 
 import 'monitor.dart';
 
 part 'responseValue.g.dart';
 
 abstract class ResponseValue
-    implements Built<ResponseValue, ResponseValueBuilder> {
-  bool get success;
+    implements Built<ResponseValue, ResponseValueBuilder> {  bool get success;
   String get error;
   String get errmsg;
 
@@ -98,11 +98,14 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
               specifiedType: const FullType(String)) as String;
           break;
         case 'result':
+          debugPrint('Deserializing result: $value');
           if (value is Map<String, dynamic>) {
             if (trySectionA(serializers, value)) {
+              debugPrint('Deserializing Section A');
               result.sectionAList.replace(serializers.deserialize(value,
                       specifiedType: const FullType(FormAItem)) as FormAItem);
             } else if (tryWODetail(serializers, value)) {
+              debugPrint('Deserializing Work Order Detail');
               result.woDetail.replace(serializers.deserialize(value,
                       specifiedType: const FullType(WorkOrderDetail)) as WorkOrderDetail);
             } else if (tryMonitorDetail(serializers, value)) {

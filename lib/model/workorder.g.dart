@@ -326,9 +326,6 @@ class _$WorkOrderDetailSerializer
       'woTaskCategory',
       serializers.serialize(object.woTaskCategory,
           specifiedType: const FullType(String)),
-      'woTaskCategoryInit',
-      serializers.serialize(object.woTaskCategoryInit,
-          specifiedType: const FullType(String)),
       'woTaskClient',
       serializers.serialize(object.woTaskClient,
           specifiedType: const FullType(String)),
@@ -356,6 +353,13 @@ class _$WorkOrderDetailSerializer
               BuiltList, const [const FullType(ComplaintImage)])),
     ];
     Object? value;
+    value = object.woTaskCategoryInit;
+    if (value != null) {
+      result
+        ..add('woTaskCategoryInit')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(String)));
+    }
     value = object.assetNo;
     if (value != null) {
       result
@@ -404,7 +408,7 @@ class _$WorkOrderDetailSerializer
           break;
         case 'woTaskCategoryInit':
           result.woTaskCategoryInit = serializers.deserialize(value,
-              specifiedType: const FullType(String))! as String;
+              specifiedType: const FullType(String)) as String?;
           break;
         case 'woTaskClient':
           result.woTaskClient = serializers.deserialize(value,
@@ -1367,7 +1371,7 @@ class _$WorkOrderDetail extends WorkOrderDetail {
   @override
   final String woTaskCategory;
   @override
-  final String woTaskCategoryInit;
+  final String? woTaskCategoryInit;
   @override
   final String woTaskClient;
   @override
@@ -1397,7 +1401,7 @@ class _$WorkOrderDetail extends WorkOrderDetail {
       required this.woTaskReportedBy,
       required this.woTaskTimeResponded,
       required this.woTaskCategory,
-      required this.woTaskCategoryInit,
+      this.woTaskCategoryInit,
       required this.woTaskClient,
       required this.woTaskLocation,
       required this.woTaskComplaint,
@@ -1420,8 +1424,6 @@ class _$WorkOrderDetail extends WorkOrderDetail {
         woTaskTimeResponded, r'WorkOrderDetail', 'woTaskTimeResponded');
     BuiltValueNullFieldError.checkNotNull(
         woTaskCategory, r'WorkOrderDetail', 'woTaskCategory');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskCategoryInit, r'WorkOrderDetail', 'woTaskCategoryInit');
     BuiltValueNullFieldError.checkNotNull(
         woTaskClient, r'WorkOrderDetail', 'woTaskClient');
     BuiltValueNullFieldError.checkNotNull(
@@ -1651,8 +1653,7 @@ class WorkOrderDetailBuilder
                 woTaskTimeResponded, r'WorkOrderDetail', 'woTaskTimeResponded'),
             woTaskCategory: BuiltValueNullFieldError.checkNotNull(
                 woTaskCategory, r'WorkOrderDetail', 'woTaskCategory'),
-            woTaskCategoryInit: BuiltValueNullFieldError.checkNotNull(
-                woTaskCategoryInit, r'WorkOrderDetail', 'woTaskCategoryInit'),
+            woTaskCategoryInit: woTaskCategoryInit,
             woTaskClient: BuiltValueNullFieldError.checkNotNull(
                 woTaskClient, r'WorkOrderDetail', 'woTaskClient'),
             woTaskLocation: BuiltValueNullFieldError.checkNotNull(
