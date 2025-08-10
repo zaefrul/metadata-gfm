@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:GEMS/main.dart';
-import 'package:intl/intl.dart';
 import 'package:GEMS/model/form.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
@@ -37,6 +36,7 @@ class _FormAState extends State<FormA> {
   String capacity = "";
   String pmStart = "";
   String pmEnd = "";
+  String assetGroup = "";
 
   late Provider provider;
   late bool verified;
@@ -81,6 +81,8 @@ class _FormAState extends State<FormA> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             assetNo = snapshot.data?.sectionAList?.assetNo ?? "";
+            assetGroup = snapshot.data?.sectionAList?.assetGroupName ?? "";
+            debugPrint('snapshot.data: ${snapshot.data}');
           }
           return !snapshot.hasData
               ? Center(child: CircularProgressIndicator())
@@ -94,19 +96,12 @@ class _FormAState extends State<FormA> {
     try {
       var barcode = await BarcodeScanner.scan();
       if (barcode.rawContent == assetNo) {
-        startDate = DateFormat("yyyy/MM/dd hh:mm:ss").format(DateTime.now());
-        verified = true;
-        widget.verification?.call(true);
-        await provider
-            .post(url: "/api/m_ppm.php", body: {
-              "action": "save_scan_start_time",
-              "ppmTaskId": widget.id,
-            })
-            .then((value) => setState(() => alert(value)))
-            .catchError((err) {
-          verified = false;
-          alert(err);
-        });
+        if(assetGroup != "") {
+          groupExecutionDialog();
+        }
+        else {
+          singleExecutionDialog();
+        }
         return;
       } else {
         keyword = "Incorrect Asset No.";
@@ -127,19 +122,71 @@ class _FormAState extends State<FormA> {
   }
 
   Widget body(FormAItem object) {
-    return Padding(
-      padding: EdgeInsets.all(16),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
       child: Column(
-        children: <Widget>[
-          getTitle("Asset Group : ${object.assetGroupName}"),
-          getTitle("Asset Category : ${object.assetCategoryName}"),
-          getTitle("Asset Type : ${object.assetTypeName}"),
-          getTitle("Asset No. : ${object.assetNo}"),
-          getTitle("Task No : ${object.assetName}"),
-          getTitle("Model : ${object.assetModelName}"),
-          getTitle("Capacity : ${object.assetCapacity}"),
-          getTitle("PM Start Date/Time : ${object.ppmTaskTimeStart}"),
-          getTitle("PM End Date/Time : ${object.ppmTaskTimeServiced}"),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Asset Details",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 8),
+          Text(
+            "Check the asset details before proceeding. To execute the PPM, scan the asset QR code.",
+            style: TextStyle(fontSize: 14, color: Colors.grey[800]),
+          ),
+          SizedBox(height: 16),
+          Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                infoRow(Icons.business, "Asset Group", object.assetGroupName),
+                infoRow(Icons.category, "Asset Category", object.assetCategoryName),
+                infoRow(Icons.widgets, "Asset Type", object.assetTypeName),
+                infoRow(Icons.confirmation_number, "Asset No.", object.assetNo),
+                infoRow(Icons.task, "Task No", object.assetName),
+                infoRow(Icons.devices, "Model", object.assetModelName),
+                infoRow(Icons.bar_chart, "Capacity", object.assetCapacity),
+                infoRow(Icons.access_time, "PM Start Date/Time", object.ppmTaskTimeStart),
+                infoRow(Icons.access_time_filled, "PM End Date/Time", object.ppmTaskTimeServiced),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget infoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(icon, size: 20, color: AppColors.primary),
+          SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                SizedBox(height: 2),
+                Text(value == "" ? "-" : value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -169,5 +216,102 @@ class _FormAState extends State<FormA> {
         ),
       ),
     );
+  }
+
+  ElevatedButton dialogButton(String text, VoidCallback onPressed, Color color) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: Text(text, style: TextStyle(color: Colors.white)),
+    );
+  }
+
+  void groupExecutionDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Execute PPM"),
+          content: Text("Do you want to execute PPM for all assets under this group, type, and checklist?"),
+          actions: <Widget>[
+            dialogButton(
+              "No, Only Execute this asset",
+              () {
+                Navigator.of(context).pop();
+                sendPPMExecutionRequest();
+              },
+              AppColors.dangerDark,
+            ),
+            dialogButton(
+              "Yes, Execute All Assets",
+              () {
+                Navigator.of(context).pop();
+                sendPPMExecutionRequest(groupExecution: true);
+              },
+              AppColors.primaryDark,
+            ),
+            dialogButton(
+              "Cancel", 
+              () {
+                Navigator.of(context).pop();
+              }, 
+                AppColors.secondaryDark
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void singleExecutionDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Execute PPM"),
+          content: Text("Do you want to execute PPM for this asset?"),
+          actions: <Widget>[
+            dialogButton(
+              "No",
+              () {
+                Navigator.of(context).pop();
+              },
+              AppColors.dangerDark,
+            ),
+            dialogButton(
+              "Yes",
+              () {
+                Navigator.of(context).pop();
+                sendPPMExecutionRequest();
+              },
+              AppColors.primaryDark,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void sendPPMExecutionRequest({bool groupExecution = false}) {
+    provider.post(
+      url: "/api/m_ppm.php",
+      body: {
+        "action": "save_scan_start_time",
+        "ppmTaskId": widget.id,
+        "ppmGroupExecution": groupExecution ? "1" : "0",
+      },
+    ).then((value) {
+      verified = true;
+      widget.verification?.call(true);
+      alert(value);
+    }).catchError((err) {
+      verified = false;
+      alert(err);
+    });
   }
 }

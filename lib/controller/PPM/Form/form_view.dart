@@ -113,14 +113,19 @@ class _FormViewState extends State<FormView> {
         ),
       ),
       body: responseValue == null
-          ? Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: refreshStatus,
-              child: ListView.separated(
-                padding: EdgeInsets.only(top: 16, bottom: 70),
-                separatorBuilder: (context, index) =>
-                    Divider(color: Colors.black),
+    ? Center(child: CircularProgressIndicator())
+    : RefreshIndicator(
+        onRefresh: refreshStatus,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 itemCount: statusList.length + 1,
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
                 itemBuilder: (context, item) {
                   if (item == 0) {
                     return FutureBuilder<ExecutionModel>(
@@ -129,21 +134,17 @@ class _FormViewState extends State<FormView> {
                         final String max = snapshot.data?.max ?? "0";
                         final String min = snapshot.data?.min ?? "0";
                         final bool exceed = snapshot.data?.exceed ?? false;
-                        return Container(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 8, horizontal: 16),
+                        return Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 "Min Time Allocated : $min",
-                                style: TextStyle(
-                                  color: exceed ? Colors.red : Colors.black,
-                                ),
+                                style: TextStyle(color: exceed ? Colors.red : Colors.black),
                               ),
                               SizedBox(height: 12),
-                              Text("Max Time Allocated : $max")
+                              Text("Max Time Allocated : $max"),
                             ],
                           ),
                         );
@@ -151,54 +152,74 @@ class _FormViewState extends State<FormView> {
                     );
                   }
 
-                  formModel.Form form =
-                      responseValue?.statusList != null
-                          ? responseValue!.statusList![item - 1]
-                          : formModel.Form(); // Provide a default value if null
+                  formModel.Form form = responseValue?.statusList != null
+                      ? responseValue!.statusList![item - 1]
+                      : formModel.Form();
                   return tile(
-                      form.ppmTaskSectionName,
-                      form.ppmTaskSectionStatus,
-                      form.checkParts,
-                      form.checkAdditionalReport);
+                    form.ppmTaskSectionName,
+                    form.ppmTaskSectionStatus,
+                    form.checkParts,
+                    form.checkAdditionalReport,
+                  );
                 },
               ),
-            ),
-      floatingActionButton: FloatingActionButton.extended(
-        label: Text(widget.viewer ? "View Form" : "Submit"),
-        backgroundColor:
-            (widget.viewer || enableSubmit) ? colorTheme2 : colorTheme3,
-        onPressed: (widget.viewer || enableSubmit)
-            ? () {
-                var page = PDF(
-                  id: widget.id,
-                  transactionNo: widget.taskNo,
-                  viewer: widget.viewer,
-                  checkpoint: checkpoint,
-                  submitted: () {
-                    widget.refresh();
-                    fieldDisable = true;
-                  },
-                );
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (BuildContext context) => page,
-                ));
-              }
-            : () {
-                if (!verified) {
-                  Toast.show(
-                    "To get started, you need to scan the QR code of the asset from section A. Asset Details.",
-                    duration: 3,
-                  );
-                } else {
-                  Toast.show(
-                    "All sections must be completed before submit",
-                    duration: 1,
-                  );
-                }
-              },
+
+              // Bottom Submit Button
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
+                child: ElevatedButton.icon(
+                  icon: Icon(widget.viewer ? Icons.visibility : Icons.send, 
+                      color: (widget.viewer || enableSubmit)
+                        ? AppColors.white
+                        : AppColors.dark),
+                  label: Text(widget.viewer ? "View Form" : "Submit", 
+                      style: TextStyle(color: (widget.viewer || enableSubmit)
+                        ? AppColors.white
+                        : AppColors.dark)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: (widget.viewer || enableSubmit)
+                        ? AppColors.primary
+                        : AppColors.secondaryLight,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: (widget.viewer || enableSubmit)
+                      ? () {
+                          var page = PDF(
+                            id: widget.id,
+                            transactionNo: widget.taskNo,
+                            viewer: widget.viewer,
+                            checkpoint: checkpoint,
+                            submitted: () {
+                              widget.refresh();
+                              fieldDisable = true;
+                            },
+                          );
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (BuildContext context) => page,
+                          ));
+                        }
+                      : () {
+                          if (!verified) {
+                            Toast.show(
+                              "To get started, you need to scan the QR code of the asset from section A. Asset Details.",
+                              duration: 3,
+                            );
+                          } else {
+                            Toast.show(
+                              "All sections must be completed before submit",
+                              duration: 1,
+                            );
+                          }
+                        },
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -241,59 +262,142 @@ class _FormViewState extends State<FormView> {
     );
   }
 
-  Widget tile(String item, String statusDesc, String parts, String report) =>
-      ListTile(
-        title: Row(
-          children: <Widget>[
-            Expanded(child: getTitle(titles[item]!)),
-            status(statusDesc)
+  Widget tile(String item, String statusDesc, String parts, String report) {
+    final Color accent = _getStatusColor(statusDesc);
+    final Color bgColor = _getStatusCardColor(statusDesc);
+    final String title = titles[item] ?? 'Section';
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+      ),
+      child: InkWell(
+        onTap: () => _openFormSection(item, parts, report),
+        borderRadius: BorderRadius.circular(12),
+        child: Row(
+          children: [
+            // Accent stripe
+            Container(
+              width: 6,
+              height: 72,
+              decoration: BoxDecoration(
+                color: accent,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  bottomLeft: Radius.circular(12),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+
+            // Section icon
+            Icon(Icons.assignment, color: accent),
+            const SizedBox(width: 12),
+
+            // Title and Status
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.dark,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    statusDesc,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: accent,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Icon(Icons.chevron_right, color: Colors.black38),
+            const SizedBox(width: 8),
           ],
         ),
-        trailing: Icon(Icons.arrow_right),
-        onTap: () {
-          Object object = Container(); // Default assignment
-          if (item == "A") {
-            object = FormA(
-              id,
-              verification: (bool status) {
-                setState(() {
-                  verified = status;
-                  fieldDisable = !status;
-                });
-              },
-              viewer: widget.viewer,
-              verified: verified,
-            );
-          } else if (item == "B") {
-            object = FormB(id);
-          } else if (item == "C") {
-            object = FormC(
-              id,
-              verified,
-              (bool _) => refreshStatus(),
-              fieldDisable,
-            );
-          } else if (item == "D") {
-            object = FormD(id, verified, () => refreshStatus(), fieldDisable);
-          } else if (item == "E") {
-            object = FormE(id, verified, () => refreshStatus(), fieldDisable, parts);
-          } else if (item == "F") {
-            object = FormF(id, verified, () => refreshStatus(), fieldDisable, report);
-          } else if (item == "G") {
-            object = FormG(id, verified, (bool _) => refreshStatus(), fieldDisable);
-          } else if (item == "H") {
-            object = FormH(id, verified, (bool _) => refreshStatus(), fieldDisable);
-          } else if (item == "I") {
-            object = PPMAddTechnician(id, verified, () => refreshStatus(), fieldDisable);
-          }
+      ),
+    );
+  }
 
-          Navigator.of(context)
-              .push(MaterialPageRoute(
-                builder: (BuildContext context) => object as Widget,
-              ))
-              .whenComplete(() => refreshStatus());
+  Color _getStatusColor(String? status) {
+    switch (status) {
+      case "Info":
+        return AppColors.info;
+      case "Pending":
+        return AppColors.danger;
+      case "In Progress":
+        return AppColors.primary;
+      case "Completed":
+        return AppColors.success;
+      default:
+        return AppColors.secondary;
+    }
+  }
+
+  Color _getStatusCardColor(String? status) {
+    switch (status) {
+      case "Info":
+        return AppColors.infoLight;
+      case "Pending":
+        return AppColors.dangerLight;
+      case "In Progress":
+        return AppColors.primaryLight;
+      case "Completed":
+        return AppColors.successLight;
+      default:
+        return AppColors.secondaryLight;
+    }
+  }
+
+  void _openFormSection(String item, String parts, String report) {
+    Object object = Container(); // default fallback
+
+    if (item == "A") {
+      object = FormA(
+        id,
+        verification: (bool status) {
+          setState(() {
+            verified = status;
+            fieldDisable = !status;
+          });
         },
+        viewer: widget.viewer,
+        verified: verified,
       );
+    } else if (item == "B") {
+      object = FormB(id);
+    } else if (item == "C") {
+      object = FormC(id, verified, (_) => refreshStatus(), fieldDisable);
+    } else if (item == "D") {
+      object = FormD(id, verified, () => refreshStatus(), fieldDisable);
+    } else if (item == "E") {
+      object = FormE(id, verified, () => refreshStatus(), fieldDisable, parts);
+    } else if (item == "F") {
+      object = FormF(id, verified, () => refreshStatus(), fieldDisable, report);
+    } else if (item == "G") {
+      object = FormG(id, verified, (_) => refreshStatus(), fieldDisable);
+    } else if (item == "H") {
+      object = FormH(id, verified, (_) => refreshStatus(), fieldDisable);
+    } else if (item == "I") {
+      object = PPMAddTechnician(id, verified, () => refreshStatus(), fieldDisable);
+    }
+
+    Navigator.of(context)
+      .push(MaterialPageRoute(builder: (context) => object as Widget))
+      .whenComplete(() => refreshStatus());
+  }
 
   bool get enableSubmit {
     for (String f in statusList) {

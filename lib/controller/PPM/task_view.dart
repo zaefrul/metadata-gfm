@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:GEMS/main.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
-
+import 'package:google_fonts/google_fonts.dart';
 import '../../model/task.dart';
 import 'Form/form_view.dart';
 
@@ -109,13 +109,13 @@ class _TaskViewState extends State<TaskView>
     return children.isNotEmpty
         ? RefreshIndicator(
             onRefresh: _refresh,
-            child: ListView.separated(
-              padding: EdgeInsets.all(12),
+            child: ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               itemCount: children.length,
               itemBuilder: (context, index) => children[index],
-              separatorBuilder: (context, index) {
-                return Divider();
-              },
+              // separatorBuilder: (context, index) {
+              //   return Divider();
+              // },
             ))
         : Container(
             child: Center(
@@ -155,41 +155,145 @@ class _TaskViewState extends State<TaskView>
             )));
   }
 
-  ListTile tile(Task task) => ListTile(
-        contentPadding: EdgeInsets.all(12),
-        title: Row(
-          children: <Widget>[
-            Expanded(
-                child: Column(
-              children: <Widget>[
-                getTitle(task.transactionNo, bold: true),
-                getTitle(task.assetTypeName),
-                getTitle(task.assetNo),
-                getTitle(task.technician),
-                getTitle(task.taskDateDue),
+  Color _statusCardColor(String status) {
+    switch (status) {
+      case "In Progress":
+        return AppColors.primaryLight;
+      case "Closed":
+        return AppColors.successLight;
+      case "Check":
+        return AppColors.warningLight;
+      case "Verify":
+        return AppColors.infoLight;
+      case "Open":
+      default:
+        return AppColors.secondaryLight;
+    }
+  }
+
+  Color _statusColor(String status) {
+    switch (status) {
+      case "In Progress":
+        return AppColors.primaryDark;
+      case "Closed":
+        return AppColors.infoDark;
+      case "Check":
+        return AppColors.warningDark;
+      case "Verify":
+        return AppColors.info;
+      case "Open":
+      default:
+        return AppColors.secondary;
+    }
+  }
+
+  ListTile tile(Task task) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Card(
+        elevation: 2,
+        margin: const EdgeInsets.only(bottom: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        color: _statusCardColor(task.statusDesc),
+        child: InkWell(
+          onTap: () {
+            Widget page = FormView(
+              id: task.ppmTaskId,
+              siteName: task.siteName,
+              taskNo: task.transactionNo,
+              taskStatus: task.statusDesc,
+              refresh: () => fetch(""),
+              viewer: viewer,
+            );
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => page))
+                .then((_) {
+              if (index == 1) fetch("");
+            }).whenComplete(_refresh);
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                // Left column
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        task.transactionNo,
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        task.assetTypeName,
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: Colors.black54,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        task.assetNo,
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        task.technician,
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(Icons.access_time, size: 14, color: Colors.black38),
+                          const SizedBox(width: 4),
+                          Text(
+                            task.taskDateDue,
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Right: status chip
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: _statusColor(task.statusDesc),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    task.statusDesc,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               ],
-            )),
-            status(task.statusDesc)
-          ],
+            ),
+          ),
         ),
-        onTap: () {
-          Widget page = FormView(
-            id: task.ppmTaskId,
-            siteName: task.siteName,
-            taskNo: task.transactionNo,
-            taskStatus: task.statusDesc,
-            refresh: () => fetch(""),
-            viewer: viewer,
-          );
-          Navigator.of(context)
-              .push(MaterialPageRoute(
-            builder: (BuildContext context) => page,
-          ))
-              .then((onValue) {
-            if (index == 1) fetch("");
-          }).whenComplete(_refresh);
-        },
-      );
+      ),
+    );
+  }
 
   DropdownButton get filter => DropdownButton<String>(
         underline: Container(),

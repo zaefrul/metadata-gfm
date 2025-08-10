@@ -289,10 +289,18 @@ class _FormHState extends State<FormH> {
     }).catchError((err) {
       if (!mounted) return;
       print("Fetch error: $err");
-      // In case of error, display all sections as empty
-      _generateChildren([null, [], null]); // Pass empty list for 'during' to show 3 empty slots
-      setState(() => _loading = false);
-      _showAlert("Error", "Failed to load image data: ${err.toString()}");
+      
+      // Check if the error is due to empty result list (which is normal for first-time visits)
+      if (err.toString().contains("Empty result list")) {
+        // This is normal - no images uploaded yet, so just show empty sections
+        _generateChildren([null, [], null]); // Pass empty list for 'during' to show 3 empty slots
+        setState(() => _loading = false);
+      } else {
+        // This is an actual error - network issue, authentication problem, etc.
+        _generateChildren([null, [], null]); // Pass empty list for 'during' to show 3 empty slots
+        setState(() => _loading = false);
+        _showAlert("Error", "Failed to load image data: ${err.toString()}");
+      }
     });
   }
 
@@ -363,7 +371,7 @@ class _FormHState extends State<FormH> {
                 "/api/m_ppm.php?action=delete_ppm_maintenance_image&ppmTaskUploadId=$id")
         .then((value) {
       if (!mounted) return;
-      _showAlert("Success", value ?? "Image deleted successfully.");
+      _showAlert("Success", value);
       _fetch(); // Refetch to update list
     }).catchError((err) {
       if (!mounted) return;
