@@ -53,7 +53,7 @@ int alertCount = 0;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
-late FirebaseMessaging _messaging;
+late FirebaseMessaging? _messaging;
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -74,47 +74,63 @@ Future<void> main() async {
 
   try {
     await Firebase.initializeApp();
+    print("Firebase initialized successfully");
   } catch (e) {
-    debugPrint(e.toString());
+    print("Firebase initialization failed: ${e.toString()}");
+    // Continue without Firebase if it fails
   }
 
   // Instantiate Firebase Messaging.
-  _messaging = FirebaseMessaging.instance;
+  try {
+    _messaging = FirebaseMessaging.instance;
+    print("Firebase Messaging initialized successfully");
+  } catch (e) {
+    print("Firebase Messaging initialization failed: ${e.toString()}");
+    // Continue without Firebase messaging if it fails
+  }
 
   // Request permission on iOS.
-  NotificationSettings settings = await _messaging.requestPermission(
-    alert: true,
-    badge: true,
-    provisional: false,
-    sound: true,
-  );
-
-  // **Make sure to grab APNS token immediately on iOS:**
-  if (Platform.isIOS) {
+  if (_messaging != null) {
     try {
-      String? apnsToken = await _messaging.getAPNSToken();
-      print('🪶 APNS token: $apnsToken');
+      NotificationSettings settings = await _messaging!.requestPermission(
+        alert: true,
+        badge: true,
+        provisional: false,
+        sound: true,
+      );
+
+      // **Make sure to grab APNS token immediately on iOS:**
+      if (Platform.isIOS) {
+        try {
+          String? apnsToken = await _messaging!.getAPNSToken();
+          print('🪶 APNS token: $apnsToken');
+        } catch (e) {
+          debugPrint('⚠️ getAPNSToken failed: $e');
+        }
+      }
+
+      await _messaging!.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        print('User granted permission');
+      } else {
+        print('User declined or has not accepted permission');
+      }
+
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+      FirebaseMessaging.onMessage.listen((RemoteMessage event) {
+        showNotification(event).catchError((err) => debugPrint('Notification error: $err'));
+      });
     } catch (e) {
-      debugPrint('⚠️ getAPNSToken failed: $e');
+      print("Firebase messaging setup failed: ${e.toString()}");
     }
-  }
-
-  await _messaging.setForegroundNotificationPresentationOptions(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
-
-  if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-    print('User granted permission');
   } else {
-    print('User declined or has not accepted permission');
+    print("Firebase Messaging is not available - continuing without push notifications");
   }
-
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  FirebaseMessaging.onMessage.listen((RemoteMessage event) {
-    showNotification(event).catchError((err) => debugPrint(err.toString()));
-  });
 
   if (Platform.isIOS || Platform.isAndroid) {
     await setupFlutterNotifications();

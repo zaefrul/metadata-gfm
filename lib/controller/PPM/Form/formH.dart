@@ -22,7 +22,7 @@ class FormH extends StatefulWidget {
   final String id;
   final bool verified;
   final bool disable;
-  final Function refreshStatus;
+  final Function(bool) refreshStatus; // Changed to specify parameter type
 
   const FormH(
     this.id,
@@ -310,7 +310,7 @@ class _FormHState extends State<FormH> {
 
     _provider.post(url: "/api/m_ppm.php", body: item.body).then((value) {
       if (!mounted) return;
-      widget.refreshStatus();
+      widget.refreshStatus(true); // Pass true to indicate successful update
       _showAlert("Success", value ?? "Image uploaded successfully.");
       _fetch(); // Refetch to update the list
     }).catchError((err) {
@@ -380,7 +380,7 @@ class _FormHState extends State<FormH> {
       _showAlert("Error", "Failed to delete image: ${err.toString()}");
     }).whenComplete(() {
       if (!mounted) return;
-      widget.refreshStatus();
+      widget.refreshStatus(true); // Pass true to indicate completion
     });
   }
 

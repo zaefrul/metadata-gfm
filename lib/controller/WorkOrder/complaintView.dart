@@ -76,6 +76,7 @@ class _ComplaintViewState extends State<ComplaintView> {
           'Verify',
           'Re-Open',
           'Completed',
+          'Out of Scope',
         ].map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
             value: value,

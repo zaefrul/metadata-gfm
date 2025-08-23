@@ -41,10 +41,22 @@
 	<string>Requesting camera access to allow to capture attachments</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>the location function will be used to verify that the the picture taken by the worker during maintenance job is at the correct location. to avoid image fraud by the worker.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>the location function will be used to verify that the the picture taken by the worker during maintenance job is at the correct location. to avoid image fraud by the worker.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>the location function will be used to verify that the the picture taken by the worker during maintenance job is at the correct location. to avoid image fraud by the worker.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Requesting library usage for upload images as profile picture</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app needs access to microphone to record audio for work order documentation</string>
+	<key>NSContactsUsageDescription</key>
+	<string>This app needs access to contacts to share work order information with team members</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>This app needs access to calendar to schedule maintenance appointments</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>This app uses Face ID for secure authentication to access work orders</string>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
@@ -69,7 +81,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
 </dict>
 </plist>

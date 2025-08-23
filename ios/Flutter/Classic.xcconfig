@@ -1,0 +1,3 @@
+// Classic flavor configuration
+PRODUCT_BUNDLE_IDENTIFIER = com.gfm.gems
+APP_DISPLAY_NAME = GEMS

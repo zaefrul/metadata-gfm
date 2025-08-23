@@ -41,6 +41,7 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
       debugPrint(result.woDetail.toString());
       return result.woDetail!;
     } catch (err) {
+      debugPrint("Error fetching complaint details: $err");
       rethrow;
     }
   }

@@ -1,0 +1,3 @@
+// Client flavor configuration
+PRODUCT_BUNDLE_IDENTIFIER = com.gfm.gems.v3
+APP_DISPLAY_NAME = GEMS 2.0

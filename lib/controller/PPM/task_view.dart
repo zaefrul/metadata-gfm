@@ -73,6 +73,8 @@ class _TaskViewState extends State<TaskView>
   }
 
   void _fetch(String url) {
+    debugPrint("Fetching PPM tasks from: $url");
+
     _provider = Provider(fetchURL: url);
 
     _provider.fetch().then((value) {
