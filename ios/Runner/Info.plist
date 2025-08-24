@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>GEMS</string>
+	<string>GEMS 2.0</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>GEMS</string>
+	<string>GEMS 2.0</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -36,25 +36,17 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppleMusicUsageDescription</key>
-	<string>Requesting media access to allow to get attachments</string>
+	<string>GEMS 2.0 needs media library access to attach audio and video files to work order reports and maintenance documentation.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Requesting camera access to allow to capture attachments</string>
+	<string>GEMS 2.0 needs camera access to capture photos for work order documentation, equipment maintenance records, and site inspection reports. Photos are geotagged to verify maintenance work location and prevent fraud.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>the location function will be used to verify that the the picture taken by the worker during maintenance job is at the correct location. to avoid image fraud by the worker.</string>
+	<string>GEMS 2.0 requires location access to verify that maintenance work is performed at the correct site location. This prevents fraudulent work submissions and ensures work order accuracy.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>the location function will be used to verify that the the picture taken by the worker during maintenance job is at the correct location. to avoid image fraud by the worker.</string>
+	<string>GEMS 2.0 requires location access to verify that maintenance work is performed at the correct site location. This prevents fraudulent work submissions and ensures work order accuracy.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>the location function will be used to verify that the the picture taken by the worker during maintenance job is at the correct location. to avoid image fraud by the worker.</string>
+	<string>GEMS 2.0 requires location access to verify that maintenance work is performed at the correct site location. This prevents fraudulent work submissions and ensures work order accuracy.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Requesting library usage for upload images as profile picture</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This app needs access to microphone to record audio for work order documentation</string>
-	<key>NSContactsUsageDescription</key>
-	<string>This app needs access to contacts to share work order information with team members</string>
-	<key>NSCalendarsUsageDescription</key>
-	<string>This app needs access to calendar to schedule maintenance appointments</string>
-	<key>NSFaceIDUsageDescription</key>
-	<string>This app uses Face ID for secure authentication to access work orders</string>
+	<string>GEMS 2.0 needs photo library access to attach existing photos to work orders, upload profile pictures, and access maintenance documentation images.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

@@ -44,6 +44,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:GEMS/model/complaint.dart';
+import 'package:GEMS/config/app_config.dart';
 
 late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 late AndroidNotificationChannel channel;
@@ -71,6 +72,9 @@ Future<void> main() async {
   HttpOverrides.global = MyHttpOverrides();
 
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Print app configuration for debugging
+  AppConfig.printConfig();
 
   try {
     await Firebase.initializeApp();
@@ -249,7 +253,7 @@ class MyApp extends StatelessWidget {
         GlobalMaterialLocalizations.delegate,
         MonthYearPickerLocalizations.delegate,
       ],
-      title: "GEMS 2.0",
+      title: AppConfig.appDisplayName,
       initialRoute: "/",
       debugShowCheckedModeBanner: false,
       onGenerateRoute: generateRoute,
