@@ -1,3 +1,6 @@
+#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"
+#include "Debug.xcconfig"
+
 // Client flavor configuration
 PRODUCT_BUNDLE_IDENTIFIER = com.gfm.gems.v3
 APP_DISPLAY_NAME = GEMS 2.0

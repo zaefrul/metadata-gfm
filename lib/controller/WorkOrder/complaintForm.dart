@@ -531,11 +531,14 @@ class _FormComplaintState extends State<FormComplaint> {
     }
     final body = {
       'action': 'submit_complain',
-      'woTaskLocation': '$lat,$lng',
+      'woTaskLocation': _selectedLocation!.zoneName,
       'woTaskComplaint': desc,
       'zoneId': _selectedLocation!.zoneId.toString(),
+      'woTaskLongitude': lng,
+      'woTaskLatitude': lat,
     };
-    debugPrint('ListItem: $listItem.length');
+    // debugPrint('Body: $body');
+    // debugPrint('ListItem: $listItem.length');
     for (var i = 0; i < listItem.length; i++) {
       debugPrint('ListItem: ${listItem[i].toBody(i)}');
       body.addAll(listItem[i].toBody(i));

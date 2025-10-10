@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:toast/toast.dart';
 import 'package:GEMS/model/workorder.dart';
 import 'package:GEMS/model/responseValue.dart';
@@ -490,35 +489,32 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
                     contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   ),
                 )
-              : TypeAheadFormField<WorkOrderStatus>(
-                  getImmediateSuggestions: true,
-                  textFieldConfiguration: TextFieldConfiguration(
-                    controller: _controller,
-                    decoration: InputDecoration(
-                      labelText: "Executor",
-                      floatingLabelBehavior: FloatingLabelBehavior.always,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              : DropdownButtonFormField<String>(
+                  value: dropdownValue2,
+                  decoration: InputDecoration(
+                    labelText: "Executor",
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   ),
-                  suggestionsCallback: (_) => Future.value(executorList),
-                  itemBuilder: (_, s) => ListTile(
-                    title: Text(s.userName ?? ''),
-                    leading: Icon(Icons.person_outline),
-                  ),
-                  onSuggestionSelected: (s) async {
+                  items: executorList.map((WorkOrderStatus status) {
+                    return DropdownMenuItem<String>(
+                      value: status.userName,
+                      child: Text(status.userName ?? ''),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) async {
                     setState(() {
-                      _controller.text = s.userName ?? '';
-                      dropdownValue2 = s.userName;
-                      dropdownId2 = s.userId;
+                      dropdownValue2 = newValue;
+                      dropdownId2 = executorList.firstWhere((s) => s.userName == newValue).userId;
                       loading = true;
                       technicianDetails = null;
                     });

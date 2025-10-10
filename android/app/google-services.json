@@ -3,7 +3,7 @@
     "project_number": "899105022758",
     "firebase_url": "https://gems-eace5.firebaseio.com",
     "project_id": "gems-eace5",
-    "storage_bucket": "gems-eace5.appspot.com"
+    "storage_bucket": "gems-eace5.firebasestorage.app"
   },
   "client": [
     {
@@ -13,12 +13,7 @@
           "package_name": "com.GFM.GEMS"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "899105022758-42toen34do2840j8h15fgn3ahbv16nbr.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyDWJfuyI1w9a3QbF4vFfnicgaIEnwpx5EI"
@@ -26,19 +21,45 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "899105022758-42toen34do2840j8h15fgn3ahbv16nbr.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "899105022758-ip03rn2rlnj4hsmr51b3dd4kuqcslleb.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.GFM.GEMS"
-              }
-            }
-          ]
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:899105022758:android:0e54a170b4726e598817e7",
+        "android_client_info": {
+          "package_name": "com.GFM.GEMS_V2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWJfuyI1w9a3QbF4vFfnicgaIEnwpx5EI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:899105022758:android:d2999acae0155ce48817e7",
+        "android_client_info": {
+          "package_name": "com.gfm.gems.v3"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWJfuyI1w9a3QbF4vFfnicgaIEnwpx5EI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
         }
       }
     }

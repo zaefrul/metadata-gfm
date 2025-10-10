@@ -17,6 +17,7 @@ import '../main.dart';
 
 // final String netDomain = "https://gems.metadatasystem.my";
 final String netDomain = "https://gfmgems.globalfm.com.my";
+// final String netDomain = "http://localhost/gems2";
 final String netLogin = "/api/m_login.php";
 final String netLogout = "";
 
