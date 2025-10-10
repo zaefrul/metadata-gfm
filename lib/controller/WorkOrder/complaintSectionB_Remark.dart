@@ -26,10 +26,12 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
   bool _loading = true;
   String _remark = "";
   late Provider _provider;
+  late final TextEditingController _controller;
 
   @override
   void initState() {
     super.initState();
+    _controller = TextEditingController();
     _provider = Provider(
       taskID: widget.id,
       fetchURL: "/api/m_wo.php?type=wo_repair_work&woTaskId=",
@@ -38,9 +40,24 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
     _provider.context = context;
     _provider
       .fetch()
-      .then((resp) => setState(() => _remark = resp.result ?? ""))
-      .catchError((e) => print(e))
+      .then((resp) {
+        final text = resp.result ?? "";
+        setState(() {
+          _remark = text;
+          _controller.text = text;
+        });
+      })
+      .catchError((e) {
+        debugPrint(e.toString());
+        return null;
+      })
       .whenComplete(() => setState(() => _loading = false));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   void _save() {
@@ -76,6 +93,7 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: colorTheme3),
@@ -120,7 +138,7 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
                       ),
                       child: TextField(
                         enabled: !widget.viewer,
-                        controller: TextEditingController(text: _remark),
+                        controller: _controller,
                         style: GoogleFonts.poppins(fontSize: 14),
                         maxLines: null,
                         maxLength: 1000,
@@ -141,23 +159,34 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
       ),
       bottomNavigationBar: widget.viewer
           ? null
-          : Padding(
-              padding: const EdgeInsets.all(16),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(double.infinity, 48),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+          : AnimatedPadding(
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                bottom: (MediaQuery.of(context).viewInsets.bottom > 0
+                        ? MediaQuery.of(context).viewInsets.bottom + 16
+                        : 16),
+                top: 16,
+              ),
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOut,
+              child: SafeArea(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(double.infinity, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    backgroundColor: colorTheme2,
                   ),
-                  backgroundColor: colorTheme2,
-                ),
-                onPressed: _save,
-                child: Text(
-                  "Save",
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                  onPressed: _save,
+                  child: Text(
+                    "Save",
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
