@@ -39,9 +39,11 @@
 	<string>GEMS 2.0 needs media library access to attach audio and video files to work order reports and maintenance documentation.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>GEMS 2.0 needs camera access to capture photos for work order documentation, equipment maintenance records, and site inspection reports. Photos are geotagged to verify maintenance work location and prevent fraud.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>GEMS 2.0 requires location access to verify that maintenance work is performed at the correct site location. This prevents fraudulent work submissions and ensures work order accuracy.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>GEMS 2.0 uses Face ID or Touch ID to let you sign in securely without typing your password.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>GEMS 2.0 requires location access to verify that maintenance work is performed at the correct site location. This prevents fraudulent work submissions and ensures work order accuracy.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
 	<string>GEMS 2.0 requires location access to verify that maintenance work is performed at the correct site location. This prevents fraudulent work submissions and ensures work order accuracy.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>GEMS 2.0 requires location access to verify that maintenance work is performed at the correct site location. This prevents fraudulent work submissions and ensures work order accuracy.</string>

@@ -3,12 +3,13 @@ import 'package:geolocator/geolocator.dart';
 import 'package:GEMS/model/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
+import 'package:local_auth/local_auth.dart';
 
 import '../view/button.dart';
-import '../view/field.dart';
 import '../utils/reference.dart';
 import '../utils/network.dart';
 import 'forgotPassword.dart';
+import '../utils/auth_secure_storage.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -26,6 +27,11 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   bool userExist = true;
   bool userlogIn = false;
   bool secure = true;
+  bool _biometricAvailable = false;
+  bool _biometricEnabled = false;
+  bool _attemptedAutoBiometric = false;
+
+  final LocalAuthentication _localAuthentication = LocalAuthentication();
 
   @override
   void initState() {
@@ -33,9 +39,12 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
     // check if already logged in
     User.getPrefUser.then((_) {
+      if (!mounted) return;
       Navigator.of(context).pushReplacementNamed("/homepage");
     }).catchError((_) {
+      if (!mounted) return;
       setState(() => userExist = false);
+      _initBiometric();
     });
 
     // 3s total, first half moves logo, second half fades form in
@@ -111,6 +120,10 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                   ),
                   const SizedBox(height: 40),
                   _submitButton,
+                  if (_biometricEnabled) ...[
+                    const SizedBox(height: 12),
+                    _biometricButton,
+                  ],
                   const SizedBox(height: 16),
                   GestureDetector(
                     child: Text(
@@ -175,6 +188,19 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     ),
   );
 
+  Widget get _biometricButton => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 60),
+        child: SizedBox(
+          width: double.infinity,
+          height: 48,
+          child: OutlinedButton.icon(
+            icon: const Icon(Icons.fingerprint),
+            label: const Text("Sign in with biometrics"),
+            onPressed: userlogIn ? null : () => _handleBiometricLogin(auto: false),
+          ),
+        ),
+      );
+
   Future<void> _onLoginPressed() async {
     setState(() => userlogIn = true);
     // location check, login logic, etc.
@@ -193,12 +219,16 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     try {
       final user = await login(_username!, _password!);
       user.saveUser();
+      await _handlePostLoginBiometric();
+      if (!mounted) return;
       Navigator.pushReplacementNamed(context, "/homepage");
       Toast.show("Welcome to GEMS, ${user.username}!", backgroundColor: AppColors.success);
     } catch (e) {
       Toast.show(e.toString(), backgroundColor: AppColors.danger);
     } finally {
-      setState(() => userlogIn = false);
+      if (mounted) {
+        setState(() => userlogIn = false);
+      }
     }
   }
 
@@ -217,6 +247,118 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       return ok;
     } catch (_) {
       return false;
+    }
+  }
+
+  Future<void> _handlePostLoginBiometric() async {
+    if (!_biometricAvailable || _username == null || _password == null) return;
+
+    final alreadyEnabled = await AuthSecureStorage.isEnabled();
+    if (alreadyEnabled) {
+      await AuthSecureStorage.updateCredentials(_username!, _password!);
+      if (!mounted) return;
+      setState(() => _biometricEnabled = true);
+      return;
+    }
+
+    final shouldEnable = await _showEnableBiometricDialog();
+    if (shouldEnable == true) {
+      await AuthSecureStorage.enable(_username!, _password!);
+      if (!mounted) return;
+      setState(() => _biometricEnabled = true);
+    }
+  }
+
+  Future<bool?> _showEnableBiometricDialog() {
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Enable biometric login'),
+        content: const Text('Would you like to sign in faster using Face ID / Touch ID next time?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Not now'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Enable'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _initBiometric() async {
+    try {
+      final isSupported = await _localAuthentication.isDeviceSupported();
+      final canCheck = await _localAuthentication.canCheckBiometrics;
+      final hasDeviceBiometric = isSupported && canCheck;
+      final enabled = await AuthSecureStorage.isEnabled();
+      final storedCreds = await AuthSecureStorage.readCredentials();
+
+      if (!mounted) return;
+
+      setState(() {
+        _biometricAvailable = hasDeviceBiometric;
+        _biometricEnabled = enabled && storedCreds != null;
+      });
+
+      if (_biometricAvailable && _biometricEnabled && !_attemptedAutoBiometric) {
+        _attemptedAutoBiometric = true;
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _handleBiometricLogin(auto: true),
+        );
+      }
+    } catch (e) {
+      debugPrint('Biometric init failed: $e');
+    }
+  }
+
+  Future<void> _handleBiometricLogin({required bool auto}) async {
+    if (!_biometricAvailable) return;
+    final creds = await AuthSecureStorage.readCredentials();
+    if (creds == null) {
+      if (!auto) {
+        Toast.show(
+          "Biometric credentials not available.",
+          backgroundColor: AppColors.warning,
+        );
+      }
+      return;
+    }
+
+    try {
+      final didAuthenticate = await _localAuthentication.authenticate(
+        localizedReason: 'Authenticate to sign in to GEMS',
+        options: const AuthenticationOptions(
+          biometricOnly: true,
+          stickyAuth: true,
+        ),
+      );
+
+      if (!didAuthenticate) {
+        if (!auto) {
+          Toast.show('Biometric authentication cancelled.', backgroundColor: AppColors.warning);
+        }
+        return;
+      }
+
+      if (!mounted) return;
+      setState(() => userlogIn = true);
+
+      final user = await login(creds.username, creds.password);
+      user.saveUser();
+      await AuthSecureStorage.updateCredentials(creds.username, creds.password);
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, "/homepage");
+      Toast.show("Welcome back, ${user.username}!", backgroundColor: AppColors.success);
+    } catch (e) {
+      Toast.show(e.toString(), backgroundColor: AppColors.danger);
+    } finally {
+      if (mounted) {
+        setState(() => userlogIn = false);
+      }
     }
   }
 }

@@ -45,6 +45,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:GEMS/model/complaint.dart';
 import 'package:GEMS/config/app_config.dart';
+import 'package:GEMS/model/user.dart';
+import 'package:local_auth/local_auth.dart';
+
+import 'utils/auth_secure_storage.dart';
 
 late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 late AndroidNotificationChannel channel;
@@ -224,9 +228,41 @@ void showFlutterNotification(RemoteMessage message) {
   }
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final GlobalKey<NavigatorState> navigatorKey;
   const MyApp({super.key, required this.navigatorKey});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  final LocalAuthentication _localAuth = LocalAuthentication();
+  bool _biometricAvailable = false;
+  bool _isAuthenticating = false;
+  bool _shouldLockOnResume = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _prepareBiometric();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      _shouldLockOnResume = true;
+    } else if (state == AppLifecycleState.resumed && _shouldLockOnResume) {
+      _handleResume();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -256,13 +292,13 @@ class MyApp extends StatelessWidget {
       title: AppConfig.appDisplayName,
       initialRoute: "/",
       debugShowCheckedModeBanner: false,
-      onGenerateRoute: generateRoute,
-      navigatorKey: navigatorKey,
+      onGenerateRoute: _generateRoute,
+      navigatorKey: widget.navigatorKey,
       navigatorObservers: [routeObserver],
     );
   }
 
-  Route<dynamic> generateRoute(RouteSettings settings) {
+  Route<dynamic> _generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case "/":
         return MaterialPageRoute(
@@ -397,6 +433,112 @@ class MyApp extends StatelessWidget {
             // builder: (_) => Placeholder(), settings: settings); // Replace Placeholder with the correct widget if known
       default:
         return MaterialPageRoute(builder: (ctx) => ProcumentHomepage());
+    }
+  }
+
+  Future<void> _prepareBiometric() async {
+    try {
+      final supported = await _localAuth.isDeviceSupported();
+      final canCheck = await _localAuth.canCheckBiometrics;
+      if (!mounted) return;
+      setState(() {
+        _biometricAvailable = supported && canCheck;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _biometricAvailable = false;
+      });
+      debugPrint('Biometric availability check failed: $e');
+    }
+  }
+
+  Future<void> _handleResume() async {
+    if (_isAuthenticating) return;
+
+    if (!_biometricAvailable) {
+      _shouldLockOnResume = false;
+      return;
+    }
+
+    final enabled = await AuthSecureStorage.isEnabled();
+    if (!enabled) {
+      _shouldLockOnResume = false;
+      return;
+    }
+
+    final creds = await AuthSecureStorage.readCredentials();
+    if (creds == null) {
+      _shouldLockOnResume = false;
+      return;
+    }
+
+    var hasSession = true;
+    try {
+      await User.getPrefUser;
+    } catch (_) {
+      hasSession = false;
+    }
+
+    if (!hasSession) {
+      _shouldLockOnResume = false;
+      return;
+    }
+
+    if (_isLoginRouteActive()) {
+      _shouldLockOnResume = false;
+      return;
+    }
+
+    _isAuthenticating = true;
+    try {
+      final didAuth = await _localAuth.authenticate(
+        localizedReason: 'Authenticate to continue using GEMS',
+        options: const AuthenticationOptions(
+          biometricOnly: true,
+          stickyAuth: true,
+        ),
+      );
+
+      if (!didAuth) {
+        await _lockApp();
+        return;
+      }
+
+      _shouldLockOnResume = false;
+    } catch (e) {
+      debugPrint('Biometric authentication on resume failed: $e');
+      await _lockApp();
+    } finally {
+      _isAuthenticating = false;
+    }
+  }
+
+  bool _isLoginRouteActive() {
+    final ctx = widget.navigatorKey.currentContext;
+    if (ctx == null) return false;
+    final route = ModalRoute.of(ctx);
+    if (route == null) return false;
+    return route.settings.name == "/";
+  }
+
+  Future<void> _lockApp() async {
+    _shouldLockOnResume = false;
+    await _logoutUser();
+    final navigator = widget.navigatorKey.currentState;
+    if (navigator == null) {
+      return;
+    }
+    navigator.pushNamedAndRemoveUntil('/', (route) => false);
+  }
+
+  Future<void> _logoutUser() async {
+    try {
+      final raw = await User.getPrefUser;
+      final user = User.fromMap(raw);
+      await user.removeUser();
+    } catch (e) {
+      debugPrint('Failed to clear stored user during biometric lock: $e');
     }
   }
 }
