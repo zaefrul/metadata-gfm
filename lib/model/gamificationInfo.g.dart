@@ -7,7 +7,7 @@ part of 'gamificationInfo.dart';
 // **************************************************************************
 
 Serializer<GamificationInfo> _$gamificationInfoSerializer =
-    new _$GamificationInfoSerializer();
+    _$GamificationInfoSerializer();
 
 class _$GamificationInfoSerializer
     implements StructuredSerializer<GamificationInfo> {
@@ -245,7 +245,7 @@ class _$GamificationInfoSerializer
   GamificationInfo deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new GamificationInfoBuilder();
+    final result = GamificationInfoBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -450,7 +450,7 @@ class _$GamificationInfo extends GamificationInfo {
 
   factory _$GamificationInfo(
           [void Function(GamificationInfoBuilder)? updates]) =>
-      (new GamificationInfoBuilder()..update(updates))._build();
+      (GamificationInfoBuilder()..update(updates))._build();
 
   _$GamificationInfo._(
       {this.gmiId,
@@ -485,14 +485,13 @@ class _$GamificationInfo extends GamificationInfo {
       this.gmiPointSelfFinding,
       this.gmiPointTotal})
       : super._();
-
   @override
   GamificationInfo rebuild(void Function(GamificationInfoBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
   GamificationInfoBuilder toBuilder() =>
-      new GamificationInfoBuilder()..replace(this);
+      GamificationInfoBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -790,7 +789,6 @@ class GamificationInfoBuilder
 
   @override
   void replace(GamificationInfo other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$GamificationInfo;
   }
 
@@ -804,7 +802,7 @@ class GamificationInfoBuilder
 
   _$GamificationInfo _build() {
     final _$result = _$v ??
-        new _$GamificationInfo._(
+        _$GamificationInfo._(
           gmiId: gmiId,
           userId: userId,
           siteId: siteId,

@@ -7,7 +7,7 @@ part of 'complaintResponse.dart';
 // **************************************************************************
 
 Serializer<ComplaintResponse> _$complaintResponseSerializer =
-    new _$ComplaintResponseSerializer();
+    _$ComplaintResponseSerializer();
 
 class _$ComplaintResponseSerializer
     implements StructuredSerializer<ComplaintResponse> {
@@ -70,7 +70,7 @@ class _$ComplaintResponseSerializer
   ComplaintResponse deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new ComplaintResponseBuilder();
+    final result = ComplaintResponseBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -139,7 +139,7 @@ class _$ComplaintResponse extends ComplaintResponse {
 
   factory _$ComplaintResponse(
           [void Function(ComplaintResponseBuilder)? updates]) =>
-      (new ComplaintResponseBuilder()..update(updates))._build();
+      (ComplaintResponseBuilder()..update(updates))._build();
 
   _$ComplaintResponse._(
       {required this.success,
@@ -149,21 +149,14 @@ class _$ComplaintResponse extends ComplaintResponse {
       this.groups,
       this.types,
       this.parts})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        success, r'ComplaintResponse', 'success');
-    BuiltValueNullFieldError.checkNotNull(error, r'ComplaintResponse', 'error');
-    BuiltValueNullFieldError.checkNotNull(
-        errmsg, r'ComplaintResponse', 'errmsg');
-  }
-
+      : super._();
   @override
   ComplaintResponse rebuild(void Function(ComplaintResponseBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
   ComplaintResponseBuilder toBuilder() =>
-      new ComplaintResponseBuilder()..replace(this);
+      ComplaintResponseBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -224,22 +217,22 @@ class ComplaintResponseBuilder
 
   ListBuilder<ComplaintD>? _items;
   ListBuilder<ComplaintD> get items =>
-      _$this._items ??= new ListBuilder<ComplaintD>();
+      _$this._items ??= ListBuilder<ComplaintD>();
   set items(ListBuilder<ComplaintD>? items) => _$this._items = items;
 
   ListBuilder<ComplaintDGroup>? _groups;
   ListBuilder<ComplaintDGroup> get groups =>
-      _$this._groups ??= new ListBuilder<ComplaintDGroup>();
+      _$this._groups ??= ListBuilder<ComplaintDGroup>();
   set groups(ListBuilder<ComplaintDGroup>? groups) => _$this._groups = groups;
 
   ListBuilder<ComplaintDType>? _types;
   ListBuilder<ComplaintDType> get types =>
-      _$this._types ??= new ListBuilder<ComplaintDType>();
+      _$this._types ??= ListBuilder<ComplaintDType>();
   set types(ListBuilder<ComplaintDType>? types) => _$this._types = types;
 
   ListBuilder<ComplaintDPart>? _parts;
   ListBuilder<ComplaintDPart> get parts =>
-      _$this._parts ??= new ListBuilder<ComplaintDPart>();
+      _$this._parts ??= ListBuilder<ComplaintDPart>();
   set parts(ListBuilder<ComplaintDPart>? parts) => _$this._parts = parts;
 
   ComplaintResponseBuilder();
@@ -261,7 +254,6 @@ class ComplaintResponseBuilder
 
   @override
   void replace(ComplaintResponse other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintResponse;
   }
 
@@ -277,7 +269,7 @@ class ComplaintResponseBuilder
     _$ComplaintResponse _$result;
     try {
       _$result = _$v ??
-          new _$ComplaintResponse._(
+          _$ComplaintResponse._(
             success: BuiltValueNullFieldError.checkNotNull(
                 success, r'ComplaintResponse', 'success'),
             error: BuiltValueNullFieldError.checkNotNull(
@@ -301,7 +293,7 @@ class ComplaintResponseBuilder
         _$failedField = 'parts';
         _parts?.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'ComplaintResponse', _$failedField, e.toString());
       }
       rethrow;

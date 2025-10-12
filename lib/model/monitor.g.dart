@@ -6,11 +6,11 @@ part of 'monitor.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializer<MonitorTask> _$monitorTaskSerializer = new _$MonitorTaskSerializer();
+Serializer<MonitorTask> _$monitorTaskSerializer = _$MonitorTaskSerializer();
 Serializer<MonitorDetail> _$monitorDetailSerializer =
-    new _$MonitorDetailSerializer();
+    _$MonitorDetailSerializer();
 Serializer<MonitorHistory> _$monitorHistorySerializer =
-    new _$MonitorHistorySerializer();
+    _$MonitorHistorySerializer();
 
 class _$MonitorTaskSerializer implements StructuredSerializer<MonitorTask> {
   @override
@@ -93,7 +93,7 @@ class _$MonitorTaskSerializer implements StructuredSerializer<MonitorTask> {
   @override
   MonitorTask deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new MonitorTaskBuilder();
+    final result = MonitorTaskBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -237,7 +237,7 @@ class _$MonitorDetailSerializer implements StructuredSerializer<MonitorDetail> {
   MonitorDetail deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new MonitorDetailBuilder();
+    final result = MonitorDetailBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -358,7 +358,7 @@ class _$MonitorHistorySerializer
   MonitorHistory deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new MonitorHistoryBuilder();
+    final result = MonitorHistoryBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -434,7 +434,7 @@ class _$MonitorTask extends MonitorTask {
   final String? assignedTo;
 
   factory _$MonitorTask([void Function(MonitorTaskBuilder)? updates]) =>
-      (new MonitorTaskBuilder()..update(updates))._build();
+      (MonitorTaskBuilder()..update(updates))._build();
 
   _$MonitorTask._(
       {required this.transactionId,
@@ -450,27 +450,13 @@ class _$MonitorTask extends MonitorTask {
       this.woTaskType,
       this.woTaskSeverity,
       this.assignedTo})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        transactionId, r'MonitorTask', 'transactionId');
-    BuiltValueNullFieldError.checkNotNull(
-        transactionNo, r'MonitorTask', 'transactionNo');
-    BuiltValueNullFieldError.checkNotNull(
-        transactionTimeCreated, r'MonitorTask', 'transactionTimeCreated');
-    BuiltValueNullFieldError.checkNotNull(flowId, r'MonitorTask', 'flowId');
-    BuiltValueNullFieldError.checkNotNull(flowName, r'MonitorTask', 'flowName');
-    BuiltValueNullFieldError.checkNotNull(
-        checkpointName, r'MonitorTask', 'checkpointName');
-    BuiltValueNullFieldError.checkNotNull(
-        transactionStatus, r'MonitorTask', 'transactionStatus');
-  }
-
+      : super._();
   @override
   MonitorTask rebuild(void Function(MonitorTaskBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  MonitorTaskBuilder toBuilder() => new MonitorTaskBuilder()..replace(this);
+  MonitorTaskBuilder toBuilder() => MonitorTaskBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -618,7 +604,6 @@ class MonitorTaskBuilder implements Builder<MonitorTask, MonitorTaskBuilder> {
 
   @override
   void replace(MonitorTask other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$MonitorTask;
   }
 
@@ -632,7 +617,7 @@ class MonitorTaskBuilder implements Builder<MonitorTask, MonitorTaskBuilder> {
 
   _$MonitorTask _build() {
     final _$result = _$v ??
-        new _$MonitorTask._(
+        _$MonitorTask._(
           transactionId: BuiltValueNullFieldError.checkNotNull(
               transactionId, r'MonitorTask', 'transactionId'),
           transactionNo: BuiltValueNullFieldError.checkNotNull(
@@ -692,7 +677,7 @@ class _$MonitorDetail extends MonitorDetail {
   final BuiltList<MonitorHistory> taskHistory;
 
   factory _$MonitorDetail([void Function(MonitorDetailBuilder)? updates]) =>
-      (new MonitorDetailBuilder()..update(updates))._build();
+      (MonitorDetailBuilder()..update(updates))._build();
 
   _$MonitorDetail._(
       {required this.flowName,
@@ -710,39 +695,13 @@ class _$MonitorDetail extends MonitorDetail {
       this.ppmTaskId,
       this.siteName,
       required this.taskHistory})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        flowName, r'MonitorDetail', 'flowName');
-    BuiltValueNullFieldError.checkNotNull(
-        transactionNo, r'MonitorDetail', 'transactionNo');
-    BuiltValueNullFieldError.checkNotNull(
-        initiateBy, r'MonitorDetail', 'initiateBy');
-    BuiltValueNullFieldError.checkNotNull(
-        initiateByGroup, r'MonitorDetail', 'initiateByGroup');
-    BuiltValueNullFieldError.checkNotNull(
-        initiateTimeCreated, r'MonitorDetail', 'initiateTimeCreated');
-    BuiltValueNullFieldError.checkNotNull(
-        taskStatus, r'MonitorDetail', 'taskStatus');
-    BuiltValueNullFieldError.checkNotNull(
-        currentUser, r'MonitorDetail', 'currentUser');
-    BuiltValueNullFieldError.checkNotNull(
-        receivedTime, r'MonitorDetail', 'receivedTime');
-    BuiltValueNullFieldError.checkNotNull(
-        flowStatus, r'MonitorDetail', 'flowStatus');
-    BuiltValueNullFieldError.checkNotNull(
-        flowDueDate, r'MonitorDetail', 'flowDueDate');
-    BuiltValueNullFieldError.checkNotNull(
-        checkpointId, r'MonitorDetail', 'checkpointId');
-    BuiltValueNullFieldError.checkNotNull(
-        taskHistory, r'MonitorDetail', 'taskHistory');
-  }
-
+      : super._();
   @override
   MonitorDetail rebuild(void Function(MonitorDetailBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  MonitorDetailBuilder toBuilder() => new MonitorDetailBuilder()..replace(this);
+  MonitorDetailBuilder toBuilder() => MonitorDetailBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -874,7 +833,7 @@ class MonitorDetailBuilder
 
   ListBuilder<MonitorHistory>? _taskHistory;
   ListBuilder<MonitorHistory> get taskHistory =>
-      _$this._taskHistory ??= new ListBuilder<MonitorHistory>();
+      _$this._taskHistory ??= ListBuilder<MonitorHistory>();
   set taskHistory(ListBuilder<MonitorHistory>? taskHistory) =>
       _$this._taskHistory = taskHistory;
 
@@ -905,7 +864,6 @@ class MonitorDetailBuilder
 
   @override
   void replace(MonitorDetail other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$MonitorDetail;
   }
 
@@ -921,7 +879,7 @@ class MonitorDetailBuilder
     _$MonitorDetail _$result;
     try {
       _$result = _$v ??
-          new _$MonitorDetail._(
+          _$MonitorDetail._(
             flowName: BuiltValueNullFieldError.checkNotNull(
                 flowName, r'MonitorDetail', 'flowName'),
             transactionNo: BuiltValueNullFieldError.checkNotNull(
@@ -955,7 +913,7 @@ class MonitorDetailBuilder
         _$failedField = 'taskHistory';
         taskHistory.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'MonitorDetail', _$failedField, e.toString());
       }
       rethrow;
@@ -984,7 +942,7 @@ class _$MonitorHistory extends MonitorHistory {
   final String taskStatus;
 
   factory _$MonitorHistory([void Function(MonitorHistoryBuilder)? updates]) =>
-      (new MonitorHistoryBuilder()..update(updates))._build();
+      (MonitorHistoryBuilder()..update(updates))._build();
 
   _$MonitorHistory._(
       {required this.checkpointId,
@@ -995,31 +953,13 @@ class _$MonitorHistory extends MonitorHistory {
       required this.taskTimeCreated,
       required this.taskTimeSubmit,
       required this.taskStatus})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        checkpointId, r'MonitorHistory', 'checkpointId');
-    BuiltValueNullFieldError.checkNotNull(roleId, r'MonitorHistory', 'roleId');
-    BuiltValueNullFieldError.checkNotNull(
-        taskClaimedUser, r'MonitorHistory', 'taskClaimedUser');
-    BuiltValueNullFieldError.checkNotNull(
-        taskRemark, r'MonitorHistory', 'taskRemark');
-    BuiltValueNullFieldError.checkNotNull(
-        taskDateDue, r'MonitorHistory', 'taskDateDue');
-    BuiltValueNullFieldError.checkNotNull(
-        taskTimeCreated, r'MonitorHistory', 'taskTimeCreated');
-    BuiltValueNullFieldError.checkNotNull(
-        taskTimeSubmit, r'MonitorHistory', 'taskTimeSubmit');
-    BuiltValueNullFieldError.checkNotNull(
-        taskStatus, r'MonitorHistory', 'taskStatus');
-  }
-
+      : super._();
   @override
   MonitorHistory rebuild(void Function(MonitorHistoryBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  MonitorHistoryBuilder toBuilder() =>
-      new MonitorHistoryBuilder()..replace(this);
+  MonitorHistoryBuilder toBuilder() => MonitorHistoryBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -1124,7 +1064,6 @@ class MonitorHistoryBuilder
 
   @override
   void replace(MonitorHistory other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$MonitorHistory;
   }
 
@@ -1138,7 +1077,7 @@ class MonitorHistoryBuilder
 
   _$MonitorHistory _build() {
     final _$result = _$v ??
-        new _$MonitorHistory._(
+        _$MonitorHistory._(
           checkpointId: BuiltValueNullFieldError.checkNotNull(
               checkpointId, r'MonitorHistory', 'checkpointId'),
           roleId: BuiltValueNullFieldError.checkNotNull(

@@ -57,7 +57,7 @@ class _$ResponseValue extends ResponseValue {
   final TechnicianAssign? technicianAssign;
 
   factory _$ResponseValue([void Function(ResponseValueBuilder)? updates]) =>
-      (new ResponseValueBuilder()..update(updates))._build();
+      (ResponseValueBuilder()..update(updates))._build();
 
   _$ResponseValue._(
       {required this.success,
@@ -84,18 +84,13 @@ class _$ResponseValue extends ResponseValue {
       this.technicianTask,
       this.technicianImages,
       this.technicianAssign})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(success, r'ResponseValue', 'success');
-    BuiltValueNullFieldError.checkNotNull(error, r'ResponseValue', 'error');
-    BuiltValueNullFieldError.checkNotNull(errmsg, r'ResponseValue', 'errmsg');
-  }
-
+      : super._();
   @override
   ResponseValue rebuild(void Function(ResponseValueBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  ResponseValueBuilder toBuilder() => new ResponseValueBuilder()..replace(this);
+  ResponseValueBuilder toBuilder() => ResponseValueBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -210,118 +205,117 @@ class ResponseValueBuilder
   set result(String? result) => _$this._result = result;
 
   ListBuilder<Task>? _taskList;
-  ListBuilder<Task> get taskList =>
-      _$this._taskList ??= new ListBuilder<Task>();
+  ListBuilder<Task> get taskList => _$this._taskList ??= ListBuilder<Task>();
   set taskList(ListBuilder<Task>? taskList) => _$this._taskList = taskList;
 
   ListBuilder<WorkOrderTask>? _workorderTask;
   ListBuilder<WorkOrderTask> get workorderTask =>
-      _$this._workorderTask ??= new ListBuilder<WorkOrderTask>();
+      _$this._workorderTask ??= ListBuilder<WorkOrderTask>();
   set workorderTask(ListBuilder<WorkOrderTask>? workorderTask) =>
       _$this._workorderTask = workorderTask;
 
   WorkOrderDetailBuilder? _woDetail;
   WorkOrderDetailBuilder get woDetail =>
-      _$this._woDetail ??= new WorkOrderDetailBuilder();
+      _$this._woDetail ??= WorkOrderDetailBuilder();
   set woDetail(WorkOrderDetailBuilder? woDetail) => _$this._woDetail = woDetail;
 
   ListBuilder<MonitorTask>? _monitorTaskList;
   ListBuilder<MonitorTask> get monitorTaskList =>
-      _$this._monitorTaskList ??= new ListBuilder<MonitorTask>();
+      _$this._monitorTaskList ??= ListBuilder<MonitorTask>();
   set monitorTaskList(ListBuilder<MonitorTask>? monitorTaskList) =>
       _$this._monitorTaskList = monitorTaskList;
 
   MonitorDetailBuilder? _monitorDetail;
   MonitorDetailBuilder get monitorDetail =>
-      _$this._monitorDetail ??= new MonitorDetailBuilder();
+      _$this._monitorDetail ??= MonitorDetailBuilder();
   set monitorDetail(MonitorDetailBuilder? monitorDetail) =>
       _$this._monitorDetail = monitorDetail;
 
   ListBuilder<Dot>? _dotList;
-  ListBuilder<Dot> get dotList => _$this._dotList ??= new ListBuilder<Dot>();
+  ListBuilder<Dot> get dotList => _$this._dotList ??= ListBuilder<Dot>();
   set dotList(ListBuilder<Dot>? dotList) => _$this._dotList = dotList;
 
   ListBuilder<WorkOrderStatus>? _wostatusList;
   ListBuilder<WorkOrderStatus> get wostatusList =>
-      _$this._wostatusList ??= new ListBuilder<WorkOrderStatus>();
+      _$this._wostatusList ??= ListBuilder<WorkOrderStatus>();
   set wostatusList(ListBuilder<WorkOrderStatus>? wostatusList) =>
       _$this._wostatusList = wostatusList;
 
   ListBuilder<Form>? _statusList;
   ListBuilder<Form> get statusList =>
-      _$this._statusList ??= new ListBuilder<Form>();
+      _$this._statusList ??= ListBuilder<Form>();
   set statusList(ListBuilder<Form>? statusList) =>
       _$this._statusList = statusList;
 
   FormAItemBuilder? _sectionAList;
   FormAItemBuilder get sectionAList =>
-      _$this._sectionAList ??= new FormAItemBuilder();
+      _$this._sectionAList ??= FormAItemBuilder();
   set sectionAList(FormAItemBuilder? sectionAList) =>
       _$this._sectionAList = sectionAList;
 
   FormBItemBuilder? _sectionBList;
   FormBItemBuilder get sectionBList =>
-      _$this._sectionBList ??= new FormBItemBuilder();
+      _$this._sectionBList ??= FormBItemBuilder();
   set sectionBList(FormBItemBuilder? sectionBList) =>
       _$this._sectionBList = sectionBList;
 
   ListBuilder<FormCItem>? _sectionCList;
   ListBuilder<FormCItem> get sectionCList =>
-      _$this._sectionCList ??= new ListBuilder<FormCItem>();
+      _$this._sectionCList ??= ListBuilder<FormCItem>();
   set sectionCList(ListBuilder<FormCItem>? sectionCList) =>
       _$this._sectionCList = sectionCList;
 
   ListBuilder<FormDItem>? _sectionDList;
   ListBuilder<FormDItem> get sectionDList =>
-      _$this._sectionDList ??= new ListBuilder<FormDItem>();
+      _$this._sectionDList ??= ListBuilder<FormDItem>();
   set sectionDList(ListBuilder<FormDItem>? sectionDList) =>
       _$this._sectionDList = sectionDList;
 
   ListBuilder<FormEItem>? _sectionEList;
   ListBuilder<FormEItem> get sectionEList =>
-      _$this._sectionEList ??= new ListBuilder<FormEItem>();
+      _$this._sectionEList ??= ListBuilder<FormEItem>();
   set sectionEList(ListBuilder<FormEItem>? sectionEList) =>
       _$this._sectionEList = sectionEList;
 
   ListBuilder<FormFItem>? _sectionFList;
   ListBuilder<FormFItem> get sectionFList =>
-      _$this._sectionFList ??= new ListBuilder<FormFItem>();
+      _$this._sectionFList ??= ListBuilder<FormFItem>();
   set sectionFList(ListBuilder<FormFItem>? sectionFList) =>
       _$this._sectionFList = sectionFList;
 
   FormGItemBuilder? _sectionGList;
   FormGItemBuilder get sectionGList =>
-      _$this._sectionGList ??= new FormGItemBuilder();
+      _$this._sectionGList ??= FormGItemBuilder();
   set sectionGList(FormGItemBuilder? sectionGList) =>
       _$this._sectionGList = sectionGList;
 
   ListBuilder<FormHItem>? _sectionHList;
   ListBuilder<FormHItem> get sectionHList =>
-      _$this._sectionHList ??= new ListBuilder<FormHItem>();
+      _$this._sectionHList ??= ListBuilder<FormHItem>();
   set sectionHList(ListBuilder<FormHItem>? sectionHList) =>
       _$this._sectionHList = sectionHList;
 
   TechnicianDetailsBuilder? _technicianDetails;
   TechnicianDetailsBuilder get technicianDetails =>
-      _$this._technicianDetails ??= new TechnicianDetailsBuilder();
+      _$this._technicianDetails ??= TechnicianDetailsBuilder();
   set technicianDetails(TechnicianDetailsBuilder? technicianDetails) =>
       _$this._technicianDetails = technicianDetails;
 
   TechnicianTaskBuilder? _technicianTask;
   TechnicianTaskBuilder get technicianTask =>
-      _$this._technicianTask ??= new TechnicianTaskBuilder();
+      _$this._technicianTask ??= TechnicianTaskBuilder();
   set technicianTask(TechnicianTaskBuilder? technicianTask) =>
       _$this._technicianTask = technicianTask;
 
   ListBuilder<TechnicianImageRepair>? _technicianImages;
   ListBuilder<TechnicianImageRepair> get technicianImages =>
-      _$this._technicianImages ??= new ListBuilder<TechnicianImageRepair>();
+      _$this._technicianImages ??= ListBuilder<TechnicianImageRepair>();
   set technicianImages(ListBuilder<TechnicianImageRepair>? technicianImages) =>
       _$this._technicianImages = technicianImages;
 
   TechnicianAssignBuilder? _technicianAssign;
   TechnicianAssignBuilder get technicianAssign =>
-      _$this._technicianAssign ??= new TechnicianAssignBuilder();
+      _$this._technicianAssign ??= TechnicianAssignBuilder();
   set technicianAssign(TechnicianAssignBuilder? technicianAssign) =>
       _$this._technicianAssign = technicianAssign;
 
@@ -361,7 +355,6 @@ class ResponseValueBuilder
 
   @override
   void replace(ResponseValue other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ResponseValue;
   }
 
@@ -377,7 +370,7 @@ class ResponseValueBuilder
     _$ResponseValue _$result;
     try {
       _$result = _$v ??
-          new _$ResponseValue._(
+          _$ResponseValue._(
             success: BuiltValueNullFieldError.checkNotNull(
                 success, r'ResponseValue', 'success'),
             error: BuiltValueNullFieldError.checkNotNull(
@@ -450,7 +443,7 @@ class ResponseValueBuilder
         _$failedField = 'technicianAssign';
         _technicianAssign?.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'ResponseValue', _$failedField, e.toString());
       }
       rethrow;

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:GEMS/data/repository/work_order_repository.dart';
 import 'package:GEMS/model/workorder.dart';
-import 'package:GEMS/utils/network.dart';
+
 import 'complaintList.dart';
 
 class ComplaintView extends StatefulWidget {
   final int index;
+  // ignore: unused_field
   final String url;
   final Widget? headers;
 
@@ -19,37 +21,52 @@ class _ComplaintViewState extends State<ComplaintView> {
   String dropdownType = "All Type";
   List<WorkOrderTask> _listTask = [];
   List<WorkOrderTask> _filterTask = [];
+  late final WorkOrderRepository _repository;
+  late Future<List<WorkOrderTask>> _loadFuture;
 
   @override
   void initState() {
     super.initState();
-    _fetch();
+    _repository = WorkOrderRepository();
+    _loadFuture = _load();
   }
 
-  Future<List<WorkOrderTask>> _fetch() async {
-    try {
-      String filter = "&woType=${dropdownType == "Work Order"
-              ? "WO"
-              : dropdownType == "Work Request"
-                  ? "WR"
-                  : ""}";
-      Provider provider = Provider(fetchURL: widget.url + filter);
-      provider.context = context;
+  WorkOrderListType get _listType =>
+      widget.index == 0 ? WorkOrderListType.submittedWo : WorkOrderListType.pendingTask;
 
-      var value = await provider.fetch();
-      _listTask = List<WorkOrderTask>.from((value.workorderTask ?? []) as Iterable);
+  Future<List<WorkOrderTask>> _load({bool forceRefresh = false}) async {
+    final tasks = await _repository.getWorkOrders(
+      type: _listType,
+      forceRefresh: forceRefresh,
+    );
+    _listTask = tasks;
+    _filterTask = _applyFilters(tasks);
+    return _filterTask;
+  }
 
-      if (dropdownValue != "All Status") {
-        _filterTask = _listTask
-            .where((test) => test.woTaskStatus == dropdownValue)
-            .toList();
-      } else {
-        _filterTask = _listTask;
-      }
-      return _filterTask;
-    } catch (err) {
-      return Future.error(err);
+  List<WorkOrderTask> _applyFilters(List<WorkOrderTask> source) {
+    Iterable<WorkOrderTask> filtered = source;
+
+    if (dropdownValue != "All Status") {
+      filtered = filtered.where((task) => task.woTaskStatus == dropdownValue);
     }
+
+    if (dropdownType != "All Type") {
+      filtered = filtered.where((task) {
+        final typeCode = dropdownType == "Work Order" ? "WO" : "WR";
+        return task.woTaskTypeInit == typeCode || task.woTaskType == dropdownType;
+      });
+    }
+
+    return filtered.toList();
+  }
+
+  Future<void> _refresh() async {
+    final future = _load(forceRefresh: true);
+    setState(() {
+      _loadFuture = future;
+    });
+    await future;
   }
 
   Widget get _filter => DropdownButton<String>(
@@ -58,13 +75,7 @@ class _ComplaintViewState extends State<ComplaintView> {
         onChanged: (String? newValue) {
           setState(() {
             dropdownValue = newValue ?? "All Status";
-            if (dropdownValue != "All Status") {
-              _filterTask = _listTask
-                  .where((test) => test.woTaskStatus == dropdownValue)
-                  .toList();
-            } else {
-              _filterTask = _listTask;
-            }
+            _filterTask = _applyFilters(_listTask);
           });
         },
         items: <String>[
@@ -91,7 +102,7 @@ class _ComplaintViewState extends State<ComplaintView> {
         onChanged: (String? newValue) {
           setState(() {
             dropdownType = newValue ?? "All Type";
-            _fetch();
+            _filterTask = _applyFilters(_listTask);
           });
         },
         items: <String>[
@@ -142,7 +153,7 @@ class _ComplaintViewState extends State<ComplaintView> {
                 child: ComplaintList(
                   list: value,
                   viewer: widget.index == 0,
-                  refresh: _fetch,
+                  refresh: _refresh,
                 ),
               ),
             ],
@@ -150,12 +161,18 @@ class _ComplaintViewState extends State<ComplaintView> {
         );
 
     return FutureBuilder<List<WorkOrderTask>>(
-      future: _fetch(),
+      future: _loadFuture,
       builder: (context, AsyncSnapshot<List<WorkOrderTask>> snapshot) {
-        if (snapshot.hasError) return body([]);
-        if (!snapshot.hasData) return loadingWidget;
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return loadingWidget;
+        }
 
-        return body(snapshot.data!);
+        if (snapshot.hasError) {
+          return body(_filterTask);
+        }
+
+        final data = snapshot.hasData ? _filterTask : <WorkOrderTask>[];
+        return body(data);
       },
     );
   }

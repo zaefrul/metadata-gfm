@@ -40,3 +40,30 @@
 - Assets are globbed via `assets/` in `pubspec.yaml`; keep new images inside that folder to avoid manual registration.
 - Fonts (`fonts/Avenir-Roman.otf`) and launcher icon configuration are declared in `pubspec.yaml`; update both Android/iOS via `flutter_launcher_icons` if branding changes.
 - `build_variants.sh clean` runs `flutter clean` + `pub get`; use it when switching SDK channels or after large asset updates.
+
+## 📦 WorkOrder offline roadmap
+- **Execution model**: We (mobile) implement all client-side changes. When a step calls for backend support, request the specific API update and the backend team will handle it. Existing endpoints are reusable; backend tweaks are optional optimizations.
+- **Phase 0 – Discovery & groundwork**
+	- *Mobile*: choose local storage tech (Drift/Isar/etc.), add connectivity monitoring + feature flag, spike repository ↔ cache.
+	- *Backend*: confirm bulk download/update coverage, plan any new endpoints or metadata (version stamps, batch APIs).
+- **Phase 1 – Local cache foundations**
+	- *Mobile*: create WorkOrder schemas (headers, tasks, checklists, references), implement repository layered over `Provider`, refactor list screens to serve cached data first.
+	- *Backend*: ensure responses include stable identifiers + timestamps; no schema changes required if already present.
+- **Phase 2 – Selective download flow**
+	- *Mobile*: add download selectors, orchestrate multi-endpoint bundle fetch, persist atomically, load detail UIs from cache, cache attachments on disk.
+	- *Backend*: optionally expose bundle/delta endpoints for efficiency; otherwise existing APIs suffice.
+- **Phase 3 – Offline interaction & optimistic updates**
+	- *Mobile*: build action queue for POST/PUT calls, optimistic UI updates, offline mode indicators, local storage for remarks/photos/signatures.
+	- *Backend*: document payload validation rules; confirm idempotency expectations so queued requests replay cleanly.
+- **Phase 4 – Sync engine & conflict handling**
+	- *Mobile*: implement sync worker with retry/backoff, detect conflicts via version metadata, build conflict resolution UI, surface sync progress/errors.
+	- *Backend*: add or expose versioning/`updatedAt`/ETag metadata and return conflict info on stale updates; support “changes since” endpoints if feasible.
+- **Phase 5 – Polish & rollout**
+	- *Mobile*: storage management screen, secure wipe on logout/biometric failure, automated offline tests, staged rollout via feature flag.
+	- *Backend*: monitor load, provide analytics endpoints, prep support playbook for conflict escalations.
+- **Communication cadence**: before starting each phase, verify backend readiness (if needed) and capture decisions in PR/notes so future prompts stay aligned.
+
+## 🗂️ Offline rollout progress
+- **Phase 1 – Step 1 (Local storage foundation)** — ✅ Completed on 2025-10-12. Created the sqflite-backed `OfflineDatabase`, schema tables, and entity mappers.
+- **Phase 1 – Step 2 (Repository layer over cache + network)** — ✅ Completed on 2025-10-12. Added `WorkOrderRepository` to hydrate from the API, persist results via `OfflineDatabase`, and serve cached lists to the existing WorkOrder UI.
+- **Phase 1 – Step 3 (Refactor WorkOrder controllers to offline-first flows)** — 🔜 Up next. Switch `ComplaintSection` detail flows to consume repository data and queue mutations for offline replay.

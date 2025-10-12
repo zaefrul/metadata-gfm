@@ -6,7 +6,7 @@ part of 'eventDetail.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializer<EventDetail> _$eventDetailSerializer = new _$EventDetailSerializer();
+Serializer<EventDetail> _$eventDetailSerializer = _$EventDetailSerializer();
 
 class _$EventDetailSerializer implements StructuredSerializer<EventDetail> {
   @override
@@ -88,7 +88,7 @@ class _$EventDetailSerializer implements StructuredSerializer<EventDetail> {
   @override
   EventDetail deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new EventDetailBuilder();
+    final result = EventDetailBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -160,7 +160,7 @@ class _$EventDetail extends EventDetail {
   final String? duration;
 
   factory _$EventDetail([void Function(EventDetailBuilder)? updates]) =>
-      (new EventDetailBuilder()..update(updates))._build();
+      (EventDetailBuilder()..update(updates))._build();
 
   _$EventDetail._(
       {this.date,
@@ -173,13 +173,12 @@ class _$EventDetail extends EventDetail {
       this.timeClockOut,
       this.duration})
       : super._();
-
   @override
   EventDetail rebuild(void Function(EventDetailBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  EventDetailBuilder toBuilder() => new EventDetailBuilder()..replace(this);
+  EventDetailBuilder toBuilder() => EventDetailBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -288,7 +287,6 @@ class EventDetailBuilder implements Builder<EventDetail, EventDetailBuilder> {
 
   @override
   void replace(EventDetail other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$EventDetail;
   }
 
@@ -302,7 +300,7 @@ class EventDetailBuilder implements Builder<EventDetail, EventDetailBuilder> {
 
   _$EventDetail _build() {
     final _$result = _$v ??
-        new _$EventDetail._(
+        _$EventDetail._(
           date: date,
           currentTime: currentTime,
           currentShift: currentShift,

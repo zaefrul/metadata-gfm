@@ -6,8 +6,8 @@ part of 'meter.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializer<Meter> _$meterSerializer = new _$MeterSerializer();
-Serializer<Reading> _$readingSerializer = new _$ReadingSerializer();
+Serializer<Meter> _$meterSerializer = _$MeterSerializer();
+Serializer<Reading> _$readingSerializer = _$ReadingSerializer();
 
 class _$MeterSerializer implements StructuredSerializer<Meter> {
   @override
@@ -73,7 +73,7 @@ class _$MeterSerializer implements StructuredSerializer<Meter> {
   @override
   Meter deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new MeterBuilder();
+    final result = MeterBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -236,7 +236,7 @@ class _$ReadingSerializer implements StructuredSerializer<Reading> {
   @override
   Reading deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new ReadingBuilder();
+    final result = ReadingBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -326,7 +326,7 @@ class _$Meter extends Meter {
   final String? monthlyTotalRm;
 
   factory _$Meter([void Function(MeterBuilder)? updates]) =>
-      (new MeterBuilder()..update(updates))._build();
+      (MeterBuilder()..update(updates))._build();
 
   _$Meter._(
       {required this.meterId,
@@ -339,22 +339,13 @@ class _$Meter extends Meter {
       this.dailyLatestReading,
       this.dailyTotal,
       this.monthlyTotalRm})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(meterId, r'Meter', 'meterId');
-    BuiltValueNullFieldError.checkNotNull(
-        meterLocation, r'Meter', 'meterLocation');
-    BuiltValueNullFieldError.checkNotNull(meterName, r'Meter', 'meterName');
-    BuiltValueNullFieldError.checkNotNull(meterStatus, r'Meter', 'meterStatus');
-    BuiltValueNullFieldError.checkNotNull(meterType, r'Meter', 'meterType');
-    BuiltValueNullFieldError.checkNotNull(siteId, r'Meter', 'siteId');
-  }
-
+      : super._();
   @override
   Meter rebuild(void Function(MeterBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  MeterBuilder toBuilder() => new MeterBuilder()..replace(this);
+  MeterBuilder toBuilder() => MeterBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -475,7 +466,6 @@ class MeterBuilder implements Builder<Meter, MeterBuilder> {
 
   @override
   void replace(Meter other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$Meter;
   }
 
@@ -489,7 +479,7 @@ class MeterBuilder implements Builder<Meter, MeterBuilder> {
 
   _$Meter _build() {
     final _$result = _$v ??
-        new _$Meter._(
+        _$Meter._(
           meterId: BuiltValueNullFieldError.checkNotNull(
               meterId, r'Meter', 'meterId'),
           meterLocation: BuiltValueNullFieldError.checkNotNull(
@@ -541,7 +531,7 @@ class _$Reading extends Reading {
   final String? utilityShift;
 
   factory _$Reading([void Function(ReadingBuilder)? updates]) =>
-      (new ReadingBuilder()..update(updates))._build();
+      (ReadingBuilder()..update(updates))._build();
 
   _$Reading._(
       {this.utilityId,
@@ -558,13 +548,12 @@ class _$Reading extends Reading {
       this.utilityImage,
       this.utilityShift})
       : super._();
-
   @override
   Reading rebuild(void Function(ReadingBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  ReadingBuilder toBuilder() => new ReadingBuilder()..replace(this);
+  ReadingBuilder toBuilder() => ReadingBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -712,7 +701,6 @@ class ReadingBuilder implements Builder<Reading, ReadingBuilder> {
 
   @override
   void replace(Reading other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$Reading;
   }
 
@@ -726,7 +714,7 @@ class ReadingBuilder implements Builder<Reading, ReadingBuilder> {
 
   _$Reading _build() {
     final _$result = _$v ??
-        new _$Reading._(
+        _$Reading._(
           utilityId: utilityId,
           utilityType: utilityType,
           utilityReadingType: utilityReadingType,

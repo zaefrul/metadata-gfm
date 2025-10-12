@@ -6,7 +6,7 @@ part of 'material.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializer<Material> _$materialSerializer = new _$MaterialSerializer();
+Serializer<Material> _$materialSerializer = _$MaterialSerializer();
 
 class _$MaterialSerializer implements StructuredSerializer<Material> {
   @override
@@ -145,7 +145,7 @@ class _$MaterialSerializer implements StructuredSerializer<Material> {
   @override
   Material deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new MaterialBuilder();
+    final result = MaterialBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -267,7 +267,7 @@ class _$Material extends Material {
   final BuiltList<ComplaintDImage>? images;
 
   factory _$Material([void Function(MaterialBuilder)? updates]) =>
-      (new MaterialBuilder()..update(updates))._build();
+      (MaterialBuilder()..update(updates))._build();
 
   _$Material._(
       {this.assetGroupName,
@@ -288,13 +288,12 @@ class _$Material extends Material {
       this.woTaskRequestId,
       this.images})
       : super._();
-
   @override
   Material rebuild(void Function(MaterialBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  MaterialBuilder toBuilder() => new MaterialBuilder()..replace(this);
+  MaterialBuilder toBuilder() => MaterialBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -446,7 +445,7 @@ class MaterialBuilder implements Builder<Material, MaterialBuilder> {
 
   ListBuilder<ComplaintDImage>? _images;
   ListBuilder<ComplaintDImage> get images =>
-      _$this._images ??= new ListBuilder<ComplaintDImage>();
+      _$this._images ??= ListBuilder<ComplaintDImage>();
   set images(ListBuilder<ComplaintDImage>? images) => _$this._images = images;
 
   MaterialBuilder();
@@ -478,7 +477,6 @@ class MaterialBuilder implements Builder<Material, MaterialBuilder> {
 
   @override
   void replace(Material other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$Material;
   }
 
@@ -494,7 +492,7 @@ class MaterialBuilder implements Builder<Material, MaterialBuilder> {
     _$Material _$result;
     try {
       _$result = _$v ??
-          new _$Material._(
+          _$Material._(
             assetGroupName: assetGroupName,
             itemDescription: itemDescription,
             itemId: itemId,
@@ -519,7 +517,7 @@ class MaterialBuilder implements Builder<Material, MaterialBuilder> {
         _$failedField = 'images';
         _images?.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'Material', _$failedField, e.toString());
       }
       rethrow;

@@ -6,30 +6,30 @@ part of 'complaint.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializer<ComplaintD> _$complaintDSerializer = new _$ComplaintDSerializer();
+Serializer<ComplaintD> _$complaintDSerializer = _$ComplaintDSerializer();
 Serializer<ComplaintDStore> _$complaintDStoreSerializer =
-    new _$ComplaintDStoreSerializer();
+    _$ComplaintDStoreSerializer();
 Serializer<ComplaintDGroupStore> _$complaintDGroupStoreSerializer =
-    new _$ComplaintDGroupStoreSerializer();
+    _$ComplaintDGroupStoreSerializer();
 Serializer<ComplaintDGroup> _$complaintDGroupSerializer =
-    new _$ComplaintDGroupSerializer();
+    _$ComplaintDGroupSerializer();
 Serializer<ComplaintDType> _$complaintDTypeSerializer =
-    new _$ComplaintDTypeSerializer();
+    _$ComplaintDTypeSerializer();
 Serializer<ComplaintDStoreType> _$complaintDStoreTypeSerializer =
-    new _$ComplaintDStoreTypeSerializer();
+    _$ComplaintDStoreTypeSerializer();
 Serializer<ComplaintDPart> _$complaintDPartSerializer =
-    new _$ComplaintDPartSerializer();
+    _$ComplaintDPartSerializer();
 Serializer<MaterialStorePart> _$materialStorePartSerializer =
-    new _$MaterialStorePartSerializer();
+    _$MaterialStorePartSerializer();
 Serializer<ComplaintDImage> _$complaintDImageSerializer =
-    new _$ComplaintDImageSerializer();
-Serializer<RequestTask> _$requestTaskSerializer = new _$RequestTaskSerializer();
+    _$ComplaintDImageSerializer();
+Serializer<RequestTask> _$requestTaskSerializer = _$RequestTaskSerializer();
 Serializer<ComplaintMaterial> _$complaintMaterialSerializer =
-    new _$ComplaintMaterialSerializer();
+    _$ComplaintMaterialSerializer();
 Serializer<ComplaintMaterialGrouped> _$complaintMaterialGroupedSerializer =
-    new _$ComplaintMaterialGroupedSerializer();
+    _$ComplaintMaterialGroupedSerializer();
 Serializer<ComplaintMaterialImage> _$complaintMaterialImageSerializer =
-    new _$ComplaintMaterialImageSerializer();
+    _$ComplaintMaterialImageSerializer();
 
 class _$ComplaintDSerializer implements StructuredSerializer<ComplaintD> {
   @override
@@ -126,7 +126,7 @@ class _$ComplaintDSerializer implements StructuredSerializer<ComplaintD> {
   @override
   ComplaintD deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new ComplaintDBuilder();
+    final result = ComplaintDBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -220,7 +220,7 @@ class _$ComplaintDStoreSerializer
   ComplaintDStore deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new ComplaintDStoreBuilder();
+    final result = ComplaintDStoreBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -288,7 +288,7 @@ class _$ComplaintDGroupStoreSerializer
   ComplaintDGroupStore deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new ComplaintDGroupStoreBuilder();
+    final result = ComplaintDGroupStoreBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -364,7 +364,7 @@ class _$ComplaintDGroupSerializer
   ComplaintDGroup deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new ComplaintDGroupBuilder();
+    final result = ComplaintDGroupBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -457,7 +457,7 @@ class _$ComplaintDTypeSerializer
   ComplaintDType deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new ComplaintDTypeBuilder();
+    final result = ComplaintDTypeBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -543,7 +543,7 @@ class _$ComplaintDStoreTypeSerializer
   ComplaintDStoreType deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new ComplaintDStoreTypeBuilder();
+    final result = ComplaintDStoreTypeBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -647,7 +647,7 @@ class _$ComplaintDPartSerializer
   ComplaintDPart deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new ComplaintDPartBuilder();
+    final result = ComplaintDPartBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -769,7 +769,7 @@ class _$MaterialStorePartSerializer
   MaterialStorePart deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new MaterialStorePartBuilder();
+    final result = MaterialStorePartBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -863,7 +863,7 @@ class _$ComplaintDImageSerializer
   ComplaintDImage deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new ComplaintDImageBuilder();
+    final result = ComplaintDImageBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -1002,7 +1002,7 @@ class _$RequestTaskSerializer implements StructuredSerializer<RequestTask> {
   @override
   RequestTask deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new RequestTaskBuilder();
+    final result = RequestTaskBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -1202,7 +1202,7 @@ class _$ComplaintMaterialSerializer
   ComplaintMaterial deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new ComplaintMaterialBuilder();
+    final result = ComplaintMaterialBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -1332,7 +1332,7 @@ class _$ComplaintMaterialGroupedSerializer
   ComplaintMaterialGrouped deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new ComplaintMaterialGroupedBuilder();
+    final result = ComplaintMaterialGroupedBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -1430,7 +1430,7 @@ class _$ComplaintMaterialImageSerializer
   ComplaintMaterialImage deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new ComplaintMaterialImageBuilder();
+    final result = ComplaintMaterialImageBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -1486,7 +1486,7 @@ class _$ComplaintD extends ComplaintD {
   final BuiltList<ComplaintDImage>? images;
 
   factory _$ComplaintD([void Function(ComplaintDBuilder)? updates]) =>
-      (new ComplaintDBuilder()..update(updates))._build();
+      (ComplaintDBuilder()..update(updates))._build();
 
   _$ComplaintD._(
       {this.woTaskPartsId,
@@ -1501,13 +1501,12 @@ class _$ComplaintD extends ComplaintD {
       this.statusDesc,
       this.images})
       : super._();
-
   @override
   ComplaintD rebuild(void Function(ComplaintDBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  ComplaintDBuilder toBuilder() => new ComplaintDBuilder()..replace(this);
+  ComplaintDBuilder toBuilder() => ComplaintDBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -1614,7 +1613,7 @@ class ComplaintDBuilder implements Builder<ComplaintD, ComplaintDBuilder> {
 
   ListBuilder<ComplaintDImage>? _images;
   ListBuilder<ComplaintDImage> get images =>
-      _$this._images ??= new ListBuilder<ComplaintDImage>();
+      _$this._images ??= ListBuilder<ComplaintDImage>();
   set images(ListBuilder<ComplaintDImage>? images) => _$this._images = images;
 
   ComplaintDBuilder();
@@ -1640,7 +1639,6 @@ class ComplaintDBuilder implements Builder<ComplaintD, ComplaintDBuilder> {
 
   @override
   void replace(ComplaintD other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintD;
   }
 
@@ -1656,7 +1654,7 @@ class ComplaintDBuilder implements Builder<ComplaintD, ComplaintDBuilder> {
     _$ComplaintD _$result;
     try {
       _$result = _$v ??
-          new _$ComplaintD._(
+          _$ComplaintD._(
             woTaskPartsId: woTaskPartsId,
             woTaskRequestId: woTaskRequestId,
             partId: partId,
@@ -1675,7 +1673,7 @@ class ComplaintDBuilder implements Builder<ComplaintD, ComplaintDBuilder> {
         _$failedField = 'images';
         _images?.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'ComplaintD', _$failedField, e.toString());
       }
       rethrow;
@@ -1692,17 +1690,15 @@ class _$ComplaintDStore extends ComplaintDStore {
   final String? itemName;
 
   factory _$ComplaintDStore([void Function(ComplaintDStoreBuilder)? updates]) =>
-      (new ComplaintDStoreBuilder()..update(updates))._build();
+      (ComplaintDStoreBuilder()..update(updates))._build();
 
   _$ComplaintDStore._({this.itemId, this.itemName}) : super._();
-
   @override
   ComplaintDStore rebuild(void Function(ComplaintDStoreBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  ComplaintDStoreBuilder toBuilder() =>
-      new ComplaintDStoreBuilder()..replace(this);
+  ComplaintDStoreBuilder toBuilder() => ComplaintDStoreBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -1756,7 +1752,6 @@ class ComplaintDStoreBuilder
 
   @override
   void replace(ComplaintDStore other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintDStore;
   }
 
@@ -1770,7 +1765,7 @@ class ComplaintDStoreBuilder
 
   _$ComplaintDStore _build() {
     final _$result = _$v ??
-        new _$ComplaintDStore._(
+        _$ComplaintDStore._(
           itemId: itemId,
           itemName: itemName,
         );
@@ -1789,11 +1784,10 @@ class _$ComplaintDGroupStore extends ComplaintDGroupStore {
 
   factory _$ComplaintDGroupStore(
           [void Function(ComplaintDGroupStoreBuilder)? updates]) =>
-      (new ComplaintDGroupStoreBuilder()..update(updates))._build();
+      (ComplaintDGroupStoreBuilder()..update(updates))._build();
 
   _$ComplaintDGroupStore._({this.itemId, this.itemName, this.itemTypes})
       : super._();
-
   @override
   ComplaintDGroupStore rebuild(
           void Function(ComplaintDGroupStoreBuilder) updates) =>
@@ -1801,7 +1795,7 @@ class _$ComplaintDGroupStore extends ComplaintDGroupStore {
 
   @override
   ComplaintDGroupStoreBuilder toBuilder() =>
-      new ComplaintDGroupStoreBuilder()..replace(this);
+      ComplaintDGroupStoreBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -1846,7 +1840,7 @@ class ComplaintDGroupStoreBuilder
 
   ListBuilder<ComplaintDType>? _itemTypes;
   ListBuilder<ComplaintDType> get itemTypes =>
-      _$this._itemTypes ??= new ListBuilder<ComplaintDType>();
+      _$this._itemTypes ??= ListBuilder<ComplaintDType>();
   set itemTypes(ListBuilder<ComplaintDType>? itemTypes) =>
       _$this._itemTypes = itemTypes;
 
@@ -1865,7 +1859,6 @@ class ComplaintDGroupStoreBuilder
 
   @override
   void replace(ComplaintDGroupStore other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintDGroupStore;
   }
 
@@ -1881,7 +1874,7 @@ class ComplaintDGroupStoreBuilder
     _$ComplaintDGroupStore _$result;
     try {
       _$result = _$v ??
-          new _$ComplaintDGroupStore._(
+          _$ComplaintDGroupStore._(
             itemId: itemId,
             itemName: itemName,
             itemTypes: _itemTypes?.build(),
@@ -1892,7 +1885,7 @@ class ComplaintDGroupStoreBuilder
         _$failedField = 'itemTypes';
         _itemTypes?.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'ComplaintDGroupStore', _$failedField, e.toString());
       }
       rethrow;
@@ -1913,19 +1906,17 @@ class _$ComplaintDGroup extends ComplaintDGroup {
   final String? itemStatus;
 
   factory _$ComplaintDGroup([void Function(ComplaintDGroupBuilder)? updates]) =>
-      (new ComplaintDGroupBuilder()..update(updates))._build();
+      (ComplaintDGroupBuilder()..update(updates))._build();
 
   _$ComplaintDGroup._(
       {this.itemId, this.itemName, this.itemDesc, this.itemStatus})
       : super._();
-
   @override
   ComplaintDGroup rebuild(void Function(ComplaintDGroupBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  ComplaintDGroupBuilder toBuilder() =>
-      new ComplaintDGroupBuilder()..replace(this);
+  ComplaintDGroupBuilder toBuilder() => ComplaintDGroupBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -1995,7 +1986,6 @@ class ComplaintDGroupBuilder
 
   @override
   void replace(ComplaintDGroup other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintDGroup;
   }
 
@@ -2009,7 +1999,7 @@ class ComplaintDGroupBuilder
 
   _$ComplaintDGroup _build() {
     final _$result = _$v ??
-        new _$ComplaintDGroup._(
+        _$ComplaintDGroup._(
           itemId: itemId,
           itemName: itemName,
           itemDesc: itemDesc,
@@ -2035,7 +2025,7 @@ class _$ComplaintDType extends ComplaintDType {
   final BuiltList<ComplaintMaterial>? parts;
 
   factory _$ComplaintDType([void Function(ComplaintDTypeBuilder)? updates]) =>
-      (new ComplaintDTypeBuilder()..update(updates))._build();
+      (ComplaintDTypeBuilder()..update(updates))._build();
 
   _$ComplaintDType._(
       {this.itemId,
@@ -2045,14 +2035,12 @@ class _$ComplaintDType extends ComplaintDType {
       this.itemStatus,
       this.parts})
       : super._();
-
   @override
   ComplaintDType rebuild(void Function(ComplaintDTypeBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  ComplaintDTypeBuilder toBuilder() =>
-      new ComplaintDTypeBuilder()..replace(this);
+  ComplaintDTypeBuilder toBuilder() => ComplaintDTypeBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -2118,7 +2106,7 @@ class ComplaintDTypeBuilder
 
   ListBuilder<ComplaintMaterial>? _parts;
   ListBuilder<ComplaintMaterial> get parts =>
-      _$this._parts ??= new ListBuilder<ComplaintMaterial>();
+      _$this._parts ??= ListBuilder<ComplaintMaterial>();
   set parts(ListBuilder<ComplaintMaterial>? parts) => _$this._parts = parts;
 
   ComplaintDTypeBuilder();
@@ -2139,7 +2127,6 @@ class ComplaintDTypeBuilder
 
   @override
   void replace(ComplaintDType other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintDType;
   }
 
@@ -2155,7 +2142,7 @@ class ComplaintDTypeBuilder
     _$ComplaintDType _$result;
     try {
       _$result = _$v ??
-          new _$ComplaintDType._(
+          _$ComplaintDType._(
             itemId: itemId,
             itemGroupId: itemGroupId,
             itemName: itemName,
@@ -2169,7 +2156,7 @@ class ComplaintDTypeBuilder
         _$failedField = 'parts';
         _parts?.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'ComplaintDType', _$failedField, e.toString());
       }
       rethrow;
@@ -2189,10 +2176,9 @@ class _$ComplaintDStoreType extends ComplaintDStoreType {
 
   factory _$ComplaintDStoreType(
           [void Function(ComplaintDStoreTypeBuilder)? updates]) =>
-      (new ComplaintDStoreTypeBuilder()..update(updates))._build();
+      (ComplaintDStoreTypeBuilder()..update(updates))._build();
 
   _$ComplaintDStoreType._({this.itemId, this.itemName, this.parts}) : super._();
-
   @override
   ComplaintDStoreType rebuild(
           void Function(ComplaintDStoreTypeBuilder) updates) =>
@@ -2200,7 +2186,7 @@ class _$ComplaintDStoreType extends ComplaintDStoreType {
 
   @override
   ComplaintDStoreTypeBuilder toBuilder() =>
-      new ComplaintDStoreTypeBuilder()..replace(this);
+      ComplaintDStoreTypeBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -2245,7 +2231,7 @@ class ComplaintDStoreTypeBuilder
 
   ListBuilder<ComplaintMaterial>? _parts;
   ListBuilder<ComplaintMaterial> get parts =>
-      _$this._parts ??= new ListBuilder<ComplaintMaterial>();
+      _$this._parts ??= ListBuilder<ComplaintMaterial>();
   set parts(ListBuilder<ComplaintMaterial>? parts) => _$this._parts = parts;
 
   ComplaintDStoreTypeBuilder();
@@ -2263,7 +2249,6 @@ class ComplaintDStoreTypeBuilder
 
   @override
   void replace(ComplaintDStoreType other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintDStoreType;
   }
 
@@ -2279,7 +2264,7 @@ class ComplaintDStoreTypeBuilder
     _$ComplaintDStoreType _$result;
     try {
       _$result = _$v ??
-          new _$ComplaintDStoreType._(
+          _$ComplaintDStoreType._(
             itemId: itemId,
             itemName: itemName,
             parts: _parts?.build(),
@@ -2290,7 +2275,7 @@ class ComplaintDStoreTypeBuilder
         _$failedField = 'parts';
         _parts?.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'ComplaintDStoreType', _$failedField, e.toString());
       }
       rethrow;
@@ -2319,7 +2304,7 @@ class _$ComplaintDPart extends ComplaintDPart {
   final String? partRemark;
 
   factory _$ComplaintDPart([void Function(ComplaintDPartBuilder)? updates]) =>
-      (new ComplaintDPartBuilder()..update(updates))._build();
+      (ComplaintDPartBuilder()..update(updates))._build();
 
   _$ComplaintDPart._(
       {this.itemId,
@@ -2331,14 +2316,12 @@ class _$ComplaintDPart extends ComplaintDPart {
       this.partMinOrder,
       this.partRemark})
       : super._();
-
   @override
   ComplaintDPart rebuild(void Function(ComplaintDPartBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  ComplaintDPartBuilder toBuilder() =>
-      new ComplaintDPartBuilder()..replace(this);
+  ComplaintDPartBuilder toBuilder() => ComplaintDPartBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -2440,7 +2423,6 @@ class ComplaintDPartBuilder
 
   @override
   void replace(ComplaintDPart other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintDPart;
   }
 
@@ -2454,7 +2436,7 @@ class ComplaintDPartBuilder
 
   _$ComplaintDPart _build() {
     final _$result = _$v ??
-        new _$ComplaintDPart._(
+        _$ComplaintDPart._(
           itemId: itemId,
           itemName: itemName,
           itemQuantity: itemQuantity,
@@ -2489,7 +2471,7 @@ class _$MaterialStorePart extends MaterialStorePart {
 
   factory _$MaterialStorePart(
           [void Function(MaterialStorePartBuilder)? updates]) =>
-      (new MaterialStorePartBuilder()..update(updates))._build();
+      (MaterialStorePartBuilder()..update(updates))._build();
 
   _$MaterialStorePart._(
       {this.itemDescription,
@@ -2501,14 +2483,13 @@ class _$MaterialStorePart extends MaterialStorePart {
       this.partMinOrder,
       this.partRemark})
       : super._();
-
   @override
   MaterialStorePart rebuild(void Function(MaterialStorePartBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
   MaterialStorePartBuilder toBuilder() =>
-      new MaterialStorePartBuilder()..replace(this);
+      MaterialStorePartBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -2612,7 +2593,6 @@ class MaterialStorePartBuilder
 
   @override
   void replace(MaterialStorePart other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$MaterialStorePart;
   }
 
@@ -2626,7 +2606,7 @@ class MaterialStorePartBuilder
 
   _$MaterialStorePart _build() {
     final _$result = _$v ??
-        new _$MaterialStorePart._(
+        _$MaterialStorePart._(
           itemDescription: itemDescription,
           partAvailable: partAvailable,
           partCount: partCount,
@@ -2652,18 +2632,16 @@ class _$ComplaintDImage extends ComplaintDImage {
   final String? height;
 
   factory _$ComplaintDImage([void Function(ComplaintDImageBuilder)? updates]) =>
-      (new ComplaintDImageBuilder()..update(updates))._build();
+      (ComplaintDImageBuilder()..update(updates))._build();
 
   _$ComplaintDImage._({this.file, this.title, this.width, this.height})
       : super._();
-
   @override
   ComplaintDImage rebuild(void Function(ComplaintDImageBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  ComplaintDImageBuilder toBuilder() =>
-      new ComplaintDImageBuilder()..replace(this);
+  ComplaintDImageBuilder toBuilder() => ComplaintDImageBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -2733,7 +2711,6 @@ class ComplaintDImageBuilder
 
   @override
   void replace(ComplaintDImage other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintDImage;
   }
 
@@ -2747,7 +2724,7 @@ class ComplaintDImageBuilder
 
   _$ComplaintDImage _build() {
     final _$result = _$v ??
-        new _$ComplaintDImage._(
+        _$ComplaintDImage._(
           file: file,
           title: title,
           width: width,
@@ -2787,7 +2764,7 @@ class _$RequestTask extends RequestTask {
   final String? siteName;
 
   factory _$RequestTask([void Function(RequestTaskBuilder)? updates]) =>
-      (new RequestTaskBuilder()..update(updates))._build();
+      (RequestTaskBuilder()..update(updates))._build();
 
   _$RequestTask._(
       {this.requestBy,
@@ -2804,13 +2781,12 @@ class _$RequestTask extends RequestTask {
       this.collectTime,
       this.siteName})
       : super._();
-
   @override
   RequestTask rebuild(void Function(RequestTaskBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  RequestTaskBuilder toBuilder() => new RequestTaskBuilder()..replace(this);
+  RequestTaskBuilder toBuilder() => RequestTaskBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -2955,7 +2931,6 @@ class RequestTaskBuilder implements Builder<RequestTask, RequestTaskBuilder> {
 
   @override
   void replace(RequestTask other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$RequestTask;
   }
 
@@ -2969,7 +2944,7 @@ class RequestTaskBuilder implements Builder<RequestTask, RequestTaskBuilder> {
 
   _$RequestTask _build() {
     final _$result = _$v ??
-        new _$RequestTask._(
+        _$RequestTask._(
           requestBy: requestBy,
           requestTime: requestTime,
           statusDesc: statusDesc,
@@ -3025,7 +3000,7 @@ class _$ComplaintMaterial extends ComplaintMaterial {
 
   factory _$ComplaintMaterial(
           [void Function(ComplaintMaterialBuilder)? updates]) =>
-      (new ComplaintMaterialBuilder()..update(updates))._build();
+      (ComplaintMaterialBuilder()..update(updates))._build();
 
   _$ComplaintMaterial._(
       {this.assetGroupId,
@@ -3045,14 +3020,13 @@ class _$ComplaintMaterial extends ComplaintMaterial {
       this.itemGrouped,
       this.images})
       : super._();
-
   @override
   ComplaintMaterial rebuild(void Function(ComplaintMaterialBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
   ComplaintMaterialBuilder toBuilder() =>
-      new ComplaintMaterialBuilder()..replace(this);
+      ComplaintMaterialBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -3188,13 +3162,13 @@ class ComplaintMaterialBuilder
 
   ListBuilder<ComplaintMaterialGrouped>? _itemGrouped;
   ListBuilder<ComplaintMaterialGrouped> get itemGrouped =>
-      _$this._itemGrouped ??= new ListBuilder<ComplaintMaterialGrouped>();
+      _$this._itemGrouped ??= ListBuilder<ComplaintMaterialGrouped>();
   set itemGrouped(ListBuilder<ComplaintMaterialGrouped>? itemGrouped) =>
       _$this._itemGrouped = itemGrouped;
 
   ListBuilder<ComplaintMaterialImage>? _images;
   ListBuilder<ComplaintMaterialImage> get images =>
-      _$this._images ??= new ListBuilder<ComplaintMaterialImage>();
+      _$this._images ??= ListBuilder<ComplaintMaterialImage>();
   set images(ListBuilder<ComplaintMaterialImage>? images) =>
       _$this._images = images;
 
@@ -3226,7 +3200,6 @@ class ComplaintMaterialBuilder
 
   @override
   void replace(ComplaintMaterial other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintMaterial;
   }
 
@@ -3242,7 +3215,7 @@ class ComplaintMaterialBuilder
     _$ComplaintMaterial _$result;
     try {
       _$result = _$v ??
-          new _$ComplaintMaterial._(
+          _$ComplaintMaterial._(
             assetGroupId: assetGroupId,
             assetGroupName: assetGroupName,
             itemDescription: itemDescription,
@@ -3268,7 +3241,7 @@ class ComplaintMaterialBuilder
         _$failedField = 'images';
         _images?.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'ComplaintMaterial', _$failedField, e.toString());
       }
       rethrow;
@@ -3298,7 +3271,7 @@ class _$ComplaintMaterialGrouped extends ComplaintMaterialGrouped {
 
   factory _$ComplaintMaterialGrouped(
           [void Function(ComplaintMaterialGroupedBuilder)? updates]) =>
-      (new ComplaintMaterialGroupedBuilder()..update(updates))._build();
+      (ComplaintMaterialGroupedBuilder()..update(updates))._build();
 
   _$ComplaintMaterialGrouped._(
       {required this.dateCheckIn,
@@ -3309,25 +3282,7 @@ class _$ComplaintMaterialGrouped extends ComplaintMaterialGrouped {
       required this.partSubWarranty,
       required this.supplierName,
       required this.total})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        dateCheckIn, r'ComplaintMaterialGrouped', 'dateCheckIn');
-    BuiltValueNullFieldError.checkNotNull(
-        doNo, r'ComplaintMaterialGrouped', 'doNo');
-    BuiltValueNullFieldError.checkNotNull(
-        partSubCost, r'ComplaintMaterialGrouped', 'partSubCost');
-    BuiltValueNullFieldError.checkNotNull(
-        partSubLocation, r'ComplaintMaterialGrouped', 'partSubLocation');
-    BuiltValueNullFieldError.checkNotNull(
-        partSubValidity, r'ComplaintMaterialGrouped', 'partSubValidity');
-    BuiltValueNullFieldError.checkNotNull(
-        partSubWarranty, r'ComplaintMaterialGrouped', 'partSubWarranty');
-    BuiltValueNullFieldError.checkNotNull(
-        supplierName, r'ComplaintMaterialGrouped', 'supplierName');
-    BuiltValueNullFieldError.checkNotNull(
-        total, r'ComplaintMaterialGrouped', 'total');
-  }
-
+      : super._();
   @override
   ComplaintMaterialGrouped rebuild(
           void Function(ComplaintMaterialGroupedBuilder) updates) =>
@@ -3335,7 +3290,7 @@ class _$ComplaintMaterialGrouped extends ComplaintMaterialGrouped {
 
   @override
   ComplaintMaterialGroupedBuilder toBuilder() =>
-      new ComplaintMaterialGroupedBuilder()..replace(this);
+      ComplaintMaterialGroupedBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -3441,7 +3396,6 @@ class ComplaintMaterialGroupedBuilder
 
   @override
   void replace(ComplaintMaterialGrouped other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintMaterialGrouped;
   }
 
@@ -3455,7 +3409,7 @@ class ComplaintMaterialGroupedBuilder
 
   _$ComplaintMaterialGrouped _build() {
     final _$result = _$v ??
-        new _$ComplaintMaterialGrouped._(
+        _$ComplaintMaterialGrouped._(
           dateCheckIn: BuiltValueNullFieldError.checkNotNull(
               dateCheckIn, r'ComplaintMaterialGrouped', 'dateCheckIn'),
           doNo: BuiltValueNullFieldError.checkNotNull(
@@ -3490,11 +3444,10 @@ class _$ComplaintMaterialImage extends ComplaintMaterialImage {
 
   factory _$ComplaintMaterialImage(
           [void Function(ComplaintMaterialImageBuilder)? updates]) =>
-      (new ComplaintMaterialImageBuilder()..update(updates))._build();
+      (ComplaintMaterialImageBuilder()..update(updates))._build();
 
   _$ComplaintMaterialImage._({this.file, this.height, this.width, this.title})
       : super._();
-
   @override
   ComplaintMaterialImage rebuild(
           void Function(ComplaintMaterialImageBuilder) updates) =>
@@ -3502,7 +3455,7 @@ class _$ComplaintMaterialImage extends ComplaintMaterialImage {
 
   @override
   ComplaintMaterialImageBuilder toBuilder() =>
-      new ComplaintMaterialImageBuilder()..replace(this);
+      ComplaintMaterialImageBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -3572,7 +3525,6 @@ class ComplaintMaterialImageBuilder
 
   @override
   void replace(ComplaintMaterialImage other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintMaterialImage;
   }
 
@@ -3586,7 +3538,7 @@ class ComplaintMaterialImageBuilder
 
   _$ComplaintMaterialImage _build() {
     final _$result = _$v ??
-        new _$ComplaintMaterialImage._(
+        _$ComplaintMaterialImage._(
           file: file,
           height: height,
           width: width,

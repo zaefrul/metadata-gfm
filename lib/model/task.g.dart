@@ -6,7 +6,7 @@ part of 'task.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializer<Task> _$taskSerializer = new _$TaskSerializer();
+Serializer<Task> _$taskSerializer = _$TaskSerializer();
 
 class _$TaskSerializer implements StructuredSerializer<Task> {
   @override
@@ -57,7 +57,7 @@ class _$TaskSerializer implements StructuredSerializer<Task> {
   @override
   Task deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new TaskBuilder();
+    final result = TaskBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -137,7 +137,7 @@ class _$Task extends Task {
   final BuiltList<String> frequency;
 
   factory _$Task([void Function(TaskBuilder)? updates]) =>
-      (new TaskBuilder()..update(updates))._build();
+      (TaskBuilder()..update(updates))._build();
 
   _$Task._(
       {required this.taskId,
@@ -150,27 +150,13 @@ class _$Task extends Task {
       required this.taskDateDue,
       required this.technician,
       required this.frequency})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(taskId, r'Task', 'taskId');
-    BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'Task', 'ppmTaskId');
-    BuiltValueNullFieldError.checkNotNull(
-        transactionNo, r'Task', 'transactionNo');
-    BuiltValueNullFieldError.checkNotNull(assetNo, r'Task', 'assetNo');
-    BuiltValueNullFieldError.checkNotNull(siteName, r'Task', 'siteName');
-    BuiltValueNullFieldError.checkNotNull(
-        assetTypeName, r'Task', 'assetTypeName');
-    BuiltValueNullFieldError.checkNotNull(statusDesc, r'Task', 'statusDesc');
-    BuiltValueNullFieldError.checkNotNull(taskDateDue, r'Task', 'taskDateDue');
-    BuiltValueNullFieldError.checkNotNull(technician, r'Task', 'technician');
-    BuiltValueNullFieldError.checkNotNull(frequency, r'Task', 'frequency');
-  }
-
+      : super._();
   @override
   Task rebuild(void Function(TaskBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  TaskBuilder toBuilder() => new TaskBuilder()..replace(this);
+  TaskBuilder toBuilder() => TaskBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -265,7 +251,7 @@ class TaskBuilder implements Builder<Task, TaskBuilder> {
 
   ListBuilder<String>? _frequency;
   ListBuilder<String> get frequency =>
-      _$this._frequency ??= new ListBuilder<String>();
+      _$this._frequency ??= ListBuilder<String>();
   set frequency(ListBuilder<String>? frequency) =>
       _$this._frequency = frequency;
 
@@ -291,7 +277,6 @@ class TaskBuilder implements Builder<Task, TaskBuilder> {
 
   @override
   void replace(Task other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$Task;
   }
 
@@ -307,7 +292,7 @@ class TaskBuilder implements Builder<Task, TaskBuilder> {
     _$Task _$result;
     try {
       _$result = _$v ??
-          new _$Task._(
+          _$Task._(
             taskId: BuiltValueNullFieldError.checkNotNull(
                 taskId, r'Task', 'taskId'),
             ppmTaskId: BuiltValueNullFieldError.checkNotNull(
@@ -334,8 +319,7 @@ class TaskBuilder implements Builder<Task, TaskBuilder> {
         _$failedField = 'frequency';
         frequency.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
-            r'Task', _$failedField, e.toString());
+        throw BuiltValueNestedFieldError(r'Task', _$failedField, e.toString());
       }
       rethrow;
     }

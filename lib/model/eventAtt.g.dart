@@ -6,7 +6,7 @@ part of 'eventAtt.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializer<EventAtt> _$eventAttSerializer = new _$EventAttSerializer();
+Serializer<EventAtt> _$eventAttSerializer = _$EventAttSerializer();
 
 class _$EventAttSerializer implements StructuredSerializer<EventAtt> {
   @override
@@ -46,7 +46,7 @@ class _$EventAttSerializer implements StructuredSerializer<EventAtt> {
   @override
   EventAtt deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new EventAttBuilder();
+    final result = EventAttBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -82,16 +82,15 @@ class _$EventAtt extends EventAtt {
   final String? color;
 
   factory _$EventAtt([void Function(EventAttBuilder)? updates]) =>
-      (new EventAttBuilder()..update(updates))._build();
+      (EventAttBuilder()..update(updates))._build();
 
   _$EventAtt._({this.date, this.status, this.color}) : super._();
-
   @override
   EventAtt rebuild(void Function(EventAttBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  EventAttBuilder toBuilder() => new EventAttBuilder()..replace(this);
+  EventAttBuilder toBuilder() => EventAttBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -152,7 +151,6 @@ class EventAttBuilder implements Builder<EventAtt, EventAttBuilder> {
 
   @override
   void replace(EventAtt other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$EventAtt;
   }
 
@@ -166,7 +164,7 @@ class EventAttBuilder implements Builder<EventAtt, EventAttBuilder> {
 
   _$EventAtt _build() {
     final _$result = _$v ??
-        new _$EventAtt._(
+        _$EventAtt._(
           date: date,
           status: status,
           color: color,

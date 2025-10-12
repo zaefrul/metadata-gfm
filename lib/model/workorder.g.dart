@@ -7,21 +7,21 @@ part of 'workorder.dart';
 // **************************************************************************
 
 Serializer<WorkOrderTask> _$workOrderTaskSerializer =
-    new _$WorkOrderTaskSerializer();
+    _$WorkOrderTaskSerializer();
 Serializer<WorkOrderStatus> _$workOrderStatusSerializer =
-    new _$WorkOrderStatusSerializer();
+    _$WorkOrderStatusSerializer();
 Serializer<WorkOrderDetail> _$workOrderDetailSerializer =
-    new _$WorkOrderDetailSerializer();
+    _$WorkOrderDetailSerializer();
 Serializer<ComplaintImage> _$complaintImageSerializer =
-    new _$ComplaintImageSerializer();
+    _$ComplaintImageSerializer();
 Serializer<TechnicianDetails> _$technicianDetailsSerializer =
-    new _$TechnicianDetailsSerializer();
+    _$TechnicianDetailsSerializer();
 Serializer<TechnicianTask> _$technicianTaskSerializer =
-    new _$TechnicianTaskSerializer();
+    _$TechnicianTaskSerializer();
 Serializer<TechnicianImageRepair> _$technicianImageRepairSerializer =
-    new _$TechnicianImageRepairSerializer();
+    _$TechnicianImageRepairSerializer();
 Serializer<TechnicianAssign> _$technicianAssignSerializer =
-    new _$TechnicianAssignSerializer();
+    _$TechnicianAssignSerializer();
 
 class _$WorkOrderTaskSerializer implements StructuredSerializer<WorkOrderTask> {
   @override
@@ -69,7 +69,7 @@ class _$WorkOrderTaskSerializer implements StructuredSerializer<WorkOrderTask> {
   WorkOrderTask deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new WorkOrderTaskBuilder();
+    final result = WorkOrderTaskBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -230,7 +230,7 @@ class _$WorkOrderStatusSerializer
   WorkOrderStatus deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new WorkOrderStatusBuilder();
+    final result = WorkOrderStatusBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -374,7 +374,7 @@ class _$WorkOrderDetailSerializer
   WorkOrderDetail deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new WorkOrderDetailBuilder();
+    final result = WorkOrderDetailBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -511,7 +511,7 @@ class _$ComplaintImageSerializer
   ComplaintImage deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new ComplaintImageBuilder();
+    final result = ComplaintImageBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -612,7 +612,7 @@ class _$TechnicianDetailsSerializer
   TechnicianDetails deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new TechnicianDetailsBuilder();
+    final result = TechnicianDetailsBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -679,7 +679,7 @@ class _$TechnicianTaskSerializer
   TechnicianTask deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new TechnicianTaskBuilder();
+    final result = TechnicianTaskBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -762,7 +762,7 @@ class _$TechnicianImageRepairSerializer
   TechnicianImageRepair deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new TechnicianImageRepairBuilder();
+    final result = TechnicianImageRepairBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -867,7 +867,7 @@ class _$TechnicianAssignSerializer
   TechnicianAssign deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new TechnicianAssignBuilder();
+    final result = TechnicianAssignBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -933,7 +933,7 @@ class _$WorkOrderTask extends WorkOrderTask {
   final String woTaskSeverity;
 
   factory _$WorkOrderTask([void Function(WorkOrderTaskBuilder)? updates]) =>
-      (new WorkOrderTaskBuilder()..update(updates))._build();
+      (WorkOrderTaskBuilder()..update(updates))._build();
 
   _$WorkOrderTask._(
       {required this.woTaskId,
@@ -945,33 +945,13 @@ class _$WorkOrderTask extends WorkOrderTask {
       required this.woTaskTimeCreated,
       required this.woTaskStatus,
       required this.woTaskSeverity})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskId, r'WorkOrderTask', 'woTaskId');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskNo, r'WorkOrderTask', 'woTaskNo');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskLocation, r'WorkOrderTask', 'woTaskLocation');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskType, r'WorkOrderTask', 'woTaskType');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskTypeInit, r'WorkOrderTask', 'woTaskTypeInit');
-    BuiltValueNullFieldError.checkNotNull(
-        reportedBy, r'WorkOrderTask', 'reportedBy');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskTimeCreated, r'WorkOrderTask', 'woTaskTimeCreated');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskStatus, r'WorkOrderTask', 'woTaskStatus');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskSeverity, r'WorkOrderTask', 'woTaskSeverity');
-  }
-
+      : super._();
   @override
   WorkOrderTask rebuild(void Function(WorkOrderTaskBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  WorkOrderTaskBuilder toBuilder() => new WorkOrderTaskBuilder()..replace(this);
+  WorkOrderTaskBuilder toBuilder() => WorkOrderTaskBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -1085,7 +1065,6 @@ class WorkOrderTaskBuilder
 
   @override
   void replace(WorkOrderTask other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$WorkOrderTask;
   }
 
@@ -1099,7 +1078,7 @@ class WorkOrderTaskBuilder
 
   _$WorkOrderTask _build() {
     final _$result = _$v ??
-        new _$WorkOrderTask._(
+        _$WorkOrderTask._(
           woTaskId: BuiltValueNullFieldError.checkNotNull(
               woTaskId, r'WorkOrderTask', 'woTaskId'),
           woTaskNo: BuiltValueNullFieldError.checkNotNull(
@@ -1153,7 +1132,7 @@ class _$WorkOrderStatus extends WorkOrderStatus {
   final String? severityName;
 
   factory _$WorkOrderStatus([void Function(WorkOrderStatusBuilder)? updates]) =>
-      (new WorkOrderStatusBuilder()..update(updates))._build();
+      (WorkOrderStatusBuilder()..update(updates))._build();
 
   _$WorkOrderStatus._(
       {this.sectionName,
@@ -1170,14 +1149,12 @@ class _$WorkOrderStatus extends WorkOrderStatus {
       this.severityId,
       this.severityName})
       : super._();
-
   @override
   WorkOrderStatus rebuild(void Function(WorkOrderStatusBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  WorkOrderStatusBuilder toBuilder() =>
-      new WorkOrderStatusBuilder()..replace(this);
+  WorkOrderStatusBuilder toBuilder() => WorkOrderStatusBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -1323,7 +1300,6 @@ class WorkOrderStatusBuilder
 
   @override
   void replace(WorkOrderStatus other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$WorkOrderStatus;
   }
 
@@ -1337,7 +1313,7 @@ class WorkOrderStatusBuilder
 
   _$WorkOrderStatus _build() {
     final _$result = _$v ??
-        new _$WorkOrderStatus._(
+        _$WorkOrderStatus._(
           sectionName: sectionName,
           sectionDesc: sectionDesc,
           sectionStatus: sectionStatus,
@@ -1392,7 +1368,7 @@ class _$WorkOrderDetail extends WorkOrderDetail {
   final BuiltList<ComplaintImage> complaintImages;
 
   factory _$WorkOrderDetail([void Function(WorkOrderDetailBuilder)? updates]) =>
-      (new WorkOrderDetailBuilder()..update(updates))._build();
+      (WorkOrderDetailBuilder()..update(updates))._build();
 
   _$WorkOrderDetail._(
       {required this.woTaskId,
@@ -1411,44 +1387,13 @@ class _$WorkOrderDetail extends WorkOrderDetail {
       this.assetNo,
       required this.zoneName,
       required this.complaintImages})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskId, r'WorkOrderDetail', 'woTaskId');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskNo, r'WorkOrderDetail', 'woTaskNo');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskRequestNo, r'WorkOrderDetail', 'woTaskRequestNo');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskReportedBy, r'WorkOrderDetail', 'woTaskReportedBy');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskTimeResponded, r'WorkOrderDetail', 'woTaskTimeResponded');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskCategory, r'WorkOrderDetail', 'woTaskCategory');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskClient, r'WorkOrderDetail', 'woTaskClient');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskLocation, r'WorkOrderDetail', 'woTaskLocation');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskComplaint, r'WorkOrderDetail', 'woTaskComplaint');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskStatus, r'WorkOrderDetail', 'woTaskStatus');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskPhoneNo, r'WorkOrderDetail', 'woTaskPhoneNo');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskEmail, r'WorkOrderDetail', 'woTaskEmail');
-    BuiltValueNullFieldError.checkNotNull(
-        zoneName, r'WorkOrderDetail', 'zoneName');
-    BuiltValueNullFieldError.checkNotNull(
-        complaintImages, r'WorkOrderDetail', 'complaintImages');
-  }
-
+      : super._();
   @override
   WorkOrderDetail rebuild(void Function(WorkOrderDetailBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  WorkOrderDetailBuilder toBuilder() =>
-      new WorkOrderDetailBuilder()..replace(this);
+  WorkOrderDetailBuilder toBuilder() => WorkOrderDetailBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -1592,7 +1537,7 @@ class WorkOrderDetailBuilder
 
   ListBuilder<ComplaintImage>? _complaintImages;
   ListBuilder<ComplaintImage> get complaintImages =>
-      _$this._complaintImages ??= new ListBuilder<ComplaintImage>();
+      _$this._complaintImages ??= ListBuilder<ComplaintImage>();
   set complaintImages(ListBuilder<ComplaintImage>? complaintImages) =>
       _$this._complaintImages = complaintImages;
 
@@ -1624,7 +1569,6 @@ class WorkOrderDetailBuilder
 
   @override
   void replace(WorkOrderDetail other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$WorkOrderDetail;
   }
 
@@ -1640,7 +1584,7 @@ class WorkOrderDetailBuilder
     _$WorkOrderDetail _$result;
     try {
       _$result = _$v ??
-          new _$WorkOrderDetail._(
+          _$WorkOrderDetail._(
             woTaskId: BuiltValueNullFieldError.checkNotNull(
                 woTaskId, r'WorkOrderDetail', 'woTaskId'),
             woTaskNo: BuiltValueNullFieldError.checkNotNull(
@@ -1677,7 +1621,7 @@ class WorkOrderDetailBuilder
         _$failedField = 'complaintImages';
         complaintImages.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'WorkOrderDetail', _$failedField, e.toString());
       }
       rethrow;
@@ -1714,7 +1658,7 @@ class _$ComplaintImage extends ComplaintImage {
   final String documentSrc;
 
   factory _$ComplaintImage([void Function(ComplaintImageBuilder)? updates]) =>
-      (new ComplaintImageBuilder()..update(updates))._build();
+      (ComplaintImageBuilder()..update(updates))._build();
 
   _$ComplaintImage._(
       {required this.woTaskUploadId,
@@ -1729,40 +1673,13 @@ class _$ComplaintImage extends ComplaintImage {
       required this.documentDesc,
       required this.documentFilename,
       required this.documentSrc})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskUploadId, r'ComplaintImage', 'woTaskUploadId');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskUploadType, r'ComplaintImage', 'woTaskUploadType');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskId, r'ComplaintImage', 'woTaskId');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskUploadLongitude, r'ComplaintImage', 'woTaskUploadLongitude');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskUploadLatitude, r'ComplaintImage', 'woTaskUploadLatitude');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskUploadTimestamp, r'ComplaintImage', 'woTaskUploadTimestamp');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskUploadDesc, r'ComplaintImage', 'woTaskUploadDesc');
-    BuiltValueNullFieldError.checkNotNull(
-        uploadId, r'ComplaintImage', 'uploadId');
-    BuiltValueNullFieldError.checkNotNull(
-        uploadName, r'ComplaintImage', 'uploadName');
-    BuiltValueNullFieldError.checkNotNull(
-        documentDesc, r'ComplaintImage', 'documentDesc');
-    BuiltValueNullFieldError.checkNotNull(
-        documentFilename, r'ComplaintImage', 'documentFilename');
-    BuiltValueNullFieldError.checkNotNull(
-        documentSrc, r'ComplaintImage', 'documentSrc');
-  }
-
+      : super._();
   @override
   ComplaintImage rebuild(void Function(ComplaintImageBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  ComplaintImageBuilder toBuilder() =>
-      new ComplaintImageBuilder()..replace(this);
+  ComplaintImageBuilder toBuilder() => ComplaintImageBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -1903,7 +1820,6 @@ class ComplaintImageBuilder
 
   @override
   void replace(ComplaintImage other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ComplaintImage;
   }
 
@@ -1917,7 +1833,7 @@ class ComplaintImageBuilder
 
   _$ComplaintImage _build() {
     final _$result = _$v ??
-        new _$ComplaintImage._(
+        _$ComplaintImage._(
           woTaskUploadId: BuiltValueNullFieldError.checkNotNull(
               woTaskUploadId, r'ComplaintImage', 'woTaskUploadId'),
           woTaskUploadType: BuiltValueNullFieldError.checkNotNull(
@@ -1968,7 +1884,7 @@ class _$TechnicianDetails extends TechnicianDetails {
 
   factory _$TechnicianDetails(
           [void Function(TechnicianDetailsBuilder)? updates]) =>
-      (new TechnicianDetailsBuilder()..update(updates))._build();
+      (TechnicianDetailsBuilder()..update(updates))._build();
 
   _$TechnicianDetails._(
       {required this.name,
@@ -1977,25 +1893,14 @@ class _$TechnicianDetails extends TechnicianDetails {
       required this.group,
       required this.totalCurrentTask,
       required this.currentTask})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(name, r'TechnicianDetails', 'name');
-    BuiltValueNullFieldError.checkNotNull(
-        phoneNo, r'TechnicianDetails', 'phoneNo');
-    BuiltValueNullFieldError.checkNotNull(email, r'TechnicianDetails', 'email');
-    BuiltValueNullFieldError.checkNotNull(group, r'TechnicianDetails', 'group');
-    BuiltValueNullFieldError.checkNotNull(
-        totalCurrentTask, r'TechnicianDetails', 'totalCurrentTask');
-    BuiltValueNullFieldError.checkNotNull(
-        currentTask, r'TechnicianDetails', 'currentTask');
-  }
-
+      : super._();
   @override
   TechnicianDetails rebuild(void Function(TechnicianDetailsBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
   TechnicianDetailsBuilder toBuilder() =>
-      new TechnicianDetailsBuilder()..replace(this);
+      TechnicianDetailsBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -2062,7 +1967,7 @@ class TechnicianDetailsBuilder
 
   ListBuilder<TechnicianTask>? _currentTask;
   ListBuilder<TechnicianTask> get currentTask =>
-      _$this._currentTask ??= new ListBuilder<TechnicianTask>();
+      _$this._currentTask ??= ListBuilder<TechnicianTask>();
   set currentTask(ListBuilder<TechnicianTask>? currentTask) =>
       _$this._currentTask = currentTask;
 
@@ -2084,7 +1989,6 @@ class TechnicianDetailsBuilder
 
   @override
   void replace(TechnicianDetails other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$TechnicianDetails;
   }
 
@@ -2100,7 +2004,7 @@ class TechnicianDetailsBuilder
     _$TechnicianDetails _$result;
     try {
       _$result = _$v ??
-          new _$TechnicianDetails._(
+          _$TechnicianDetails._(
             name: BuiltValueNullFieldError.checkNotNull(
                 name, r'TechnicianDetails', 'name'),
             phoneNo: BuiltValueNullFieldError.checkNotNull(
@@ -2119,7 +2023,7 @@ class TechnicianDetailsBuilder
         _$failedField = 'currentTask';
         currentTask.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'TechnicianDetails', _$failedField, e.toString());
       }
       rethrow;
@@ -2136,23 +2040,16 @@ class _$TechnicianTask extends TechnicianTask {
   final String dateReceived;
 
   factory _$TechnicianTask([void Function(TechnicianTaskBuilder)? updates]) =>
-      (new TechnicianTaskBuilder()..update(updates))._build();
+      (TechnicianTaskBuilder()..update(updates))._build();
 
   _$TechnicianTask._({required this.woTaskNo, required this.dateReceived})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskNo, r'TechnicianTask', 'woTaskNo');
-    BuiltValueNullFieldError.checkNotNull(
-        dateReceived, r'TechnicianTask', 'dateReceived');
-  }
-
+      : super._();
   @override
   TechnicianTask rebuild(void Function(TechnicianTaskBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  TechnicianTaskBuilder toBuilder() =>
-      new TechnicianTaskBuilder()..replace(this);
+  TechnicianTaskBuilder toBuilder() => TechnicianTaskBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -2206,7 +2103,6 @@ class TechnicianTaskBuilder
 
   @override
   void replace(TechnicianTask other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$TechnicianTask;
   }
 
@@ -2220,7 +2116,7 @@ class TechnicianTaskBuilder
 
   _$TechnicianTask _build() {
     final _$result = _$v ??
-        new _$TechnicianTask._(
+        _$TechnicianTask._(
           woTaskNo: BuiltValueNullFieldError.checkNotNull(
               woTaskNo, r'TechnicianTask', 'woTaskNo'),
           dateReceived: BuiltValueNullFieldError.checkNotNull(
@@ -2259,7 +2155,7 @@ class _$TechnicianImageRepair extends TechnicianImageRepair {
 
   factory _$TechnicianImageRepair(
           [void Function(TechnicianImageRepairBuilder)? updates]) =>
-      (new TechnicianImageRepairBuilder()..update(updates))._build();
+      (TechnicianImageRepairBuilder()..update(updates))._build();
 
   _$TechnicianImageRepair._(
       {required this.woTaskUploadId,
@@ -2274,33 +2170,7 @@ class _$TechnicianImageRepair extends TechnicianImageRepair {
       required this.documentDesc,
       required this.documentFilename,
       required this.documentSrc})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskUploadId, r'TechnicianImageRepair', 'woTaskUploadId');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskUploadType, r'TechnicianImageRepair', 'woTaskUploadType');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskId, r'TechnicianImageRepair', 'woTaskId');
-    BuiltValueNullFieldError.checkNotNull(woTaskUploadLongitude,
-        r'TechnicianImageRepair', 'woTaskUploadLongitude');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskUploadLatitude, r'TechnicianImageRepair', 'woTaskUploadLatitude');
-    BuiltValueNullFieldError.checkNotNull(woTaskUploadTimestamp,
-        r'TechnicianImageRepair', 'woTaskUploadTimestamp');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskUploadDesc, r'TechnicianImageRepair', 'woTaskUploadDesc');
-    BuiltValueNullFieldError.checkNotNull(
-        uploadId, r'TechnicianImageRepair', 'uploadId');
-    BuiltValueNullFieldError.checkNotNull(
-        uploadName, r'TechnicianImageRepair', 'uploadName');
-    BuiltValueNullFieldError.checkNotNull(
-        documentDesc, r'TechnicianImageRepair', 'documentDesc');
-    BuiltValueNullFieldError.checkNotNull(
-        documentFilename, r'TechnicianImageRepair', 'documentFilename');
-    BuiltValueNullFieldError.checkNotNull(
-        documentSrc, r'TechnicianImageRepair', 'documentSrc');
-  }
-
+      : super._();
   @override
   TechnicianImageRepair rebuild(
           void Function(TechnicianImageRepairBuilder) updates) =>
@@ -2308,7 +2178,7 @@ class _$TechnicianImageRepair extends TechnicianImageRepair {
 
   @override
   TechnicianImageRepairBuilder toBuilder() =>
-      new TechnicianImageRepairBuilder()..replace(this);
+      TechnicianImageRepairBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -2449,7 +2319,6 @@ class TechnicianImageRepairBuilder
 
   @override
   void replace(TechnicianImageRepair other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$TechnicianImageRepair;
   }
 
@@ -2463,7 +2332,7 @@ class TechnicianImageRepairBuilder
 
   _$TechnicianImageRepair _build() {
     final _$result = _$v ??
-        new _$TechnicianImageRepair._(
+        _$TechnicianImageRepair._(
           woTaskUploadId: BuiltValueNullFieldError.checkNotNull(
               woTaskUploadId, r'TechnicianImageRepair', 'woTaskUploadId'),
           woTaskUploadType: BuiltValueNullFieldError.checkNotNull(
@@ -2518,7 +2387,7 @@ class _$TechnicianAssign extends TechnicianAssign {
 
   factory _$TechnicianAssign(
           [void Function(TechnicianAssignBuilder)? updates]) =>
-      (new TechnicianAssignBuilder()..update(updates))._build();
+      (TechnicianAssignBuilder()..update(updates))._build();
 
   _$TechnicianAssign._(
       {required this.userId,
@@ -2528,30 +2397,14 @@ class _$TechnicianAssign extends TechnicianAssign {
       required this.userCategory,
       required this.woTaskMaxAssistant,
       required this.assistUserId})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        userId, r'TechnicianAssign', 'userId');
-    BuiltValueNullFieldError.checkNotNull(
-        severity, r'TechnicianAssign', 'severity');
-    BuiltValueNullFieldError.checkNotNull(
-        groupId, r'TechnicianAssign', 'groupId');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskCategory, r'TechnicianAssign', 'woTaskCategory');
-    BuiltValueNullFieldError.checkNotNull(
-        userCategory, r'TechnicianAssign', 'userCategory');
-    BuiltValueNullFieldError.checkNotNull(
-        woTaskMaxAssistant, r'TechnicianAssign', 'woTaskMaxAssistant');
-    BuiltValueNullFieldError.checkNotNull(
-        assistUserId, r'TechnicianAssign', 'assistUserId');
-  }
-
+      : super._();
   @override
   TechnicianAssign rebuild(void Function(TechnicianAssignBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
   TechnicianAssignBuilder toBuilder() =>
-      new TechnicianAssignBuilder()..replace(this);
+      TechnicianAssignBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -2626,7 +2479,7 @@ class TechnicianAssignBuilder
 
   ListBuilder<String>? _assistUserId;
   ListBuilder<String> get assistUserId =>
-      _$this._assistUserId ??= new ListBuilder<String>();
+      _$this._assistUserId ??= ListBuilder<String>();
   set assistUserId(ListBuilder<String>? assistUserId) =>
       _$this._assistUserId = assistUserId;
 
@@ -2649,7 +2502,6 @@ class TechnicianAssignBuilder
 
   @override
   void replace(TechnicianAssign other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$TechnicianAssign;
   }
 
@@ -2665,7 +2517,7 @@ class TechnicianAssignBuilder
     _$TechnicianAssign _$result;
     try {
       _$result = _$v ??
-          new _$TechnicianAssign._(
+          _$TechnicianAssign._(
             userId: BuiltValueNullFieldError.checkNotNull(
                 userId, r'TechnicianAssign', 'userId'),
             severity: BuiltValueNullFieldError.checkNotNull(
@@ -2686,7 +2538,7 @@ class TechnicianAssignBuilder
         _$failedField = 'assistUserId';
         assistUserId.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'TechnicianAssign', _$failedField, e.toString());
       }
       rethrow;

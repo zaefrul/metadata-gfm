@@ -6,7 +6,7 @@ part of 'attendance.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializer<Attendance> _$attendanceSerializer = new _$AttendanceSerializer();
+Serializer<Attendance> _$attendanceSerializer = _$AttendanceSerializer();
 
 class _$AttendanceSerializer implements StructuredSerializer<Attendance> {
   @override
@@ -136,7 +136,7 @@ class _$AttendanceSerializer implements StructuredSerializer<Attendance> {
   @override
   Attendance deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new AttendanceBuilder();
+    final result = AttendanceBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -250,7 +250,7 @@ class _$Attendance extends Attendance {
   final String? remark;
 
   factory _$Attendance([void Function(AttendanceBuilder)? updates]) =>
-      (new AttendanceBuilder()..update(updates))._build();
+      (AttendanceBuilder()..update(updates))._build();
 
   _$Attendance._(
       {this.date,
@@ -270,13 +270,12 @@ class _$Attendance extends Attendance {
       this.nextShiftStart,
       this.remark})
       : super._();
-
   @override
   Attendance rebuild(void Function(AttendanceBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  AttendanceBuilder toBuilder() => new AttendanceBuilder()..replace(this);
+  AttendanceBuilder toBuilder() => AttendanceBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -446,7 +445,6 @@ class AttendanceBuilder implements Builder<Attendance, AttendanceBuilder> {
 
   @override
   void replace(Attendance other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$Attendance;
   }
 
@@ -460,7 +458,7 @@ class AttendanceBuilder implements Builder<Attendance, AttendanceBuilder> {
 
   _$Attendance _build() {
     final _$result = _$v ??
-        new _$Attendance._(
+        _$Attendance._(
           date: date,
           attTransactionId: attTransactionId,
           currentTime: currentTime,

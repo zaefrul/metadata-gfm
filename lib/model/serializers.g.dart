@@ -6,7 +6,7 @@ part of 'serializers.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializers _$serializers = (new Serializers().toBuilder()
+Serializers _$serializers = (Serializers().toBuilder()
       ..add(Attendance.serializer)
       ..add(ComplaintD.serializer)
       ..add(ComplaintDGroup.serializer)
@@ -53,94 +53,94 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..add(WorkOrderTask.serializer)
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(ComplaintD)]),
-          () => new ListBuilder<ComplaintD>())
+          () => ListBuilder<ComplaintD>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(ComplaintDGroup)]),
-          () => new ListBuilder<ComplaintDGroup>())
+          () => ListBuilder<ComplaintDGroup>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(ComplaintDType)]),
-          () => new ListBuilder<ComplaintDType>())
+          () => ListBuilder<ComplaintDType>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(ComplaintDPart)]),
-          () => new ListBuilder<ComplaintDPart>())
+          () => ListBuilder<ComplaintDPart>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(ComplaintDImage)]),
-          () => new ListBuilder<ComplaintDImage>())
+          () => ListBuilder<ComplaintDImage>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(ComplaintDImage)]),
-          () => new ListBuilder<ComplaintDImage>())
+          () => ListBuilder<ComplaintDImage>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(ComplaintDType)]),
-          () => new ListBuilder<ComplaintDType>())
+          () => ListBuilder<ComplaintDType>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(ComplaintImage)]),
-          () => new ListBuilder<ComplaintImage>())
+          () => ListBuilder<ComplaintImage>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(ComplaintMaterial)]),
-          () => new ListBuilder<ComplaintMaterial>())
+          () => ListBuilder<ComplaintMaterial>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(ComplaintMaterial)]),
-          () => new ListBuilder<ComplaintMaterial>())
+          () => ListBuilder<ComplaintMaterial>())
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(ComplaintMaterialGrouped)]),
-          () => new ListBuilder<ComplaintMaterialGrouped>())
+          () => ListBuilder<ComplaintMaterialGrouped>())
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(ComplaintMaterialImage)]),
-          () => new ListBuilder<ComplaintMaterialImage>())
+          () => ListBuilder<ComplaintMaterialImage>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(MonitorHistory)]),
-          () => new ListBuilder<MonitorHistory>())
+          () => ListBuilder<MonitorHistory>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(String)]),
-          () => new ListBuilder<String>())
+          () => ListBuilder<String>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(String)]),
-          () => new ListBuilder<String>())
+          () => ListBuilder<String>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(String)]),
-          () => new ListBuilder<String>())
+          () => ListBuilder<String>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(Task)]),
-          () => new ListBuilder<Task>())
+          () => ListBuilder<Task>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(WorkOrderTask)]),
-          () => new ListBuilder<WorkOrderTask>())
+          () => ListBuilder<WorkOrderTask>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(MonitorTask)]),
-          () => new ListBuilder<MonitorTask>())
+          () => ListBuilder<MonitorTask>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(Dot)]),
-          () => new ListBuilder<Dot>())
+          () => ListBuilder<Dot>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(WorkOrderStatus)]),
-          () => new ListBuilder<WorkOrderStatus>())
+          () => ListBuilder<WorkOrderStatus>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(Form)]),
-          () => new ListBuilder<Form>())
+          () => ListBuilder<Form>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(FormCItem)]),
-          () => new ListBuilder<FormCItem>())
+          () => ListBuilder<FormCItem>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(FormDItem)]),
-          () => new ListBuilder<FormDItem>())
+          () => ListBuilder<FormDItem>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(FormEItem)]),
-          () => new ListBuilder<FormEItem>())
+          () => ListBuilder<FormEItem>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(FormFItem)]),
-          () => new ListBuilder<FormFItem>())
+          () => ListBuilder<FormFItem>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(FormHItem)]),
-          () => new ListBuilder<FormHItem>())
+          () => ListBuilder<FormHItem>())
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(TechnicianImageRepair)]),
-          () => new ListBuilder<TechnicianImageRepair>())
+          () => ListBuilder<TechnicianImageRepair>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(TechnicianTask)]),
-          () => new ListBuilder<TechnicianTask>()))
+          () => ListBuilder<TechnicianTask>()))
     .build();
 
 // ignore_for_file: deprecated_member_use_from_same_package,type=lint

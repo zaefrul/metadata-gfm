@@ -6,15 +6,15 @@ part of 'form.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializer<Form> _$formSerializer = new _$FormSerializer();
-Serializer<FormAItem> _$formAItemSerializer = new _$FormAItemSerializer();
-Serializer<FormBItem> _$formBItemSerializer = new _$FormBItemSerializer();
-Serializer<FormCItem> _$formCItemSerializer = new _$FormCItemSerializer();
-Serializer<FormDItem> _$formDItemSerializer = new _$FormDItemSerializer();
-Serializer<FormEItem> _$formEItemSerializer = new _$FormEItemSerializer();
-Serializer<FormFItem> _$formFItemSerializer = new _$FormFItemSerializer();
-Serializer<FormGItem> _$formGItemSerializer = new _$FormGItemSerializer();
-Serializer<FormHItem> _$formHItemSerializer = new _$FormHItemSerializer();
+Serializer<Form> _$formSerializer = _$FormSerializer();
+Serializer<FormAItem> _$formAItemSerializer = _$FormAItemSerializer();
+Serializer<FormBItem> _$formBItemSerializer = _$FormBItemSerializer();
+Serializer<FormCItem> _$formCItemSerializer = _$FormCItemSerializer();
+Serializer<FormDItem> _$formDItemSerializer = _$FormDItemSerializer();
+Serializer<FormEItem> _$formEItemSerializer = _$FormEItemSerializer();
+Serializer<FormFItem> _$formFItemSerializer = _$FormFItemSerializer();
+Serializer<FormGItem> _$formGItemSerializer = _$FormGItemSerializer();
+Serializer<FormHItem> _$formHItemSerializer = _$FormHItemSerializer();
 
 class _$FormSerializer implements StructuredSerializer<Form> {
   @override
@@ -52,7 +52,7 @@ class _$FormSerializer implements StructuredSerializer<Form> {
   @override
   Form deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new FormBuilder();
+    final result = FormBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -151,7 +151,7 @@ class _$FormAItemSerializer implements StructuredSerializer<FormAItem> {
   @override
   FormAItem deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new FormAItemBuilder();
+    final result = FormAItemBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -246,7 +246,7 @@ class _$FormBItemSerializer implements StructuredSerializer<FormBItem> {
   @override
   FormBItem deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new FormBItemBuilder();
+    final result = FormBItemBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -311,7 +311,7 @@ class _$FormCItemSerializer implements StructuredSerializer<FormCItem> {
   @override
   FormCItem deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new FormCItemBuilder();
+    final result = FormCItemBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -412,7 +412,7 @@ class _$FormDItemSerializer implements StructuredSerializer<FormDItem> {
   @override
   FormDItem deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new FormDItemBuilder();
+    final result = FormDItemBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -502,7 +502,7 @@ class _$FormEItemSerializer implements StructuredSerializer<FormEItem> {
   @override
   FormEItem deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new FormEItemBuilder();
+    final result = FormEItemBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -571,7 +571,7 @@ class _$FormFItemSerializer implements StructuredSerializer<FormFItem> {
   @override
   FormFItem deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new FormFItemBuilder();
+    final result = FormFItemBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -642,7 +642,7 @@ class _$FormGItemSerializer implements StructuredSerializer<FormGItem> {
   @override
   FormGItem deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new FormGItemBuilder();
+    final result = FormGItemBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -723,7 +723,7 @@ class _$FormHItemSerializer implements StructuredSerializer<FormHItem> {
   @override
   FormHItem deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new FormHItemBuilder();
+    final result = FormHItemBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -801,7 +801,7 @@ class _$Form extends Form {
   final String checkAdditionalReport;
 
   factory _$Form([void Function(FormBuilder)? updates]) =>
-      (new FormBuilder()..update(updates))._build();
+      (FormBuilder()..update(updates))._build();
 
   _$Form._(
       {required this.ppmTaskSectionId,
@@ -810,25 +810,13 @@ class _$Form extends Form {
       required this.ppmTaskSectionStatus,
       required this.checkParts,
       required this.checkAdditionalReport})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskSectionId, r'Form', 'ppmTaskSectionId');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskSectionName, r'Form', 'ppmTaskSectionName');
-    BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'Form', 'ppmTaskId');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskSectionStatus, r'Form', 'ppmTaskSectionStatus');
-    BuiltValueNullFieldError.checkNotNull(checkParts, r'Form', 'checkParts');
-    BuiltValueNullFieldError.checkNotNull(
-        checkAdditionalReport, r'Form', 'checkAdditionalReport');
-  }
-
+      : super._();
   @override
   Form rebuild(void Function(FormBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  FormBuilder toBuilder() => new FormBuilder()..replace(this);
+  FormBuilder toBuilder() => FormBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -917,7 +905,6 @@ class FormBuilder implements Builder<Form, FormBuilder> {
 
   @override
   void replace(Form other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$Form;
   }
 
@@ -931,7 +918,7 @@ class FormBuilder implements Builder<Form, FormBuilder> {
 
   _$Form _build() {
     final _$result = _$v ??
-        new _$Form._(
+        _$Form._(
           ppmTaskSectionId: BuiltValueNullFieldError.checkNotNull(
               ppmTaskSectionId, r'Form', 'ppmTaskSectionId'),
           ppmTaskSectionName: BuiltValueNullFieldError.checkNotNull(
@@ -981,7 +968,7 @@ class _$FormAItem extends FormAItem {
   final String ppmTaskTimeServiced;
 
   factory _$FormAItem([void Function(FormAItemBuilder)? updates]) =>
-      (new FormAItemBuilder()..update(updates))._build();
+      (FormAItemBuilder()..update(updates))._build();
 
   _$FormAItem._(
       {required this.ppmTaskId,
@@ -998,39 +985,13 @@ class _$FormAItem extends FormAItem {
       required this.assetCapacity,
       required this.ppmTaskTimeStart,
       required this.ppmTaskTimeServiced})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'FormAItem', 'ppmTaskId');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskScheduleDate, r'FormAItem', 'ppmTaskScheduleDate');
-    BuiltValueNullFieldError.checkNotNull(assetId, r'FormAItem', 'assetId');
-    BuiltValueNullFieldError.checkNotNull(
-        assetGroupName, r'FormAItem', 'assetGroupName');
-    BuiltValueNullFieldError.checkNotNull(
-        assetCategoryName, r'FormAItem', 'assetCategoryName');
-    BuiltValueNullFieldError.checkNotNull(
-        assetTypeName, r'FormAItem', 'assetTypeName');
-    BuiltValueNullFieldError.checkNotNull(
-        assetBrandName, r'FormAItem', 'assetBrandName');
-    BuiltValueNullFieldError.checkNotNull(
-        assetModelName, r'FormAItem', 'assetModelName');
-    BuiltValueNullFieldError.checkNotNull(assetNo, r'FormAItem', 'assetNo');
-    BuiltValueNullFieldError.checkNotNull(assetName, r'FormAItem', 'assetName');
-    BuiltValueNullFieldError.checkNotNull(
-        locationCodeId, r'FormAItem', 'locationCodeId');
-    BuiltValueNullFieldError.checkNotNull(
-        assetCapacity, r'FormAItem', 'assetCapacity');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskTimeStart, r'FormAItem', 'ppmTaskTimeStart');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskTimeServiced, r'FormAItem', 'ppmTaskTimeServiced');
-  }
-
+      : super._();
   @override
   FormAItem rebuild(void Function(FormAItemBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  FormAItemBuilder toBuilder() => new FormAItemBuilder()..replace(this);
+  FormAItemBuilder toBuilder() => FormAItemBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -1189,7 +1150,6 @@ class FormAItemBuilder implements Builder<FormAItem, FormAItemBuilder> {
 
   @override
   void replace(FormAItem other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$FormAItem;
   }
 
@@ -1203,7 +1163,7 @@ class FormAItemBuilder implements Builder<FormAItem, FormAItemBuilder> {
 
   _$FormAItem _build() {
     final _$result = _$v ??
-        new _$FormAItem._(
+        _$FormAItem._(
           ppmTaskId: BuiltValueNullFieldError.checkNotNull(
               ppmTaskId, r'FormAItem', 'ppmTaskId'),
           ppmTaskScheduleDate: BuiltValueNullFieldError.checkNotNull(
@@ -1245,21 +1205,16 @@ class _$FormBItem extends FormBItem {
   final String ppmTaskGuideline;
 
   factory _$FormBItem([void Function(FormBItemBuilder)? updates]) =>
-      (new FormBItemBuilder()..update(updates))._build();
+      (FormBItemBuilder()..update(updates))._build();
 
   _$FormBItem._({required this.ppmTaskId, required this.ppmTaskGuideline})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'FormBItem', 'ppmTaskId');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskGuideline, r'FormBItem', 'ppmTaskGuideline');
-  }
-
+      : super._();
   @override
   FormBItem rebuild(void Function(FormBItemBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  FormBItemBuilder toBuilder() => new FormBItemBuilder()..replace(this);
+  FormBItemBuilder toBuilder() => FormBItemBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -1313,7 +1268,6 @@ class FormBItemBuilder implements Builder<FormBItem, FormBItemBuilder> {
 
   @override
   void replace(FormBItem other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$FormBItem;
   }
 
@@ -1327,7 +1281,7 @@ class FormBItemBuilder implements Builder<FormBItem, FormBItemBuilder> {
 
   _$FormBItem _build() {
     final _$result = _$v ??
-        new _$FormBItem._(
+        _$FormBItem._(
           ppmTaskId: BuiltValueNullFieldError.checkNotNull(
               ppmTaskId, r'FormBItem', 'ppmTaskId'),
           ppmTaskGuideline: BuiltValueNullFieldError.checkNotNull(
@@ -1357,7 +1311,7 @@ class _$FormCItem extends FormCItem {
   final String ppmTaskQualRemark;
 
   factory _$FormCItem([void Function(FormCItemBuilder)? updates]) =>
-      (new FormCItemBuilder()..update(updates))._build();
+      (FormCItemBuilder()..update(updates))._build();
 
   _$FormCItem._(
       {required this.ppmTaskQualId,
@@ -1368,30 +1322,13 @@ class _$FormCItem extends FormCItem {
       required this.frequencyName,
       required this.ppmTaskQualResult,
       required this.ppmTaskQualRemark})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQualId, r'FormCItem', 'ppmTaskQualId');
-    BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'FormCItem', 'ppmTaskId');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQualNumb, r'FormCItem', 'ppmTaskQualNumb');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQualDesc, r'FormCItem', 'ppmTaskQualDesc');
-    BuiltValueNullFieldError.checkNotNull(
-        frequencyId, r'FormCItem', 'frequencyId');
-    BuiltValueNullFieldError.checkNotNull(
-        frequencyName, r'FormCItem', 'frequencyName');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQualResult, r'FormCItem', 'ppmTaskQualResult');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQualRemark, r'FormCItem', 'ppmTaskQualRemark');
-  }
-
+      : super._();
   @override
   FormCItem rebuild(void Function(FormCItemBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  FormCItemBuilder toBuilder() => new FormCItemBuilder()..replace(this);
+  FormCItemBuilder toBuilder() => FormCItemBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -1498,7 +1435,6 @@ class FormCItemBuilder implements Builder<FormCItem, FormCItemBuilder> {
 
   @override
   void replace(FormCItem other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$FormCItem;
   }
 
@@ -1512,7 +1448,7 @@ class FormCItemBuilder implements Builder<FormCItem, FormCItemBuilder> {
 
   _$FormCItem _build() {
     final _$result = _$v ??
-        new _$FormCItem._(
+        _$FormCItem._(
           ppmTaskQualId: BuiltValueNullFieldError.checkNotNull(
               ppmTaskQualId, r'FormCItem', 'ppmTaskQualId'),
           ppmTaskId: BuiltValueNullFieldError.checkNotNull(
@@ -1562,7 +1498,7 @@ class _$FormDItem extends FormDItem {
   final String ppmTaskQuanRemark;
 
   factory _$FormDItem([void Function(FormDItemBuilder)? updates]) =>
-      (new FormDItemBuilder()..update(updates))._build();
+      (FormDItemBuilder()..update(updates))._build();
 
   _$FormDItem._(
       {required this.ppmTaskQuanId,
@@ -1577,38 +1513,13 @@ class _$FormDItem extends FormDItem {
       required this.ppmTaskQuanLimit,
       required this.ppmTaskQuanResult,
       required this.ppmTaskQuanRemark})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQuanId, r'FormDItem', 'ppmTaskQuanId');
-    BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'FormDItem', 'ppmTaskId');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQuanNumb, r'FormDItem', 'ppmTaskQuanNumb');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQuanDesc, r'FormDItem', 'ppmTaskQuanDesc');
-    BuiltValueNullFieldError.checkNotNull(
-        frequencyId, r'FormDItem', 'frequencyId');
-    BuiltValueNullFieldError.checkNotNull(
-        frequencyName, r'FormDItem', 'frequencyName');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQuanUnit, r'FormDItem', 'ppmTaskQuanUnit');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQuanSetValues, r'FormDItem', 'ppmTaskQuanSetValues');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQuanMeasuredValues, r'FormDItem', 'ppmTaskQuanMeasuredValues');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQuanLimit, r'FormDItem', 'ppmTaskQuanLimit');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQuanResult, r'FormDItem', 'ppmTaskQuanResult');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskQuanRemark, r'FormDItem', 'ppmTaskQuanRemark');
-  }
-
+      : super._();
   @override
   FormDItem rebuild(void Function(FormDItemBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  FormDItemBuilder toBuilder() => new FormDItemBuilder()..replace(this);
+  FormDItemBuilder toBuilder() => FormDItemBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -1751,7 +1662,6 @@ class FormDItemBuilder implements Builder<FormDItem, FormDItemBuilder> {
 
   @override
   void replace(FormDItem other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$FormDItem;
   }
 
@@ -1765,7 +1675,7 @@ class FormDItemBuilder implements Builder<FormDItem, FormDItemBuilder> {
 
   _$FormDItem _build() {
     final _$result = _$v ??
-        new _$FormDItem._(
+        _$FormDItem._(
           ppmTaskQuanId: BuiltValueNullFieldError.checkNotNull(
               ppmTaskQuanId, r'FormDItem', 'ppmTaskQuanId'),
           ppmTaskId: BuiltValueNullFieldError.checkNotNull(
@@ -1807,26 +1717,19 @@ class _$FormEItem extends FormEItem {
   final String ppmTaskPartsDesc;
 
   factory _$FormEItem([void Function(FormEItemBuilder)? updates]) =>
-      (new FormEItemBuilder()..update(updates))._build();
+      (FormEItemBuilder()..update(updates))._build();
 
   _$FormEItem._(
       {required this.ppmTaskPartsId,
       required this.ppmTaskId,
       required this.ppmTaskPartsDesc})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskPartsId, r'FormEItem', 'ppmTaskPartsId');
-    BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'FormEItem', 'ppmTaskId');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskPartsDesc, r'FormEItem', 'ppmTaskPartsDesc');
-  }
-
+      : super._();
   @override
   FormEItem rebuild(void Function(FormEItemBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  FormEItemBuilder toBuilder() => new FormEItemBuilder()..replace(this);
+  FormEItemBuilder toBuilder() => FormEItemBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -1889,7 +1792,6 @@ class FormEItemBuilder implements Builder<FormEItem, FormEItemBuilder> {
 
   @override
   void replace(FormEItem other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$FormEItem;
   }
 
@@ -1903,7 +1805,7 @@ class FormEItemBuilder implements Builder<FormEItem, FormEItemBuilder> {
 
   _$FormEItem _build() {
     final _$result = _$v ??
-        new _$FormEItem._(
+        _$FormEItem._(
           ppmTaskPartsId: BuiltValueNullFieldError.checkNotNull(
               ppmTaskPartsId, r'FormEItem', 'ppmTaskPartsId'),
           ppmTaskId: BuiltValueNullFieldError.checkNotNull(
@@ -1935,7 +1837,7 @@ class _$FormFItem extends FormFItem {
   final String documentSrc;
 
   factory _$FormFItem([void Function(FormFItemBuilder)? updates]) =>
-      (new FormFItemBuilder()..update(updates))._build();
+      (FormFItemBuilder()..update(updates))._build();
 
   _$FormFItem._(
       {required this.ppmTaskUploadId,
@@ -1946,29 +1848,13 @@ class _$FormFItem extends FormFItem {
       required this.documentDesc,
       required this.documentFilename,
       required this.documentSrc})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskUploadId, r'FormFItem', 'ppmTaskUploadId');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskUploadType, r'FormFItem', 'ppmTaskUploadType');
-    BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'FormFItem', 'ppmTaskId');
-    BuiltValueNullFieldError.checkNotNull(uploadId, r'FormFItem', 'uploadId');
-    BuiltValueNullFieldError.checkNotNull(
-        uploadName, r'FormFItem', 'uploadName');
-    BuiltValueNullFieldError.checkNotNull(
-        documentDesc, r'FormFItem', 'documentDesc');
-    BuiltValueNullFieldError.checkNotNull(
-        documentFilename, r'FormFItem', 'documentFilename');
-    BuiltValueNullFieldError.checkNotNull(
-        documentSrc, r'FormFItem', 'documentSrc');
-  }
-
+      : super._();
   @override
   FormFItem rebuild(void Function(FormFItemBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  FormFItemBuilder toBuilder() => new FormFItemBuilder()..replace(this);
+  FormFItemBuilder toBuilder() => FormFItemBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -2072,7 +1958,6 @@ class FormFItemBuilder implements Builder<FormFItem, FormFItemBuilder> {
 
   @override
   void replace(FormFItem other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$FormFItem;
   }
 
@@ -2086,7 +1971,7 @@ class FormFItemBuilder implements Builder<FormFItem, FormFItemBuilder> {
 
   _$FormFItem _build() {
     final _$result = _$v ??
-        new _$FormFItem._(
+        _$FormFItem._(
           ppmTaskUploadId: BuiltValueNullFieldError.checkNotNull(
               ppmTaskUploadId, r'FormFItem', 'ppmTaskUploadId'),
           ppmTaskUploadType: BuiltValueNullFieldError.checkNotNull(
@@ -2116,21 +2001,16 @@ class _$FormGItem extends FormGItem {
   final String ppmTaskRemark;
 
   factory _$FormGItem([void Function(FormGItemBuilder)? updates]) =>
-      (new FormGItemBuilder()..update(updates))._build();
+      (FormGItemBuilder()..update(updates))._build();
 
   _$FormGItem._({required this.ppmTaskId, required this.ppmTaskRemark})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'FormGItem', 'ppmTaskId');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskRemark, r'FormGItem', 'ppmTaskRemark');
-  }
-
+      : super._();
   @override
   FormGItem rebuild(void Function(FormGItemBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  FormGItemBuilder toBuilder() => new FormGItemBuilder()..replace(this);
+  FormGItemBuilder toBuilder() => FormGItemBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -2184,7 +2064,6 @@ class FormGItemBuilder implements Builder<FormGItem, FormGItemBuilder> {
 
   @override
   void replace(FormGItem other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$FormGItem;
   }
 
@@ -2198,7 +2077,7 @@ class FormGItemBuilder implements Builder<FormGItem, FormGItemBuilder> {
 
   _$FormGItem _build() {
     final _$result = _$v ??
-        new _$FormGItem._(
+        _$FormGItem._(
           ppmTaskId: BuiltValueNullFieldError.checkNotNull(
               ppmTaskId, r'FormGItem', 'ppmTaskId'),
           ppmTaskRemark: BuiltValueNullFieldError.checkNotNull(
@@ -2236,7 +2115,7 @@ class _$FormHItem extends FormHItem {
   final String documentSrc;
 
   factory _$FormHItem([void Function(FormHItemBuilder)? updates]) =>
-      (new FormHItemBuilder()..update(updates))._build();
+      (FormHItemBuilder()..update(updates))._build();
 
   _$FormHItem._(
       {required this.ppmTaskUploadId,
@@ -2251,36 +2130,13 @@ class _$FormHItem extends FormHItem {
       required this.documentDesc,
       required this.documentFilename,
       required this.documentSrc})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskUploadId, r'FormHItem', 'ppmTaskUploadId');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskUploadType, r'FormHItem', 'ppmTaskUploadType');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskUploadLongitude, r'FormHItem', 'ppmTaskUploadLongitude');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskUploadLatitude, r'FormHItem', 'ppmTaskUploadLatitude');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskUploadTimestamp, r'FormHItem', 'ppmTaskUploadTimestamp');
-    BuiltValueNullFieldError.checkNotNull(
-        ppmTaskUploadDesc, r'FormHItem', 'ppmTaskUploadDesc');
-    BuiltValueNullFieldError.checkNotNull(ppmTaskId, r'FormHItem', 'ppmTaskId');
-    BuiltValueNullFieldError.checkNotNull(
-        uploadName, r'FormHItem', 'uploadName');
-    BuiltValueNullFieldError.checkNotNull(
-        documentDesc, r'FormHItem', 'documentDesc');
-    BuiltValueNullFieldError.checkNotNull(
-        documentFilename, r'FormHItem', 'documentFilename');
-    BuiltValueNullFieldError.checkNotNull(
-        documentSrc, r'FormHItem', 'documentSrc');
-  }
-
+      : super._();
   @override
   FormHItem rebuild(void Function(FormHItemBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  FormHItemBuilder toBuilder() => new FormHItemBuilder()..replace(this);
+  FormHItemBuilder toBuilder() => FormHItemBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -2420,7 +2276,6 @@ class FormHItemBuilder implements Builder<FormHItem, FormHItemBuilder> {
 
   @override
   void replace(FormHItem other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$FormHItem;
   }
 
@@ -2434,7 +2289,7 @@ class FormHItemBuilder implements Builder<FormHItem, FormHItemBuilder> {
 
   _$FormHItem _build() {
     final _$result = _$v ??
-        new _$FormHItem._(
+        _$FormHItem._(
           ppmTaskUploadId: BuiltValueNullFieldError.checkNotNull(
               ppmTaskUploadId, r'FormHItem', 'ppmTaskUploadId'),
           ppmTaskUploadType: BuiltValueNullFieldError.checkNotNull(

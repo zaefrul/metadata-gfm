@@ -6,7 +6,7 @@ part of 'dot.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializer<Dot> _$dotSerializer = new _$DotSerializer();
+Serializer<Dot> _$dotSerializer = _$DotSerializer();
 
 class _$DotSerializer implements StructuredSerializer<Dot> {
   @override
@@ -35,7 +35,7 @@ class _$DotSerializer implements StructuredSerializer<Dot> {
   @override
   Dot deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new DotBuilder();
+    final result = DotBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -73,21 +73,16 @@ class _$Dot extends Dot {
   final BuiltList<String> status;
 
   factory _$Dot([void Function(DotBuilder)? updates]) =>
-      (new DotBuilder()..update(updates))._build();
+      (DotBuilder()..update(updates))._build();
 
   _$Dot._({required this.date, required this.total, required this.status})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(date, r'Dot', 'date');
-    BuiltValueNullFieldError.checkNotNull(total, r'Dot', 'total');
-    BuiltValueNullFieldError.checkNotNull(status, r'Dot', 'status');
-  }
-
+      : super._();
   @override
   Dot rebuild(void Function(DotBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  DotBuilder toBuilder() => new DotBuilder()..replace(this);
+  DotBuilder toBuilder() => DotBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -130,8 +125,7 @@ class DotBuilder implements Builder<Dot, DotBuilder> {
   set total(String? total) => _$this._total = total;
 
   ListBuilder<String>? _status;
-  ListBuilder<String> get status =>
-      _$this._status ??= new ListBuilder<String>();
+  ListBuilder<String> get status => _$this._status ??= ListBuilder<String>();
   set status(ListBuilder<String>? status) => _$this._status = status;
 
   DotBuilder();
@@ -149,7 +143,6 @@ class DotBuilder implements Builder<Dot, DotBuilder> {
 
   @override
   void replace(Dot other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$Dot;
   }
 
@@ -165,7 +158,7 @@ class DotBuilder implements Builder<Dot, DotBuilder> {
     _$Dot _$result;
     try {
       _$result = _$v ??
-          new _$Dot._(
+          _$Dot._(
             date: BuiltValueNullFieldError.checkNotNull(date, r'Dot', 'date'),
             total:
                 BuiltValueNullFieldError.checkNotNull(total, r'Dot', 'total'),
@@ -177,8 +170,7 @@ class DotBuilder implements Builder<Dot, DotBuilder> {
         _$failedField = 'status';
         status.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
-            r'Dot', _$failedField, e.toString());
+        throw BuiltValueNestedFieldError(r'Dot', _$failedField, e.toString());
       }
       rethrow;
     }
