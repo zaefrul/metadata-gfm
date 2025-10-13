@@ -23,40 +23,68 @@ class ComplaintList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // sort list by id descending
-    //list.sort((a, b) => b.woTaskId.compareTo(a.woTaskId));
+    final hasOffline = list.any((item) => item.isOffline);
+    final hasOnline = list.any((item) => !item.isOffline);
+
+  final rows = <_ComplaintRow>[];
+    bool insertedOfflineHeader = false;
+    bool insertedOnlineHeader = false;
+
+    for (final item in list) {
+      if (item.isOffline && hasOffline && !insertedOfflineHeader) {
+        rows.add(const _ComplaintRow.header(_ComplaintHeaderKind.offline));
+        insertedOfflineHeader = true;
+      }
+
+      if (!item.isOffline && hasOffline && hasOnline && !insertedOnlineHeader) {
+        rows.add(const _ComplaintRow.gap());
+        rows.add(const _ComplaintRow.header(_ComplaintHeaderKind.online));
+        insertedOnlineHeader = true;
+      }
+
+      rows.add(_ComplaintRow.item(item));
+    }
+
     return RefreshIndicator(
       onRefresh: refresh,
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        itemCount: list.length,
+        itemCount: rows.length,
         itemBuilder: (context, idx) {
-          final item = list[idx];
-          final task = item.task;
-          return _TaskCard(
-            task: task,
-            isOffline: item.isOffline,
-            viewer: viewer,
-            onTap: () {
-              final page = ComplaintSection(
-                id:            task.woTaskId,
-                siteName:      task.reportedBy,
-                taskNo:        task.woTaskNo,
-                taskStatus:    task.woTaskStatus,
-                viewer:        viewer,
-                isComplaintProgress: task.woTaskType == "Client Complaint" &&
-                                     task.woTaskStatus == "In Progress",
-                isAssign:      task.woTaskStatus == "Assign" ||
-                               task.woTaskStatus == "Revisit" ||
-                               task.woTaskStatus == "WR Reassign",
-                woTaskType: task.woTaskTypeInit,
-                woTaskCategory: "",
+          final row = rows[idx];
+          switch (row.type) {
+            case _ComplaintRowType.header:
+              return _SectionHeader(kind: row.headerKind!);
+            case _ComplaintRowType.gap:
+              return const SizedBox(height: 12);
+            case _ComplaintRowType.item:
+              final item = row.item!;
+              final task = item.task;
+              return _TaskCard(
+                task: task,
+                isOffline: item.isOffline,
+                viewer: viewer,
+                onTap: () {
+                  final page = ComplaintSection(
+                    id:            task.woTaskId,
+                    siteName:      task.reportedBy,
+                    taskNo:        task.woTaskNo,
+                    taskStatus:    task.woTaskStatus,
+                    viewer:        viewer,
+                    isComplaintProgress: task.woTaskType == "Client Complaint" &&
+                                         task.woTaskStatus == "In Progress",
+                    isAssign:      task.woTaskStatus == "Assign" ||
+                                   task.woTaskStatus == "Revisit" ||
+                                   task.woTaskStatus == "WR Reassign",
+                    woTaskType: task.woTaskTypeInit,
+                    woTaskCategory: "",
+                  );
+                  Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (_) => page))
+                      .then((_) => refresh());
+                },
               );
-              Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (_) => page))
-                  .then((_) => refresh());
-            },
-          );
+          }
         },
       ),
     );
@@ -233,6 +261,68 @@ class _TaskCard extends StatelessWidget {
                 ),
               ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+enum _ComplaintRowType { header, gap, item }
+
+enum _ComplaintHeaderKind { offline, online }
+
+class _ComplaintRow {
+  const _ComplaintRow._(this.type, {this.item, this.headerKind});
+
+  const _ComplaintRow.header(_ComplaintHeaderKind kind)
+      : this._(_ComplaintRowType.header, headerKind: kind);
+
+  const _ComplaintRow.gap() : this._(_ComplaintRowType.gap);
+
+  const _ComplaintRow.item(WorkOrderListItem item)
+      : this._(_ComplaintRowType.item, item: item);
+
+  final _ComplaintRowType type;
+  final WorkOrderListItem? item;
+  final _ComplaintHeaderKind? headerKind;
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.kind});
+
+  final _ComplaintHeaderKind kind;
+
+  @override
+  Widget build(BuildContext context) {
+    final isOffline = kind == _ComplaintHeaderKind.offline;
+    final background = isOffline ? AppColors.secondaryLight : Colors.transparent;
+    final foreground = isOffline ? AppColors.secondaryDark : Colors.black54;
+    final label = isOffline ? 'Available offline' : 'Other tasks';
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: background,
+            borderRadius: BorderRadius.circular(isOffline ? 12 : 0),
+          ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: isOffline ? 12 : 0,
+              vertical: isOffline ? 6 : 0,
+            ),
+            child: Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                fontWeight: isOffline ? FontWeight.w700 : FontWeight.w500,
+                color: foreground,
+                letterSpacing: isOffline ? 0.2 : 0,
+              ),
+            ),
+          ),
         ),
       ),
     );

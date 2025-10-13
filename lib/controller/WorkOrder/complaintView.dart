@@ -17,6 +17,46 @@ class ComplaintView extends StatefulWidget {
   ComplaintViewState createState() => ComplaintViewState();
 }
 
+class _OfflineNotice extends StatelessWidget {
+  const _OfflineNotice({required this.onRetry});
+
+  final Future<void> Function() onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.orange.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.orange.shade200),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          const Icon(Icons.wifi_off, color: Colors.orange, size: 20),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Text(
+              "You're viewing offline data. Reconnect and pull to refresh to get the latest updates.",
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.black87,
+                height: 1.3,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              onRetry();
+            },
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class ComplaintViewState extends State<ComplaintView> {
   String dropdownValue = "All Status";
   String dropdownType = "All Type";
@@ -24,6 +64,7 @@ class ComplaintViewState extends State<ComplaintView> {
   List<WorkOrderListItem> _filterTask = [];
   late final WorkOrderRepository _repository;
   late Future<List<WorkOrderListItem>> _loadFuture;
+  WorkOrderDataSource? _lastSource;
 
   @override
   void initState() {
@@ -38,17 +79,20 @@ class ComplaintViewState extends State<ComplaintView> {
 
   Future<List<WorkOrderListItem>> _load({bool forceRefresh = false}) async {
     try {
-      final tasks = await _repository.getWorkOrders(
+      final result = await _repository.getWorkOrders(
         type: _listType,
         forceRefresh: forceRefresh,
       );
-      debugPrint('WorkOrder: fetched ${tasks.length} items for ${_listType.name} (forceRefresh=$forceRefresh)');
+      final tasks = result.items;
+      debugPrint('WorkOrder: fetched ${tasks.length} items for ${_listType.name} (forceRefresh=$forceRefresh, source=${result.source})');
       if (!mounted) {
+        _lastSource = result.source;
         return tasks;
       }
       setState(() {
         _listTask = tasks;
         _filterTask = _applyFilters(tasks);
+        _lastSource = result.source;
       });
       return _filterTask;
     } catch (error, stack) {
@@ -156,23 +200,33 @@ class ComplaintViewState extends State<ComplaintView> {
       ),
     );
 
-    Widget body(List<WorkOrderListItem> value) => Column(
-          children: <Widget>[
-            const SizedBox(height: 12),
+    Widget body(List<WorkOrderListItem> value) {
+      final showOfflineBanner =
+          _lastSource == WorkOrderDataSource.cacheFallback && value.isNotEmpty;
+      return Column(
+        children: <Widget>[
+          if (showOfflineBanner)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: _header,
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: _OfflineNotice(onRetry: _refresh),
+            )
+          else
+            const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: _header,
+          ),
+          const Divider(),
+          Expanded(
+            child: ComplaintList(
+              list: value,
+              viewer: widget.index == 0,
+              refresh: _refresh,
             ),
-            const Divider(),
-            Expanded(
-              child: ComplaintList(
-                list: value,
-                viewer: widget.index == 0,
-                refresh: _refresh,
-              ),
-            ),
-          ],
-        );
+          ),
+        ],
+      );
+    }
 
     return FutureBuilder<List<WorkOrderListItem>>(
       future: _loadFuture,

@@ -377,6 +377,83 @@ class WorkOrderDetailRepository {
     );
   }
 
+  Future<WorkOrderActionResult> uploadRepairImage({
+    required String workOrderId,
+    required String uploadType,
+    required String latitude,
+    required String longitude,
+    required String displayName,
+    required String filename,
+    required int sizeBytes,
+    required String base64Data,
+  }) {
+    return _sendOrQueue(
+      workOrderId: workOrderId,
+      body: {
+        'action': 'upload_repair_image',
+        'woTaskId': workOrderId,
+        'uploadType': uploadType,
+        'longitude': longitude,
+        'latitude': latitude,
+        'fileUpload[name]': displayName,
+        'fileUpload[filename]': filename,
+        'fileUpload[size]': sizeBytes.toString(),
+        'fileUpload[type]': 'data:image/jpeg;base64',
+        'fileUpload[data]': base64Data,
+      },
+    );
+  }
+
+  Future<WorkOrderActionResult> uploadResponseImage({
+    required String workOrderId,
+    required String uploadType,
+    required String latitude,
+    required String longitude,
+    required String displayName,
+    required String filename,
+    required int sizeBytes,
+    required String base64Data,
+    String? description,
+  }) {
+    final body = <String, dynamic>{
+      'action': 'upload_response_image',
+      'woTaskId': workOrderId,
+      'uploadType': uploadType,
+      'longitude': longitude,
+      'latitude': latitude,
+      'fileUpload[name]': displayName,
+      'fileUpload[filename]': filename,
+      'fileUpload[size]': sizeBytes.toString(),
+      'fileUpload[type]': 'data:image/jpeg;base64',
+      'fileUpload[data]': base64Data,
+      'fileUpload[description]': description ?? '',
+    };
+    return _sendOrQueue(
+      workOrderId: workOrderId,
+      body: body,
+    );
+  }
+
+  Future<WorkOrderActionResult> saveRepairImageDescriptions({
+    required String workOrderId,
+    required Map<String, String> descriptions,
+  }) {
+    final body = <String, String>{
+      'action': 'save_wo_repair_image_desc',
+      'woTaskId': workOrderId,
+    };
+    var index = 0;
+    descriptions.forEach((key, value) {
+      body['woTaskUpload[$index][woTaskUploadId]'] = key;
+      body['woTaskUpload[$index][woTaskUploadDesc]'] = value;
+      index++;
+    });
+    return _sendOrQueue(
+      workOrderId: workOrderId,
+      body: body,
+    );
+  }
+
   Future<void> _post(Map<String, dynamic> body) async {
     final provider = _buildProvider('/api/m_wo.php');
     await provider.post(url: '/api/m_wo.php', body: body);

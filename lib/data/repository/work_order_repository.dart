@@ -21,6 +21,18 @@ class WorkOrderListItem {
   }
 }
 
+enum WorkOrderDataSource { remote, cacheWarm, cacheFallback }
+
+class WorkOrderListResult {
+  const WorkOrderListResult({
+    required this.items,
+    required this.source,
+  });
+
+  final List<WorkOrderListItem> items;
+  final WorkOrderDataSource source;
+}
+
 /// Lists available from the work order endpoint.
 enum WorkOrderListType { submittedWo, pendingTask }
 
@@ -43,14 +55,20 @@ class WorkOrderRepository {
 
   final OfflineDatabase _database;
 
-  Future<List<WorkOrderListItem>> getWorkOrders({
+  Future<WorkOrderListResult> getWorkOrders({
     required WorkOrderListType type,
     bool forceRefresh = false,
   }) async {
     if (!forceRefresh) {
       final cached = await _database.getWorkOrdersByList(type.cacheKey);
       if (cached.isNotEmpty) {
-        return cached.map(_entityToListItem).toList();
+        final items = _prioritizeOffline(
+          cached.map(_entityToListItem).toList(),
+        );
+        return WorkOrderListResult(
+          items: items,
+          source: WorkOrderDataSource.cacheWarm,
+        );
       }
     }
 
@@ -59,17 +77,27 @@ class WorkOrderRepository {
       final entities = remote.map(_taskToEntity).toList();
       await _database.replaceWorkOrderList(type.cacheKey, entities);
       final refreshed = await _database.getWorkOrdersByList(type.cacheKey);
-      return refreshed.map(_entityToListItem).toList();
+      final items = refreshed.map(_entityToListItem).toList();
+      return WorkOrderListResult(
+        items: items,
+        source: WorkOrderDataSource.remote,
+      );
     } catch (error) {
       final fallback = await _database.getWorkOrdersByList(type.cacheKey);
       if (fallback.isNotEmpty) {
-        return fallback.map(_entityToListItem).toList();
+        final items = _prioritizeOffline(
+          fallback.map(_entityToListItem).toList(),
+        );
+        return WorkOrderListResult(
+          items: items,
+          source: WorkOrderDataSource.cacheFallback,
+        );
       }
       rethrow;
     }
   }
 
-  Future<List<WorkOrderListItem>> refreshWorkOrders(WorkOrderListType type) async {
+  Future<WorkOrderListResult> refreshWorkOrders(WorkOrderListType type) async {
     return getWorkOrders(type: type, forceRefresh: true);
   }
 
@@ -110,6 +138,24 @@ class WorkOrderRepository {
   WorkOrderListItem _entityToListItem(WorkOrderHeaderEntity entity) {
     final task = _entityToTask(entity);
     return WorkOrderListItem(task: task, isOffline: entity.isOfflineMode);
+  }
+
+  List<WorkOrderListItem> _prioritizeOffline(List<WorkOrderListItem> source) {
+    if (source.length <= 1) {
+      return source;
+    }
+
+    final offline = <WorkOrderListItem>[];
+    final online = <WorkOrderListItem>[];
+    for (final item in source) {
+      if (item.isOffline) {
+        offline.add(item);
+      } else {
+        online.add(item);
+      }
+    }
+
+    return <WorkOrderListItem>[...offline, ...online];
   }
 
   WorkOrderTask _entityToTask(WorkOrderHeaderEntity entity) {

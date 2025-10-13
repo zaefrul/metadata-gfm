@@ -6,6 +6,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:GEMS/controller/PPM/Form/openImage.dart';
+import 'package:GEMS/data/repository/work_order_detail_repository.dart';
 import 'package:GEMS/utils/image_compressor.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
@@ -44,11 +45,13 @@ class _ComplaintSectionResponseImageState
 
   /// newly picked images waiting to upload
   final List<_LocalImage> _toUpload = [];
+  late final WorkOrderDetailRepository _repository;
 
   @override
   void initState() {
     super.initState();
     ToastContext().init(context);
+    _repository = WorkOrderDetailRepository();
     _loadExisting();
   }
 
@@ -480,7 +483,7 @@ class _ComplaintSectionResponseImageState
         file: file,
         data: base64Encode(bytes),
         name: basename(picked.path),
-        size: bytes.length.toString(),
+        sizeBytes: bytes.length,
       ));
       _loading = false;
     });
@@ -539,44 +542,84 @@ class _ComplaintSectionResponseImageState
   Future<void> _submitAll() async {
     setState(() => _loading = true);
 
-    final provider = Provider(fetchURL: "/api/m_wo.php")..context = context;
-
-    // get location
     final prefs = await SharedPreferences.getInstance();
-    final lat = prefs.getString(prefsLATITUDE)  ?? "0.0";
+    final lat = prefs.getString(prefsLATITUDE) ?? "0.0";
     final lng = prefs.getString(prefsLONGITUDE) ?? "0.0";
     if (lat == "0.0" && lng == "0.0") {
       Toast.show("Please relogin to get location");
-      return setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+      }
+      return;
     }
+
+    var anyQueued = false;
+    var anySuccess = false;
+    var hadError = false;
 
     for (var i = 0; i < _toUpload.length; i++) {
       final img = _toUpload[i];
-      final body = {
-        "action": "upload_response_image",
-        "woTaskId": widget.woTaskId,
-        // you may adjust uploadType logic if needed:
-        "uploadType": "${i+2}",
-        "longitude": lng,
-        "latitude": lat,
-        "fileUpload[name]": img.name,
-        "fileUpload[filename]": img.name,
-        "fileUpload[size]": img.size,
-        "fileUpload[type]": "data:image/jpeg;base64",
-        "fileUpload[data]": img.data,
-        "fileUpload[description]": img.description,
-      };
-
       try {
-        await provider.post(url: provider.fetchURL, body: body);
-      } catch (e) {
-        Toast.show("Failed to upload image #${i+1}");
+        final result = await _repository.uploadResponseImage(
+          workOrderId: widget.woTaskId,
+          uploadType: '${i + 2}',
+          latitude: lat,
+          longitude: lng,
+          displayName: img.name,
+          filename: img.name,
+          sizeBytes: img.sizeBytes,
+          base64Data: img.data,
+          description: img.description,
+        );
+        if (result == WorkOrderActionResult.success) {
+          anySuccess = true;
+        } else {
+          anyQueued = true;
+        }
+      } catch (err, st) {
+        debugPrint('Failed to upload response image: $err\n$st');
+        hadError = true;
       }
     }
 
-    Toast.show("Done!");
-    _toUpload.clear();
-    await _loadExisting();
+    if (!mounted) {
+      return;
+    }
+
+    String? message;
+    if (anySuccess && anyQueued) {
+      message = "Some photos uploaded. Others will sync once you're back online.";
+    } else if (anySuccess) {
+      message = "Images uploaded";
+    } else if (anyQueued) {
+      message = "You're offline right now. We'll sync these photos once you're back online.";
+    } else if (hadError) {
+      message = "Failed to upload images";
+    }
+
+    if (message != null) {
+      Toast.show(message);
+    }
+
+    if (anyQueued && widget.pendingSync != null) {
+      try {
+        await widget.pendingSync!.retry();
+      } catch (err, st) {
+        debugPrint('Pending sync retry failed: $err\n$st');
+      }
+    }
+
+    if (anySuccess) {
+      await _loadExisting();
+      if (!mounted) {
+        return;
+      }
+    }
+
+    setState(() {
+      _toUpload.clear();
+      _loading = false;
+    });
   }
 }
 
@@ -609,15 +652,13 @@ class _LocalImage {
   final File file;
   final String name;
   final String data;
-  final String size;
+  final int sizeBytes;
   String description = "";
-  String latitude = "";
-  String longitude = "";
 
   _LocalImage({
     required this.file,
     required this.name,
     required this.data,
-    required this.size,
+    required this.sizeBytes,
   });
 }

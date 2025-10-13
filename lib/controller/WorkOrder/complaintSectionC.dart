@@ -3,14 +3,14 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:GEMS/main.dart';
 import 'package:GEMS/utils/image_compressor.dart';
-import 'package:intl/intl.dart';
 import 'package:GEMS/controller/PPM/Form/openImage.dart';
+import 'package:GEMS/data/repository/work_order_detail_repository.dart';
 import 'package:GEMS/model/workorder.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' show basename;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:GEMS/controller/WorkOrder/pending_sync.dart';
@@ -40,10 +40,12 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
   List<TechnicianImageRepair> _during = [];
   List<TechnicianImageRepair> _after  = [];
   final Map<String, String> _notes = {};
+  late final WorkOrderDetailRepository _repository;
 
   @override
   void initState() {
     super.initState();
+    _repository = WorkOrderDetailRepository();
     _provider = Provider(
       taskID: widget.id,
       fetchURL: "/api/m_wo.php?type=wo_repair_images&woTaskId="
@@ -264,45 +266,71 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
       'minHeight': 640,
     }) ?? Uint8List(0);
     final base64Img = base64Encode(bytes);
-    final dateStr = DateFormat('yyyy/MM/dd HH:mm:ss').format(DateTime.now());
-
-    final upload = UploadItem(
-      "upload_repair_image",
-      widget.id,
-      date: dateStr,
-      uploadType: (idx + 2).toString(),
-      longitude: lng,
-      latitude: lat,
-      name: "Repair Image",
-      filename: "${file.path}.jpg",
-      size: bytes.length.toString(),
-      data: base64Img,
-    );
-
     try {
-      _provider.context = navigatorKey.currentContext!;
-      await _provider.post(url: "/api/m_wo.php", body: upload.body);
-      Toast.show("Uploaded");
-      await _fetchImages();
+      final result = await _repository.uploadRepairImage(
+        workOrderId: widget.id,
+        uploadType: (idx + 2).toString(),
+        latitude: lat,
+        longitude: lng,
+        displayName: "Repair Image",
+        filename: basename(file.path),
+        sizeBytes: bytes.length,
+        base64Data: base64Img,
+      );
+      if (!mounted) return;
+      if (result == WorkOrderActionResult.success) {
+        Toast.show("Uploaded");
+        await _fetchImages();
+      } else {
+        Toast.show(
+          "You're offline right now. We'll sync this photo once you're back online.",
+        );
+        if (widget.pendingSync != null) {
+          try {
+            await widget.pendingSync!.retry();
+          } catch (err, st) {
+            debugPrint('Pending sync retry failed: $err\n$st');
+          }
+        }
+      }
     } catch (e) {
       Toast.show("Upload failed");
     } finally {
-      setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 
   Future<void> _postNotes() async {
     setState(() => _loading = true);
-    final desc = UploadDesc("save_wo_repair_image_desc", widget.id, notes: _notes);
     try {
-      _provider.context = navigatorKey.currentContext!;
-      await _provider.post(url: "/api/m_wo.php", body: desc.body);
-      Toast.show("Descriptions saved");
+      final result = await _repository.saveRepairImageDescriptions(
+        workOrderId: widget.id,
+        descriptions: _notes,
+      );
+      if (!mounted) return;
+      if (result == WorkOrderActionResult.success) {
+        Toast.show("Descriptions saved");
+        await _fetchImages();
+      } else {
+        Toast.show(
+          "You're offline right now. We'll sync these descriptions once you're back online.",
+        );
+        if (widget.pendingSync != null) {
+          try {
+            await widget.pendingSync!.retry();
+          } catch (err, st) {
+            debugPrint('Pending sync retry failed: $err\n$st');
+          }
+        }
+      }
     } catch (e) {
       Toast.show("Save failed");
     } finally {
-      await _fetchImages();
-      setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 
@@ -321,52 +349,4 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
     }
   }
 
-}
-
-class UploadItem extends Upload {
-  final String uploadType, longitude, latitude, name, filename, size, data, date;
-  UploadItem(
-    action,
-    ppmTaskId, {
-    required this.date,
-    required this.uploadType,
-    required this.longitude,
-    required this.latitude,
-    required this.name,
-    required this.filename,
-    required this.size,
-    required this.data,
-  }) : super(action: action, ppmTaskId: ppmTaskId);
-
-  @override
-  Map<String, dynamic> get body => {
-        "action": action,
-        "woTaskId": ppmTaskId,
-        "uploadType": uploadType,
-        "longitude": longitude,
-        "latitude": latitude,
-        "fileUpload[name]": name,
-        "fileUpload[filename]": filename,
-        "fileUpload[size]": size,
-        "fileUpload[type]": "data:image/jpeg;base64",
-        "fileUpload[data]": data,
-      };
-}
-
-class UploadDesc extends Upload {
-  final Map<String, String> notes;
-  UploadDesc(action, ppmTaskId, {required this.notes})
-      : super(action: action, ppmTaskId: ppmTaskId);
-
-  @override
-  Map<String, String> get body {
-    final b = {"action": action, "woTaskId": ppmTaskId};
-    var i = 0;
-    notes.forEach((k, v) {
-      b["woTaskUpload[$i][woTaskUploadId]"] = k;
-      b["woTaskUpload[$i][woTaskUploadDesc]"] = v;
-      i++;
-    });
-    return b;
-  }
 }
