@@ -4,6 +4,23 @@ import 'package:GEMS/model/workorder.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:flutter/foundation.dart';
 
+class WorkOrderListItem {
+  const WorkOrderListItem({
+    required this.task,
+    required this.isOffline,
+  });
+
+  final WorkOrderTask task;
+  final bool isOffline;
+
+  WorkOrderListItem copyWith({WorkOrderTask? task, bool? isOffline}) {
+    return WorkOrderListItem(
+      task: task ?? this.task,
+      isOffline: isOffline ?? this.isOffline,
+    );
+  }
+}
+
 /// Lists available from the work order endpoint.
 enum WorkOrderListType { submittedWo, pendingTask }
 
@@ -26,14 +43,14 @@ class WorkOrderRepository {
 
   final OfflineDatabase _database;
 
-  Future<List<WorkOrderTask>> getWorkOrders({
+  Future<List<WorkOrderListItem>> getWorkOrders({
     required WorkOrderListType type,
     bool forceRefresh = false,
   }) async {
     if (!forceRefresh) {
       final cached = await _database.getWorkOrdersByList(type.cacheKey);
       if (cached.isNotEmpty) {
-        return cached.map(_entityToTask).toList();
+        return cached.map(_entityToListItem).toList();
       }
     }
 
@@ -41,17 +58,18 @@ class WorkOrderRepository {
       final remote = await _fetchRemote(type);
       final entities = remote.map(_taskToEntity).toList();
       await _database.replaceWorkOrderList(type.cacheKey, entities);
-      return entities.map(_entityToTask).toList();
+      final refreshed = await _database.getWorkOrdersByList(type.cacheKey);
+      return refreshed.map(_entityToListItem).toList();
     } catch (error) {
       final fallback = await _database.getWorkOrdersByList(type.cacheKey);
       if (fallback.isNotEmpty) {
-        return fallback.map(_entityToTask).toList();
+        return fallback.map(_entityToListItem).toList();
       }
       rethrow;
     }
   }
 
-  Future<List<WorkOrderTask>> refreshWorkOrders(WorkOrderListType type) async {
+  Future<List<WorkOrderListItem>> refreshWorkOrders(WorkOrderListType type) async {
     return getWorkOrders(type: type, forceRefresh: true);
   }
 
@@ -87,6 +105,11 @@ class WorkOrderRepository {
       rawJson: task.toJson(),
       isDownloaded: true,
     );
+  }
+
+  WorkOrderListItem _entityToListItem(WorkOrderHeaderEntity entity) {
+    final task = _entityToTask(entity);
+    return WorkOrderListItem(task: task, isOffline: entity.isOfflineMode);
   }
 
   WorkOrderTask _entityToTask(WorkOrderHeaderEntity entity) {

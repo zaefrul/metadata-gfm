@@ -1,6 +1,9 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:GEMS/controller/WorkOrder/complaintSection_v2.dart';
+import 'package:GEMS/data/repository/work_order_repository.dart';
 import 'package:GEMS/model/workorder.dart';
 import 'package:GEMS/utils/reference.dart';
 
@@ -9,7 +12,7 @@ typedef VoidFutureCallback = Future<void> Function();
 class ComplaintList extends StatelessWidget {
   final VoidFutureCallback refresh;
   final bool viewer;
-  final List<WorkOrderTask> list;
+  final List<WorkOrderListItem> list;
 
   const ComplaintList({
     super.key,
@@ -28,9 +31,11 @@ class ComplaintList extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         itemCount: list.length,
         itemBuilder: (context, idx) {
-          final task = list[idx];
+          final item = list[idx];
+          final task = item.task;
           return _TaskCard(
             task: task,
+            isOffline: item.isOffline,
             viewer: viewer,
             onTap: () {
               final page = ComplaintSection(
@@ -61,12 +66,13 @@ class ComplaintList extends StatelessWidget {
 /// A single task displayed in a rounded card
 class _TaskCard extends StatelessWidget {
   final WorkOrderTask task;
+  final bool isOffline;
   final bool viewer;
   final VoidCallback onTap;
 
   const _TaskCard({
-    super.key,
     required this.task,
+    required this.isOffline,
     required this.viewer,
     required this.onTap,
   });
@@ -129,41 +135,57 @@ class _TaskCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              // Left: task info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Task no
-                    Text(
-                      task.woTaskNo,
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    // Type
-                    Text(
-                      task.woTaskType,
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.black54,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    // Created time + reporter
-                    Row(
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.access_time, size: 16, color: Colors.black38),
-                        const SizedBox(width: 4),
                         Text(
-                          task.woTaskTimeCreated,
+                          task.woTaskNo,
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          task.woTaskType,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Icon(Icons.access_time, size: 16, color: Colors.black38),
+                            const SizedBox(width: 4),
+                            Text(
+                              task.woTaskTimeCreated,
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          task.reportedBy,
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          task.woTaskSeverity,
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             color: Colors.black54,
@@ -171,44 +193,46 @@ class _TaskCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      task.reportedBy,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: _statusColor(),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      task.woTaskStatus,
                       style: GoogleFonts.poppins(
                         fontSize: 12,
-                        color: Colors.black54,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      task.woTaskSeverity,
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-
-              // Right: status chip
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: _statusColor(),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  task.woTaskStatus,
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
+            ),
+            if (isOffline)
+              Positioned(
+                top: 12,
+                right: 12,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.secondaryDark,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    'Offline',
+                    style: GoogleFonts.poppins(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
-            ],
-          ),
+          ],
         ),
       ),
     );

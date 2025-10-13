@@ -1,4 +1,4 @@
-// ignore_for_file: unused_element, curly_braces_in_flow_control_structures
+// ignore_for_file: unused_element, curly_braces_in_flow_control_structures, file_names
 
 import 'dart:async';
 
@@ -51,10 +51,10 @@ class ComplaintSection extends StatefulWidget {
   });
 
   @override
-  _ComplaintSectionState createState() => _ComplaintSectionState();
+  ComplaintSectionState createState() => ComplaintSectionState();
 }
 
-class _ComplaintSectionState extends State<ComplaintSection> {
+class ComplaintSectionState extends State<ComplaintSection> {
   late final MainBloc _bloc;
   late final PendingSyncController _pendingSyncController;
   bool showtime = false;
@@ -261,11 +261,19 @@ class _ComplaintSectionState extends State<ComplaintSection> {
     );
   }
 
+  static const Set<String> _offlineEligibleStatuses = {'In Progress', 'WR Check'};
+
+  bool get _isOfflineEligible => _offlineEligibleStatuses.contains(widget.taskStatus);
+
   Widget _buildOfflineControls() {
     return StreamBuilder<bool>(
       stream: _bloc.offlineMode$,
       builder: (context, snapshot) {
         final isOffline = snapshot.data ?? false;
+        final isEligible = _isOfflineEligible;
+        if (!isEligible && !isOffline) {
+          return const SizedBox.shrink();
+        }
         return Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: Container(
@@ -299,7 +307,17 @@ class _ComplaintSectionState extends State<ComplaintSection> {
                       value: isOffline,
                       onChanged: _offlineToggleInFlight
                           ? null
-                          : (value) => _toggleOfflineMode(value),
+                          : (value) {
+                              if (value && !isEligible) {
+                                Toast.show(
+                                  'Offline mode is only available for In Progress or WR Check tickets.',
+                                  duration: Toast.lengthShort,
+                                  gravity: Toast.bottom,
+                                );
+                                return;
+                              }
+                              _toggleOfflineMode(value);
+                            },
                     ),
                   ],
                 ),
@@ -307,7 +325,9 @@ class _ComplaintSectionState extends State<ComplaintSection> {
                 Text(
                   isOffline
                       ? 'We\'ll save all updates on this device. Tap Sync now once you\'re ready to push changes online.'
-                      : 'Enable offline mode when you expect to lose connectivity. We\'ll cache the task and you can sync later.',
+                      : isEligible
+                          ? 'Enable offline mode when you expect to lose connectivity. We\'ll cache the task and you can sync later.'
+                          : 'Offline mode is limited to tickets that are In Progress or WR Check.',
                   style: const TextStyle(fontSize: 14, height: 1.4),
                 ),
                 if (_offlineToggleInFlight) ...[

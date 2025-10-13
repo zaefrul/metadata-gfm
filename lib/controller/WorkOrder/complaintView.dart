@@ -1,6 +1,7 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:GEMS/data/repository/work_order_repository.dart';
-import 'package:GEMS/model/workorder.dart';
 
 import 'complaintList.dart';
 
@@ -13,16 +14,16 @@ class ComplaintView extends StatefulWidget {
   const ComplaintView(this.url, this.headers, this.index, {super.key});
 
   @override
-  _ComplaintViewState createState() => _ComplaintViewState();
+  ComplaintViewState createState() => ComplaintViewState();
 }
 
-class _ComplaintViewState extends State<ComplaintView> {
+class ComplaintViewState extends State<ComplaintView> {
   String dropdownValue = "All Status";
   String dropdownType = "All Type";
-  List<WorkOrderTask> _listTask = [];
-  List<WorkOrderTask> _filterTask = [];
+  List<WorkOrderListItem> _listTask = [];
+  List<WorkOrderListItem> _filterTask = [];
   late final WorkOrderRepository _repository;
-  late Future<List<WorkOrderTask>> _loadFuture;
+  late Future<List<WorkOrderListItem>> _loadFuture;
 
   @override
   void initState() {
@@ -35,7 +36,7 @@ class _ComplaintViewState extends State<ComplaintView> {
       ? WorkOrderListType.submittedWo
       : WorkOrderListType.pendingTask;
 
-  Future<List<WorkOrderTask>> _load({bool forceRefresh = false}) async {
+  Future<List<WorkOrderListItem>> _load({bool forceRefresh = false}) async {
     try {
       final tasks = await _repository.getWorkOrders(
         type: _listType,
@@ -57,15 +58,16 @@ class _ComplaintViewState extends State<ComplaintView> {
     }
   }
 
-  List<WorkOrderTask> _applyFilters(List<WorkOrderTask> source) {
-    Iterable<WorkOrderTask> filtered = source;
+  List<WorkOrderListItem> _applyFilters(List<WorkOrderListItem> source) {
+    Iterable<WorkOrderListItem> filtered = source;
 
     if (dropdownValue != "All Status") {
-      filtered = filtered.where((task) => task.woTaskStatus == dropdownValue);
+      filtered = filtered.where((item) => item.task.woTaskStatus == dropdownValue);
     }
 
     if (dropdownType != "All Type") {
-      filtered = filtered.where((task) {
+      filtered = filtered.where((item) {
+        final task = item.task;
         final typeCode = dropdownType == "Work Order" ? "WO" : "WR";
         return task.woTaskTypeInit == typeCode ||
             task.woTaskType == dropdownType;
@@ -148,35 +150,33 @@ class _ComplaintViewState extends State<ComplaintView> {
   @override
   Widget build(BuildContext context) {
     Widget loadingWidget = Container(
-      color: Colors.black.withOpacity(0.3),
+      color: Colors.black.withValues(alpha: 0.3),
       child: const Center(
         child: CircularProgressIndicator(),
       ),
     );
 
-    Widget body(List<WorkOrderTask> value) => Container(
-          child: Column(
-            children: <Widget>[
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: _header,
+    Widget body(List<WorkOrderListItem> value) => Column(
+          children: <Widget>[
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: _header,
+            ),
+            const Divider(),
+            Expanded(
+              child: ComplaintList(
+                list: value,
+                viewer: widget.index == 0,
+                refresh: _refresh,
               ),
-              const Divider(),
-              Expanded(
-                child: ComplaintList(
-                  list: value,
-                  viewer: widget.index == 0,
-                  refresh: _refresh,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         );
 
-    return FutureBuilder<List<WorkOrderTask>>(
+    return FutureBuilder<List<WorkOrderListItem>>(
       future: _loadFuture,
-      builder: (context, AsyncSnapshot<List<WorkOrderTask>> snapshot) {
+      builder: (context, AsyncSnapshot<List<WorkOrderListItem>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return loadingWidget;
         }
