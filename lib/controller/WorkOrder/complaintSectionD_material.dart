@@ -7,6 +7,8 @@ import 'package:rxdart/rxdart.dart';
 import 'package:toast/toast.dart';
 import 'package:GEMS/utils/reference.dart'; // Assuming this contains AppColors
 import 'complaintAdd.dart';
+import 'package:GEMS/controller/WorkOrder/pending_sync.dart';
+import 'package:GEMS/controller/WorkOrder/widgets/pending_sync_banner.dart';
 
 class ComplaintSectionDMaterial extends StatefulWidget {
   final String id;
@@ -14,6 +16,7 @@ class ComplaintSectionDMaterial extends StatefulWidget {
   final bool enableReset;
   final bool viewer;
   final String comment;
+  final PendingSyncController? pendingSync;
 
   const ComplaintSectionDMaterial(
     this.id, {
@@ -22,6 +25,7 @@ class ComplaintSectionDMaterial extends StatefulWidget {
     this.viewer = false,
     this.enableReset = false,
     this.comment = "",
+    this.pendingSync,
   });
 
   @override
@@ -59,7 +63,10 @@ class _ComplaintSectionDMaterialState extends State<ComplaintSectionDMaterial> {
               onPressed: () {
                 _controller.reset().then((_) {
                   Navigator.pop(context);
-                }).catchError((e) => print(e));
+                }).catchError((e) {
+                  debugPrint('Failed to reset materials: $e');
+                  return null;
+                });
               },
               child: Text(
                 "Re-Apply",
@@ -68,89 +75,97 @@ class _ComplaintSectionDMaterialState extends State<ComplaintSectionDMaterial> {
             )
         ],
       ),
-      body: Container(
-        padding: const EdgeInsets.only(top: 16.0),
-        child: StreamBuilder<List<ComplaintD>>(
-          stream: _controller.items$,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            }
+      body: Column(
+        children: [
+          if (widget.pendingSync != null)
+            PendingSyncIndicator(controller: widget.pendingSync!),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.only(top: 16.0),
+              child: StreamBuilder<List<ComplaintD>>(
+                stream: _controller.items$,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
 
-            if (snapshot.hasError) {
-              return Center(child: Text("Error loading data"));
-            }
+                  if (snapshot.hasError) {
+                    return Center(child: Text("Error loading data"));
+                  }
 
-            final items = snapshot.data ?? [];
+                  final items = snapshot.data ?? [];
 
-            if (items.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.inventory_2_outlined, size: 48, color: AppColors.gray400),
-                    SizedBox(height: 16),
-                    Text(
-                      "No spare parts added yet",
-                      style: TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 16,
+                  if (items.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.inventory_2_outlined, size: 48, color: AppColors.gray400),
+                          SizedBox(height: 16),
+                          Text(
+                            "No spare parts added yet",
+                            style: TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 16,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            "Tap the + button to add items",
+                            style: TextStyle(
+                              color: AppColors.textHint,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      "Tap the + button to add items",
-                      style: TextStyle(
-                        color: AppColors.textHint,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
+                    );
+                  }
 
-            return RefreshIndicator(
-              onRefresh: () => _controller.refresh(),
-              child: ListView(
-                children: [
-                  if (widget.comment.isNotEmpty)
-                    Card(
-                      margin: EdgeInsets.all(12),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(
-                          color: AppColors.gray200,
-                          width: 1,
+                  return RefreshIndicator(
+                    onRefresh: () => _controller.refresh(),
+                    child: ListView(
+                      children: [
+                        if (widget.comment.isNotEmpty)
+                          Card(
+                            margin: EdgeInsets.all(12),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(
+                                color: AppColors.gray200,
+                                width: 1,
+                              ),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Text(
+                                widget.comment,
+                                style: TextStyle(color: AppColors.textSecondary),
+                              ),
+                            ),
+                          ),
+                        ListView.builder(
+                          primary: false,
+                          shrinkWrap: true,
+                          itemCount: items.length,
+                          itemBuilder: (_, index) => Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            child: MaterialItemCard(
+                              item: items[index],
+                              controller: _controller,
+                              enableEdit: widget.enableSubmit,
+                            ),
+                          ),  
                         ),
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Text(
-                          widget.comment,
-                          style: TextStyle(color: AppColors.textSecondary),
-                        ),
-                      ),
+                      ],
                     ),
-                  ListView.builder(
-                    primary: false,
-                    shrinkWrap: true,
-                    itemCount: items.length,
-                    itemBuilder: (_, index) => Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      child: MaterialItemCard(
-                        item: items[index],
-                        controller: _controller,
-                        enableEdit: widget.enableSubmit,
-                      ),
-                    ),  
-                  ),
-                ],
+                  );
+                },
               ),
-            );
-          },
-        ),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: !widget.viewer && widget.enableSubmit
           ? Row(
@@ -363,12 +378,15 @@ class Controller {
   Future<void> reset() =>
       _request.reset().whenComplete(() => refresh());
 
-  void submit(BuildContext context) => _request
+      void submit(BuildContext context) => _request
           .submit()
           .then((value) => Toast.show("Your Request has submitted"))
           .then((value) {
         Navigator.pop(context);
-      }).catchError((onError) => Toast.show(onError.toString()));
+      }).catchError((onError) {
+        Toast.show(onError.toString());
+        return null;
+      });
 }
 
 class Request {

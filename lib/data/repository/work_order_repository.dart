@@ -51,8 +51,7 @@ class WorkOrderRepository {
     }
   }
 
-  Future<List<WorkOrderTask>> refreshWorkOrders(
-      WorkOrderListType type) async {
+  Future<List<WorkOrderTask>> refreshWorkOrders(WorkOrderListType type) async {
     return getWorkOrders(type: type, forceRefresh: true);
   }
 
@@ -61,7 +60,9 @@ class WorkOrderRepository {
   Future<List<WorkOrderTask>> _fetchRemote(WorkOrderListType type) async {
     final provider = Provider(fetchURL: type._apiPath);
     final response = await provider.fetch();
-    final remoteList = response.workorderTask?.toList() ?? const <WorkOrderTask>[];
+    final remoteList =
+        response.workorderTask?.toList() ?? const <WorkOrderTask>[];
+    debugPrint('WorkOrderRepository: API returned ${remoteList.length} ${type.name} items');
     return List<WorkOrderTask>.from(remoteList);
   }
 

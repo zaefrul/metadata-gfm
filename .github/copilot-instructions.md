@@ -66,4 +66,4 @@
 ## 🗂️ Offline rollout progress
 - **Phase 1 – Step 1 (Local storage foundation)** — ✅ Completed on 2025-10-12. Created the sqflite-backed `OfflineDatabase`, schema tables, and entity mappers.
 - **Phase 1 – Step 2 (Repository layer over cache + network)** — ✅ Completed on 2025-10-12. Added `WorkOrderRepository` to hydrate from the API, persist results via `OfflineDatabase`, and serve cached lists to the existing WorkOrder UI.
-- **Phase 1 – Step 3 (Refactor WorkOrder controllers to offline-first flows)** — 🔜 Up next. Switch `ComplaintSection` detail flows to consume repository data and queue mutations for offline replay.
+- **Phase 1 – Step 3 (Refactor WorkOrder controllers to offline-first flows)** — � In progress. Detail repositories/bloc now read/write cached sections + execution data and queue offline mutations; next, surface queued-state messaging in `ComplaintSection_v2` UI and align technician/material subflows.

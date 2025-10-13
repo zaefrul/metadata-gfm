@@ -1,7 +1,12 @@
 // ignore_for_file: unused_element, curly_braces_in_flow_control_structures
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:GEMS/controller/WorkOrder/bloc/mainBloc.dart';
+import 'package:GEMS/controller/WorkOrder/pending_sync.dart';
+import 'package:GEMS/controller/WorkOrder/widgets/pending_sync_banner.dart';
+import 'package:GEMS/data/repository/work_order_detail_repository.dart';
 import 'package:GEMS/model/execution.dart';
 import 'package:GEMS/model/user.dart';
 import 'package:GEMS/model/workorder.dart';
@@ -51,8 +56,12 @@ class ComplaintSection extends StatefulWidget {
 
 class _ComplaintSectionState extends State<ComplaintSection> {
   late final MainBloc _bloc;
+  late final PendingSyncController _pendingSyncController;
   bool showtime = false;
   bool _blocInitialized = false;
+  StreamSubscription<MutationFeedback>? _feedbackSub;
+  bool _offlineToggleInFlight = false;
+  bool _syncInFlight = false;
 
   @override
   void didChangeDependencies() {
@@ -66,7 +75,34 @@ class _ComplaintSectionState extends State<ComplaintSection> {
         context: navigatorKey.currentContext!,
         woTaskCategory: widget.woTaskType,
       );
+      _pendingSyncController = PendingSyncController(
+        pendingCount$: _bloc.pendingActions$,
+        retry: _bloc.retryPendingSync,
+      );
       _blocInitialized = true;
+      _feedbackSub = _bloc.feedback$.listen((feedback) {
+        if (!mounted) return;
+        if (feedback.type == MutationFeedbackType.queued) {
+          Toast.show(
+            feedback.message,
+            duration: Toast.lengthLong,
+            gravity: Toast.bottom,
+          );
+        } else if (feedback.type == MutationFeedbackType.success) {
+          Toast.show(
+            feedback.message,
+            duration: Toast.lengthShort,
+            gravity: Toast.bottom,
+          );
+        } else if (feedback.type == MutationFeedbackType.error) {
+          Toast.show(
+            feedback.message,
+            duration: Toast.lengthShort,
+            gravity: Toast.bottom,
+            backgroundColor: AppColors.danger,
+          );
+        }
+      });
       // Check user preferences to decide if the time view should be shown.
       User.getPrefUser.then((value) {
         final User user = User.fromMap(value);
@@ -81,7 +117,17 @@ class _ComplaintSectionState extends State<ComplaintSection> {
   }
 
   @override
+  void dispose() {
+    _feedbackSub?.cancel();
+    if (_blocInitialized) {
+      _bloc.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     debugPrint('the widget is ${widget.taskNo}, ${widget.taskStatus}, ${widget.viewer}, ${widget.isAssign}, ${widget.woTaskType}');
     final standardButton = _BuildStandardButton(
       _bloc,
@@ -116,6 +162,17 @@ class _ComplaintSectionState extends State<ComplaintSection> {
           final sections = snapshot.data!;
           return Column(
             children: [
+              _buildOfflineControls(),
+              StreamBuilder<bool>(
+                stream: _bloc.offlineMode$,
+                builder: (_, offlineSnapshot) {
+                  final offline = offlineSnapshot.data ?? false;
+                  if (offline) {
+                    return const SizedBox.shrink();
+                  }
+                  return PendingSyncIndicator(controller: _pendingSyncController);
+                },
+              ),
               // 1) The scrolling list
               Expanded(
                 child: RefreshIndicator(
@@ -134,6 +191,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
                           context,
                           sections[idx],
                           viewOnly: widget.viewer,
+                          pendingSync: _pendingSyncController,
                         ),
                       );
                     },
@@ -164,11 +222,13 @@ class _ComplaintSectionState extends State<ComplaintSection> {
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () async {
-                                var success = await _bloc.attendanceApprove('');
-                                if (success) {
-                                  alert("Ticket marked as Approved");
-                                } else {
-                                  alert("Failed to mark ticket as Approved. Please try again.");
+                                try {
+                                  final result = await _bloc.attendanceApprove('');
+                                  if (result == WorkOrderActionResult.success) {
+                                    alert("Ticket marked as Approved");
+                                  }
+                                } catch (err) {
+                                  debugPrint('Failed to approve attendance: $err');
                                 }
                               },  // existing submit flow
                               style: actionButtonStyle.copyWith(
@@ -201,6 +261,140 @@ class _ComplaintSectionState extends State<ComplaintSection> {
     );
   }
 
+  Widget _buildOfflineControls() {
+    return StreamBuilder<bool>(
+      stream: _bloc.offlineMode$,
+      builder: (context, snapshot) {
+        final isOffline = snapshot.data ?? false;
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.primaryLight.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      isOffline ? Icons.offline_pin : Icons.cloud_queue,
+                      color: AppColors.primary,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Offline mode',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.dark,
+                        ),
+                      ),
+                    ),
+                    Switch(
+                      value: isOffline,
+                      onChanged: _offlineToggleInFlight
+                          ? null
+                          : (value) => _toggleOfflineMode(value),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  isOffline
+                      ? 'We\'ll save all updates on this device. Tap Sync now once you\'re ready to push changes online.'
+                      : 'Enable offline mode when you expect to lose connectivity. We\'ll cache the task and you can sync later.',
+                  style: const TextStyle(fontSize: 14, height: 1.4),
+                ),
+                if (_offlineToggleInFlight) ...[
+                  const SizedBox(height: 12),
+                  const LinearProgressIndicator(minHeight: 3),
+                ],
+                if (isOffline) ...[
+                  const SizedBox(height: 12),
+                  StreamBuilder<int>(
+                    stream: _bloc.pendingActions$,
+                    builder: (context, pendingSnapshot) {
+                      final pending = pendingSnapshot.data ?? 0;
+                      final label = pending == 1 ? 'action waiting to sync' : 'actions waiting to sync';
+                      return Text(
+                        '$pending $label',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.dark.withValues(alpha: 0.7),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      icon: _syncInFlight
+                          ? const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.sync),
+                      label: Text(_syncInFlight ? 'Syncing…' : 'Sync now'),
+                      onPressed: _syncInFlight ? null : _handleManualSync,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _toggleOfflineMode(bool enable) async {
+    if (_offlineToggleInFlight) return;
+    setState(() {
+      _offlineToggleInFlight = true;
+    });
+    try {
+      if (enable) {
+        await _bloc.enableOfflineMode();
+      } else {
+        await _bloc.disableOfflineMode();
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _offlineToggleInFlight = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleManualSync() async {
+    if (_syncInFlight) return;
+    setState(() {
+      _syncInFlight = true;
+    });
+    try {
+      Toast.show(
+        'Syncing offline changes…',
+        duration: Toast.lengthShort,
+        gravity: Toast.bottom,
+      );
+      await _bloc.syncOfflineChanges();
+    } finally {
+      if (mounted) {
+        setState(() {
+          _syncInFlight = false;
+        });
+      }
+    }
+  }
+
   void alert(String txt) {
     showDialog(
       context: navigatorKey.currentContext!,
@@ -226,16 +420,18 @@ class _ComplaintSectionState extends State<ComplaintSection> {
         cancel: true,
         secondButton: false,
         image: Image.asset("assets/icon_trans.png", height: 40),
-        remarkTapped: (text) {
+        remarkTapped: (text) async {
           Navigator.pop(context);
-          _bloc.returnOutOfScope(text)
-            .then((_) {
+          try {
+            final result = await _bloc.returnOutOfScope(text);
+            if (!mounted) return;
+            if (result == WorkOrderActionResult.success) {
               alert("Ticket marked Out-of-Scope");
-            })
-            .catchError((e) {
-              alert("We couldn't process your request at this moment. Please try again later. If the issue persists, contact support.");
-              debugPrint("Error marking Out-of-Scope: $e");        
-            });
+            }
+          } catch (e) {
+            alert("We couldn't process your request at this moment. Please try again later. If the issue persists, contact support.");
+            debugPrint("Error marking Out-of-Scope: $e");
+          }
         },
       ),
     );
@@ -378,9 +574,8 @@ class _BuildTempTile extends StatelessWidget {
   const _BuildTempTile(
     this.title,
     this.status,
-    this.onTap, {
-    super.key,
-  });
+    this.onTap,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -441,7 +636,7 @@ class _BuildViewButton extends StatelessWidget {
   final bool viewer;
   final String status;
   final Widget button; // standardButton
-  final Future<void> Function(String) reject;
+  final Future<WorkOrderActionResult> Function(String) reject;
   final Function(String) alert;
 
   const _BuildViewButton(
@@ -451,9 +646,8 @@ class _BuildViewButton extends StatelessWidget {
     this.status,
     this.button,
     this.reject,
-    this.alert, {
-    super.key,
-  });
+    this.alert,
+  );
 
   String getButtonLabel(String status) {
     switch (status) {
@@ -522,11 +716,16 @@ class _BuildViewButton extends StatelessWidget {
           Navigator.pop(context);
         },
         image: Image.asset("assets/icon_trans.png", height: 40),
-        remarkTapped: (text) {
+        remarkTapped: (text) async {
           Navigator.pop(context);
-          reject(text)
-              .then((_) => alert("Operation successful"))
-              .catchError((e) => alert("We couldn't process your request at this moment. Please try again later. If the issue persists, contact support."));
+          try {
+            final result = await reject(text);
+            if (result == WorkOrderActionResult.success) {
+              alert("Operation successful");
+            }
+          } catch (e) {
+            alert("We couldn't process your request at this moment. Please try again later. If the issue persists, contact support.");
+          }
         },
       ),
     );
@@ -539,14 +738,13 @@ class _BuildViewButton extends StatelessWidget {
 class _BuildRejectButton extends StatelessWidget {
   final String label;
   final Function(String) alert;
-  final Future<void> Function(String) reject;
+  final Future<WorkOrderActionResult> Function(String) reject;
 
   const _BuildRejectButton(
     String status,
     this.reject,
-    this.alert, {
-    super.key,
-  })  : label = status == "Assign"
+    this.alert,
+  )  : label = status == "Assign"
             ? "Reject"
             : status == "Verify"
                 ? "Re-Open"
@@ -579,11 +777,16 @@ class _BuildRejectButton extends StatelessWidget {
         Navigator.pop(context);
       },
       image: Image.asset("assets/icon_trans.png", height: 40),
-      remarkTapped: (text) {
+      remarkTapped: (text) async {
         Navigator.pop(context);
-        reject(text)
-            .then((_) => alert("Operation successful"))
-            .catchError((e) => alert("We couldn't process your request at this moment. Please try again later. If the issue persists, contact support."));
+        try {
+          final result = await reject(text);
+          if (result == WorkOrderActionResult.success) {
+            alert("Operation successful");
+          }
+        } catch (e) {
+          alert("We couldn't process your request at this moment. Please try again later. If the issue persists, contact support.");
+        }
       },
     );
   }
@@ -604,9 +807,8 @@ class _BuildStandardButton extends StatelessWidget {
     this.viewOnly,
     this.mainStatus, 
     this.woTaskStatus, 
-    this.outOfScopeOnPressAction, {
-    super.key,
-  });
+    this.outOfScopeOnPressAction,
+  );
 
   void alert(String txt) {
     showDialog(
@@ -621,7 +823,7 @@ class _BuildStandardButton extends StatelessWidget {
     );
   }
 
-  bool DontHideOutOfScopeButton() {
+  bool shouldShowOutOfScopeButton() {
     if(mainStatus == "Assign" && woTaskStatus == "Self Finding") {
       return true;
     } else if(mainStatus == "WR Verified" && woTaskStatus == "Client Complaint") {
@@ -633,7 +835,7 @@ class _BuildStandardButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var ReOpenButton = Expanded(
+  final reOpenButton = Expanded(
                 child: FloatingActionButton.extended(
                   heroTag: "reopen_button",
                   label: const Text(
@@ -657,11 +859,16 @@ class _BuildStandardButton extends StatelessWidget {
                           Navigator.pop(context);
                         },
                         image: Image.asset("assets/icon_trans.png", height: 40),
-                        remarkTapped: (text) {
+                        remarkTapped: (text) async {
                           Navigator.pop(context);
-                          bloc.reOpen(text)
-                              .then((_) => alert("Operation successful"))
-                              .catchError((e) => alert("We couldn't process your request at this moment. Please try again later. If the issue persists, contact support."));
+                          try {
+                            final result = await bloc.reOpen(text);
+                            if (result == WorkOrderActionResult.success) {
+                              alert("Operation successful");
+                            }
+                          } catch (e) {
+                            alert("We couldn't process your request at this moment. Please try again later. If the issue persists, contact support.");
+                          }
                         },
                       ),
                     );
@@ -669,7 +876,7 @@ class _BuildStandardButton extends StatelessWidget {
                 ),
               );
 
-    bool ReOpenCondition () {
+  bool shouldShowReOpenButton() {
       if(viewOnly) return false;
       if(mainStatus == "Check" && woTaskStatus == "Client Complaint") return true;
       if(mainStatus == "Verify" && woTaskStatus != "Client Complaint") return true; // public, internal
@@ -678,9 +885,9 @@ class _BuildStandardButton extends StatelessWidget {
       return false;
     }
 
-            debugPrint("ReOpenCondition: ${ReOpenCondition()}");
+      debugPrint("ReOpenCondition: ${shouldShowReOpenButton()}");
 
-    debugPrint('hideOutOfScopeButton: ${DontHideOutOfScopeButton()}');
+    debugPrint('hideOutOfScopeButton: ${shouldShowOutOfScopeButton() }');
 
     ToastContext().init(context);
     return StreamBuilder<bool>(
@@ -690,7 +897,7 @@ class _BuildStandardButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // New button (conditionally displayed)
-            if (DontHideOutOfScopeButton())
+            if (shouldShowOutOfScopeButton())
               Expanded(
                 child: FloatingActionButton.extended(
                   heroTag: "out_of_scope_button",
@@ -704,12 +911,12 @@ class _BuildStandardButton extends StatelessWidget {
                   },
                 ),
               ),
-            if (DontHideOutOfScopeButton())
+            if (shouldShowOutOfScopeButton())
               const SizedBox(width: 16), // Add spacing between buttons
 
             // if status is verify then
-            if (ReOpenCondition()) ReOpenButton,
-            if (ReOpenCondition()) const SizedBox(width: 16), // Add spacing between buttons
+            if (shouldShowReOpenButton()) reOpenButton,
+            if (shouldShowReOpenButton()) const SizedBox(width: 16), // Add spacing between buttons
 
             // Existing Submit button
             Expanded(
@@ -728,7 +935,7 @@ class _BuildStandardButton extends StatelessWidget {
                 ),
                 backgroundColor:
                     (viewOnly || (snapshot.data ?? false)) ? colorTheme2 : AppColors.primaryDark,
-                onPressed: () {
+                onPressed: () async {
                   if (viewOnly) {
                     // just view
                     bloc.openComplaint(context, viewOnly: viewOnly);
@@ -737,13 +944,25 @@ class _BuildStandardButton extends StatelessWidget {
                       mainStatus == "WR Reassign") {
                     // old Assign/Revisit path: must be enabled to submit
                     if (snapshot.data == true) {
-                      bloc.submit().then((_) {
-                        showDialog(
-                          context: navigatorKey.currentContext!,
-                          barrierDismissible: false,
-                          builder: _buildDialog,
+                      try {
+                        final result = await bloc.submit();
+                        if (result == WorkOrderActionResult.success &&
+                            navigatorKey.currentContext != null) {
+                          showDialog(
+                            context: navigatorKey.currentContext!,
+                            barrierDismissible: false,
+                            builder: _buildDialog,
+                          );
+                        }
+                      } catch (err) {
+                        Toast.show(
+                          "We couldn't submit the request. Please try again.",
+                          duration: Toast.lengthShort,
+                          gravity: Toast.bottom,
+                          backgroundColor: AppColors.danger,
                         );
-                      }).catchError((err) => Toast.show(err));
+                        debugPrint('Submit failed: $err');
+                      }
                     } else {
                       Toast.show(
                         "All sections must be completed before submit",
@@ -766,9 +985,17 @@ class _BuildStandardButton extends StatelessWidget {
 
                         final provider = Provider(fetchURL: "/api/m_wo.php");
 
-                        provider.post(url: "/api/m_wo.php", body: body).then((resp) {
+                        try {
+                          await provider.post(url: "/api/m_wo.php", body: body);
                           alert("Request submitted successfully");
-                        }).catchError((err) => Toast.show(err.toString(), backgroundColor: AppColors.danger));
+                        } catch (err) {
+                          Toast.show(
+                            err.toString(),
+                            duration: Toast.lengthShort,
+                            gravity: Toast.bottom,
+                            backgroundColor: AppColors.danger,
+                          );
+                        }
                       } else {
                         bloc.openComplaint(context, viewOnly: viewOnly);
                       }
@@ -807,7 +1034,7 @@ class _BuildStandardButton extends StatelessWidget {
 ///
 class _TimeDuration extends StatelessWidget {
   final Stream<ExecutionModel> stream;
-  const _TimeDuration({super.key, required this.stream});
+  const _TimeDuration({required this.stream});
 
   @override
   Widget build(BuildContext context) {
@@ -841,12 +1068,11 @@ class _TimeDuration extends StatelessWidget {
                         child: _TimeSection(
                           title: "Response Time",
                           slaLabel: "SLA Time",
-                          slaValue: e.responseTimeSla ?? "-",
+                          slaValue: e.responseTimeSla,
                           dueLabel: "Time Due",
-                          dueValue: e.responseTimeDue ?? "-",
+                          dueValue: e.responseTimeDue,
                           accent: respColor,
-                          exceeded:
-                              e.responseTimeExceeded ?? false,
+                          exceeded: e.responseTimeExceeded,
                         ),
                       ),
 
@@ -863,12 +1089,11 @@ class _TimeDuration extends StatelessWidget {
                         child: _TimeSection(
                           title: "Completion Time",
                           slaLabel: "SLA Time",
-                          slaValue: e.completionTimeSla ?? "-",
+                          slaValue: e.completionTimeSla,
                           dueLabel: "Time Due",
-                          dueValue: e.completionTimeDue ?? "-",
+                          dueValue: e.completionTimeDue,
                           accent: compColor,
-                          exceeded:
-                              e.completionTimeExceeded ?? false,
+                          exceeded: e.completionTimeExceeded,
                         ),
                       ),
                     ],
@@ -882,17 +1107,17 @@ class _TimeDuration extends StatelessWidget {
                       Expanded(
                         child: _TimeSmall(
                           label: "Assigned Time",
-                          value: e.assignTime ?? "-",
+                          value: e.assignTime,
                           accent: respColor,
-                          exceeded: e.responseTimeExceeded ?? false,
+                          exceeded: e.responseTimeExceeded,
                         ),
                       ),
                       Expanded(
                         child: _TimeSmall(
                           label: "Execute Time",
-                          value: e.execute ?? "-",
+                          value: e.execute,
                           accent: compColor,
-                          exceeded: e.completionTimeExceeded ?? false,
+                          exceeded: e.completionTimeExceeded,
                         ),
                       ),
                     ],
@@ -914,7 +1139,6 @@ class _TimeSection extends StatelessWidget {
   final bool exceeded;
 
   const _TimeSection({
-    super.key,
     required this.title,
     required this.slaLabel,
     required this.slaValue,
@@ -965,7 +1189,6 @@ class _TimeSmall extends StatelessWidget {
   final bool exceeded;
 
   const _TimeSmall({
-    super.key,
     required this.label,
     required this.value,
     required this.accent,

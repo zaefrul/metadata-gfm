@@ -5,15 +5,19 @@ import 'package:GEMS/model/responseValue.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:GEMS/controller/WorkOrder/pending_sync.dart';
+import 'package:GEMS/controller/WorkOrder/widgets/pending_sync_banner.dart';
 
 class ComplaintAssign extends StatefulWidget {
   final String id;
   final bool viewer;
+  final PendingSyncController? pendingSync;
 
   const ComplaintAssign({
     super.key,
     required this.id,
     required this.viewer,
+    this.pendingSync,
   });
 
   @override
@@ -116,7 +120,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
       
       if (assignResp.technicianAssign != null) {
         final a = assignResp.technicianAssign!;
-        typeCategory = a.userCategory ?? '';
+  typeCategory = a.userCategory;
         assistUserId = a.assistUserId.toList();
         dropdownAssist = a.woTaskMaxAssistant;
         dropdownId1 = a.groupId;
@@ -189,11 +193,6 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
     taskID: dropdownId2 ?? ''
   ).fetch();
 
-  Future<ResponseValue> get _fetchExecutor => Provider(
-    fetchURL: "/api/m_wo.php?type=wo_technician_list&groupId=",
-    taskID: dropdownId1 ?? ''
-  ).fetch();
-
   WorkOrderStatus? _safeFetchStatus(List<WorkOrderStatus> list, String idOrName) {
     debugPrint("Fetching status with id/name: $idOrName");
     debugPrint("List: ${list.map((e) => e.toString()).toList()}");
@@ -219,24 +218,35 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
 
   @override
   Widget build(BuildContext context) {
+    final banner = widget.pendingSync != null
+        ? PendingSyncIndicator(controller: widget.pendingSync!)
+        : const SizedBox.shrink();
     if (loading) {
       return Scaffold(
         backgroundColor: Colors.grey[50],
         appBar: _buildAppBar(),
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+        body: Column(
+          children: [
+            banner,
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Loading assignment data...',
+                      style: GoogleFonts.poppins(color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
               ),
-              SizedBox(height: 16),
-              Text(
-                'Loading assignment data...',
-                style: GoogleFonts.poppins(color: Colors.grey[600]),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     }
@@ -244,116 +254,123 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: _buildAppBar(),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Assign Executor',
-              style: GoogleFonts.poppins(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: Colors.black87,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Select the appropriate team and personnel for this task',
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
-            ),
-            SizedBox(height: 24),
-            
-            _buildSection(
-              title: 'Assignment Details',
-              icon: Icons.assignment_ind_outlined,
+      body: Column(
+        children: [
+          banner,
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(20),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildDropdownRow(
-                    icon: Icons.group,
-                    label: "Executor Group",
-                    value: dropdownValue1,
-                    items: groupList.map((g) => g.groupName ?? '').whereType<String>().toList(),
-                    onChanged: widget.viewer ? null : (v) async {
-                      if (v == null) return;
-                      setState(() {
-                        dropdownValue1 = v;
-                        dropdownId1 = groupList.firstWhere((g) => g.groupName == v).groupId;
-                        loading = true;
-                        dropdownValue2 = null;
-                        dropdownId2 = null;
-                        _controller.clear();
-                        technicianDetails = null;
-                      });
-                      await _loadExecutorsForGroup(dropdownId1!);
-                    },
+                  Text(
+                    'Assign Executor',
+                    style: GoogleFonts.poppins(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black87,
+                    ),
                   ),
-                  SizedBox(height: 16),
-                  _buildExecutorRow(),
-                  SizedBox(height: 16),
-                  _buildDropdownRow(
-                    icon: Icons.report_problem,
-                    label: "Severity Level",
-                    value: dropdownValue3,
-                    items: severityList.map((s) => s.severityName ?? '').whereType<String>().toList(),
-                    onChanged: widget.viewer ? null : (v) {
-                      if (v == null) return;
-                      setState(() {
-                        dropdownValue3 = v;
-                        dropdownId3 = severityList.firstWhere((s) => s.severityName == v).severityId;
-                      });
-                    },
+                  SizedBox(height: 8),
+                  Text(
+                    'Select the appropriate team and personnel for this task',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
                   ),
-                  SizedBox(height: 16),
-                  _buildDropdownRow(
-                    icon: Icons.category,
-                    label: "Task Category",
-                    value: dropdownValue4,
-                    items: getDropdown4()
-                        .map((c) => c.groupName ?? '')
-                        .whereType<String>()
-                        .toList(),
-                    onChanged: widget.viewer ? null : (v) {
-                      if (v == null) return;
-                      setState(() {
-                        dropdownValue4 = v;
-                        dropdownId4 = getDropdown4()
-                            .firstWhere((c) => c.groupName == v)
-                            .groupId;
-                      });
-                    },
+                  SizedBox(height: 24),
+                  
+                  _buildSection(
+                    title: 'Assignment Details',
+                    icon: Icons.assignment_ind_outlined,
+                    child: Column(
+                      children: [
+                        _buildDropdownRow(
+                          icon: Icons.group,
+                          label: "Executor Group",
+                          value: dropdownValue1,
+                          items: groupList.map((g) => g.groupName ?? '').whereType<String>().toList(),
+                          onChanged: widget.viewer ? null : (v) async {
+                            if (v == null) return;
+                            setState(() {
+                              dropdownValue1 = v;
+                              dropdownId1 = groupList.firstWhere((g) => g.groupName == v).groupId;
+                              loading = true;
+                              dropdownValue2 = null;
+                              dropdownId2 = null;
+                              _controller.clear();
+                              technicianDetails = null;
+                            });
+                            await _loadExecutorsForGroup(dropdownId1!);
+                          },
+                        ),
+                        SizedBox(height: 16),
+                        _buildExecutorRow(),
+                        SizedBox(height: 16),
+                        _buildDropdownRow(
+                          icon: Icons.report_problem,
+                          label: "Severity Level",
+                          value: dropdownValue3,
+                          items: severityList.map((s) => s.severityName ?? '').whereType<String>().toList(),
+                          onChanged: widget.viewer ? null : (v) {
+                            if (v == null) return;
+                            setState(() {
+                              dropdownValue3 = v;
+                              dropdownId3 = severityList.firstWhere((s) => s.severityName == v).severityId;
+                            });
+                          },
+                        ),
+                        SizedBox(height: 16),
+                        _buildDropdownRow(
+                          icon: Icons.category,
+                          label: "Task Category",
+                          value: dropdownValue4,
+                          items: getDropdown4()
+                              .map((c) => c.groupName ?? '')
+                              .whereType<String>()
+                              .toList(),
+                          onChanged: widget.viewer ? null : (v) {
+                            if (v == null) return;
+                            setState(() {
+                              dropdownValue4 = v;
+                              dropdownId4 = getDropdown4()
+                                  .firstWhere((c) => c.groupName == v)
+                                  .groupId;
+                            });
+                          },
+                        ),
+                        SizedBox(height: 16),
+                        _buildDropdownRow(
+                          icon: Icons.people,
+                          label: "Max Assistants",
+                          value: dropdownAssist,
+                          items: ["0","1","2","3","4","5"],
+                          onChanged: widget.viewer ? null : (v) {
+                            if (v == null) return;
+                            setState(() => dropdownAssist = v);
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                  SizedBox(height: 16),
-                  _buildDropdownRow(
-                    icon: Icons.people,
-                    label: "Max Assistants",
-                    value: dropdownAssist,
-                    items: ["0","1","2","3","4","5"],
-                    onChanged: widget.viewer ? null : (v) {
-                      if (v == null) return;
-                      setState(() => dropdownAssist = v);
-                    },
-                  ),
+                  
+                  if (!widget.viewer) ...[
+                    SizedBox(height: 20),
+                    _buildSaveButton(),
+                  ],
+                  if (technicianDetails != null) ...[
+                    SizedBox(height: 20),
+                    _buildTechnicianDetailsCard(),
+                    SizedBox(height: 20),
+                    _buildCurrentTasksCard(),
+                  ],
+                  SizedBox(height: 80),
                 ],
               ),
             ),
-            
-            if (!widget.viewer) ...[
-              SizedBox(height: 20),
-              _buildSaveButton(),
-            ],
-            if (technicianDetails != null) ...[
-              SizedBox(height: 20),
-              _buildTechnicianDetailsCard(),
-              SizedBox(height: 20),
-              _buildCurrentTasksCard(),
-            ],
-            SizedBox(height: 80),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

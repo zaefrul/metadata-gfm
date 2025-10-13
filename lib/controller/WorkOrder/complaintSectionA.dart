@@ -1,7 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:GEMS/controller/PPM/Form/openImage.dart';
+import 'package:GEMS/controller/WorkOrder/pending_sync.dart';
+import 'package:GEMS/controller/WorkOrder/widgets/pending_sync_banner.dart';
 import 'package:GEMS/model/workorder.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -13,8 +13,14 @@ import '../../main.dart';
 class ComplaintSectionA extends StatefulWidget {
   final bool viewer;
   final String id;
+  final PendingSyncController? pendingSync;
 
-  const ComplaintSectionA({super.key, required this.id, this.viewer = false});
+  const ComplaintSectionA({
+    super.key,
+    required this.id,
+    this.viewer = false,
+    this.pendingSync,
+  });
 
   @override
   _ComplaintSectionAState createState() => _ComplaintSectionAState(id);
@@ -50,6 +56,10 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
   Widget build(BuildContext context) {
     final isWide = MediaQuery.of(context).size.width > 600;
 
+    final header = widget.pendingSync != null
+        ? PendingSyncIndicator(controller: widget.pendingSync!)
+        : const SizedBox.shrink();
+
     return Scaffold(
       appBar: AppBar(
         title: Text("A. Complaint Details"),
@@ -60,21 +70,28 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
           color: colorTheme3, fontSize: 18, fontWeight: FontWeight.w600
         ),
       ),
-      body: FutureBuilder<WorkOrderDetail>(
-        future: _fetch,
-        builder: (ctx, snap) {
-          if (snap.connectionState == ConnectionState.waiting) {
-            return _buildLoadingPlaceholder(isWide);
-          }
-          if (snap.hasError) {
-            return Center(child: Text("Error: ${snap.error}"));
-          }
-          if (!snap.hasData) {
-            return Center(child: Text("No data returned"));
-          }
-          final d = snap.data!;
-          return isWide ? _buildGrid(context, d) : _buildList(context, d);
-        }
+      body: Column(
+        children: [
+          header,
+          Expanded(
+            child: FutureBuilder<WorkOrderDetail>(
+              future: _fetch,
+              builder: (ctx, snap) {
+                if (snap.connectionState == ConnectionState.waiting) {
+                  return _buildLoadingPlaceholder(isWide);
+                }
+                if (snap.hasError) {
+                  return Center(child: Text("Error: ${snap.error}"));
+                }
+                if (!snap.hasData) {
+                  return Center(child: Text("No data returned"));
+                }
+                final d = snap.data!;
+                return isWide ? _buildGrid(context, d) : _buildList(context, d);
+              }
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -256,42 +273,47 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
   }
 
   void _showImageOptions(ComplaintImage img) {
-  final lat = img.woTaskUploadLatitude;
-  final lng = img.woTaskUploadLongitude;
-  final src = img.documentSrc;
+    final src = img.documentSrc.startsWith('//')
+        ? 'https:${img.documentSrc}'
+        : img.documentSrc;
+  final latitude = double.tryParse(img.woTaskUploadLatitude.toString());
+  final longitude = double.tryParse(img.woTaskUploadLongitude.toString());
 
-  void openViewer() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => ImageViewer(url: "https:$src")),
+    void openViewer() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => ImageViewer(url: src)),
+      );
+    }
+
+    showModalBottomSheet(
+      context: navigatorKey.currentContext!,
+      builder: (_) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: Icon(Icons.image),
+              title: Text('View Image'),
+              onTap: () {
+                Navigator.pop(context);
+                openViewer();
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.map),
+              title: Text('Open Map'),
+              onTap: () {
+                Navigator.pop(context);
+                if (latitude != null && longitude != null) {
+                  _openMap(latitude, longitude);
+                }
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
-
-  showModalBottomSheet(
-    context: navigatorKey.currentContext!,
-    builder: (_) => SafeArea(
-      child: Wrap(
-        children: [
-          ListTile(
-            leading: Icon(Icons.image),
-            title: Text('View Image'),
-            onTap: () {
-              Navigator.pop(context);
-              openViewer();
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.map),
-            title: Text('Open Map'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-        ],
-      ),
-    ),
-  );
-}
 
   List<_FieldRow> _makeFields(WorkOrderDetail d) => [
     _FieldRow(Icons.request_page,         "Work Request No",         d.woTaskRequestNo),
@@ -306,30 +328,6 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
     _FieldRow(Icons.description,         "Description",        d.woTaskComplaint),
   ];
 
-  void _openImageOptions(ComplaintImage img) {
-    showModalBottomSheet(
-      context: navigatorKey.currentContext!,
-      builder: (_) => Wrap(children: [
-        ListTile(
-          leading: Icon(Icons.image),
-          title: Text("View Image"),
-          onTap: () {
-            Navigator.pop(context);
-            Navigator.push(context,
-                MaterialPageRoute(builder: (_) => ImageViewer(url: "https:${img.documentSrc}")));
-          },
-        ),
-        ListTile(
-          leading: Icon(Icons.map),
-          title: Text("Open Map"),
-          onTap: () {
-            Navigator.pop(context);
-            _openMap(img.woTaskUploadLatitude as double, img.woTaskUploadLongitude as double);
-          },
-        ),
-      ]),
-    );
-  }
 }
 
 Future<void> _openMap(double lat, double lng) async {

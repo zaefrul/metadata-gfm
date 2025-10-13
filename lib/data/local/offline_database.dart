@@ -6,7 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 const _dbName = 'gems_offline.db';
-const _dbVersion = 2;
+const _dbVersion = 5;
 
 class OfflineDatabase {
   OfflineDatabase._();
@@ -43,15 +43,34 @@ class OfflineDatabase {
     await db.execute(_WorkOrderAttachmentsTable.createSql);
     await db.execute(_ReferenceDataTable.createSql);
     await db.execute(_WorkOrderListTable.createSql);
+    await db.execute(_WorkOrderSectionsTable.createSql);
+    await db.execute(_WorkOrderExecutionTable.createSql);
+    await db.execute(_WorkOrderPendingActionsTable.createSql);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion == newVersion) return;
     if (oldVersion < 2) {
-      await db.execute(
-        'ALTER TABLE ${_WorkOrderHeadersTable.tableName} ADD COLUMN raw_payload TEXT',
-      ).catchError((_) => null);
       await db.execute(_WorkOrderListTable.createSql);
+    }
+    if (oldVersion < 3) {
+      await db.execute(_WorkOrderSectionsTable.createSql);
+      await db.execute(_WorkOrderExecutionTable.createSql);
+      await db.execute(_WorkOrderPendingActionsTable.createSql);
+    }
+    if (oldVersion < 4) {
+      await db
+          .execute(
+            'ALTER TABLE ${_WorkOrderHeadersTable.tableName} ADD COLUMN raw_payload TEXT',
+          )
+          .catchError((_) => null);
+    }
+    if (oldVersion < 5) {
+      await db
+          .execute(
+            'ALTER TABLE ${_WorkOrderHeadersTable.tableName} ADD COLUMN offline_mode_enabled INTEGER NOT NULL DEFAULT 0',
+          )
+          .catchError((_) => null);
     }
   }
 
@@ -64,6 +83,9 @@ class OfflineDatabase {
       await txn.delete(_WorkOrderHeadersTable.tableName);
       await txn.delete(_ReferenceDataTable.tableName);
       await txn.delete(_WorkOrderListTable.tableName);
+      await txn.delete(_WorkOrderSectionsTable.tableName);
+      await txn.delete(_WorkOrderExecutionTable.tableName);
+      await txn.delete(_WorkOrderPendingActionsTable.tableName);
     });
   }
 
@@ -75,6 +97,9 @@ class OfflineDatabase {
       await txn.delete(_WorkOrderTasksTable.tableName);
       await txn.delete(_WorkOrderListTable.tableName);
       await txn.delete(_WorkOrderHeadersTable.tableName);
+      await txn.delete(_WorkOrderSectionsTable.tableName);
+      await txn.delete(_WorkOrderExecutionTable.tableName);
+      await txn.delete(_WorkOrderPendingActionsTable.tableName);
     });
   }
 
@@ -84,6 +109,18 @@ class OfflineDatabase {
   ) async {
     final db = await database;
     await db.transaction((txn) async {
+      // Preserve offline mode flags for headers we are about to upsert.
+      final existingRows = await txn.query(
+        _WorkOrderHeadersTable.tableName,
+        columns: ['work_order_id', 'offline_mode_enabled'],
+      );
+      final offlineLookup = <String, bool>{
+        for (final row in existingRows)
+          if (row['work_order_id'] != null)
+            row['work_order_id'] as String:
+                (row['offline_mode_enabled'] as int? ?? 0) == 1,
+      };
+
       await txn.delete(
         _WorkOrderListTable.tableName,
         where: 'list_type = ?',
@@ -92,9 +129,11 @@ class OfflineDatabase {
 
       final batch = txn.batch();
       for (final header in headers) {
+        final preservedOffline =
+            offlineLookup[header.workOrderId] ?? header.isOfflineMode;
         batch.insert(
           _WorkOrderHeadersTable.tableName,
-          header.toMap(),
+          header.copyWith(isOfflineMode: preservedOffline).toMap(),
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
         batch.insert(
@@ -129,6 +168,158 @@ ORDER BY h.scheduled_start DESC, h.work_order_number DESC
     return result.map((row) => WorkOrderHeaderEntity.fromMap(row)).toList();
   }
 
+  Future<WorkOrderHeaderEntity?> getWorkOrderHeader(String workOrderId) async {
+    final db = await database;
+    final rows = await db.query(
+      _WorkOrderHeadersTable.tableName,
+      where: 'work_order_id = ?',
+      whereArgs: [workOrderId],
+      limit: 1,
+    );
+    if (rows.isEmpty) return null;
+    return WorkOrderHeaderEntity.fromMap(rows.first);
+  }
+
+  Future<void> upsertWorkOrderHeader(WorkOrderHeaderEntity entity) async {
+    final db = await database;
+    await db.insert(
+      _WorkOrderHeadersTable.tableName,
+      entity.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> ensureWorkOrderHeader(String workOrderId) async {
+    final db = await database;
+    await db.insert(
+      _WorkOrderHeadersTable.tableName,
+      {
+        'work_order_id': workOrderId,
+        'is_downloaded': 1,
+      },
+      conflictAlgorithm: ConflictAlgorithm.ignore,
+    );
+  }
+
+  Future<void> setWorkOrderOfflineMode(
+    String workOrderId,
+    bool enabled,
+  ) async {
+    final db = await database;
+    await ensureWorkOrderHeader(workOrderId);
+    await db.update(
+      _WorkOrderHeadersTable.tableName,
+      {'offline_mode_enabled': enabled ? 1 : 0},
+      where: 'work_order_id = ?',
+      whereArgs: [workOrderId],
+    );
+  }
+
+  Future<bool> isWorkOrderOfflineMode(String workOrderId) async {
+    final db = await database;
+    final result = await db.query(
+      _WorkOrderHeadersTable.tableName,
+      columns: ['offline_mode_enabled'],
+      where: 'work_order_id = ?',
+      whereArgs: [workOrderId],
+      limit: 1,
+    );
+    if (result.isEmpty) {
+      return false;
+    }
+    return (result.first['offline_mode_enabled'] as int? ?? 0) == 1;
+  }
+
+  Future<void> replaceSections(
+    String workOrderId,
+    List<WorkOrderSectionEntity> sections,
+  ) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      await txn.delete(
+        _WorkOrderSectionsTable.tableName,
+        where: 'work_order_id = ?',
+        whereArgs: [workOrderId],
+      );
+
+      final batch = txn.batch();
+      for (final section in sections) {
+        batch.insert(
+          _WorkOrderSectionsTable.tableName,
+          section.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+      await batch.commit(noResult: true);
+    });
+  }
+
+  Future<List<WorkOrderSectionEntity>> getSections(String workOrderId) async {
+    final db = await database;
+    final rows = await db.query(
+      _WorkOrderSectionsTable.tableName,
+      where: 'work_order_id = ?',
+      whereArgs: [workOrderId],
+      orderBy: 'section_name ASC',
+    );
+    return rows.map(WorkOrderSectionEntity.fromMap).toList();
+  }
+
+  Future<void> upsertExecution(WorkOrderExecutionEntity entity) async {
+    final db = await database;
+    await db.insert(
+      _WorkOrderExecutionTable.tableName,
+      entity.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<WorkOrderExecutionEntity?> getExecution(String workOrderId) async {
+    final db = await database;
+    final rows = await db.query(
+      _WorkOrderExecutionTable.tableName,
+      where: 'work_order_id = ?',
+      whereArgs: [workOrderId],
+      limit: 1,
+    );
+    if (rows.isEmpty) return null;
+    return WorkOrderExecutionEntity.fromMap(rows.first);
+  }
+
+  Future<int> enqueuePendingAction(WorkOrderPendingActionEntity action) async {
+    final db = await database;
+    return db.insert(_WorkOrderPendingActionsTable.tableName, action.toMap());
+  }
+
+  Future<List<WorkOrderPendingActionEntity>> getPendingActions() async {
+    final db = await database;
+    final rows = await db.query(
+      _WorkOrderPendingActionsTable.tableName,
+      orderBy: 'created_at ASC',
+    );
+    return rows.map(WorkOrderPendingActionEntity.fromMap).toList();
+  }
+
+  Future<void> removePendingAction(int id) async {
+    final db = await database;
+    await db.delete(
+      _WorkOrderPendingActionsTable.tableName,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<int> getPendingActionCount({String? workOrderId}) async {
+    final db = await database;
+    final whereClause = workOrderId != null ? ' WHERE work_order_id = ?' : '';
+    final args = workOrderId != null ? <Object?>[workOrderId] : const <Object?>[];
+    final result = await db.rawQuery(
+      'SELECT COUNT(*) FROM ${_WorkOrderPendingActionsTable.tableName}$whereClause',
+      args,
+    );
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
+
   Future<void> close() async {
     if (_database == null) return;
     await _database!.close();
@@ -151,6 +342,7 @@ class WorkOrderHeaderEntity {
     this.lastSyncedAt,
     this.rawJson,
     this.isDownloaded = true,
+    this.isOfflineMode = false,
   });
 
   final String workOrderId;
@@ -165,6 +357,7 @@ class WorkOrderHeaderEntity {
   final DateTime? lastSyncedAt;
   final String? rawJson;
   final bool isDownloaded;
+  final bool isOfflineMode;
 
   WorkOrderHeaderEntity copyWith({
     String? workOrderNumber,
@@ -178,6 +371,7 @@ class WorkOrderHeaderEntity {
     DateTime? lastSyncedAt,
     String? rawJson,
     bool? isDownloaded,
+    bool? isOfflineMode,
   }) {
     return WorkOrderHeaderEntity(
       workOrderId: workOrderId,
@@ -192,6 +386,7 @@ class WorkOrderHeaderEntity {
       lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
       rawJson: rawJson ?? this.rawJson,
       isDownloaded: isDownloaded ?? this.isDownloaded,
+      isOfflineMode: isOfflineMode ?? this.isOfflineMode,
     );
   }
 
@@ -209,6 +404,7 @@ class WorkOrderHeaderEntity {
       'last_synced_at': lastSyncedAt?.toIso8601String(),
       'raw_payload': rawJson,
       'is_downloaded': isDownloaded ? 1 : 0,
+      'offline_mode_enabled': isOfflineMode ? 1 : 0,
     };
   }
 
@@ -226,6 +422,7 @@ class WorkOrderHeaderEntity {
       lastSyncedAt: _parseDate(map['last_synced_at']),
       rawJson: map['raw_payload'] as String?,
       isDownloaded: (map['is_downloaded'] as int? ?? 1) == 1,
+      isOfflineMode: (map['offline_mode_enabled'] as int? ?? 0) == 1,
     );
   }
 }
@@ -451,7 +648,9 @@ CREATE TABLE IF NOT EXISTS $tableName (
   scheduled_start TEXT,
   scheduled_end TEXT,
   last_synced_at TEXT,
-  is_downloaded INTEGER NOT NULL DEFAULT 1
+  raw_payload TEXT,
+  is_downloaded INTEGER NOT NULL DEFAULT 1,
+  offline_mode_enabled INTEGER NOT NULL DEFAULT 0
 )
 ''';
 }
@@ -516,6 +715,148 @@ CREATE TABLE IF NOT EXISTS $tableName (
   label TEXT,
   updated_at TEXT,
   extra_json TEXT
+)
+''';
+}
+
+@immutable
+class WorkOrderSectionEntity {
+  const WorkOrderSectionEntity({
+    required this.workOrderId,
+    required this.sectionName,
+    this.sectionDesc,
+    required this.payloadJson,
+    this.lastSyncedAt,
+  });
+
+  final String workOrderId;
+  final String sectionName;
+  final String? sectionDesc;
+  final String payloadJson;
+  final DateTime? lastSyncedAt;
+
+  Map<String, Object?> toMap() {
+    return {
+      'work_order_id': workOrderId,
+      'section_name': sectionName,
+      'section_desc': sectionDesc,
+      'payload': payloadJson,
+      'last_synced_at': lastSyncedAt?.toIso8601String(),
+    };
+  }
+
+  static WorkOrderSectionEntity fromMap(Map<String, Object?> map) {
+    return WorkOrderSectionEntity(
+      workOrderId: map['work_order_id'] as String,
+      sectionName: map['section_name'] as String,
+      sectionDesc: map['section_desc'] as String?,
+      payloadJson: map['payload'] as String,
+      lastSyncedAt: _parseDate(map['last_synced_at']),
+    );
+  }
+}
+
+@immutable
+class WorkOrderExecutionEntity {
+  const WorkOrderExecutionEntity({
+    required this.workOrderId,
+    required this.payloadJson,
+    this.lastSyncedAt,
+  });
+
+  final String workOrderId;
+  final String payloadJson;
+  final DateTime? lastSyncedAt;
+
+  Map<String, Object?> toMap() {
+    return {
+      'work_order_id': workOrderId,
+      'payload': payloadJson,
+      'last_synced_at': lastSyncedAt?.toIso8601String(),
+    };
+  }
+
+  static WorkOrderExecutionEntity fromMap(Map<String, Object?> map) {
+    return WorkOrderExecutionEntity(
+      workOrderId: map['work_order_id'] as String,
+      payloadJson: map['payload'] as String,
+      lastSyncedAt: _parseDate(map['last_synced_at']),
+    );
+  }
+}
+
+@immutable
+class WorkOrderPendingActionEntity {
+  const WorkOrderPendingActionEntity({
+    this.id,
+    required this.workOrderId,
+    required this.action,
+    required this.payloadJson,
+    required this.createdAt,
+  });
+
+  final int? id;
+  final String workOrderId;
+  final String action;
+  final String payloadJson;
+  final DateTime createdAt;
+
+  Map<String, Object?> toMap() {
+    return {
+      if (id != null) 'id': id,
+      'work_order_id': workOrderId,
+      'action': action,
+      'payload': payloadJson,
+      'created_at': createdAt.toIso8601String(),
+    };
+  }
+
+  static WorkOrderPendingActionEntity fromMap(Map<String, Object?> map) {
+    return WorkOrderPendingActionEntity(
+      id: map['id'] as int?,
+      workOrderId: map['work_order_id'] as String,
+      action: map['action'] as String,
+      payloadJson: map['payload'] as String,
+      createdAt: _parseDate(map['created_at']) ?? DateTime.now(),
+    );
+  }
+}
+
+class _WorkOrderSectionsTable {
+  static const tableName = 'work_order_sections';
+  static const createSql = '''
+CREATE TABLE IF NOT EXISTS $tableName (
+  work_order_id TEXT NOT NULL,
+  section_name TEXT NOT NULL,
+  section_desc TEXT,
+  payload TEXT NOT NULL,
+  last_synced_at TEXT,
+  PRIMARY KEY(work_order_id, section_name),
+  FOREIGN KEY(work_order_id) REFERENCES ${_WorkOrderHeadersTable.tableName}(work_order_id) ON DELETE CASCADE
+)
+''';
+}
+
+class _WorkOrderExecutionTable {
+  static const tableName = 'work_order_execution';
+  static const createSql = '''
+CREATE TABLE IF NOT EXISTS $tableName (
+  work_order_id TEXT PRIMARY KEY,
+  payload TEXT NOT NULL,
+  last_synced_at TEXT
+)
+''';
+}
+
+class _WorkOrderPendingActionsTable {
+  static const tableName = 'work_order_pending_actions';
+  static const createSql = '''
+CREATE TABLE IF NOT EXISTS $tableName (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  work_order_id TEXT NOT NULL,
+  action TEXT NOT NULL,
+  payload TEXT NOT NULL,
+  created_at TEXT NOT NULL
 )
 ''';
 }

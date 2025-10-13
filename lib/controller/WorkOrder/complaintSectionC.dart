@@ -11,16 +11,17 @@ import 'package:GEMS/model/workorder.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:GEMS/view/dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:GEMS/controller/WorkOrder/pending_sync.dart';
+import 'package:GEMS/controller/WorkOrder/widgets/pending_sync_banner.dart';
 
 class ComplaintSectionC extends StatefulWidget {
   final String id;
   final bool disable;
+  final PendingSyncController? pendingSync;
 
-  const ComplaintSectionC(this.id, this.disable, {super.key});
+  const ComplaintSectionC(this.id, this.disable, {super.key, this.pendingSync});
 
   @override
   _ComplaintSectionCState createState() => _ComplaintSectionCState();
@@ -79,27 +80,35 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
         iconTheme: IconThemeData(color: colorTheme3),
         title: Text("D. Image", style: TextStyle(color: colorTheme3, fontWeight: FontWeight.bold)),
       ),
-      body: Stack(
+      body: Column(
         children: [
-          ListView(
-            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            children: [
-              Text(
-                "Requires at least one photo for each of the following sections:",
-                style: TextStyle(color: colorTheme3),
-              ),
-              const SizedBox(height: 16),
-              _imageBlock(0, _before),
-              _imageBlock(1, _during),
-              _imageBlock(2, _after),
-              const SizedBox(height: 80),
-            ],
-          ),
-          if (_loading)
-            Container(
-              color: Colors.black38,
-              child: Center(child: CircularProgressIndicator()),
+          if (widget.pendingSync != null)
+            PendingSyncIndicator(controller: widget.pendingSync!),
+          Expanded(
+            child: Stack(
+              children: [
+                ListView(
+                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  children: [
+                    Text(
+                      "Requires at least one photo for each of the following sections:",
+                      style: TextStyle(color: colorTheme3),
+                    ),
+                    const SizedBox(height: 16),
+                    _imageBlock(0, _before),
+                    _imageBlock(1, _during),
+                    _imageBlock(2, _after),
+                    const SizedBox(height: 80),
+                  ],
+                ),
+                if (_loading)
+                  Container(
+                    color: Colors.black38,
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+              ],
             ),
+          ),
         ],
       ),
       floatingActionButton: widget.disable
@@ -312,28 +321,6 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
     }
   }
 
-  void _bottomSheet({required String latitude, required String longitude, required String src}) {
-    showModalBottomSheet(
-      context: context,
-      builder: (_) => Wrap(children: [
-        ListTile(
-          leading: Icon(Icons.image),
-          title: Text("View Image"),
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => ImageViewer(url: src)),
-          ),
-        ),
-        ListTile(
-          leading: Icon(Icons.map),
-          title: Text("Open Map"),
-          onTap: () async {
-            final googleUrl = "https://www.google.com/maps/search/?api=1&query=$latitude,$longitude";
-            if (await canLaunch(googleUrl)) await launch(googleUrl);
-          },
-        ),
-      ]),
-    );
-  }
 }
 
 class UploadItem extends Upload {

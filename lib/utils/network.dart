@@ -116,17 +116,14 @@ class Provider {
       
       // Branch based on type of decode["result"].
       if (decode["result"] is List) {
-        // In case it's a List and not empty…
-        if ((decode["result"] as List).isNotEmpty) {
-          ResponseValue responseValue = serializers.deserializeWith(
-              ResponseValue.serializer, decode)!;
-          if (responseValue.success == true) {
-            return responseValue;
-          } else {
-            return Future.error(responseValue.errmsg);
-          }
+        ResponseValue responseValue = serializers.deserializeWith(
+            ResponseValue.serializer, decode)!;
+        if (responseValue.success == true) {
+          return responseValue;
         } else {
-          return Future.error("Empty result list");
+          return Future.error(responseValue.errmsg.isNotEmpty
+              ? responseValue.errmsg
+              : "Request failed");
         }
       } else if (decode["result"] is Map<String, dynamic>) {
         // When the response returns a Map instead of a List:

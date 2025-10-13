@@ -31,17 +31,30 @@ class _ComplaintViewState extends State<ComplaintView> {
     _loadFuture = _load();
   }
 
-  WorkOrderListType get _listType =>
-      widget.index == 0 ? WorkOrderListType.submittedWo : WorkOrderListType.pendingTask;
+  WorkOrderListType get _listType => widget.index == 0
+      ? WorkOrderListType.submittedWo
+      : WorkOrderListType.pendingTask;
 
   Future<List<WorkOrderTask>> _load({bool forceRefresh = false}) async {
-    final tasks = await _repository.getWorkOrders(
-      type: _listType,
-      forceRefresh: forceRefresh,
-    );
-    _listTask = tasks;
-    _filterTask = _applyFilters(tasks);
-    return _filterTask;
+    try {
+      final tasks = await _repository.getWorkOrders(
+        type: _listType,
+        forceRefresh: forceRefresh,
+      );
+      debugPrint('WorkOrder: fetched ${tasks.length} items for ${_listType.name} (forceRefresh=$forceRefresh)');
+      if (!mounted) {
+        return tasks;
+      }
+      setState(() {
+        _listTask = tasks;
+        _filterTask = _applyFilters(tasks);
+      });
+      return _filterTask;
+    } catch (error, stack) {
+      debugPrint('WorkOrder: failed to load ${_listType.name}: $error');
+      debugPrint('$stack');
+      rethrow;
+    }
   }
 
   List<WorkOrderTask> _applyFilters(List<WorkOrderTask> source) {
@@ -54,7 +67,8 @@ class _ComplaintViewState extends State<ComplaintView> {
     if (dropdownType != "All Type") {
       filtered = filtered.where((task) {
         final typeCode = dropdownType == "Work Order" ? "WO" : "WR";
-        return task.woTaskTypeInit == typeCode || task.woTaskType == dropdownType;
+        return task.woTaskTypeInit == typeCode ||
+            task.woTaskType == dropdownType;
       });
     }
 
@@ -171,7 +185,7 @@ class _ComplaintViewState extends State<ComplaintView> {
           return body(_filterTask);
         }
 
-        final data = snapshot.hasData ? _filterTask : <WorkOrderTask>[];
+        final data = snapshot.data ?? _filterTask;
         return body(data);
       },
     );

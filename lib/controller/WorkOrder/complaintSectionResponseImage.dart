@@ -6,7 +6,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:GEMS/controller/PPM/Form/openImage.dart';
-import 'package:GEMS/main.dart';
 import 'package:GEMS/utils/image_compressor.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
@@ -16,15 +15,19 @@ import 'package:path/path.dart' show basename;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:GEMS/controller/WorkOrder/pending_sync.dart';
+import 'package:GEMS/controller/WorkOrder/widgets/pending_sync_banner.dart';
 
 class ComplaintSectionResponseImage extends StatefulWidget {
   final String woTaskId;
   final bool disable;
+  final PendingSyncController? pendingSync;
 
   const ComplaintSectionResponseImage({
     super.key,
     required this.woTaskId,
     this.disable = false,
+    this.pendingSync,
   });
 
   @override
@@ -109,17 +112,25 @@ class _ComplaintSectionResponseImageState
         centerTitle: true,
         iconTheme: IconThemeData(color: AppColors.textPrimary),
       ),
-      body: Stack(
+      body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: _buildBody(),
-          ),
-          if (_loading)
-            Container(
-              color: Colors.black.withOpacity(0.3),
-              child: Center(child: CircularProgressIndicator()),
+          if (widget.pendingSync != null)
+            PendingSyncIndicator(controller: widget.pendingSync!),
+          Expanded(
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: _buildBody(),
+                ),
+                if (_loading)
+                  Container(
+                    color: Colors.black.withOpacity(0.3),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+              ],
             ),
+          ),
         ],
       ),
       // floatingActionButton: widget.disable

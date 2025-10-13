@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
+import 'package:toast/toast.dart';
+
+import 'package:GEMS/controller/WorkOrder/pending_sync.dart';
+import 'package:GEMS/controller/WorkOrder/widgets/pending_sync_banner.dart';
 import 'package:GEMS/model/responseValue.dart';
 import 'package:GEMS/utils/network.dart';
-import 'package:toast/toast.dart';
-import '../../../main.dart';
-
-import 'package:flutter/material.dart';
-import 'package:toast/toast.dart';
-import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
-import '../../../main.dart';
 
 class AddTechnicianCheckList extends StatefulWidget {
   final String id;
   final bool viewer;
+  final PendingSyncController? pendingSync;
 
   const AddTechnicianCheckList({
     super.key,
     required this.id,
     required this.viewer,
+    this.pendingSync,
   });
 
   @override
@@ -106,6 +104,8 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
       ),
       body: Column(
         children: [
+          if (widget.pendingSync != null)
+            PendingSyncIndicator(controller: widget.pendingSync!),
           _buildSearchCard(),
           const SizedBox(height: 8),
           _buildSelectionInfo(),

@@ -140,7 +140,8 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
                       specifiedType: const FullType(
                           BuiltList, [FullType(MonitorTask)])) as BuiltList<MonitorTask>);
             } else if (tryWorkOrderTask(serializers, value)) {
-              result.workorderTask.replace(serializers.deserialize(value,
+              final sanitized = _sanitizeWorkOrderTaskList(value);
+              result.workorderTask.replace(serializers.deserialize(sanitized,
                       specifiedType: const FullType(
                           BuiltList, [FullType(WorkOrderTask)])) as BuiltList<WorkOrderTask>);
             } else if (tryDot(serializers, value)) {
@@ -214,14 +215,78 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
   }
 
   bool tryWorkOrderTask(Serializers serializers, List<dynamic> value) {
+    if (value.isEmpty) {
+      return true;
+    }
+    final first = value.first;
+    final hasWorkOrderKeys = first is Map &&
+        (first.containsKey('woTaskId') || first.containsKey('woTaskNo'));
+    if (!hasWorkOrderKeys) {
+      return false;
+    }
     try {
-      var singleMap = value[0];
+      final singleMap = _normalizeWorkOrderEntry(first);
       var _ = serializers.deserialize(singleMap,
           specifiedType: const FullType(WorkOrderTask)) as WorkOrderTask;
       return true;
     } catch (_) {
       return false;
     }
+  }
+
+  List<dynamic> _sanitizeWorkOrderTaskList(List<dynamic> value) {
+    if (value.isEmpty) {
+      return value;
+    }
+    return value
+        .map((entry) => _normalizeWorkOrderEntry(entry))
+        .toList(growable: false);
+  }
+
+  Map<String, dynamic> _normalizeWorkOrderEntry(dynamic raw) {
+    Map<String, dynamic> map;
+    if (raw is Map<String, dynamic>) {
+      map = Map<String, dynamic>.from(raw);
+    } else if (raw is Map) {
+      map = raw.map((key, value) => MapEntry(key.toString(), value));
+    } else {
+      return {
+        'woTaskId': raw?.toString() ?? '',
+        'woTaskNo': '',
+        'woTaskLocation': '',
+        'woTaskType': '',
+        'woTaskTypeInit': '',
+        'reportedBy': '',
+        'woTaskTimeCreated': '',
+        'woTaskStatus': '',
+        'woTaskSeverity': '',
+      };
+    }
+
+    String stringValue(String key) {
+      final value = map[key];
+      if (value == null) return '';
+      if (value is String) return value;
+      return value.toString();
+    }
+
+    const keys = [
+      'woTaskId',
+      'woTaskNo',
+      'woTaskLocation',
+      'woTaskType',
+      'woTaskTypeInit',
+      'reportedBy',
+      'woTaskTimeCreated',
+      'woTaskStatus',
+      'woTaskSeverity',
+    ];
+
+    for (final key in keys) {
+  map[key] = stringValue(key);
+    }
+
+    return map;
   }
 
   bool tryWODetail(Serializers serializers, Map<String, dynamic> value) {
