@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:GEMS/data/local/offline_database.dart';
 import 'package:GEMS/model/execution.dart';
+import 'package:GEMS/model/response_image.dart';
 import 'package:GEMS/model/serializers.dart';
 import 'package:GEMS/model/workorder.dart';
 import 'package:GEMS/utils/network.dart';
@@ -61,6 +62,14 @@ class WorkOrderDetailRepository {
         );
       } catch (err) {
         debugPrint('Prefetch repair images for offline failed: $err');
+      }
+      try {
+        await getResponseImages(
+          workOrderId: workOrderId,
+          forceRefresh: true,
+        );
+      } catch (err) {
+        debugPrint('Prefetch response images for offline failed: $err');
       }
     }
     await _database.setWorkOrderOfflineMode(workOrderId, enabled);
@@ -219,6 +228,69 @@ class WorkOrderDetailRepository {
     return results;
   }
 
+  Future<List<ResponseImage>> getResponseImages({
+    required String workOrderId,
+    bool forceRefresh = false,
+    void Function(List<ResponseImage>)? onRemoteUpdate,
+  }) async {
+    final cached = await _database.getResponseImages(workOrderId);
+    final forcedOffline = await _database.isWorkOrderOfflineMode(workOrderId);
+
+    if (cached.isNotEmpty && (!forceRefresh || forcedOffline)) {
+      final images = cached.map<ResponseImage>(_responseImageFromEntity).toList();
+      if (!forceRefresh && !forcedOffline && onRemoteUpdate != null) {
+        unawaited(_refreshResponseImages(workOrderId: workOrderId).then((value) {
+          onRemoteUpdate(value);
+        }));
+      }
+      return images;
+    }
+
+    if (forcedOffline && cached.isNotEmpty) {
+  return cached.map<ResponseImage>(_responseImageFromEntity).toList();
+    }
+
+    final refreshed = await _refreshResponseImages(workOrderId: workOrderId);
+    if (refreshed.isEmpty && cached.isNotEmpty) {
+      return cached.map<ResponseImage>(_responseImageFromEntity).toList();
+    }
+    return refreshed;
+  }
+
+  Future<List<PendingResponseImage>> getPendingResponseImages(
+    String workOrderId,
+  ) async {
+    final pending = await _database.getPendingActions();
+    if (pending.isEmpty) return const [];
+
+    final results = <PendingResponseImage>[];
+    for (final action in pending) {
+      if (action.workOrderId != workOrderId) continue;
+      if (action.action != 'upload_response_image') continue;
+      try {
+        final payload = json.decode(action.payloadJson) as Map<String, dynamic>;
+        final data = payload['fileUpload[data]']?.toString();
+        if (data == null || data.isEmpty) continue;
+        final bytes = base64Decode(data);
+        results.add(
+          PendingResponseImage(
+            bytes: bytes,
+            createdAt: action.createdAt,
+            latitude: payload['latitude']?.toString(),
+            longitude: payload['longitude']?.toString(),
+            displayName: payload['fileUpload[name]']?.toString(),
+            description: payload['fileUpload[description]']?.toString(),
+          ),
+        );
+      } catch (err) {
+        debugPrint('Failed to decode pending response image payload: $err');
+      }
+    }
+
+    results.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return results;
+  }
+
   Future<List<TechnicianImageRepair>> _refreshRepairImages({
     required String workOrderId,
   }) async {
@@ -242,6 +314,32 @@ class WorkOrderDetailRepository {
       return images;
     } catch (err) {
       debugPrint('Failed to refresh repair images: $err');
+      return const [];
+    }
+  }
+
+  Future<List<ResponseImage>> _refreshResponseImages({
+    required String workOrderId,
+  }) async {
+    try {
+      final images = await _fetchResponseImagesRemote(workOrderId);
+      final entities = images
+          .map(
+            (image) => WorkOrderResponseImageEntity(
+              uploadId: image.woTaskUploadId,
+              workOrderId: workOrderId,
+              payloadJson: json.encode(image.toJson()),
+              documentFilename: image.documentFilename,
+              documentDesc: image.documentDesc,
+              documentSrc: image.documentSrc,
+              lastSyncedAt: _clock(),
+            ),
+          )
+          .toList();
+      await _database.replaceResponseImages(workOrderId, entities);
+      return images;
+    } catch (err) {
+      debugPrint('Failed to refresh response images: $err');
       return const [];
     }
   }
@@ -439,6 +537,44 @@ class WorkOrderDetailRepository {
     return response.technicianImages?.toList() ?? const <TechnicianImageRepair>[];
   }
 
+  Future<List<ResponseImage>> _fetchResponseImagesRemote(
+    String workOrderId,
+  ) async {
+    final url = '/api/m_wo.php?type=wo_response_images&woTaskId=$workOrderId';
+    final provider = _buildProvider(url, taskId: workOrderId);
+    final raw = await provider.getJson(url: url);
+    final list = _normalizeResponseImagePayload(raw);
+    return list.map(ResponseImage.fromJson).toList();
+  }
+
+  List<Map<String, dynamic>> _normalizeResponseImagePayload(dynamic raw) {
+    if (raw is List) {
+      return raw
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    }
+    if (raw is String) {
+      try {
+        final decoded = json.decode(raw);
+        return _normalizeResponseImagePayload(decoded);
+      } catch (err) {
+        debugPrint('Failed to decode response image payload string: $err');
+        return const [];
+      }
+    }
+    if (raw is Map) {
+      final result = raw['result'];
+      if (result is List) {
+        return result
+            .whereType<Map>()
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList();
+      }
+    }
+    return const [];
+  }
+
   WorkOrderStatus _statusFromEntity(WorkOrderSectionEntity entity) {
     final decoded = json.decode(entity.payloadJson);
     var status = serializers.deserializeWith(
@@ -471,6 +607,13 @@ class WorkOrderDetailRepository {
     WorkOrderRepairImageEntity entity,
   ) {
     return TechnicianImageRepair.fromJson(entity.payloadJson);
+  }
+
+  ResponseImage _responseImageFromEntity(
+    WorkOrderResponseImageEntity entity,
+  ) {
+    final map = json.decode(entity.payloadJson) as Map<String, dynamic>;
+    return ResponseImage.fromJson(map);
   }
 
   Map<String, dynamic> _executionToJson(ExecutionModel model) {
@@ -610,6 +753,20 @@ class WorkOrderDetailRepository {
     );
   }
 
+  Future<WorkOrderActionResult> deleteResponseImage({
+    required String workOrderId,
+    required String uploadId,
+  }) {
+    return _sendOrQueue(
+      workOrderId: workOrderId,
+      body: {
+        'action': 'delete_wo_repair_image',
+        'woTaskId': workOrderId,
+        'woTaskUploadId': uploadId,
+      },
+    );
+  }
+
   Future<WorkOrderActionResult> saveRepairImageDescriptions({
     required String workOrderId,
     required Map<String, String> descriptions,
@@ -709,4 +866,23 @@ class PendingRepairImage {
   final String? latitude;
   final String? longitude;
   final String? displayName;
+}
+
+@immutable
+class PendingResponseImage {
+  const PendingResponseImage({
+    required this.bytes,
+    required this.createdAt,
+    this.latitude,
+    this.longitude,
+    this.displayName,
+    this.description,
+  });
+
+  final Uint8List bytes;
+  final DateTime createdAt;
+  final String? latitude;
+  final String? longitude;
+  final String? displayName;
+  final String? description;
 }

@@ -8,8 +8,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:GEMS/controller/PPM/Form/openImage.dart';
 import 'package:GEMS/data/repository/work_order_detail_repository.dart';
+import 'package:GEMS/model/response_image.dart';
 import 'package:GEMS/utils/image_compressor.dart';
-import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/view/dialog.dart';
 import 'package:image_picker/image_picker.dart';
@@ -44,6 +44,9 @@ class _ComplaintSectionResponseImageState
   /// already-saved images from server
   List<ResponseImage> _existing = [];
 
+  /// queued uploads waiting for sync
+  List<PendingResponseImage> _pending = [];
+
   /// newly picked images waiting to upload
   final List<_LocalImage> _toUpload = [];
   late final WorkOrderDetailRepository _repository;
@@ -56,7 +59,20 @@ class _ComplaintSectionResponseImageState
     ToastContext().init(context);
     _repository = WorkOrderDetailRepository();
     _loadExisting();
+    _loadPending();
     _watchPendingSync();
+  }
+
+  Future<void> _loadPending() async {
+    try {
+      final pending = await _repository.getPendingResponseImages(widget.woTaskId);
+      if (!mounted) return;
+      setState(() {
+        _pending = pending;
+      });
+    } catch (err, st) {
+      debugPrint('Failed to load pending response images: $err\n$st');
+    }
   }
 
   @override
@@ -75,6 +91,7 @@ class _ComplaintSectionResponseImageState
       final previous = _lastPendingCount;
       _lastPendingCount = count;
       if (!mounted) return;
+      _loadPending();
       final pendingCleared = previous != null && previous > 0 && count == 0;
       if (pendingCleared) {
         _loadExisting(force: true);
@@ -84,45 +101,36 @@ class _ComplaintSectionResponseImageState
 
   /// Fetch the already-uploaded images
   Future<void> _loadExisting({bool force = false}) async {
+    if (!mounted) return;
     if (_loading && !force) return;
     setState(() => _loading = true);
-
-    final url =
-      "/api/m_wo.php?type=wo_response_images&woTaskId=${widget.woTaskId}";
-    final provider = Provider(fetchURL: url)..context = context;
-
     try {
-      final raw = await provider.getJson(url: url);
-
-      // 1) Figure out where our List of items actually lives
-      List<dynamic> listData;
-      if (raw is List) {
-        // provider jumped straight to the array
-        listData = raw;
-      } else if (raw is String) {
-        // we got a JSON string → decode to Map
-        final decoded = jsonDecode(raw) as Map<String, dynamic>;
-        listData = decoded['result'] as List<dynamic>? ?? [];
-      } else if (raw is Map) {
-        // we already have a Map
-        listData = raw['result'] as List<dynamic>? ?? [];
-      } else {
-        throw Exception("Unexpected response type: ${raw.runtimeType}");
+      final images = await _repository.getResponseImages(
+        workOrderId: widget.woTaskId,
+        forceRefresh: force,
+        onRemoteUpdate: (latest) {
+          if (!mounted) return;
+          setState(() {
+            _existing = latest;
+          });
+        },
+      );
+      if (!mounted) return;
+      setState(() {
+        _existing = images;
+      });
+    } catch (err, st) {
+      debugPrint('Failed to load response images: $err\n$st');
+      if (mounted) {
+        Toast.show('Failed to load response images');
+        setState(() {
+          _existing = [];
+        });
       }
-
-      // 2) Map into your model
-      _existing = listData
-        .map((e) => ResponseImage.fromJson(Map<String, dynamic>.from(e as Map)))
-        .toList();
-
-      debugPrint(_existing.toString());
-
-    } catch (e, st) {
-      debugPrint("❌ _loadExisting failed: $e\n$st");
-      Toast.show("Failed to load response images");
-      _existing = [];
     } finally {
-      setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 
@@ -208,7 +216,7 @@ class _ComplaintSectionResponseImageState
   }
 
   Widget _buildBody() {
-    final totalImages = _existing.length + _toUpload.length;
+    final totalImages = _existing.length + _toUpload.length + _pending.length;
     final canAddMore = totalImages < 3;
 
     return SingleChildScrollView(
@@ -233,6 +241,18 @@ class _ComplaintSectionResponseImageState
             ),
           ),
           SizedBox(height: 24),
+
+          if (_pending.isNotEmpty) ...[
+            _buildSectionCard(
+              title: 'Waiting to Sync',
+              child: Column(
+                children: [
+                  ..._pending.map(_buildPendingCard),
+                ],
+              ),
+            ),
+            SizedBox(height: 16),
+          ],
 
           // Existing Images
           if (_existing.isNotEmpty) ...[
@@ -342,6 +362,73 @@ class _ComplaintSectionResponseImageState
               _buildSubmitButton(),
         ],
       )
+    );
+  }
+
+  Widget _buildPendingCard(PendingResponseImage item) {
+    return Card(
+      margin: EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+            child: Image.memory(
+              item.bytes,
+              fit: BoxFit.cover,
+              height: 160,
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.warning.withOpacity(0.15),
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(12)),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.sync, color: AppColors.warning, size: 20),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Waiting to sync',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      if ((item.description ?? '').isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            item.description!,
+                            style: GoogleFonts.poppins(fontSize: 12),
+                          ),
+                        ),
+                      if ((item.displayName ?? '').isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(
+                            item.displayName!,
+                            style: GoogleFonts.poppins(
+                              fontSize: 11,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -556,19 +643,45 @@ class _ComplaintSectionResponseImageState
   }
 
   Future<void> _deleteExistingImage(String uploadId) async {
-    setState(() => _loading = true);
-    final url = '/api/m_wo.php?action=delete_wo_repair_image'
-      '&woTaskId=${widget.woTaskId}'
-      '&woTaskUploadId=$uploadId';
-    final provider = Provider(fetchURL: url)..context = context;
+    if (!mounted) return;
+    final previous = List<ResponseImage>.from(_existing);
+    setState(() {
+      _loading = true;
+      _existing = _existing
+          .where((item) => item.woTaskUploadId != uploadId)
+          .toList();
+    });
+
     try {
-      await provider.delete(url: provider.fetchURL);
-      Toast.show('Image deleted');
-      await _loadExisting();
-    } catch (e) {
+      final result = await _repository.deleteResponseImage(
+        workOrderId: widget.woTaskId,
+        uploadId: uploadId,
+      );
+      if (result == WorkOrderActionResult.success) {
+        Toast.show('Image deleted');
+        await _loadExisting(force: true);
+      } else {
+        Toast.show("We'll delete this photo once you're back online.");
+        if (widget.pendingSync != null) {
+          try {
+            await widget.pendingSync!.retry();
+          } catch (err, st) {
+            debugPrint('Pending sync retry failed after delete queue: $err\n$st');
+          }
+        }
+      }
+    } catch (err, st) {
+      debugPrint('Failed to delete response image: $err\n$st');
       Toast.show('Delete failed');
+      if (mounted) {
+        setState(() {
+          _existing = previous;
+        });
+      }
     } finally {
-      setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 
@@ -644,40 +757,18 @@ class _ComplaintSectionResponseImageState
     }
 
     if (anySuccess) {
-      await _loadExisting();
+      await _loadExisting(force: true);
       if (!mounted) {
         return;
       }
     }
 
+    await _loadPending();
+
     setState(() {
       _toUpload.clear();
       _loading = false;
     });
-  }
-}
-
-/// model for existing images
-class ResponseImage {
-  final String woTaskUploadId;
-  final String documentFilename;
-  final String documentDesc;
-  final String documentSrc;
-
-  ResponseImage({
-    required this.woTaskUploadId,
-    required this.documentFilename,
-    required this.documentDesc,
-    required this.documentSrc,
-  });
-
-  factory ResponseImage.fromJson(Map<String, dynamic> json) {
-    return ResponseImage(
-      woTaskUploadId: json['woTaskUploadId'],
-      documentFilename: json['documentFilename'],
-      documentDesc: json['documentDesc'],
-      documentSrc: json['documentSrc'],
-    );
   }
 }
 

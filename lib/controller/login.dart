@@ -29,7 +29,6 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   bool secure = true;
   bool _biometricAvailable = false;
   bool _biometricEnabled = false;
-  bool _attemptedAutoBiometric = false;
 
   final LocalAuthentication _localAuthentication = LocalAuthentication();
 
@@ -303,13 +302,6 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
         _biometricAvailable = hasDeviceBiometric;
         _biometricEnabled = enabled && storedCreds != null;
       });
-
-      if (_biometricAvailable && _biometricEnabled && !_attemptedAutoBiometric) {
-        _attemptedAutoBiometric = true;
-        WidgetsBinding.instance.addPostFrameCallback(
-          (_) => _handleBiometricLogin(auto: true),
-        );
-      }
     } catch (e) {
       debugPrint('Biometric init failed: $e');
     }

@@ -6,7 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 const _dbName = 'gems_offline.db';
-const _dbVersion = 7;
+const _dbVersion = 8;
 
 class OfflineDatabase {
   OfflineDatabase._();
@@ -48,6 +48,7 @@ class OfflineDatabase {
     await db.execute(_WorkOrderPendingActionsTable.createSql);
     await db.execute(_WorkOrderComplaintDetailTable.createSql);
     await db.execute(_WorkOrderRepairImagesTable.createSql);
+  await db.execute(_WorkOrderResponseImagesTable.createSql);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -80,6 +81,9 @@ class OfflineDatabase {
     if (oldVersion < 7) {
       await db.execute(_WorkOrderRepairImagesTable.createSql);
     }
+    if (oldVersion < 8) {
+      await db.execute(_WorkOrderResponseImagesTable.createSql);
+    }
   }
 
   Future<void> clearAll() async {
@@ -96,6 +100,7 @@ class OfflineDatabase {
       await txn.delete(_WorkOrderPendingActionsTable.tableName);
       await txn.delete(_WorkOrderComplaintDetailTable.tableName);
       await txn.delete(_WorkOrderRepairImagesTable.tableName);
+  await txn.delete(_WorkOrderResponseImagesTable.tableName);
     });
   }
 
@@ -112,6 +117,7 @@ class OfflineDatabase {
       await txn.delete(_WorkOrderPendingActionsTable.tableName);
       await txn.delete(_WorkOrderComplaintDetailTable.tableName);
       await txn.delete(_WorkOrderRepairImagesTable.tableName);
+  await txn.delete(_WorkOrderResponseImagesTable.tableName);
     });
   }
 
@@ -191,6 +197,30 @@ class OfflineDatabase {
     });
   }
 
+  Future<void> replaceResponseImages(
+    String workOrderId,
+    List<WorkOrderResponseImageEntity> images,
+  ) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      await txn.delete(
+        _WorkOrderResponseImagesTable.tableName,
+        where: 'work_order_id = ?',
+        whereArgs: [workOrderId],
+      );
+
+      final batch = txn.batch();
+      for (final image in images) {
+        batch.insert(
+          _WorkOrderResponseImagesTable.tableName,
+          image.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+      await batch.commit(noResult: true);
+    });
+  }
+
   Future<List<WorkOrderHeaderEntity>> getWorkOrdersByList(
     String listType,
   ) async {
@@ -227,6 +257,19 @@ ORDER BY h.scheduled_start DESC, h.work_order_number DESC
       orderBy: 'captured_at DESC, upload_id DESC',
     );
     return rows.map(WorkOrderRepairImageEntity.fromMap).toList();
+  }
+
+  Future<List<WorkOrderResponseImageEntity>> getResponseImages(
+    String workOrderId,
+  ) async {
+    final db = await database;
+    final rows = await db.query(
+      _WorkOrderResponseImagesTable.tableName,
+      where: 'work_order_id = ?',
+      whereArgs: [workOrderId],
+      orderBy: 'captured_at DESC, upload_id DESC',
+    );
+    return rows.map(WorkOrderResponseImageEntity.fromMap).toList();
   }
 
   Future<void> upsertWorkOrderHeader(WorkOrderHeaderEntity entity) async {
@@ -827,6 +870,23 @@ CREATE TABLE IF NOT EXISTS $tableName (
 ''';
 }
 
+class _WorkOrderResponseImagesTable {
+  static const tableName = 'work_order_response_images';
+  static const createSql = '''
+CREATE TABLE IF NOT EXISTS $tableName (
+  upload_id TEXT PRIMARY KEY,
+  work_order_id TEXT NOT NULL,
+  document_filename TEXT,
+  document_desc TEXT,
+  document_src TEXT,
+  payload TEXT NOT NULL,
+  captured_at TEXT,
+  last_synced_at TEXT,
+  FOREIGN KEY(work_order_id) REFERENCES ${_WorkOrderHeadersTable.tableName}(work_order_id) ON DELETE CASCADE
+)
+''';
+}
+
 class _ReferenceDataTable {
   static const tableName = 'reference_data';
   static const createSql = '''
@@ -919,6 +979,55 @@ class WorkOrderRepairImageEntity {
       workOrderId: map['work_order_id'] as String,
       payloadJson: map['payload'] as String,
       uploadType: map['upload_type'] as String?,
+      documentDesc: map['document_desc'] as String?,
+      documentSrc: map['document_src'] as String?,
+      capturedAt: _parseDate(map['captured_at']),
+      lastSyncedAt: _parseDate(map['last_synced_at']),
+    );
+  }
+}
+
+@immutable
+class WorkOrderResponseImageEntity {
+  const WorkOrderResponseImageEntity({
+    required this.uploadId,
+    required this.workOrderId,
+    required this.payloadJson,
+    this.documentFilename,
+    this.documentDesc,
+    this.documentSrc,
+    this.capturedAt,
+    this.lastSyncedAt,
+  });
+
+  final String uploadId;
+  final String workOrderId;
+  final String payloadJson;
+  final String? documentFilename;
+  final String? documentDesc;
+  final String? documentSrc;
+  final DateTime? capturedAt;
+  final DateTime? lastSyncedAt;
+
+  Map<String, Object?> toMap() {
+    return {
+      'upload_id': uploadId,
+      'work_order_id': workOrderId,
+      'document_filename': documentFilename,
+      'document_desc': documentDesc,
+      'document_src': documentSrc,
+      'payload': payloadJson,
+      'captured_at': capturedAt?.toIso8601String(),
+      'last_synced_at': lastSyncedAt?.toIso8601String(),
+    };
+  }
+
+  static WorkOrderResponseImageEntity fromMap(Map<String, Object?> map) {
+    return WorkOrderResponseImageEntity(
+      uploadId: map['upload_id'] as String,
+      workOrderId: map['work_order_id'] as String,
+      payloadJson: map['payload'] as String,
+      documentFilename: map['document_filename'] as String?,
       documentDesc: map['document_desc'] as String?,
       documentSrc: map['document_src'] as String?,
       capturedAt: _parseDate(map['captured_at']),
