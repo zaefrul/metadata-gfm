@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:GEMS/controller/PPM/Form/openImage.dart';
 import 'package:GEMS/controller/WorkOrder/pending_sync.dart';
 import 'package:GEMS/controller/WorkOrder/widgets/pending_sync_banner.dart';
+import 'package:GEMS/data/repository/work_order_detail_repository.dart';
 import 'package:GEMS/model/workorder.dart';
-import 'package:GEMS/utils/network.dart';
 import 'package:url_launcher/url_launcher.dart';
 // import 'package:GEMS/controller/Storekeeper/utils/constant.dart'; // for colorTheme2
 import 'package:GEMS/utils/reference.dart';
@@ -27,29 +27,34 @@ class ComplaintSectionA extends StatefulWidget {
 }
 
 class _ComplaintSectionAState extends State<ComplaintSectionA> {
-  final Provider _provider;
+  late final WorkOrderDetailRepository _repository;
+  late Future<WorkOrderDetail?> _detailFuture;
 
-  _ComplaintSectionAState(String id)
-      : _provider = Provider(
-          fetchURL: "/api/m_wo.php?type=complaint_details&woTaskId=",
-          taskID: id,
-        );
+  _ComplaintSectionAState(String id);
 
-  Future<WorkOrderDetail> get _fetch async {
-    _provider.context = context;
-    try {
-      var result = await _provider.fetch();
-      debugPrint('this is result from fetch, but at complaintSectionA.dart');
-      debugPrint(result.toString());
-      if (result.woDetail == null) {
-        throw Exception("woDetail came back null");
-      }
-      debugPrint(result.woDetail.toString());
-      return result.woDetail!;
-    } catch (err) {
-      debugPrint("Error fetching complaint details: $err");
-      rethrow;
+  @override
+  void initState() {
+    super.initState();
+    _repository = WorkOrderDetailRepository();
+    _detailFuture = _loadDetail();
+  }
+
+  Future<WorkOrderDetail?> _loadDetail({bool forceRefresh = false}) async {
+    final detail = await _repository.getComplaintDetail(
+      workOrderId: widget.id,
+      forceRefresh: forceRefresh,
+    );
+    if (detail == null && forceRefresh) {
+      throw Exception('Unable to load complaint details.');
     }
+    return detail;
+  }
+
+  Future<void> _refreshDetail() async {
+    setState(() {
+      _detailFuture = _loadDetail(forceRefresh: true);
+    });
+    await _detailFuture;
   }
 
   @override
@@ -74,21 +79,25 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
         children: [
           header,
           Expanded(
-            child: FutureBuilder<WorkOrderDetail>(
-              future: _fetch,
+            child: FutureBuilder<WorkOrderDetail?>(
+              future: _detailFuture,
               builder: (ctx, snap) {
                 if (snap.connectionState == ConnectionState.waiting) {
                   return _buildLoadingPlaceholder(isWide);
                 }
                 if (snap.hasError) {
-                  return Center(child: Text("Error: ${snap.error}"));
+                  return _buildErrorState(snap.error.toString());
                 }
-                if (!snap.hasData) {
-                  return Center(child: Text("No data returned"));
+                final detail = snap.data;
+                if (detail == null) {
+                  return _buildErrorState(
+                    'Complaint details are not cached yet for offline use. Please reconnect and refresh.',
+                  );
                 }
-                final d = snap.data!;
-                return isWide ? _buildGrid(context, d) : _buildList(context, d);
-              }
+                return isWide
+                    ? _buildGrid(context, detail)
+                    : _buildList(context, detail);
+              },
             ),
           ),
         ],
@@ -180,32 +189,75 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              width: 36,
-              child: Center(
-                child: Icon(icon, size: 24, color: colorTheme2),
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: colorTheme3.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(8),
               ),
+              child: Icon(icon, color: colorTheme3),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: colorTheme3,
-                      )),
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.black54,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text(value,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      )),
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(String message) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.info_outline,
+              size: 48,
+              color: colorTheme3.withOpacity(0.6),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _refreshDetail,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colorTheme2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text('Try Again'),
             ),
           ],
         ),

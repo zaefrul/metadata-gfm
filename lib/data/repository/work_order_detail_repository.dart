@@ -46,6 +46,22 @@ class WorkOrderDetailRepository {
       } catch (err) {
         debugPrint('Prefetch execution for offline failed: $err');
       }
+      try {
+        await getComplaintDetail(
+          workOrderId: workOrderId,
+          forceRefresh: true,
+        );
+      } catch (err) {
+        debugPrint('Prefetch complaint detail for offline failed: $err');
+      }
+      try {
+        await getRepairImages(
+          workOrderId: workOrderId,
+          forceRefresh: true,
+        );
+      } catch (err) {
+        debugPrint('Prefetch repair images for offline failed: $err');
+      }
     }
     await _database.setWorkOrderOfflineMode(workOrderId, enabled);
   }
@@ -111,6 +127,123 @@ class WorkOrderDetailRepository {
 
   Future<int> pendingActionCount({String? workOrderId}) {
     return _database.getPendingActionCount(workOrderId: workOrderId);
+  }
+
+  Future<WorkOrderDetail?> getComplaintDetail({
+    required String workOrderId,
+    bool forceRefresh = false,
+    void Function(WorkOrderDetail)? onRemoteUpdate,
+  }) async {
+    final cached = await _database.getComplaintDetail(workOrderId);
+    final forcedOffline = await _database.isWorkOrderOfflineMode(workOrderId);
+
+    if (cached != null && (!forceRefresh || forcedOffline)) {
+      final detail = _detailFromEntity(cached);
+      if (!forceRefresh && !forcedOffline && onRemoteUpdate != null) {
+        unawaited(_refreshComplaintDetail(workOrderId: workOrderId).then((value) {
+          if (value != null) {
+            onRemoteUpdate(value);
+          }
+        }));
+      }
+      return detail;
+    }
+
+    if (forcedOffline && cached != null) {
+      return _detailFromEntity(cached);
+    }
+
+    return _refreshComplaintDetail(workOrderId: workOrderId);
+  }
+
+  Future<List<TechnicianImageRepair>> getRepairImages({
+    required String workOrderId,
+    bool forceRefresh = false,
+    void Function(List<TechnicianImageRepair>)? onRemoteUpdate,
+  }) async {
+    final cached = await _database.getRepairImages(workOrderId);
+    final forcedOffline = await _database.isWorkOrderOfflineMode(workOrderId);
+
+    if (cached.isNotEmpty && (!forceRefresh || forcedOffline)) {
+      final images = cached.map(_repairImageFromEntity).toList();
+      if (!forceRefresh && !forcedOffline && onRemoteUpdate != null) {
+        unawaited(_refreshRepairImages(workOrderId: workOrderId).then((value) {
+          onRemoteUpdate(value);
+        }));
+      }
+      return images;
+    }
+
+    if (forcedOffline && cached.isNotEmpty) {
+      return cached.map(_repairImageFromEntity).toList();
+    }
+
+    final refreshed = await _refreshRepairImages(workOrderId: workOrderId);
+    if (refreshed.isEmpty && cached.isNotEmpty) {
+      return cached.map(_repairImageFromEntity).toList();
+    }
+    return refreshed;
+  }
+
+  Future<List<PendingRepairImage>> getPendingRepairImages(
+    String workOrderId,
+  ) async {
+    final pending = await _database.getPendingActions();
+    if (pending.isEmpty) return const [];
+
+    final results = <PendingRepairImage>[];
+    for (final action in pending) {
+      if (action.workOrderId != workOrderId) continue;
+      if (action.action != 'upload_repair_image') continue;
+      try {
+        final payload = json.decode(action.payloadJson) as Map<String, dynamic>;
+        final data = payload['fileUpload[data]']?.toString();
+        if (data == null || data.isEmpty) continue;
+        final bytes = base64Decode(data);
+        results.add(
+          PendingRepairImage(
+            uploadType: payload['uploadType']?.toString() ?? '2',
+            bytes: bytes,
+            createdAt: action.createdAt,
+            latitude: payload['latitude']?.toString(),
+            longitude: payload['longitude']?.toString(),
+            displayName: payload['fileUpload[name]']?.toString(),
+          ),
+        );
+      } catch (err) {
+        debugPrint('Failed to decode pending repair image payload: $err');
+      }
+    }
+
+    results.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return results;
+  }
+
+  Future<List<TechnicianImageRepair>> _refreshRepairImages({
+    required String workOrderId,
+  }) async {
+    try {
+      final images = await _fetchRepairImagesRemote(workOrderId);
+      final entities = images
+          .map(
+            (image) => WorkOrderRepairImageEntity(
+              uploadId: image.woTaskUploadId,
+              workOrderId: workOrderId,
+              payloadJson: image.toJson(),
+              uploadType: image.woTaskUploadType,
+              documentDesc: image.documentDesc,
+              documentSrc: image.documentSrc,
+              capturedAt: _parseTimestamp(image.woTaskUploadTimestamp),
+              lastSyncedAt: _clock(),
+            ),
+          )
+          .toList();
+      await _database.replaceRepairImages(workOrderId, entities);
+      return images;
+    } catch (err) {
+      debugPrint('Failed to refresh repair images: $err');
+      return const [];
+    }
   }
 
   Future<void> syncPendingActions() async {
@@ -284,17 +417,60 @@ class WorkOrderDetailRepository {
     return null;
   }
 
+  Future<WorkOrderDetail?> _fetchComplaintDetailRemote(
+    String workOrderId,
+  ) async {
+    final provider = _buildProvider(
+      '/api/m_wo.php?type=complaint_details&woTaskId=',
+      taskId: workOrderId,
+    );
+    final response = await provider.fetch();
+    return response.woDetail;
+  }
+
+  Future<List<TechnicianImageRepair>> _fetchRepairImagesRemote(
+    String workOrderId,
+  ) async {
+    final provider = _buildProvider(
+      '/api/m_wo.php?type=wo_repair_images&woTaskId=',
+      taskId: workOrderId,
+    );
+    final response = await provider.fetch();
+    return response.technicianImages?.toList() ?? const <TechnicianImageRepair>[];
+  }
+
   WorkOrderStatus _statusFromEntity(WorkOrderSectionEntity entity) {
     final decoded = json.decode(entity.payloadJson);
-    return serializers.deserializeWith(
+    var status = serializers.deserializeWith(
       WorkOrderStatus.serializer,
       decoded,
     )!;
+    status = status.rebuild((builder) {
+      if (builder.sectionDesc == null && entity.sectionDesc != null) {
+        builder.sectionDesc = entity.sectionDesc;
+      }
+      if (builder.sectionName == null && entity.sectionName.isNotEmpty) {
+        builder.sectionName = entity.sectionName;
+      }
+    });
+    return status;
   }
 
   ExecutionModel _executionFromEntity(WorkOrderExecutionEntity entity) {
     final map = json.decode(entity.payloadJson) as Map<String, dynamic>;
     return ExecutionModel.fromJson(map);
+  }
+
+  WorkOrderDetail _detailFromEntity(
+    WorkOrderComplaintDetailEntity entity,
+  ) {
+    return WorkOrderDetail.fromJson(entity.payloadJson);
+  }
+
+  TechnicianImageRepair _repairImageFromEntity(
+    WorkOrderRepairImageEntity entity,
+  ) {
+    return TechnicianImageRepair.fromJson(entity.payloadJson);
   }
 
   Map<String, dynamic> _executionToJson(ExecutionModel model) {
@@ -459,6 +635,27 @@ class WorkOrderDetailRepository {
     await provider.post(url: '/api/m_wo.php', body: body);
   }
 
+  Future<WorkOrderDetail?> _refreshComplaintDetail({
+    required String workOrderId,
+  }) async {
+    try {
+      final detail = await _fetchComplaintDetailRemote(workOrderId);
+      if (detail != null) {
+        await _database.upsertComplaintDetail(
+          WorkOrderComplaintDetailEntity(
+            workOrderId: workOrderId,
+            payloadJson: detail.toJson(),
+            lastSyncedAt: _clock(),
+          ),
+        );
+      }
+      return detail;
+    } catch (err) {
+      debugPrint('Failed to refresh complaint detail: $err');
+      return null;
+    }
+  }
+
   Provider _buildProvider(String fetchURL, {String? taskId}) {
     final provider = Provider(fetchURL: fetchURL, taskID: taskId);
     final context = navigatorKey.currentContext;
@@ -480,4 +677,36 @@ class WorkOrderDetailRepository {
     }
     return url;
   }
+
+  DateTime? _parseTimestamp(String? value) {
+    if (value == null || value.isEmpty) return null;
+    try {
+      return DateTime.parse(value);
+    } catch (_) {
+      try {
+        return DateTime.parse(value.replaceAll(' ', 'T'));
+      } catch (_) {
+        return null;
+      }
+    }
+  }
+}
+
+@immutable
+class PendingRepairImage {
+  const PendingRepairImage({
+    required this.uploadType,
+    required this.bytes,
+    required this.createdAt,
+    this.latitude,
+    this.longitude,
+    this.displayName,
+  });
+
+  final String uploadType;
+  final Uint8List bytes;
+  final DateTime createdAt;
+  final String? latitude;
+  final String? longitude;
+  final String? displayName;
 }

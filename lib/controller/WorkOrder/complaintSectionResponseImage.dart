@@ -1,5 +1,6 @@
 // lib/controller/WorkOrder/complaintSectionResponseImage.dart
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -46,6 +47,8 @@ class _ComplaintSectionResponseImageState
   /// newly picked images waiting to upload
   final List<_LocalImage> _toUpload = [];
   late final WorkOrderDetailRepository _repository;
+  StreamSubscription<int>? _pendingSyncSub;
+  int? _lastPendingCount;
 
   @override
   void initState() {
@@ -53,10 +56,35 @@ class _ComplaintSectionResponseImageState
     ToastContext().init(context);
     _repository = WorkOrderDetailRepository();
     _loadExisting();
+    _watchPendingSync();
+  }
+
+  @override
+  void didUpdateWidget(covariant ComplaintSectionResponseImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.pendingSync != widget.pendingSync) {
+      _pendingSyncSub?.cancel();
+      _watchPendingSync();
+    }
+  }
+
+  void _watchPendingSync() {
+    final controller = widget.pendingSync;
+    if (controller == null) return;
+    _pendingSyncSub = controller.pendingCount$.listen((count) {
+      final previous = _lastPendingCount;
+      _lastPendingCount = count;
+      if (!mounted) return;
+      final pendingCleared = previous != null && previous > 0 && count == 0;
+      if (pendingCleared) {
+        _loadExisting(force: true);
+      }
+    });
   }
 
   /// Fetch the already-uploaded images
-  Future<void> _loadExisting() async {
+  Future<void> _loadExisting({bool force = false}) async {
+    if (_loading && !force) return;
     setState(() => _loading = true);
 
     final url =
@@ -96,6 +124,12 @@ class _ComplaintSectionResponseImageState
     } finally {
       setState(() => _loading = false);
     }
+  }
+
+  @override
+  void dispose() {
+    _pendingSyncSub?.cancel();
+    super.dispose();
   }
 
   @override

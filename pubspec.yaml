@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # version: 1.7.21
-version: 0.0.1-Beta-4+5
+version: 1.0.2+60
 
 environment:
   sdk: ">=2.17.0 <4.0.0"
@@ -65,7 +65,7 @@ dependencies:
   barcode_scan2: ^4.2.1
   local_auth: ^2.3.0
   flutter_secure_storage: ^9.2.2
-  sqflite: ^2.3.3+1
+  sqflite: 2.3.3+1
   
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

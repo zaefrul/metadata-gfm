@@ -77,7 +77,9 @@ class WorkOrderRepository {
       final entities = remote.map(_taskToEntity).toList();
       await _database.replaceWorkOrderList(type.cacheKey, entities);
       final refreshed = await _database.getWorkOrdersByList(type.cacheKey);
-      final items = refreshed.map(_entityToListItem).toList();
+      final items = _prioritizeOffline(
+        refreshed.map(_entityToListItem).toList(),
+      );
       return WorkOrderListResult(
         items: items,
         source: WorkOrderDataSource.remote,

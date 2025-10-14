@@ -232,11 +232,17 @@ class ComplaintViewState extends State<ComplaintView> {
       future: _loadFuture,
       builder: (context, AsyncSnapshot<List<WorkOrderListItem>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
+          if (_filterTask.isNotEmpty) {
+            return body(_filterTask);
+          }
           return loadingWidget;
         }
 
         if (snapshot.hasError) {
-          return body(_filterTask);
+          if (_filterTask.isNotEmpty) {
+            return body(_filterTask);
+          }
+          return body(const []);
         }
 
         final data = snapshot.data ?? _filterTask;

@@ -305,10 +305,6 @@ class _FormHState extends State<FormH> {
       _getTitle("Requires at least one photo for each of the following image section below:")
     ];
 
-    UploadItem beforeItem;
-    List<UploadItem> duringItems;
-    UploadItem afterItem;
-
     // empty UploadItem
     UploadItem emptyUp = UploadItem(
       "empty",
@@ -326,9 +322,11 @@ class _FormHState extends State<FormH> {
       desc: "",
     );
 
+    UploadItem beforeItem = emptyUp;
+    UploadItem afterItem = emptyUp;
+
     if (listItem.isNotEmpty) {
       beforeItem = listItem.firstWhere((item) => item.index == 0, orElse: () => emptyUp);
-      duringItems = listItem.where((item) => item.index == 1).toList();
       afterItem = listItem.firstWhere((item) => item.index == 2, orElse: () => emptyUp);
     }
 
@@ -348,9 +346,9 @@ class _FormHState extends State<FormH> {
             _children.add(_emptySection(i));
           }
         }
-      } else if (beforeItem != null && i == 0) {
+      } else if (beforeItem != emptyUp && i == 0) {
         _children.add(_sectionUploadItem(beforeItem));
-      } else if (afterItem != null && i == 2) {
+      } else if (afterItem != emptyUp && i == 2) {
         _children.add(_sectionUploadItem(afterItem));
       } else if (item == null) {
         _children.add(_emptySection(i));
@@ -359,8 +357,8 @@ class _FormHState extends State<FormH> {
   }
 
   void _createUploadItem(int number) async {
-    String latitude;
-    String longitude;
+  String latitude = '';
+  String longitude = '';
 
     Future<XFile> getImage() async {
       final XFile? pickedFile = await ImagePicker().pickImage(
