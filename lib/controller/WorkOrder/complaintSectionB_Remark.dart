@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:GEMS/data/repository/work_order_detail_repository.dart';
 import 'package:GEMS/utils/network.dart';
@@ -14,6 +16,8 @@ class ComplaintSectionB extends StatefulWidget {
   final bool viewer;
   final String name;           // re‑add this
   final PendingSyncController? pendingSync;
+  final Stream<WorkOrderSnapshotData?>? snapshotStream;
+  final WorkOrderSnapshotData? initialSnapshot;
 
   const ComplaintSectionB({
     super.key,
@@ -21,6 +25,8 @@ class ComplaintSectionB extends StatefulWidget {
     required this.id,
     this.viewer = false,
     this.pendingSync,
+    this.snapshotStream,
+    this.initialSnapshot,
   });
 
   @override
@@ -33,12 +39,16 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
   late Provider _provider;
   late final WorkOrderDetailRepository _repository;
   late final TextEditingController _controller;
+  StreamSubscription<WorkOrderSnapshotData?>? _snapshotSub;
+  bool _userEdited = false;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
-  _repository = WorkOrderDetailRepository();
+    _repository = WorkOrderDetailRepository();
+    _applySnapshot(widget.initialSnapshot);
+    _listenToSnapshots();
     _provider = Provider(
       taskID: widget.id,
       fetchURL: "/api/m_wo.php?type=wo_repair_work&woTaskId=",
@@ -50,6 +60,7 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
       .then((resp) {
         final text = resp.result ?? "";
         if (!mounted) return;
+        if (_userEdited) return;
         setState(() {
           _remark = text;
           _controller.text = text;
@@ -68,8 +79,34 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
 
   @override
   void dispose() {
+    _snapshotSub?.cancel();
     _controller.dispose();
     super.dispose();
+  }
+
+  void _listenToSnapshots() {
+    final stream = widget.snapshotStream;
+    if (stream == null) return;
+    _snapshotSub = stream.listen((snapshot) {
+      if (!mounted) return;
+      _applySnapshot(snapshot);
+    });
+  }
+
+  void _applySnapshot(WorkOrderSnapshotData? snapshot) {
+    final value = snapshot?.repairWork;
+    if (value == null) return;
+    if (_userEdited && value != _controller.text) {
+      return;
+    }
+    if (_remark == value && _controller.text == value) {
+      return;
+    }
+    setState(() {
+      _remark = value;
+      _controller.text = value;
+      _loading = false;
+    });
   }
 
   void _save() {
@@ -171,7 +208,10 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
                                 border: InputBorder.none,
                                 counterText: "",
                               ),
-                              onChanged: (val) => _remark = val,
+                              onChanged: (val) {
+                                _userEdited = true;
+                                _remark = val;
+                              },
                             ),
                           ),
                         ),

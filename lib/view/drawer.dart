@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+
 import '../model/user.dart';
+import 'debug_log_screen.dart';
 
 class BuildDrawer extends StatelessWidget {
-  late User user; // This will be assigned in the FutureBuilder
   final bool isHome;
   final Function backFunc;
   final String email = "operationalexcellence@globalfm.com.my";
@@ -15,65 +16,69 @@ class BuildDrawer extends StatelessWidget {
     // Grab the Navigator once here
     final nav = Navigator.of(context);
 
-    // Build your static tiles list, using `nav` instead of `Navigator.of(context)` in the callbacks:
-    List<Widget> tiles = [
-      if (!isHome)
-        getTile("Home", "home_icon.png", onTap: () {
-          // immediately close the drawer
-          nav.pop();
-          // then, after a pause, pop back to /homepage
-          Timer(const Duration(milliseconds: 300), () {
-            nav.popUntil(ModalRoute.withName("/homepage"));
-          });
-        }),
-      getTile("Track Monitoring", "sidemenu_trackmonitoring.png", onTap: () {
-        nav.pop();
-        nav.pushNamed("/monitoring");
-      }),
-      Expanded(
-        child: Container(
-          alignment: Alignment.bottomLeft,
-          child: Column(
-            children: <Widget>[
-              Expanded(child: SizedBox()),
-              getTile("Support", "support_icon.png", onTap: () {
-                nav.pop();
-                nav.pushNamed("/support");
-              }),
-              getTile("Logout", "logout_icon.png", onTap: () async {
-                await user.removeUser();
-                nav.pop();
-                nav.pushReplacementNamed("/");
-              }),
-              SizedBox(height: 35),
-            ],
-          ),
-        ),
-      ),
-    ];
-
     return FutureBuilder<String?>(
       future: User.getPrefUser,
       builder: (ctx, snapshot) {
         final List<Widget> roleDrawer = [];
-        if (snapshot.data != null) {
-          user = User.fromMap(snapshot.data!);
+        final data = snapshot.data;
+        User? currentUser;
+        if (data != null) {
+          currentUser = User.fromMap(data);
           roleDrawer.add(SizedBox(height: 35));
           roleDrawer.add(header);
-          roleDrawer.add(getTile(user.firstName, "username.png",
-            userFlag: true,
-            onTap: () {
-              nav.pop();
-              nav.pushNamed("/profile");
-            },
-          ));
+          roleDrawer.add(getTile(currentUser.firstName, "username.png",
+              userFlag: true, user: currentUser, onTap: () {
+            nav.pop();
+            nav.pushNamed("/profile");
+          }));
           roleDrawer.add(SizedBox(height: 20));
         }
+
         roleDrawer.add(getTile("Profile", "profile_icon.png", onTap: () {
           nav.pop();
           nav.pushNamed("/profile");
         }));
-        roleDrawer.addAll(tiles);
+
+        roleDrawer.addAll([
+          if (!isHome)
+            getTile("Home", "home_icon.png", onTap: () {
+              nav.pop();
+              Timer(const Duration(milliseconds: 300), () {
+                nav.popUntil(ModalRoute.withName("/homepage"));
+              });
+            }),
+          getTile("Track Monitoring", "sidemenu_trackmonitoring.png",
+              onTap: () {
+            nav.pop();
+            nav.pushNamed("/monitoring");
+          }),
+          getTile("Debug Logs", "flash.png", onTap: () {
+            nav.pop();
+            nav.pushNamed(DebugLogScreen.routeName);
+          }),
+          Expanded(
+            child: Container(
+              alignment: Alignment.bottomLeft,
+              child: Column(
+                children: <Widget>[
+                  Expanded(child: SizedBox()),
+                  getTile("Support", "support_icon.png", onTap: () {
+                    nav.pop();
+                    nav.pushNamed("/support");
+                  }),
+                  getTile("Logout", "logout_icon.png", onTap: () async {
+                    if (currentUser != null) {
+                      await currentUser.removeUser();
+                    }
+                    nav.pop();
+                    nav.pushReplacementNamed("/");
+                  }),
+                  SizedBox(height: 35),
+                ],
+              ),
+            ),
+          ),
+        ]);
 
         return Drawer(
           child: Container(
@@ -99,8 +104,8 @@ class BuildDrawer extends StatelessWidget {
         height: size,
       );
 
-  Widget get logo {
-    if (user.imageUrl.isNotEmpty) {
+  Widget _buildUserLogo(User? user) {
+    if (user != null && user.imageUrl.isNotEmpty) {
       return Container(
         height: 120.0,
         width: 120.0,
@@ -122,6 +127,7 @@ class BuildDrawer extends StatelessWidget {
   Widget getTile(String text, String icon,
           {bool userFlag = false,
           String subtitle = "",
+          User? user,
           required VoidCallback onTap}) =>
       ListTile(
         title: getTitle(text, bigger: userFlag),
@@ -130,7 +136,7 @@ class BuildDrawer extends StatelessWidget {
             : CircleAvatar(
                 radius: 30.0,
                 backgroundColor: const Color(0xFF778899),
-                child: logo,
+                child: _buildUserLogo(user),
               ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 30.0),
         onTap: onTap,

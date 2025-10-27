@@ -1,145 +1,197 @@
 import 'package:flutter/material.dart';
-import 'package:GEMS/model/complaint.dart';
-import 'package:GEMS/utils/network.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:toast/toast.dart';
+
+import 'package:GEMS/controller/WorkOrder/material_arguments.dart';
+import 'package:GEMS/data/repository/work_order_detail_repository.dart';
+import 'package:GEMS/model/complaint.dart';
 import 'package:GEMS/utils/reference.dart';
 
 class MaterialEdit extends StatefulWidget {
-  final String id;
-  final Controller _controller;
+  const MaterialEdit(this.args, {super.key});
 
-  MaterialEdit(this.id, {super.key}) : _controller = Controller(id);
+  final MaterialEditArguments args;
 
   @override
-  _MaterialEditState createState() => _MaterialEditState();
+  State<MaterialEdit> createState() => _MaterialEditState();
 }
 
 class _MaterialEditState extends State<MaterialEdit> {
+  final _repository = WorkOrderDetailRepository();
+  late final TextEditingController _quantityController;
+  late final TextEditingController _remarkController;
+
+  bool _submitting = false;
+  int? _quantityValue;
+
+  ComplaintD get _material => widget.args.material;
+
+  @override
+  void initState() {
+    super.initState();
+    _quantityController = TextEditingController(
+      text: _material.woTaskPartsQuantity ?? '',
+    );
+    _remarkController = TextEditingController(
+      text: _material.woTaskPartsRemark ?? '',
+    );
+    _quantityController.addListener(_onQuantityChanged);
+    _onQuantityChanged();
+  }
+
   @override
   void dispose() {
-    widget._controller.dispose();
+    _quantityController.removeListener(_onQuantityChanged);
+    _quantityController.dispose();
+    _remarkController.dispose();
     super.dispose();
   }
+
+  void _onQuantityChanged() {
+    final raw = _quantityController.text.trim();
+    setState(() {
+      _quantityValue = int.tryParse(raw);
+    });
+  }
+
+  bool get _isQuantityValid => _quantityValue != null && _quantityValue! > 0;
+
+  Future<void> _submit() async {
+    final materialId = _material.woTaskPartsId;
+    if (materialId == null || materialId.isEmpty) {
+      Toast.show('Missing material identifier');
+      return;
+    }
+    if (!_isQuantityValid) {
+      Toast.show('Quantity must be greater than zero.');
+      return;
+    }
+
+    setState(() {
+      _submitting = true;
+    });
+
+    try {
+      final result = await _repository.updateMaterial(
+        workOrderId: widget.args.workOrderId,
+        materialId: materialId,
+        quantity: _quantityController.text.trim(),
+        remark: _remarkController.text.trim(),
+        itemDescription: _material.itemDescription,
+        assetGroupName: _material.assetGroupName,
+        itemTypeDesc: _material.itemTypeDesc,
+        previousQuantity: _material.woTaskPartsQuantity,
+      );
+
+      _showResultToast(result);
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
+    } catch (err, st) {
+      debugPrint('Failed to update material: $err\n$st');
+      if (mounted) {
+        Toast.show('Failed to save changes');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _submitting = false;
+        });
+      }
+    }
+  }
+
+  void _showResultToast(WorkOrderActionResult result) {
+    switch (result) {
+      case WorkOrderActionResult.success:
+        Toast.show('Material updated successfully.', duration: 3);
+        break;
+      case WorkOrderActionResult.queued:
+        Toast.show('Update queued and will sync when online.', duration: 3);
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    debugPrint("Controller: ${widget._controller.group.text}");
-    debugPrint("Controller: ${widget._controller.group.value}");
     ToastContext().init(context);
+
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppColors.gray100,
       appBar: AppBar(
         title: Text(
           'Material / Item',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
-            fontSize: 18,
+            color: AppColors.textPrimary,
           ),
         ),
-        backgroundColor: Colors.white,
         elevation: 0,
+        backgroundColor: AppColors.bgAppBar,
         centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.black87),
+        iconTheme: const IconThemeData(color: AppColors.primary),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Item Information Section
-            _buildSection(
-              title: 'Item Information',
-              icon: Icons.inventory_outlined,
-              child: Column(
-                children: [
-                  _buildReadOnlyField('Group', false, 1, widget._controller.group),
-                  SizedBox(height: 16),
-                  _buildReadOnlyField('Type', false, 3, widget._controller.type),
-                  SizedBox(height: 16),
-                  _buildReadOnlyField('Name', false, 1, widget._controller.name),
-                ],
-              ),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildInformationSection(),
+                const SizedBox(height: 20),
+                _buildEditSection(),
+                const SizedBox(height: 120),
+              ],
             ),
-            
-            SizedBox(height: 20),
-            
-            // Edit Details Section
-            _buildSection(
-              title: 'Edit Details',
-              icon: Icons.edit_outlined,
-              child: Column(
-                children: [
-                  _buildEditableField(
-                    'Quantity',
-                    widget._controller.quantity,
-                    keyboardType: TextInputType.number,
-                  ),
-                  SizedBox(height: 16),
-                  _buildEditableField(
-                    'Remark',
-                    widget._controller.remark,
-                    maxLines: 3,
-                  ),
-                ],
-              ),
-            ),
-            
-            SizedBox(height: 40),
-            
-            // Save Button
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: SizedBox(
-                width: double.infinity,
-                child: FloatingActionButton.extended(
-                  onPressed: () => widget._controller
-                      .update(context)
-                      .then((_) => Navigator.pop(context))
-                      .catchError((e) {}),
-                  backgroundColor: AppColors.primary,
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  label: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Text(
-                      'SAVE CHANGES',
-                      style: GoogleFonts.poppins(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.5,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
+          ),
+          if (_submitting)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withValues(alpha: 0.1),
+                child: const Center(
+                  child: CircularProgressIndicator(),
                 ),
               ),
             ),
-            
-            SizedBox(height: 40),
-          ],
+        ],
+      ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.onPrimary,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            onPressed: _isQuantityValid && !_submitting ? _submit : null,
+            icon: const Icon(Icons.save_outlined),
+            label: Text(
+              'Save Changes',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+            ),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildSection({
-    required String title,
-    required Widget child,
-    required IconData icon,
-  }) {
+  Widget _buildInformationSection() {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -148,10 +200,10 @@ class _MaterialEditState extends State<MaterialEdit> {
         children: [
           Row(
             children: [
-              Icon(icon, size: 20, color: AppColors.primary),
-              SizedBox(width: 8),
+              const Icon(Icons.inventory_outlined, color: AppColors.primary),
+              const SizedBox(width: 12),
               Text(
-                title,
+                'Item Information',
                 style: GoogleFonts.poppins(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -159,204 +211,115 @@ class _MaterialEditState extends State<MaterialEdit> {
               ),
             ],
           ),
-          SizedBox(height: 16),
-          child,
+          const SizedBox(height: 16),
+          _buildInfoRow('Description', _material.itemDescription ?? '-'),
+          _buildInfoRow('Type', _material.itemTypeDesc ?? '-'),
+          _buildInfoRow('Group', _material.assetGroupName ?? '-'),
+          _buildInfoRow('Status', _material.statusDesc ?? '-'),
         ],
       ),
     );
   }
 
-  Widget _buildReadOnlyField(String label, bool enable, int? maxline, TextEditingController controller) {
-    debugPrint("ReadOnly: $controller");
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            color: Colors.grey[600],
+  Widget _buildEditSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
-        ),
-        SizedBox(height: 4),
-        TextField(
-          controller: controller,
-          maxLines: maxline,
-          enabled: enable,
-          decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.primary),
-            ),
-            filled: true,
-            fillColor: Colors.white,
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.edit_outlined, color: AppColors.primary),
+              const SizedBox(width: 12),
+              Text(
+                'Edit Details',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            color: Colors.black87,
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _quantityController,
+            keyboardType: TextInputType.number,
+            decoration: _inputDecoration('Quantity').copyWith(
+              errorText: _quantityController.text.isEmpty
+                  ? 'Quantity is required'
+                  : !_isQuantityValid
+                      ? 'Quantity must be greater than zero'
+                      : null,
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _remarkController,
+            maxLines: 3,
+            decoration: _inputDecoration('Remark (optional)'),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildEditableField(
-    String label,
-    TextEditingController controller, {
-    int maxLines = 1,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-        ),
-        SizedBox(height: 4),
-        TextField(
-          controller: controller,
-          maxLines: maxLines,
-          keyboardType: keyboardType,
-          decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              color: AppColors.textSecondary,
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.primary),
-            ),
-            filled: true,
-            fillColor: Colors.white,
           ),
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            color: Colors.black87,
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: GoogleFonts.poppins(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
-}
 
-class Controller {
-  // VARIABLES
-  final String id;
-  final Request _request;
-  final TextEditingController _group = TextEditingController();
-  final TextEditingController _type = TextEditingController();
-  final TextEditingController _name = TextEditingController();
-  final TextEditingController _quantity = TextEditingController();
-  final TextEditingController _remark = TextEditingController();
-
-  final BehaviorSubject<bool> _invalidQuantity =
-      BehaviorSubject<bool>.seeded(true);
-  final BehaviorSubject<String?> _invalidMessage =
-      BehaviorSubject<String?>.seeded("Please Check All Field");
-  final BehaviorSubject<ComplaintD> _item =
-      BehaviorSubject<ComplaintD>();
-
-  // INITIALIZER
-  Controller(this.id) : _request = Request(id) {
-    getItem();
-    _item.listen((event) {
-      _group.text = event.assetGroupName ?? '';
-      _type.text = event.itemTypeDesc ?? '';
-      _name.text = event.itemDescription ?? '';
-      _quantity.text = event.woTaskPartsQuantity ?? '';
-      _remark.text = event.woTaskPartsRemark ?? '';
-    });
-    _quantity.addListener(() {
-      final value = int.tryParse(_quantity.text);
-      if (value == null || value == 0) {
-        invalid = true;
-        invalidMessage = "Quantity cannot be 0";
-      } else {
-        invalidMessage = null;
-        invalid = false;
-      }
-    });
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: GoogleFonts.poppins(color: AppColors.textSecondary),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.gray300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.primary),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.gray300),
+      ),
+      filled: true,
+      fillColor: AppColors.white,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    );
   }
-
-  // DISPOSE
-  void dispose() {
-    _group.dispose();
-    _type.dispose();
-    _name.dispose();
-    _quantity.dispose();
-    _remark.dispose();
-    _invalidQuantity.close();
-    _invalidMessage.close();
-    _item.close();
-  }
-
-  // GETTERS
-  TextEditingController get group => _group;
-  TextEditingController get type => _type;
-  TextEditingController get name => _name;
-  TextEditingController get quantity => _quantity;
-  TextEditingController get remark => _remark;
-  Stream<ComplaintD> get item$ => _item.stream;
-  Stream<bool> get invalid$ => _invalidQuantity.stream;
-
-  // SETTERS
-  set item(ComplaintD value) => _item.sink.add(value);
-  set invalidMessage(String? value) => _invalidMessage.sink.add(value);
-  set invalid(bool value) => _invalidQuantity.sink.add(value);
-
-  // METHODS
-  void getItem() => _request.response.then((value) => item = value);
-
-  Future<void> update(BuildContext context) {
-    FocusScope.of(context).unfocus();
-    if (_invalidQuantity.value == true) {
-      Toast.show(_invalidMessage.value ?? "",
-          duration: 3);
-      return Future.error("Invalid quantity");
-    } else {
-      Toast.show(_invalidMessage.value ?? "",
-          duration: 3);
-      return _request.post(
-          remark: _remark.text, quantity: _quantity.text);
-    }
-  }
-}
-
-class Request {
-  final Provider _providerGET;
-  final Provider _providerUpdate;
-
-  Request(String id)
-      : _providerGET = Provider(
-          taskID: id,
-          fetchURL: "/wo_parts/wo_parts_mobile_detail/",
-        ),
-        _providerUpdate = Provider(
-          taskID: id,
-          fetchURL: "/wo_parts/",
-        );
-
-  Future<ComplaintD> get response =>
-      _providerGET.getJson(url: "/wo_parts/wo_parts_mobile_detail/").then((value) => ComplaintD.fromJson(value) ?? ComplaintD());
-
-  Future<void> post({required String remark, required String quantity}) =>
-      _providerUpdate.put(body: {"quantity": quantity, "remark": remark});
 }

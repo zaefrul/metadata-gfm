@@ -14,14 +14,15 @@ import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/view/dialog.dart';
 import 'package:toast/toast.dart';
+import 'package:intl/intl.dart';
 import '../../main.dart';
 
-
 final ButtonStyle actionButtonStyle = ElevatedButton.styleFrom(
-  minimumSize: Size(double.infinity, 52),            // full‐width, 52 px tall
-  padding: EdgeInsets.symmetric(vertical: 0),        // we control height via minimumSize
+  minimumSize: Size(double.infinity, 52), // full‐width, 52 px tall
+  padding:
+      EdgeInsets.symmetric(vertical: 0), // we control height via minimumSize
   shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(12),         // 12 px rounded corners
+    borderRadius: BorderRadius.circular(12), // 12 px rounded corners
   ),
   elevation: 2,
 );
@@ -62,6 +63,8 @@ class ComplaintSectionState extends State<ComplaintSection> {
   StreamSubscription<MutationFeedback>? _feedbackSub;
   bool _offlineToggleInFlight = false;
   bool _syncInFlight = false;
+  bool _wasOffline = false;
+  bool _snapshotRefreshInFlight = false;
 
   @override
   void didChangeDependencies() {
@@ -128,131 +131,234 @@ class ComplaintSectionState extends State<ComplaintSection> {
   @override
   Widget build(BuildContext context) {
     ToastContext().init(context);
-    debugPrint('the widget is ${widget.taskNo}, ${widget.taskStatus}, ${widget.viewer}, ${widget.isAssign}, ${widget.woTaskType}');
-    final standardButton = _BuildStandardButton(
-      _bloc,
-      widget.viewer,
-      widget.taskStatus,
-      widget.woTaskType,
-      _showOutOfScopeDialog,
-    );
-
-    final viewButton = _BuildViewButton(
-      widget.isComplaintProgress,
-      widget.isAssign,
-      widget.viewer,
-      widget.taskStatus,
-      standardButton,
-      _bloc.reject,
-      alert,
-    );
-
-    debugPrint("widget parameters are ${widget.taskNo}, ${widget.taskStatus}, ${widget.viewer}, ${widget.isAssign}, ${widget.woTaskType}");
+    debugPrint(
+        'the widget is ${widget.taskNo}, ${widget.taskStatus}, ${widget.viewer}, ${widget.isAssign}, ${widget.woTaskType}');
+    debugPrint(
+        "widget parameters are ${widget.taskNo}, ${widget.taskStatus}, ${widget.viewer}, ${widget.isAssign}, ${widget.woTaskType}");
     debugPrint("bloc parameters are ${_bloc.id}, ${_bloc.checkpoint}");
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.taskNo, style: TextStyle(color: AppColors.dark, fontWeight: FontWeight.w600)),
+        title: Text(widget.taskNo,
+            style:
+                TextStyle(color: AppColors.dark, fontWeight: FontWeight.w600)),
       ),
       body: StreamBuilder<List<WorkOrderStatus>>(
         stream: _bloc.sections$,
         builder: (ctx, snapshot) {
+          debugPrint(
+              'ComplaintSection UI: snapshot.hasData=${snapshot.hasData}, data=${snapshot.data?.length ?? "null"}');
           if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());
           }
           final sections = snapshot.data!;
+          debugPrint(
+              'ComplaintSection UI: Rendering ${sections.length} sections');
+
+          if (sections.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.cloud_off, size: 64, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Loading sections...',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'If this persists, please check your connection.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
           return Column(
             children: [
               _buildOfflineControls(),
-              StreamBuilder<bool>(
-                stream: _bloc.offlineMode$,
-                builder: (_, offlineSnapshot) {
-                  final offline = offlineSnapshot.data ?? false;
-                  if (offline) {
-                    return const SizedBox.shrink();
-                  }
-                  return PendingSyncIndicator(controller: _pendingSyncController);
-                },
-              ),
+              // Removed PendingSyncIndicator from here - now it's inside the ListView
               // 1) The scrolling list
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: _bloc.refresh,
-                  child: ListView.builder(
-                    padding: EdgeInsets.only(top: 12),
-                    itemCount: sections.length + (showtime ? 1 : 0),
-                    itemBuilder: (c, i) {
-                      if (i == 0 && showtime) {
-                        return _TimeDuration(stream: _bloc.execution$);
-                      }
-                      final idx = i - (showtime ? 1 : 0);
-                      return BuildTile(
-                        workOrderStatus: sections[idx],
-                        onTap: () => _bloc.openScreen(
-                          context,
-                          sections[idx],
-                          viewOnly: widget.viewer,
-                          pendingSync: _pendingSyncController,
-                        ),
+                  child: StreamBuilder<bool>(
+                    stream: _bloc.offlineMode$,
+                    builder: (_, offlineSnapshot) {
+                      final offline = offlineSnapshot.data ?? false;
+                      
+                      return ListView.builder(
+                        padding: EdgeInsets.only(top: 12),
+                        // Add 1 for PendingSyncIndicator when online
+                        itemCount: sections.length + (showtime ? 1 : 0) + (offline ? 0 : 1),
+                        itemBuilder: (c, i) {
+                          // Show PendingSyncIndicator as first item when online
+                          if (i == 0 && !offline) {
+                            return PendingSyncIndicator(
+                              controller: _pendingSyncController,
+                            );
+                          }
+                          
+                          // Adjust index to account for PendingSyncIndicator
+                          final adjustedIndex = offline ? i : i - 1;
+                          
+                          if (adjustedIndex == 0 && showtime) {
+                            return _TimeDuration(stream: _bloc.execution$);
+                          }
+                          final idx = adjustedIndex - (showtime ? 1 : 0);
+                          return BuildTile(
+                            workOrderStatus: sections[idx],
+                            onTap: () => _bloc.openScreen(
+                              context,
+                              sections[idx],
+                              viewOnly: widget.viewer,
+                              pendingSync: _pendingSyncController,
+                            ),
+                          );
+                        },
                       );
                     },
                   ),
                 ),
               ),
 
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Builder(builder: (_) {
-                    // 1) If this is the Assigner on a WR Check ticket:
-                    if (!widget.viewer && widget.taskStatus == "WR Verified") {
-                      return Row(
-                        children: [
-                          // Mark Out-of-Scope
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () => _showOutOfScopeDialog(context),
-                              style: actionButtonStyle.copyWith(
-                                backgroundColor: WidgetStatePropertyAll(AppColors.danger),
-                              ),
-                              child: const Text("Out-of-Scope", style: TextStyle(color: AppColors.white),),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          // Accept & Proceed
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                try {
-                                  final result = await _bloc.attendanceApprove('');
-                                  if (result == WorkOrderActionResult.success) {
-                                    alert("Ticket marked as Approved");
-                                  }
-                                } catch (err) {
-                                  debugPrint('Failed to approve attendance: $err');
-                                }
-                              },  // existing submit flow
-                              style: actionButtonStyle.copyWith(
-                                backgroundColor: WidgetStatePropertyAll(AppColors.primary),
-                              ),
-                              child: const Text("Accept & Proceed", 
-                                  style: TextStyle(color: AppColors.white)),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          
-                        ],
+              StreamBuilder<bool>(
+                stream: _bloc.offlineMode$,
+                builder: (context, offlineSnapshot) {
+                  final isOffline = offlineSnapshot.data ?? false;
+                  if (isOffline && !_wasOffline) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (!mounted) return;
+                      ToastContext().init(context);
+                      Toast.show(
+                        'Offline mode is on. Actions stay disabled until you reconnect.',
+                        duration: Toast.lengthShort,
+                        gravity: Toast.bottom,
                       );
-                    }
+                    });
+                  }
+                  _wasOffline = isOffline;
+                  final standardButton = _BuildStandardButton(
+                    _bloc,
+                    widget.viewer,
+                    widget.taskStatus,
+                    widget.woTaskType,
+                    _showOutOfScopeDialog,
+                  );
+                  final viewButton = _BuildViewButton(
+                    widget.isComplaintProgress,
+                    widget.isAssign,
+                    widget.viewer,
+                    widget.taskStatus,
+                    standardButton,
+                    _bloc.reject,
+                    alert,
+                  );
 
-                    debugPrint("Masuk kat condition 2");
-                    debugPrint("widget.viewer: ${widget.viewer}, _bloc.checkpoint: ${_bloc.checkpoint}");
+                  return SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (isOffline)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Text(
+                                'Reconnect to the network to submit or change status.',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: AppColors.dark.withValues(alpha: 0.7),
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          AbsorbPointer(
+                            absorbing: isOffline,
+                            child: Opacity(
+                              opacity: isOffline ? 0.6 : 1,
+                              child: Builder(builder: (_) {
+                                // 1) If this is the Assigner on a WR Check ticket:
+                                if (!widget.viewer &&
+                                    widget.taskStatus == "WR Verified") {
+                                  return Row(
+                                    children: [
+                                      // Mark Out-of-Scope
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          onPressed: () =>
+                                              _showOutOfScopeDialog(context),
+                                          style: actionButtonStyle.copyWith(
+                                            backgroundColor:
+                                                WidgetStatePropertyAll(
+                                                    AppColors.danger),
+                                          ),
+                                          child: const Text(
+                                            "Out-of-Scope",
+                                            style: TextStyle(
+                                                color: AppColors.white),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      // Accept & Proceed
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          onPressed: () async {
+                                            try {
+                                              final result = await _bloc
+                                                  .attendanceApprove('');
+                                              if (result ==
+                                                  WorkOrderActionResult
+                                                      .success) {
+                                                alert(
+                                                    "Ticket marked as Approved");
+                                              }
+                                            } catch (err) {
+                                              debugPrint(
+                                                  'Failed to approve attendance: $err');
+                                            }
+                                          }, // existing submit flow
+                                          style: actionButtonStyle.copyWith(
+                                            backgroundColor:
+                                                WidgetStatePropertyAll(
+                                                    AppColors.primary),
+                                          ),
+                                          child: const Text("Accept & Proceed",
+                                              style: TextStyle(
+                                                  color: AppColors.white)),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                    ],
+                                  );
+                                }
 
-                    // 2) Otherwise, your original buttons:
-                    return (!widget.viewer && _bloc.checkpoint != 1)
-                      ? viewButton
-                      : standardButton;
-                  }),
-                ),
+                                debugPrint("Masuk kat condition 2");
+                                debugPrint(
+                                    "widget.viewer: ${widget.viewer}, _bloc.checkpoint: ${_bloc.checkpoint}");
+
+                                // 2) Otherwise, your original buttons:
+                                return (!widget.viewer && _bloc.checkpoint != 1)
+                                    ? viewButton
+                                    : standardButton;
+                              }),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
             ],
           );
@@ -261,9 +367,34 @@ class ComplaintSectionState extends State<ComplaintSection> {
     );
   }
 
-  static const Set<String> _offlineEligibleStatuses = {'In Progress', 'WR Check'};
+  static const Set<String> _offlineEligibleStatuses = {
+    'In Progress',
+    'WR Check'
+  };
 
-  bool get _isOfflineEligible => _offlineEligibleStatuses.contains(widget.taskStatus);
+  bool get _isOfflineEligible =>
+      _offlineEligibleStatuses.contains(widget.taskStatus);
+
+  String _formatTimestamp(DateTime timestamp) {
+    final formatter = DateFormat('d MMM yyyy • h:mm a');
+    return formatter.format(timestamp.toLocal());
+  }
+
+  String? _formatCount(int count, String label) {
+    if (count <= 0) return null;
+    final suffix = count == 1 ? label : '${label}s';
+    return '$count $suffix';
+  }
+
+  String _buildSnapshotStatsLine(WorkOrderSnapshotData data) {
+    final segments = <String?>[
+      _formatCount(data.sections.length, 'section'),
+      _formatCount(data.materials.length, 'material'),
+      _formatCount(data.repairImages.length, 'repair photo'),
+      _formatCount(data.responseImages.length, 'response photo'),
+    ];
+    return segments.whereType<String>().join(' • ');
+  }
 
   Widget _buildOfflineControls() {
     return StreamBuilder<bool>(
@@ -280,7 +411,8 @@ class ComplaintSectionState extends State<ComplaintSection> {
             decoration: BoxDecoration(
               color: AppColors.primaryLight.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
+              border:
+                  Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
             ),
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -334,13 +466,66 @@ class ComplaintSectionState extends State<ComplaintSection> {
                   const SizedBox(height: 12),
                   const LinearProgressIndicator(minHeight: 3),
                 ],
+                StreamBuilder<WorkOrderSnapshotData?>(
+                  stream: _bloc.snapshot$,
+                  builder: (context, snapshotData) {
+                    final cached = snapshotData.data;
+                    if (cached == null) {
+                      if (!isOffline) {
+                        return const SizedBox.shrink();
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Text(
+                          'Preparing offline copy…',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.dark.withValues(alpha: 0.7),
+                          ),
+                        ),
+                      );
+                    }
+                    final downloadedAt =
+                        _formatTimestamp(cached.snapshot.metadata.createdAt);
+                    final statsLine = _buildSnapshotStatsLine(cached);
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Cached on $downloadedAt',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.dark.withValues(alpha: 0.7),
+                            ),
+                          ),
+                          if (statsLine.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                statsLine,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color:
+                                      AppColors.dark.withValues(alpha: 0.6),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
                 if (isOffline) ...[
                   const SizedBox(height: 12),
                   StreamBuilder<int>(
                     stream: _bloc.pendingActions$,
                     builder: (context, pendingSnapshot) {
                       final pending = pendingSnapshot.data ?? 0;
-                      final label = pending == 1 ? 'action waiting to sync' : 'actions waiting to sync';
+                      final label = pending == 1
+                          ? 'action waiting to sync'
+                          : 'actions waiting to sync';
                       return Text(
                         '$pending $label',
                         style: TextStyle(
@@ -363,6 +548,24 @@ class ComplaintSectionState extends State<ComplaintSection> {
                           : const Icon(Icons.sync),
                       label: Text(_syncInFlight ? 'Syncing…' : 'Sync now'),
                       onPressed: _syncInFlight ? null : _handleManualSync,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      icon: _snapshotRefreshInFlight
+                          ? const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.download_for_offline),
+                      label: Text(_snapshotRefreshInFlight
+                          ? 'Updating cache…'
+                          : 'Refresh offline copy'),
+                      onPressed:
+                          _snapshotRefreshInFlight ? null : _handleRefreshSnapshot,
                     ),
                   ),
                 ],
@@ -415,6 +618,49 @@ class ComplaintSectionState extends State<ComplaintSection> {
     }
   }
 
+  Future<void> _handleRefreshSnapshot() async {
+    if (_snapshotRefreshInFlight) return;
+    setState(() {
+      _snapshotRefreshInFlight = true;
+    });
+    try {
+      await _bloc.refreshSnapshot();
+      if (!mounted) return;
+      Toast.show(
+        'Offline copy updated',
+        duration: Toast.lengthShort,
+        gravity: Toast.bottom,
+      );
+    } on OfflinePreparationException catch (err) {
+      if (mounted) {
+        Toast.show(
+          err.message,
+          duration: Toast.lengthShort,
+          gravity: Toast.bottom,
+          backgroundColor: AppColors.danger,
+        );
+      }
+    } catch (err) {
+      debugPrint('Failed to refresh snapshot: $err');
+      if (mounted) {
+        Toast.show(
+          'Failed to refresh offline copy. Please try again later.',
+          duration: Toast.lengthShort,
+          gravity: Toast.bottom,
+          backgroundColor: AppColors.danger,
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _snapshotRefreshInFlight = false;
+        });
+      } else {
+        _snapshotRefreshInFlight = false;
+      }
+    }
+  }
+
   void alert(String txt) {
     showDialog(
       context: navigatorKey.currentContext!,
@@ -449,7 +695,8 @@ class ComplaintSectionState extends State<ComplaintSection> {
               alert("Ticket marked Out-of-Scope");
             }
           } catch (e) {
-            alert("We couldn't process your request at this moment. Please try again later. If the issue persists, contact support.");
+            alert(
+                "We couldn't process your request at this moment. Please try again later. If the issue persists, contact support.");
             debugPrint("Error marking Out-of-Scope: $e");
           }
         },
@@ -498,7 +745,9 @@ class BuildTile extends StatelessWidget {
   }
 
   String _getDisplayStatus(String? status, String? materialStatus) {
-    if (status == "Pending" && materialStatus != null && materialStatus.isNotEmpty) {
+    if (status == "Pending" &&
+        materialStatus != null &&
+        materialStatus.isNotEmpty) {
       return materialStatus;
     }
     return status ?? '';
@@ -513,7 +762,8 @@ class BuildTile extends StatelessWidget {
     final Color accent = _getStatusColor(workOrderStatus.sectionStatus);
 
     final String title = [
-      if (workOrderStatus.sectionName != null) "${workOrderStatus.sectionName}.",
+      if (workOrderStatus.sectionName != null)
+        "${workOrderStatus.sectionName}.",
       if (workOrderStatus.sectionDesc != null) workOrderStatus.sectionDesc
     ].join(' ');
 
@@ -522,7 +772,9 @@ class BuildTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: _getCardBgColorByStatus(workOrderStatus.sectionStatus),
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0,2))],
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))
+        ],
       ),
       child: InkWell(
         onTap: onTap,
@@ -683,7 +935,8 @@ class _BuildViewButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('button created. progress: $progress, isAssign: $isAssign, viewer: $viewer, status: $status');
+    debugPrint(
+        'button created. progress: $progress, isAssign: $isAssign, viewer: $viewer, status: $status');
     // If in progress or assign mode, just show the single FAB you passed in
     if (isAssign || status == "Check" || status == "WR Verified" || viewer) {
       return button;
@@ -691,7 +944,8 @@ class _BuildViewButton extends StatelessWidget {
 
     var buttonTextLabel = getButtonLabel(status);
     var bgColor = getButtonBgColorByStatus(buttonTextLabel);
-    var labelColor = bgColor == AppColors.warning ? AppColors.dark : AppColors.white;
+    var labelColor =
+        bgColor == AppColors.warning ? AppColors.dark : AppColors.white;
 
     // Otherwise lay out Reject + Submit side by side
     return Padding(
@@ -707,7 +961,8 @@ class _BuildViewButton extends StatelessWidget {
                   backgroundColor: WidgetStatePropertyAll(bgColor),
                   foregroundColor: WidgetStatePropertyAll(AppColors.white),
                 ),
-                child: Text(buttonTextLabel, style: TextStyle(color: labelColor)),
+                child:
+                    Text(buttonTextLabel, style: TextStyle(color: labelColor)),
               ),
             ),
 
@@ -744,7 +999,8 @@ class _BuildViewButton extends StatelessWidget {
               alert("Operation successful");
             }
           } catch (e) {
-            alert("We couldn't process your request at this moment. Please try again later. If the issue persists, contact support.");
+            alert(
+                "We couldn't process your request at this moment. Please try again later. If the issue persists, contact support.");
           }
         },
       ),
@@ -764,7 +1020,7 @@ class _BuildRejectButton extends StatelessWidget {
     String status,
     this.reject,
     this.alert,
-  )  : label = status == "Assign"
+  ) : label = status == "Assign"
             ? "Reject"
             : status == "Verify"
                 ? "Re-Open"
@@ -805,7 +1061,8 @@ class _BuildRejectButton extends StatelessWidget {
             alert("Operation successful");
           }
         } catch (e) {
-          alert("We couldn't process your request at this moment. Please try again later. If the issue persists, contact support.");
+          alert(
+              "We couldn't process your request at this moment. Please try again later. If the issue persists, contact support.");
         }
       },
     );
@@ -825,8 +1082,8 @@ class _BuildStandardButton extends StatelessWidget {
   const _BuildStandardButton(
     this.bloc,
     this.viewOnly,
-    this.mainStatus, 
-    this.woTaskStatus, 
+    this.mainStatus,
+    this.woTaskStatus,
     this.outOfScopeOnPressAction,
   );
 
@@ -844,9 +1101,10 @@ class _BuildStandardButton extends StatelessWidget {
   }
 
   bool shouldShowOutOfScopeButton() {
-    if(mainStatus == "Assign" && woTaskStatus == "Self Finding") {
+    if (mainStatus == "Assign" && woTaskStatus == "Self Finding") {
       return true;
-    } else if(mainStatus == "WR Verified" && woTaskStatus == "Client Complaint") {
+    } else if (mainStatus == "WR Verified" &&
+        woTaskStatus == "Client Complaint") {
       return true;
     } else {
       return false;
@@ -855,59 +1113,62 @@ class _BuildStandardButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  final reOpenButton = Expanded(
-                child: FloatingActionButton.extended(
-                  heroTag: "reopen_button",
-                  label: const Text(
-                    "Re-Open",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  backgroundColor: AppColors.warning,
-                  onPressed: () {
-                    showDialog(
-                      context: navigatorKey.currentContext!,
-                      barrierDismissible: false,
-                      builder: (_) => CustomDialog(
-                        rootPage: "/workorder",
-                        title: "Remark",
-                        description: "Remark",
-                        buttonText: "Okay",
-                        secondButton: false,
-                        cancel: true,
-                        okayTapped: () {
-                          Navigator.pop(context);
-                          Navigator.pop(context);
-                        },
-                        image: Image.asset("assets/icon_trans.png", height: 40),
-                        remarkTapped: (text) async {
-                          Navigator.pop(context);
-                          try {
-                            final result = await bloc.reOpen(text);
-                            if (result == WorkOrderActionResult.success) {
-                              alert("Operation successful");
-                            }
-                          } catch (e) {
-                            alert("We couldn't process your request at this moment. Please try again later. If the issue persists, contact support.");
-                          }
-                        },
-                      ),
-                    );
-                  },
-                ),
-              );
+    final reOpenButton = Expanded(
+      child: FloatingActionButton.extended(
+        heroTag: "reopen_button",
+        label: const Text(
+          "Re-Open",
+          style: TextStyle(color: Colors.black),
+        ),
+        backgroundColor: AppColors.warning,
+        onPressed: () {
+          showDialog(
+            context: navigatorKey.currentContext!,
+            barrierDismissible: false,
+            builder: (_) => CustomDialog(
+              rootPage: "/workorder",
+              title: "Remark",
+              description: "Remark",
+              buttonText: "Okay",
+              secondButton: false,
+              cancel: true,
+              okayTapped: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              image: Image.asset("assets/icon_trans.png", height: 40),
+              remarkTapped: (text) async {
+                Navigator.pop(context);
+                try {
+                  final result = await bloc.reOpen(text);
+                  if (result == WorkOrderActionResult.success) {
+                    alert("Operation successful");
+                  }
+                } catch (e) {
+                  alert(
+                      "We couldn't process your request at this moment. Please try again later. If the issue persists, contact support.");
+                }
+              },
+            ),
+          );
+        },
+      ),
+    );
 
-  bool shouldShowReOpenButton() {
-      if(viewOnly) return false;
-      if(mainStatus == "Check" && woTaskStatus == "Client Complaint") return true;
-      if(mainStatus == "Verify" && woTaskStatus != "Client Complaint") return true; // public, internal
+    bool shouldShowReOpenButton() {
+      if (viewOnly) return false;
+      if (mainStatus == "Check" && woTaskStatus == "Client Complaint")
+        return true;
+      if (mainStatus == "Verify" && woTaskStatus != "Client Complaint")
+        return true; // public, internal
 
       // else if (mainStatus == "Check" && woTaskStatus == "Client Complaint") return true;
       return false;
     }
 
-      debugPrint("ReOpenCondition: ${shouldShowReOpenButton()}");
+    debugPrint("ReOpenCondition: ${shouldShowReOpenButton()}");
 
-    debugPrint('hideOutOfScopeButton: ${shouldShowOutOfScopeButton() }');
+    debugPrint('hideOutOfScopeButton: ${shouldShowOutOfScopeButton()}');
 
     ToastContext().init(context);
     return StreamBuilder<bool>(
@@ -925,7 +1186,8 @@ class _BuildStandardButton extends StatelessWidget {
                     "Out-of-Scope",
                     style: TextStyle(color: Colors.white),
                   ),
-                  backgroundColor: AppColors.dangerDark, // Use your desired color
+                  backgroundColor:
+                      AppColors.dangerDark, // Use your desired color
                   onPressed: () {
                     outOfScopeOnPressAction(context);
                   },
@@ -936,7 +1198,8 @@ class _BuildStandardButton extends StatelessWidget {
 
             // if status is verify then
             if (shouldShowReOpenButton()) reOpenButton,
-            if (shouldShowReOpenButton()) const SizedBox(width: 16), // Add spacing between buttons
+            if (shouldShowReOpenButton())
+              const SizedBox(width: 16), // Add spacing between buttons
 
             // Existing Submit button
             Expanded(
@@ -950,11 +1213,13 @@ class _BuildStandardButton extends StatelessWidget {
                           style: const TextStyle(color: Colors.white),
                         )
                       : const CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                 ),
-                backgroundColor:
-                    (viewOnly || (snapshot.data ?? false)) ? colorTheme2 : AppColors.primaryDark,
+                backgroundColor: (viewOnly || (snapshot.data ?? false))
+                    ? colorTheme2
+                    : AppColors.primaryDark,
                 onPressed: () async {
                   if (viewOnly) {
                     // just view
@@ -1183,7 +1448,9 @@ class _TimeSection extends StatelessWidget {
       children: [
         Text(title,
             style: TextStyle(
-                fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.dark)),
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.dark)),
         const SizedBox(height: 12),
 
         // SLA
@@ -1220,8 +1487,7 @@ class _TimeSmall extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: TextStyle(fontSize: 12, color: AppColors.dark)),
+        Text(label, style: TextStyle(fontSize: 12, color: AppColors.dark)),
         const SizedBox(height: 4),
         Text(value,
             style: TextStyle(

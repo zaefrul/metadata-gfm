@@ -1,22 +1,27 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:toast/toast.dart';
 
 import 'package:GEMS/controller/WorkOrder/pending_sync.dart';
 import 'package:GEMS/controller/WorkOrder/widgets/pending_sync_banner.dart';
-import 'package:GEMS/model/responseValue.dart';
-import 'package:GEMS/utils/network.dart';
+import 'package:GEMS/data/repository/work_order_detail_repository.dart';
 import 'package:GEMS/utils/reference.dart';
 
 class AddTechnicianCheckList extends StatefulWidget {
   final String id;
   final bool viewer;
   final PendingSyncController? pendingSync;
+  final Stream<WorkOrderSnapshotData?>? snapshotStream;
+  final WorkOrderSnapshotData? initialSnapshot;
 
   const AddTechnicianCheckList({
     super.key,
     required this.id,
     required this.viewer,
     this.pendingSync,
+    this.snapshotStream,
+    this.initialSnapshot,
   });
 
   @override
@@ -25,73 +30,301 @@ class AddTechnicianCheckList extends StatefulWidget {
 
 class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
   final TextEditingController _searchCtr = TextEditingController();
-  final List<_Model> _allTechs = [];
-  final List<_Model> _filteredTechs = [];
-  final List<_Model> _selectedTechs = [];
-  late final _Controller _ctrl;
+  late final WorkOrderDetailRepository _repository;
+
+  List<WorkOrderAssistant> _options = const <WorkOrderAssistant>[];
+  List<WorkOrderAssistant> _filtered = const <WorkOrderAssistant>[];
+  List<WorkOrderAssistant> _selected = const <WorkOrderAssistant>[];
+
   int _maxAssistants = 0;
   bool _isLoading = true;
+  bool _isSubmitting = false;
+  bool _initialSnapshotApplied = false;
+
+  StreamSubscription<WorkOrderSnapshotData?>? _snapshotSub;
+  StreamSubscription<int>? _pendingSubscription;
+  int? _lastPendingCount;
 
   @override
   void initState() {
     super.initState();
     ToastContext().init(context);
-
-    _ctrl = _Controller(widget.id);
-
-    // load data
-    _loadData();
-
-    // search listener
+    _repository = WorkOrderDetailRepository();
     _searchCtr.addListener(_applySearch);
+    _applySnapshot(widget.initialSnapshot);
+    _loadAssistants();
+    _listenToSnapshots();
+    _watchPendingSync();
   }
 
-  Future<void> _loadData() async {
-    try {
-      // Load all data in parallel
-      final results = await Future.wait([
-        _ctrl.list,
-        _ctrl.selected,
-        Provider(
-          fetchURL: "/wo_v2/assign_and_severity/",
-          taskID: widget.id,
-        ).fetch(),
-      ]);
+  @override
+  void didUpdateWidget(covariant AddTechnicianCheckList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.pendingSync != widget.pendingSync) {
+      _pendingSubscription?.cancel();
+      _watchPendingSync();
+    }
+    if (oldWidget.snapshotStream != widget.snapshotStream) {
+      _snapshotSub?.cancel();
+      _listenToSnapshots();
+    }
+  }
 
-      // Extract results from the list
-      final listResult = results[0] as List<_Model>;
-      final selectedResult = results[1] as List<_Model>;
-      final maxResult = results[2] as ResponseValue;
+  @override
+  void dispose() {
+    _snapshotSub?.cancel();
+    _pendingSubscription?.cancel();
+    _searchCtr.removeListener(_applySearch);
+    _searchCtr.dispose();
+    super.dispose();
+  }
+
+  void _listenToSnapshots() {
+    final stream = widget.snapshotStream;
+    if (stream == null) return;
+    _snapshotSub = stream.listen((snapshot) {
+      if (!mounted) return;
+      _applySnapshot(snapshot);
+    });
+  }
+
+  void _applySnapshot(WorkOrderSnapshotData? snapshot) {
+    if (snapshot == null) {
+      return;
+    }
+    final options = snapshot.assistantOptions;
+    final selected = snapshot.selectedAssistants;
+    final max = snapshot.maxAssistants ??
+        _parseMaxFromAssignment(snapshot.assignment?.woTaskMaxAssistant);
+
+    final pendingSelections =
+        _selected.where((item) => item.isPending).toList(growable: false);
+
+    final mergedOptions = List<WorkOrderAssistant>.from(options);
+    for (final pending in pendingSelections) {
+      if (!mergedOptions.any((item) => item.userId == pending.userId)) {
+        mergedOptions.add(pending);
+      }
+    }
+
+    final mergedSelected = List<WorkOrderAssistant>.from(selected);
+    for (final pending in pendingSelections) {
+      if (!mergedSelected.any((item) => item.userId == pending.userId)) {
+        mergedSelected.add(pending);
+      }
+    }
+
+    setState(() {
+      _options = mergedOptions;
+      _filtered = _filterAssistants(_searchCtr.text, _options);
+      _selected = mergedSelected;
+      if (max != null) {
+        _maxAssistants = max;
+      }
+      _isLoading = false;
+      _initialSnapshotApplied = true;
+    });
+  }
+
+  int? _parseMaxFromAssignment(String? raw) {
+    if (raw == null || raw.isEmpty) {
+      return null;
+    }
+    return int.tryParse(raw);
+  }
+
+  Future<void> _loadAssistants({bool forceRefresh = false}) async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final pendingSelections =
+          _selected.where((item) => item.isPending).toList(growable: false);
+      final data = await _repository.getAssistantData(
+        workOrderId: widget.id,
+        forceRefresh: forceRefresh,
+      );
+      if (!mounted) return;
+
+      final mergedOptions = List<WorkOrderAssistant>.from(data.options);
+      for (final pending in pendingSelections) {
+        if (!mergedOptions.any((item) => item.userId == pending.userId)) {
+          mergedOptions.add(pending);
+        }
+      }
+
+      final mergedSelected = List<WorkOrderAssistant>.from(data.selected);
+      for (final pending in pendingSelections) {
+        if (!mergedSelected.any((item) => item.userId == pending.userId)) {
+          mergedSelected.add(pending);
+        }
+      }
 
       setState(() {
-        _allTechs.addAll(listResult);
-        _filteredTechs.addAll(listResult);
-        _selectedTechs.addAll(selectedResult);
-        _maxAssistants = int.parse(maxResult.technicianAssign?.woTaskMaxAssistant ?? "0");
+        _options = mergedOptions;
+        _filtered = _filterAssistants(_searchCtr.text, _options);
+        _selected = mergedSelected;
+        if (data.maxAssistants != null) {
+          _maxAssistants = data.maxAssistants!;
+        }
+        _isLoading = false;
+        _initialSnapshotApplied = true;
+      });
+    } catch (err, st) {
+      debugPrint('Failed to load assistant data: $err\n$st');
+      if (!mounted) return;
+      setState(() {
         _isLoading = false;
       });
-    } catch (e) {
-      Toast.show("Failed to load data", duration: Toast.lengthLong);
-      setState(() => _isLoading = false);
+      if (!_initialSnapshotApplied) {
+        Toast.show('Assistant data unavailable offline');
+      }
     }
   }
 
   void _applySearch() {
-    final q = _searchCtr.text.toLowerCase();
     setState(() {
-      _filteredTechs
-        ..clear()
-        ..addAll(_allTechs.where((t) => t.userFullName.toLowerCase().contains(q)));
+      _filtered = _filterAssistants(_searchCtr.text, _options);
     });
+  }
+
+  List<WorkOrderAssistant> _filterAssistants(
+    String query,
+    List<WorkOrderAssistant> source,
+  ) {
+    final trimmed = query.trim().toLowerCase();
+    if (trimmed.isEmpty) {
+      return List<WorkOrderAssistant>.from(source);
+    }
+    return source
+        .where(
+          (item) =>
+              item.userFullName.toLowerCase().contains(trimmed) ||
+              item.userId.toLowerCase().contains(trimmed),
+        )
+        .toList(growable: false);
+  }
+
+  void _watchPendingSync() {
+    final controller = widget.pendingSync;
+    if (controller == null) return;
+    _pendingSubscription = controller.pendingCount$.listen((count) {
+      final previous = _lastPendingCount;
+      _lastPendingCount = count;
+      if (!mounted) return;
+      if ((previous ?? 0) > 0 && count == 0) {
+        _loadAssistants(forceRefresh: true);
+      }
+    });
+  }
+
+  bool get _hasSelectionLimit => _maxAssistants > 0;
+
+  Future<void> _onToggle(WorkOrderAssistant assistant, bool select) async {
+    if (select) {
+      await _handleAdd(assistant);
+    } else {
+      await _handleRemove(assistant);
+    }
+  }
+
+  Future<void> _handleAdd(WorkOrderAssistant assistant) async {
+    if (_hasSelectionLimit && _selected.length >= _maxAssistants) {
+      Toast.show(
+        'Maximum of $_maxAssistants technicians allowed',
+        duration: Toast.lengthLong,
+        gravity: Toast.bottom,
+      );
+      return;
+    }
+    if (_selected.any((item) => item.userId == assistant.userId)) {
+      return;
+    }
+
+    setState(() {
+      _selected = List<WorkOrderAssistant>.from(_selected)
+        ..add(assistant.copyWith(isPending: true));
+    });
+
+    try {
+      final result = await _repository.addAssistant(
+        workOrderId: widget.id,
+        userId: assistant.userId,
+        userFullName: assistant.userFullName,
+      );
+      if (!mounted) return;
+      if (result == WorkOrderActionResult.success) {
+        await _loadAssistants(forceRefresh: true);
+        Toast.show('Assistant added');
+      } else {
+        Toast.show('Assistant queued for sync');
+      }
+    } catch (err, st) {
+      debugPrint('Failed to add assistant: $err\n$st');
+      if (!mounted) return;
+      setState(() {
+        _selected = _selected
+            .where((item) => item.userId != assistant.userId)
+            .toList(growable: false);
+      });
+      Toast.show('Failed to add technician');
+    }
+  }
+
+  Future<void> _handleRemove(WorkOrderAssistant assistant) async {
+    WorkOrderAssistant? existing;
+    for (final item in _selected) {
+      if (item.userId == assistant.userId) {
+        existing = item;
+        break;
+      }
+    }
+    if (existing == null) {
+      return;
+    }
+
+    setState(() {
+      _selected = _selected
+          .where((item) => item.userId != assistant.userId)
+          .toList(growable: false);
+    });
+
+    try {
+      final result = await _repository.removeAssistant(
+        workOrderId: widget.id,
+        assistantId: existing.assistantId,
+        userId: existing.userId,
+      );
+      if (!mounted) return;
+      if (result == WorkOrderActionResult.success &&
+          (existing.assistantId?.isNotEmpty ?? false)) {
+        await _loadAssistants(forceRefresh: true);
+        Toast.show('Assistant removed');
+      } else {
+        Toast.show('Removal queued for sync');
+      }
+    } catch (err, st) {
+      debugPrint('Failed to remove assistant: $err\n$st');
+      if (!mounted) return;
+      setState(() {
+        _selected = List<WorkOrderAssistant>.from(_selected)..add(existing!);
+      });
+      Toast.show('Failed to remove technician');
+    }
+  }
+
+  bool _isSelected(String userId) {
+    return _selected.any((item) => item.userId == userId);
   }
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     return Scaffold(
       backgroundColor: AppColors.gray100,
       appBar: AppBar(
         title: Text(
-          "Add Technician Assistant",
+          'Add Technician Assistant',
           style: TextStyle(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.w600,
@@ -110,7 +343,19 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
           const SizedBox(height: 8),
           _buildSelectionInfo(),
           const SizedBox(height: 8),
-          Expanded(child: _buildContent()),
+          Expanded(
+            child: Stack(
+              children: [
+                _buildContent(),
+                if (_isLoading)
+                  Container(
+                    alignment: Alignment.center,
+                    color: Colors.black12,
+                    child: const CircularProgressIndicator(),
+                  ),
+              ],
+            ),
+          ),
           if (!widget.viewer) _buildDoneButton(),
         ],
       ),
@@ -134,7 +379,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
               child: TextField(
                 controller: _searchCtr,
                 decoration: InputDecoration(
-                  hintText: "Search technicians...",
+                  hintText: 'Search technicians...',
                   border: InputBorder.none,
                   hintStyle: TextStyle(color: AppColors.textHint),
                 ),
@@ -148,6 +393,8 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
   }
 
   Widget _buildSelectionInfo() {
+    final limitLabel =
+        _hasSelectionLimit ? '/$_maxAssistants' : '';
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
@@ -155,7 +402,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
           Icon(Icons.info_outline, color: AppColors.info, size: 18),
           const SizedBox(width: 8),
           Text(
-            "Selected ${_selectedTechs.length}/$_maxAssistants",
+            'Selected ${_selected.length}$limitLabel',
             style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 14,
@@ -167,11 +414,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
   }
 
   Widget _buildContent() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_filteredTechs.isEmpty) {
+    if (_filtered.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -179,7 +422,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
             Icon(Icons.group_off, size: 48, color: AppColors.gray400),
             const SizedBox(height: 16),
             Text(
-              "No technicians found",
+              'No technicians found',
               style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 16,
@@ -192,7 +435,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
                   _applySearch();
                 },
                 child: Text(
-                  "Clear search",
+                  'Clear search',
                   style: TextStyle(color: AppColors.primary),
                 ),
               ),
@@ -203,22 +446,24 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
 
     return ListView.separated(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: _filteredTechs.length,
+      itemCount: _filtered.length,
       separatorBuilder: (_, __) => Divider(
         height: 1,
         indent: 72,
         color: AppColors.gray200,
       ),
-      itemBuilder: (_, i) {
-        final tech = _filteredTechs[i];
-        final isSel = _selectedTechs.contains(tech);
-
-        return _buildTechItem(tech, isSel);
+      itemBuilder: (_, index) {
+        final assistant = _filtered[index];
+        final isSelected = _isSelected(assistant.userId);
+        return _buildAssistantTile(assistant, isSelected);
       },
     );
   }
 
-  Widget _buildTechItem(_Model tech, bool isSelected) {
+  Widget _buildAssistantTile(
+    WorkOrderAssistant assistant,
+    bool isSelected,
+  ) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       elevation: 0,
@@ -231,7 +476,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: widget.viewer ? null : () => _onToggle(tech, !isSelected),
+        onTap: widget.viewer ? null : () => _onToggle(assistant, !isSelected),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
@@ -255,7 +500,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      tech.userFullName,
+                      assistant.userFullName,
                       style: TextStyle(
                         fontSize: 16,
                         color: AppColors.textPrimary,
@@ -264,10 +509,12 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
                     ),
                     if (isSelected)
                       Text(
-                        "Selected",
+                        assistant.isPending ? 'Pending sync' : 'Selected',
                         style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.success,
+                          color: assistant.isPending
+                              ? AppColors.warning
+                              : AppColors.success,
                         ),
                       ),
                   ],
@@ -276,7 +523,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
               if (!widget.viewer)
                 Checkbox(
                   value: isSelected,
-                  onChanged: (v) => _onToggle(tech, v!),
+                  onChanged: (value) => _onToggle(assistant, value ?? false),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6),
                   ),
@@ -294,74 +541,6 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
     );
   }
 
-  Future<void> _onToggle(_Model tech, bool select) async {
-    // First check if we're already at max capacity
-    if (select && _selectedTechs.length >= _maxAssistants) {
-      Toast.show(
-        "Maximum of $_maxAssistants technicians allowed",
-        duration: Toast.lengthLong,
-        gravity: Toast.bottom,
-      );
-      return;
-    }
-
-    // Create local copies for state management
-    final wasSelected = _selectedTechs.any((t) => t.userId == tech.userId);
-    final previousSelection = List<_Model>.from(_selectedTechs);
-
-    try {
-      if (select && !wasSelected) {
-        // Add case
-        await _ctrl.add(tech);
-      } else if (!select && wasSelected) {
-        // Remove case - find the complete record
-        final completeTech = await _findCompleteTechRecord(tech);
-        if (completeTech.assistantId.isNotEmpty) {
-          await _ctrl.delete(completeTech);
-        }
-      }
-
-      // Refresh from server after any modification
-      final freshSelection = await _ctrl.selected;
-      setState(() {
-        _selectedTechs
-          ..clear()
-          ..addAll(freshSelection);
-      });
-    } catch (e) {
-      // On failure, revert to previous selection
-      setState(() {
-        _selectedTechs
-          ..clear()
-          ..addAll(previousSelection);
-      });
-      Toast.show(
-        select ? "Failed to add technician" : "Failed to remove technician",
-        duration: Toast.lengthLong,
-      );
-    }
-  }
-
-  Future<_Model> _findCompleteTechRecord(_Model tech) async {
-    try {
-      // First check in our current selection
-      final inSelection = _selectedTechs.firstWhere(
-        (t) => t.userId == tech.userId,
-        orElse: () => _Model("", "", ""),
-      );
-      if (inSelection.assistantId.isNotEmpty) return inSelection;
-
-      // If not found, check the full list from server
-      final completeList = await _ctrl.selected;
-      return completeList.firstWhere(
-        (t) => t.userId == tech.userId,
-        orElse: () => tech,
-      );
-    } catch (e) {
-      return tech;
-    }
-  }
-
   Widget _buildDoneButton() {
     return SafeArea(
       top: false,
@@ -377,139 +556,34 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
             ),
             elevation: 0,
           ),
-          onPressed: () async {
-            try {
-              await _ctrl.submit();
-              if (mounted) {
-                Navigator.of(context).pop(_selectedTechs);
-              }
-            } catch (e) {
-              Toast.show("Failed to submit changes");
-            }
-          },
-          child: const Text("Done"),
+          onPressed: _isSubmitting
+              ? null
+              : () async {
+                  setState(() => _isSubmitting = true);
+                  try {
+                    final result =
+                        await _repository.submitAssistantList(widget.id);
+                    if (!mounted) return;
+                    if (result == WorkOrderActionResult.success) {
+                      Toast.show('Assistant list submitted');
+                    } else {
+                      Toast.show('Submission queued for sync');
+                    }
+                    Navigator.of(context).pop(_selected);
+                  } catch (err, st) {
+                    debugPrint('Failed to submit assistant list: $err\n$st');
+                    if (mounted) {
+                      Toast.show('Failed to submit changes');
+                    }
+                  } finally {
+                    if (mounted) {
+                      setState(() => _isSubmitting = false);
+                    }
+                  }
+                },
+          child: Text(_isSubmitting ? 'Submitting...' : 'Done'),
         ),
       ),
     );
   }
-
-  @override
-  void dispose() {
-    _searchCtr.dispose();
-    super.dispose();
-  }
-}
-
-
-class _Controller {
-  final String id;
-  _Controller(this.id);
-
-  Future<List<_Model>> get list async {
-    final url = "/wo_task_assist/dropdown_list/";
-    final Provider provider = Provider(fetchURL: url, taskID: id);
-
-    try {
-      final result = await provider.getJson(url: url);
-      if (result.length > 0) {
-        return result.map<_Model>((v) => _Model.fromJson(v)).toList();
-      }
-
-      return [];
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<List<_Model>> get selected async {
-    final url = "/wo_task_assist/assistant_list/";
-    final Provider provider = Provider(fetchURL: url, taskID: id);
-    try {
-      final result = await provider.getJson(url: url);
-      if (result.length > 0) {
-        return result.map<_Model>((v) => _Model.fromJson(v)).toList();
-      }
-
-      return [];
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<void> add(_Model model) async {
-    final url = "/wo_task_assist";
-    final Provider provider = Provider(fetchURL: url);
-
-    final body = {
-      "woTaskId": id,
-      "assistant": model.userId,
-    };
-
-    try {
-      final _ = await provider.post(url: url, body: body);
-      return;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<bool> delete(_Model model) async {
-    final url = "/wo_task_assist/${model.assistantId}";
-    final Provider provider = Provider(fetchURL: url, taskID: id);
-    try {
-      final _ = await provider.delete(url: url);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  Future<void> submit() async {
-    final url = "/wo_v2/save_assistant_list/$id";
-    final Provider provider = Provider(fetchURL: url);
-    try {
-      final _ = await provider.post(url: url);
-
-      return;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<ResponseValue> detail(_Model model) {
-    Provider provider = Provider(
-        fetchURL:
-            "/api/m_wo.php?type=technician_details&groupId=${model.assistantId}&userId=",
-        taskID: id);
-    return provider.fetch();
-  }
-}
-
-class _Model {
-  final String assistantId;
-  final String userId;
-  final String userFullName;
-
-  _Model(this.assistantId, this.userId, this.userFullName);
-
-  factory _Model.fromJson(Map<String, dynamic> json) => _Model(
-      json["woTaskAssistId"] ?? "", 
-      json["userId"] ?? "", 
-      json["userFullName"] ?? ""
-  );
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is _Model &&
-           other.userId == userId;
-  }
-
-  @override
-  String toString() {
-    return 'Model(assistantId: $assistantId, userId: $userId, userFullName: $userFullName)';
-  }
-
-  @override
-  int get hashCode => assistantId.hashCode ^ userId.hashCode;
 }

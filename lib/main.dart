@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc_technician.dart';
+import 'package:GEMS/utils/biometric_lock_manager.dart';
 import 'controller/Attendance/attendance.dart' as main_attendance;
 import 'controller/Homepage/signature.dart';
 import 'controller/Leaderboard/leaderboard.dart';
@@ -20,11 +21,13 @@ import 'controller/Homepage/homepage.dart' as main_home;
 import 'controller/Homepage/support.dart';
 import 'controller/Utilities/Homepage.dart' as utilities_home;
 import 'controller/WorkOrder/complaintMaterial.dart';
+import 'controller/WorkOrder/material_arguments.dart';
 import 'controller/WorkOrder/complaintSearch.dart';
 import 'controller/WorkOrder/workorder.dart';
 import 'controller/Storekeeper/route/engineer/route_engineer.dart';
 import 'controller/Storekeeper/route/procurement/route_procurement.dart';
-import 'controller/Storekeeper/route/storekeeper/homepage.dart' as store_keeper_home;
+import 'controller/Storekeeper/route/storekeeper/homepage.dart'
+    as store_keeper_home;
 import 'controller/Storekeeper/route/storekeeper/route_MR.dart';
 import 'controller/Storekeeper/route/procurement/route_PO.dart';
 import 'controller/Storekeeper/route/storekeeper/route_PR.dart';
@@ -49,6 +52,8 @@ import 'package:GEMS/model/user.dart';
 import 'package:local_auth/local_auth.dart';
 
 import 'utils/auth_secure_storage.dart';
+import 'utils/debug_log_service.dart';
+import 'view/debug_log_screen.dart';
 
 late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 late AndroidNotificationChannel channel;
@@ -77,23 +82,31 @@ Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
+  final originalDebugPrint = debugPrint;
+  debugPrint = (String? message, {int? wrapWidth}) {
+    if (message != null) {
+      DebugLogService.instance.add(message);
+    }
+    originalDebugPrint(message, wrapWidth: wrapWidth);
+  };
+
   // Print app configuration for debugging
   AppConfig.printConfig();
 
   try {
     await Firebase.initializeApp();
-    print("Firebase initialized successfully");
+    debugPrint("Firebase initialized successfully");
   } catch (e) {
-    print("Firebase initialization failed: ${e.toString()}");
+    debugPrint("Firebase initialization failed: ${e.toString()}");
     // Continue without Firebase if it fails
   }
 
   // Instantiate Firebase Messaging.
   try {
     _messaging = FirebaseMessaging.instance;
-    print("Firebase Messaging initialized successfully");
+    debugPrint("Firebase Messaging initialized successfully");
   } catch (e) {
-    print("Firebase Messaging initialization failed: ${e.toString()}");
+    debugPrint("Firebase Messaging initialization failed: ${e.toString()}");
     // Continue without Firebase messaging if it fails
   }
 
@@ -111,7 +124,7 @@ Future<void> main() async {
       if (Platform.isIOS) {
         try {
           String? apnsToken = await _messaging!.getAPNSToken();
-          print('🪶 APNS token: $apnsToken');
+          debugPrint('🪶 APNS token: $apnsToken');
         } catch (e) {
           debugPrint('⚠️ getAPNSToken failed: $e');
         }
@@ -124,20 +137,23 @@ Future<void> main() async {
       );
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        print('User granted permission');
+        debugPrint('User granted permission');
       } else {
-        print('User declined or has not accepted permission');
+        debugPrint('User declined or has not accepted permission');
       }
 
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+      FirebaseMessaging.onBackgroundMessage(
+          _firebaseMessagingBackgroundHandler);
       FirebaseMessaging.onMessage.listen((RemoteMessage event) {
-        showNotification(event).catchError((err) => debugPrint('Notification error: $err'));
+        showNotification(event)
+            .catchError((err) => debugPrint('Notification error: $err'));
       });
     } catch (e) {
-      print("Firebase messaging setup failed: ${e.toString()}");
+      debugPrint("Firebase messaging setup failed: ${e.toString()}");
     }
   } else {
-    print("Firebase Messaging is not available - continuing without push notifications");
+    debugPrint(
+        "Firebase Messaging is not available - continuing without push notifications");
   }
 
   if (Platform.isIOS || Platform.isAndroid) {
@@ -168,11 +184,8 @@ Future<void> showNotification(RemoteMessage payload) async {
   NotificationDetails platformChannelSpecifics =
       NotificationDetails(android: androidDetails);
 
-  await plugin.show(
-      alertCount,
-      payload.notification?.title ?? '',
-      payload.notification?.body ?? '',
-      platformChannelSpecifics);
+  await plugin.show(alertCount, payload.notification?.title ?? '',
+      payload.notification?.body ?? '', platformChannelSpecifics);
 
   alertCount++;
 }
@@ -206,7 +219,7 @@ Future<void> setupFlutterNotifications() async {
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Make sure to initialize Firebase before using it in the background.
-  print('Handling a background message ${message.messageId}');
+  debugPrint('Handling a background message ${message.messageId}');
 }
 
 void showFlutterNotification(RemoteMessage message) {
@@ -257,8 +270,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
-      _shouldLockOnResume = true;
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      // Don't set lock flag if we're suppressing (e.g., opening camera/file picker)
+      if (!BiometricLockManager.shouldSuppressAndReset()) {
+        _shouldLockOnResume = true;
+      }
     } else if (state == AppLifecycleState.resumed && _shouldLockOnResume) {
       _handleResume();
     }
@@ -268,21 +285,20 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-          fontFamily: "Avenir",
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black, // Replace with a constant color
-          ),
-          primaryColor: colorTheme3,
-          primaryTextTheme:
-              TextTheme(titleLarge: TextStyle(color: colorTheme3)),
-          pageTransitionsTheme: PageTransitionsTheme(builders: {
-            TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
-            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-            // or replace both with your custom one:
-            // TargetPlatform.android: _MyFadeBuilder(),
-            // TargetPlatform.iOS: _MyFadeBuilder(),
-          }),
+        fontFamily: "Avenir",
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black, // Replace with a constant color
+        ),
+        primaryColor: colorTheme3,
+        primaryTextTheme: TextTheme(titleLarge: TextStyle(color: colorTheme3)),
+        pageTransitionsTheme: PageTransitionsTheme(builders: {
+          TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          // or replace both with your custom one:
+          // TargetPlatform.android: _MyFadeBuilder(),
+          // TargetPlatform.iOS: _MyFadeBuilder(),
+        }),
       ),
       localizationsDelegates: const [
         GlobalWidgetsLocalizations.delegate,
@@ -337,21 +353,28 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         return MaterialPageRoute(
             builder: (context) => TaskMonitoringScreen(), settings: settings);
       case routeMaterial:
-        final String value = settings.arguments as String;
+        final args = settings.arguments;
+        if (args is! MaterialEditArguments) {
+          throw ArgumentError('routeMaterial expects MaterialEditArguments');
+        }
         return MaterialPageRoute(
-            builder: (context) => MaterialEdit(value), settings: settings);
+            builder: (context) => MaterialEdit(args), settings: settings);
       case routeTechnician:
         if (settings.arguments != null) {
           return MaterialPageRoute(
               builder: (ctx) =>
-                  RouteTechnician(value: settings.arguments as BlocTechnician), settings: settings);
+                  RouteTechnician(value: settings.arguments as BlocTechnician),
+              settings: settings);
         }
         return MaterialPageRoute(
-            builder: (ctx) => RouteTechnician(value: settings.arguments as BlocTechnician), settings: settings);
+            builder: (ctx) =>
+                RouteTechnician(value: settings.arguments as BlocTechnician),
+            settings: settings);
       case routeTechnicianDetail:
         return MaterialPageRoute(
             builder: (ctx) =>
-                RouteTechnicianDetail(item: settings.arguments as Item), settings: settings);
+                RouteTechnicianDetail(item: settings.arguments as Item),
+            settings: settings);
       case routeEngineer:
         final value = BlocTechnician.from(settings.arguments as BlocTechnician);
         return MaterialPageRoute(
@@ -367,7 +390,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             builder: (ctx) => store_keeper_home.Homepage(), settings: settings);
       case routeMaterialInfo:
         return MaterialPageRoute(
-            builder: (ctx) => MaterialInfo(value: settings.arguments as ComplaintDType), settings: settings);
+            builder: (ctx) =>
+                MaterialInfo(value: settings.arguments as ComplaintDType),
+            settings: settings);
       case routeMaterialCheckinRequest:
         return MaterialPageRoute(
             builder: (ctx) => CheckinRequest(), settings: settings);
@@ -383,7 +408,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       case routeMateralRequest:
         return MaterialPageRoute(
             builder: (ctx) => MaterialRequestScreen(
-                  value: settings.arguments as dynamic, // Replace 'dynamic' with the correct type if known
+                  value: settings.arguments
+                      as dynamic, // Replace 'dynamic' with the correct type if known
                   isApproval: true,
                 ),
             settings: settings);
@@ -396,16 +422,21 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             settings: settings);
       case routeStockRequest:
         return MaterialPageRoute(
-            builder: (ctx) => MaterialRequestScreen(value: settings.arguments as dynamic), settings: settings);
+            builder: (ctx) =>
+                MaterialRequestScreen(value: settings.arguments as dynamic),
+            settings: settings);
       case routeDashboard:
         return MaterialPageRoute(
             builder: (ctx) => store_keeper_home.Homepage(), settings: settings);
       case routeDetails:
         return MaterialPageRoute(
-            builder: (ctx) => MaterialDetails(id: settings.arguments as String), settings: settings);
+            builder: (ctx) => MaterialDetails(id: settings.arguments as String),
+            settings: settings);
       case routeCheckInInfo:
         return MaterialPageRoute(
-            builder: (ctx) => CheckinDetails(key: UniqueKey(), id: settings.arguments as dynamic), settings: settings);
+            builder: (ctx) => CheckinDetails(
+                key: UniqueKey(), id: settings.arguments as dynamic),
+            settings: settings);
       case routeStockIn:
         return MaterialPageRoute(
             builder: (ctx) => StockInList(), settings: settings);
@@ -418,10 +449,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       case routeSignature:
         return MaterialPageRoute(
           builder: (_) => SignatureView(
-              id: settings.arguments as String, 
-              // result: "", 
-              // checkpoint: ""
-              ),
+            id: settings.arguments as String,
+            // result: "",
+            // checkpoint: ""
+          ),
           settings: settings,
         );
       case routeLeaderboard:
@@ -430,7 +461,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       case routeAttendance:
         return MaterialPageRoute(
             builder: (_) => main_attendance.Dashboard(), settings: settings);
-            // builder: (_) => Placeholder(), settings: settings); // Replace Placeholder with the correct widget if known
+      case DebugLogScreen.routeName:
+        return MaterialPageRoute(
+            builder: (_) => const DebugLogScreen(), settings: settings);
+      // builder: (_) => Placeholder(), settings: settings); // Replace Placeholder with the correct widget if known
       default:
         return MaterialPageRoute(builder: (ctx) => ProcumentHomepage());
     }

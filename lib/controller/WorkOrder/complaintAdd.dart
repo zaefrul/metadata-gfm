@@ -1,245 +1,544 @@
 import 'package:flutter/material.dart';
-import 'package:GEMS/model/complaint.dart';
-import 'package:GEMS/utils/network.dart';
-import 'package:GEMS/utils/reference.dart';
-import 'package:rxdart/rxdart.dart';
-import 'package:toast/toast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:dropdown_search/dropdown_search.dart';
+import 'package:toast/toast.dart';
+
+import 'package:GEMS/controller/WorkOrder/material_arguments.dart';
+import 'package:GEMS/data/repository/work_order_detail_repository.dart';
+import 'package:GEMS/model/complaint.dart';
+import 'package:GEMS/utils/reference.dart';
 
 class ComplaintAdd extends StatefulWidget {
-  final String id;
-  final Controller _controller;
+  const ComplaintAdd(this.args, {super.key});
 
-  ComplaintAdd(this.id, {super.key}) : _controller = Controller(id);
+  final MaterialAddArguments args;
 
   @override
-  _ComplaintAddState createState() => _ComplaintAddState();
+  State<ComplaintAdd> createState() => _ComplaintAddState();
 }
 
 class _ComplaintAddState extends State<ComplaintAdd> {
+  final _repository = WorkOrderDetailRepository();
+
+  final TextEditingController _quantityController = TextEditingController();
+  final TextEditingController _remarkController = TextEditingController();
+
+  List<ComplaintDGroup> _groups = const [];
+  List<ComplaintDType> _types = const [];
+  List<ComplaintDPart> _parts = const [];
+
+  ComplaintDGroup? _selectedGroup;
+  ComplaintDType? _selectedType;
+  ComplaintDPart? _selectedPart;
+
+  bool _loadingGroups = true;
+  bool _loadingOptions = false;
+  bool _submitting = false;
+  bool _offlineMode = false;
+  bool _offlineToastShown = false;
+
+  String? _error; // displayed above the form when loading fails
+  int? _quantityValue;
+
+  @override
+  void initState() {
+    super.initState();
+    _quantityController.addListener(_onQuantityChanged);
+    _loadGroups();
+  }
+
   @override
   void dispose() {
-    widget._controller.dispose();
+    _quantityController.removeListener(_onQuantityChanged);
+    _quantityController.dispose();
+    _remarkController.dispose();
     super.dispose();
+  }
+
+  bool get _hasValidSelection => _selectedPart != null && _isQuantityValid;
+
+  bool get _isQuantityValid => _quantityValue != null && _quantityValue! > 0;
+
+  void _onQuantityChanged() {
+    final raw = _quantityController.text.trim();
+    setState(() {
+      _quantityValue = int.tryParse(raw);
+    });
+  }
+
+  Future<void> _loadGroups({bool forceRefresh = false}) async {
+    setState(() {
+      _loadingGroups = true;
+      _error = null;
+      _groups = const [];
+      _types = const [];
+      _parts = const [];
+      _selectedGroup = null;
+      _selectedType = null;
+      _selectedPart = null;
+    });
+
+    final offline =
+        await _repository.isOfflineModeEnabled(widget.args.workOrderId);
+    if (mounted) {
+      setState(() {
+        _offlineMode = offline;
+        if (!offline) {
+          _offlineToastShown = false;
+        }
+      });
+    }
+
+    try {
+      final results = await _repository.getMaterialGroups(
+        workOrderId: widget.args.workOrderId,
+        forceRefresh: forceRefresh,
+      );
+      if (!mounted) return;
+      setState(() {
+        _groups = results;
+        if (_offlineMode && results.isEmpty) {
+          _error =
+              'No cached material groups yet. Reconnect and pull to refresh.';
+        }
+      });
+      if (_offlineMode) {
+        _showOfflineToastOnce();
+      }
+    } on StateError catch (err) {
+      if (!mounted) return;
+      setState(() {
+        _error = err.message;
+      });
+      _showToast(err.message);
+    } catch (err, st) {
+      debugPrint('Failed to load material groups: $err\n$st');
+      if (!mounted) return;
+      setState(() {
+        _error = 'Unable to load material groups. Pull to retry.';
+      });
+      _showToast('Unable to load material groups');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _loadingGroups = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _onGroupChanged(ComplaintDGroup? group) async {
+    if (_selectedGroup == group) return;
+
+    setState(() {
+      _selectedGroup = group;
+      _selectedType = null;
+      _selectedPart = null;
+      _types = const [];
+      _parts = const [];
+    });
+
+    final groupId = group?.itemId;
+    if (groupId == null || groupId.isEmpty) {
+      return;
+    }
+
+    await _loadTypes(groupId);
+  }
+
+  Future<void> _loadTypes(String groupId, {bool forceRefresh = false}) async {
+    setState(() {
+      _loadingOptions = true;
+      _selectedType = null;
+      _selectedPart = null;
+      _parts = const [];
+    });
+    try {
+      final results = await _repository.getMaterialTypes(
+        workOrderId: widget.args.workOrderId,
+        groupId: groupId,
+        forceRefresh: forceRefresh,
+      );
+      if (!mounted) return;
+      setState(() {
+        _types = results;
+      });
+      if (_offlineMode && results.isEmpty) {
+        _showToast(
+            'No cached item types for this group. Reconnect to refresh.');
+      }
+    } on StateError catch (err) {
+      if (!mounted) return;
+      _showToast(err.message);
+    } catch (err, st) {
+      debugPrint('Failed to load material types: $err\n$st');
+      if (!mounted) return;
+      _showToast('Unable to load item types');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _loadingOptions = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _onTypeChanged(ComplaintDType? type) async {
+    if (_selectedType == type) return;
+
+    setState(() {
+      _selectedType = type;
+      _selectedPart = null;
+      _parts = const [];
+    });
+
+    final typeId = type?.itemId;
+    if (typeId == null || typeId.isEmpty) {
+      return;
+    }
+
+    await _loadParts(typeId);
+  }
+
+  Future<void> _loadParts(String typeId, {bool forceRefresh = false}) async {
+    setState(() {
+      _loadingOptions = true;
+    });
+    try {
+      final results = await _repository.getMaterialParts(
+        workOrderId: widget.args.workOrderId,
+        typeId: typeId,
+        forceRefresh: forceRefresh,
+      );
+      if (!mounted) return;
+      setState(() {
+        _parts = results;
+      });
+      if (_offlineMode && results.isEmpty) {
+        _showToast('No cached parts for this type. Reconnect to refresh.');
+      }
+    } on StateError catch (err) {
+      if (!mounted) return;
+      _showToast(err.message);
+    } catch (err, st) {
+      debugPrint('Failed to load material parts: $err\n$st');
+      if (!mounted) return;
+      _showToast('Unable to load parts');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _loadingOptions = false;
+        });
+      }
+    }
+  }
+
+  void _onPartChanged(ComplaintDPart? part) {
+    setState(() {
+      _selectedPart = part;
+    });
+
+    if (part != null) {
+      final quantity = part.itemQuantity ?? '';
+      if (quantity.isNotEmpty) {
+        _quantityController.text = quantity;
+      }
+    }
+  }
+
+  void _showOfflineToastOnce() {
+    if (_offlineToastShown) return;
+    _offlineToastShown = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ToastContext().init(context);
+      Toast.show(
+        'Offline mode is on. Showing cached spare part options.',
+        duration: Toast.lengthShort,
+        gravity: Toast.bottom,
+      );
+    });
+  }
+
+  void _showToast(String message) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ToastContext().init(context);
+      Toast.show(
+        message,
+        duration: Toast.lengthShort,
+        gravity: Toast.bottom,
+      );
+    });
+  }
+
+  Future<void> _submit() async {
+    final part = _selectedPart;
+    if (part == null) {
+      Toast.show('Please pick a material item.');
+      return;
+    }
+    if (!_isQuantityValid) {
+      Toast.show('Quantity must be greater than zero.');
+      return;
+    }
+    if (part.itemId == null || part.itemId!.isEmpty) {
+      Toast.show('Selected material item is missing an identifier.');
+      return;
+    }
+
+    setState(() {
+      _submitting = true;
+    });
+
+    try {
+      final result = await _repository.addMaterial(
+        workOrderId: widget.args.workOrderId,
+        itemId: part.itemId!,
+        quantity: _quantityController.text.trim(),
+        remark: _remarkController.text.trim(),
+        itemDescription: part.itemName,
+        assetGroupName: _selectedGroup?.itemName,
+        itemTypeDesc: _selectedType?.itemName ?? _selectedType?.itemTypeDesc,
+      );
+
+      _showResultToast(result);
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
+    } catch (err, st) {
+      debugPrint('Failed to add material: $err\n$st');
+      if (mounted) {
+        Toast.show('Failed to add material');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _submitting = false;
+        });
+      }
+    }
+  }
+
+  void _showResultToast(WorkOrderActionResult result) {
+    switch (result) {
+      case WorkOrderActionResult.success:
+        Toast.show('Material added successfully.', duration: 3);
+        break;
+      case WorkOrderActionResult.queued:
+        Toast.show('Material queued and will sync once online.', duration: 3);
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     ToastContext().init(context);
+
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppColors.gray100,
       appBar: AppBar(
         title: Text(
           'Add Material / Item',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
-            fontSize: 18,
+            color: AppColors.textPrimary,
           ),
         ),
-        backgroundColor: Colors.white,
         elevation: 0,
+        backgroundColor: AppColors.bgAppBar,
         centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.black87),
+        iconTheme: const IconThemeData(color: AppColors.primary),
       ),
       body: Stack(
         children: [
-          SingleChildScrollView(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Add New Item',
-                  style: GoogleFonts.poppins(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black87,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'Please select the item details below',
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                SizedBox(height: 24),
-
-                // Group Selection
-                _buildSection(
-                  title: 'Item Group',
-                  icon: Icons.category_outlined,
-                  child: _buildDropdownSearch<ComplaintDGroup>(
-                    stream: widget._controller.list1$,
-                    valueStream: widget._controller.first$,
-                    onChanged: widget._controller.setfirst,
-                    hintText: "Select Group",
-                    itemAsString: (item) => item.itemName ?? "",
-                  ),
-                ),
-                SizedBox(height: 20),
-
-                // Type Selection
-                StreamBuilder<ComplaintDGroup>(
-                  stream: widget._controller.first$,
-                  builder: (context, snapshot) {
-                    return _buildSection(
-                      title: 'Item Type',
-                      icon: Icons.type_specimen_outlined,
-                      child: _buildDropdownSearch<ComplaintDType>(
-                        stream: widget._controller.list2$,
-                        valueStream: widget._controller.second$.where((event) => event != null).cast<ComplaintDType>(),
-                        onChanged: widget._controller.setsecond,
-                        hintText: "Select Type",
-                        enabled: snapshot.data != null,
-                        itemAsString: (item) => item.itemName ?? "",
-                      ),
-                    );
-                  },
-                ),
-                SizedBox(height: 20),
-
-                // Part Selection
-                StreamBuilder<ComplaintDType>(
-                  stream: widget._controller.second$.where((event) => event != null).cast<ComplaintDType>(),
-                  builder: (context, snapshot) {
-                    return _buildSection(
-                      title: 'Item Part',
-                      icon: Icons.inventory_outlined,
-                      child: _buildDropdownSearch<ComplaintDPart>(
-                        stream: widget._controller.list3$,
-                        valueStream: widget._controller.third$.where((event) => event != null).cast<ComplaintDPart>(),
-                        onChanged: widget._controller.setthird,
-                        hintText: "Select Part",
-                        enabled: snapshot.data != null,
-                        itemAsString: (item) => item.itemName ?? "",
-                      ),
-                    );
-                  },
-                ),
-                SizedBox(height: 20),
-
-                // Quantity and Remark
-                _buildSection(
-                  title: 'Item Details',
-                  icon: Icons.edit_outlined,
-                  child: Column(
-                    children: [
-                      StreamBuilder<ComplaintDPart>(
-                        stream: widget._controller.third$.where((event) => event != null).cast<ComplaintDPart>(),
-                        builder: (context, snapshot) {
-                          return TextField(
-                            enabled: snapshot.data != null,
-                            controller: widget._controller.quantity,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              labelText: 'Quantity',
-                              hintText: '0',
-                              floatingLabelBehavior: FloatingLabelBehavior.always,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.grey[300]!),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.grey[300]!),
-                              ),
-                              filled: true,
-                              fillColor: Colors.white,
-                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                            ),
-                            style: GoogleFonts.poppins(fontSize: 14),
-                          );
-                        },
-                      ),
-                      SizedBox(height: 16),
-                      StreamBuilder<ComplaintDPart>(
-                        stream: widget._controller.third$.where((event) => event != null).cast<ComplaintDPart>(),
-                        builder: (context, snapshot) {
-                          return TextField(
-                            enabled: snapshot.data != null,
-                            controller: widget._controller.remark,
-                            decoration: InputDecoration(
-                              labelText: 'Remark',
-                              hintText: '-',
-                              floatingLabelBehavior: FloatingLabelBehavior.always,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.grey[300]!),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.grey[300]!),
-                              ),
-                              filled: true,
-                              fillColor: Colors.white,
-                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                            ),
-                            maxLines: 3,
-                            style: GoogleFonts.poppins(fontSize: 14),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 40),
-
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: FloatingActionButton.extended(
-                      onPressed: () => widget._controller
-                          .upload(context)
-                          .then((value) => Navigator.pop(context))
-                          .catchError((e) => Toast.show(e.toString())),
-                      backgroundColor: AppColors.primary,
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      label: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        child: Text(
-                          'ADD NEW ITEM',
-                          style: GoogleFonts.poppins(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
+          RefreshIndicator(
+            onRefresh: () => _loadGroups(forceRefresh: true),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Plan spare parts usage for this work order.',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
                     ),
                   ),
-                ),
-                SizedBox(height: 40),
-              ],
+                  const SizedBox(height: 16),
+                  if (_error != null)
+                    _ErrorBanner(
+                      message: _error!,
+                    ),
+                  const SizedBox(height: 12),
+                  _buildSection(
+                    title: 'Item Group',
+                    icon: Icons.category_outlined,
+                    child: _buildDropdownField<ComplaintDGroup>(
+                      label: 'Select group',
+                      value: _selectedGroup,
+                      items: _groups
+                          .map((group) => DropdownMenuItem(
+                                value: group,
+                                child: Text(group.itemName ?? '-'),
+                              ))
+                          .toList(),
+                      onChanged: _loadingGroups ? null : _onGroupChanged,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildSection(
+                    title: 'Item Type',
+                    icon: Icons.type_specimen_outlined,
+                    child: _buildDropdownField<ComplaintDType>(
+                      label: 'Select type',
+                      value: _selectedType,
+                      items: _types
+                          .map((type) => DropdownMenuItem(
+                                value: type,
+                                child: Text(type.itemName ?? '-'),
+                              ))
+                          .toList(),
+                      onChanged: _types.isEmpty
+                          ? null
+                          : (value) => _onTypeChanged(value),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildSection(
+                    title: 'Item Part',
+                    icon: Icons.inventory_outlined,
+                    child: _buildDropdownField<ComplaintDPart>(
+                      label: 'Select part',
+                      value: _selectedPart,
+                      items: _parts
+                          .map((part) => DropdownMenuItem(
+                                value: part,
+                                child: Text(part.itemName ?? '-'),
+                              ))
+                          .toList(),
+                      onChanged: _parts.isEmpty
+                          ? null
+                          : (value) => _onPartChanged(value),
+                    ),
+                  ),
+                  if (_selectedPart != null) ...[
+                    const SizedBox(height: 12),
+                    _HighlightCard(
+                      title: 'Hints',
+                      message:
+                          'Available quantity: ${_selectedPart!.itemQuantity ?? '-'}',
+                    ),
+                  ],
+                  const SizedBox(height: 28),
+                  _buildSection(
+                    title: 'Item Details',
+                    icon: Icons.edit_outlined,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: _quantityController,
+                          keyboardType: TextInputType.number,
+                          decoration: _inputDecoration('Quantity').copyWith(
+                            errorText: _quantityValue == null &&
+                                    _quantityController.text.isNotEmpty
+                                ? 'Invalid number'
+                                : !_isQuantityValid &&
+                                        _quantityController.text.isNotEmpty
+                                    ? 'Quantity must be greater than zero'
+                                    : null,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _remarkController,
+                          maxLines: 3,
+                          decoration: _inputDecoration('Remark (optional)'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 120),
+                ],
+              ),
             ),
           ),
+          if (_loadingGroups || _loadingOptions || _submitting)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withValues(alpha: 0.1),
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+            ),
         ],
       ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.onPrimary,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            onPressed: _hasValidSelection && !_submitting ? _submit : null,
+            icon: const Icon(Icons.save_alt),
+            label: Text(
+              'Save Material',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: GoogleFonts.poppins(color: AppColors.textSecondary),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.gray300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.primary),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.gray300),
+      ),
+      filled: true,
+      fillColor: AppColors.white,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     );
   }
 
   Widget _buildSection({
     required String title,
-    required Widget child,
     required IconData icon,
+    required Widget child,
   }) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -248,8 +547,8 @@ class _ComplaintAddState extends State<ComplaintAdd> {
         children: [
           Row(
             children: [
-              Icon(icon, size: 20, color: AppColors.primary),
-              SizedBox(width: 8),
+              Icon(icon, color: AppColors.primary),
+              const SizedBox(width: 12),
               Text(
                 title,
                 style: GoogleFonts.poppins(
@@ -259,253 +558,107 @@ class _ComplaintAddState extends State<ComplaintAdd> {
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           child,
         ],
       ),
     );
   }
 
-  Widget _buildDropdownSearch<T>({
-    required Stream<List<T>> stream,
-    required Stream<T> valueStream,
-    required Function(T?) onChanged,
-    required String hintText,
-    required String Function(T) itemAsString,
-    bool enabled = true,
+  Widget _buildDropdownField<T>({
+    required String label,
+    required T? value,
+    required List<DropdownMenuItem<T>> items,
+    required ValueChanged<T?>? onChanged,
   }) {
-    return StreamBuilder<List<T>>(
-      stream: stream,
-      builder: (context, snapshot) {
-        final List<T> list = (snapshot.data ?? []).where((element) => element != null).toList();
-        return StreamBuilder<T>(
-          stream: valueStream,
-          builder: (context, selected) {
-            return DropdownSearch<T>(
-              items: (String filter, LoadProps? loadProps) => list,
-              selectedItem: selected.data,
-              popupProps: PopupProps.modalBottomSheet(
-                showSearchBox: true,
-                searchFieldProps: TextFieldProps(
-                  decoration: InputDecoration(
-                    hintText: 'Search $hintText...',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey[300]!),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  ),
-                ),
-                modalBottomSheetProps: ModalBottomSheetProps(
-                  backgroundColor: Colors.grey[50],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                  ),
-                ),
-              ),
-              itemAsString: itemAsString,
-              compareFn: (T a, T b) => a == b,
-              decoratorProps: DropDownDecoratorProps(
-                decoration: InputDecoration(
-                  labelText: hintText,
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey[300]!),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppColors.primary),
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                ),
-              ),
-              onChanged: enabled ? onChanged : null,
-              enabled: enabled,
-            );
-          },
-        );
-      },
+    return InputDecorator(
+      decoration: _inputDecoration(label),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<T>(
+          isExpanded: true,
+          value: value,
+          hint: Text(
+            label,
+            style: GoogleFonts.poppins(color: AppColors.textSecondary),
+          ),
+          items: items,
+          onChanged: onChanged,
+        ),
+      ),
     );
   }
 }
 
-class Controller {
-  final String id;
-  final Request _request;
-  final TextEditingController quantity = TextEditingController();
-  final TextEditingController remark = TextEditingController();
+class _ErrorBanner extends StatelessWidget {
+  const _ErrorBanner({required this.message});
 
-  final BehaviorSubject<bool> _invalidQuantity =
-      BehaviorSubject<bool>.seeded(true);
-  final BehaviorSubject<String> _invalidMessage =
-      BehaviorSubject<String>.seeded("Please Check All Field");
-  final BehaviorSubject<ComplaintDGroup> _valueFirst =
-      BehaviorSubject<ComplaintDGroup>();
-  final BehaviorSubject<ComplaintDType?> _valueSecond = BehaviorSubject<ComplaintDType?>();
-  final BehaviorSubject<ComplaintDPart?> _valueThird = BehaviorSubject<ComplaintDPart?>();
+  final String message;
 
-  final BehaviorSubject<int> _valueFourth = BehaviorSubject<int>();
-  final BehaviorSubject<List<ComplaintDGroup>> _listFirst =
-      BehaviorSubject<List<ComplaintDGroup>>.seeded([]);
-  final BehaviorSubject<List<ComplaintDType>> _listSecond =
-      BehaviorSubject<List<ComplaintDType>>.seeded([]);
-  final BehaviorSubject<List<ComplaintDPart>> _listThird =
-      BehaviorSubject<List<ComplaintDPart>>.seeded([]);
-
-  Controller(this.id) : _request = Request(id) {
-    _valueFirst.listen((value) {
-      setsecond(null);
-      setthird(null);
-      setfourth(0);
-      invalid = true;
-      remark.text = "";
-      quantity.text = "";
-      getSecond();
-        });
-
-    _valueSecond.listen((value) {
-      setthird(null);
-      setfourth(0);
-      invalid = true;
-      remark.text = "";
-      quantity.text = "";
-      if (value != null) {
-        getThird();
-      }
-    });
-
-    _valueThird.listen((value) {
-      remark.text = "";
-      invalid = true;
-      if (value != null) {
-        quantity.text = value.itemQuantity ?? '';
-      } else {
-        quantity.text = "";
-      }
-    });
-
-    quantity.addListener(() {
-      final val = int.tryParse(quantity.text);
-      if (val == null) {
-        invalid = true;
-        fourth = 0;
-        invalidMessage = "Quantity must be less than ${_valueThird.value?.itemQuantity ?? 0}";
-      } else {
-        if (val == 0) {
-          invalid = true;
-          fourth = 0;
-          invalidMessage = "Quantity cannot be 0";
-        } else {
-          invalidMessage = "";
-          invalid = false;
-          fourth = val;
-        }
-      }
-    });
-
-    _request.listFirst.then((value) => listFirst = value);
-  }
-
-  void dispose() {
-    _valueFirst.close();
-    _valueSecond.close();
-    _valueThird.close();
-    _valueFourth.close();
-    _listFirst.close();
-    _listSecond.close();
-    _listThird.close();
-    quantity.dispose();
-    remark.dispose();
-    _invalidQuantity.close();
-    _invalidMessage.close();
-  }
-
-  Stream<List<ComplaintDGroup>> get list1$ => _listFirst.stream;
-  Stream<List<ComplaintDType>> get list2$ => _listSecond.stream;
-  Stream<List<ComplaintDPart>> get list3$ => _listThird.stream;
-  Stream<ComplaintDGroup> get first$ => _valueFirst.stream;
-  Stream<ComplaintDType?> get second$ => _valueSecond.stream;
-  Stream<ComplaintDPart?> get third$ => _valueThird.stream;
-  Stream<int> get fourth$ => _valueFourth.stream;
-
-  ComplaintDGroup get first => _valueFirst.value;
-  ComplaintDType? get second => _valueSecond.value;
-  ComplaintDPart? get third => _valueThird.value;
-  int get fourth => _valueFourth.value;
-  TextEditingController get remarkController => remark;
-  TextEditingController get quantityController => quantity;
-  Stream<bool> get invalid$ => _invalidQuantity.stream;
-
-  setfirst(ComplaintDGroup? value) => _valueFirst.sink.add(value!);
-  setsecond(ComplaintDType? value) => _valueSecond.sink.add(value);
-  setthird(ComplaintDPart? value) => _valueThird.sink.add(value);
-  setfourth(int value) => _valueFourth.sink.add(value);
-  set listFirst(List<ComplaintDGroup> values) => _listFirst.sink.add(values);
-  set listSecond(List<ComplaintDType> values) => _listSecond.sink.add(values);
-  set listThird(List<ComplaintDPart> values) => _listThird.sink.add(values);
-  set fourth(int value) => _valueFourth.sink.add(value);
-  set invalidMessage(String value) => _invalidMessage.sink.add(value);
-  set invalid(bool value) => _invalidQuantity.sink.add(value);
-
-  void getSecond() =>
-      _request.listSecond(_valueFirst.value.itemId ?? "").then((value) => listSecond = value);
-  void getThird() =>
-      _request.listThird(_valueSecond.value!.itemId!).then((value) => listThird = value);
-
-  Future<void> upload(BuildContext context) {
-    FocusScope.of(context).unfocus();
-    if (_invalidQuantity.value) {
-      Toast.show(_invalidMessage.value, duration: 3);
-      throw "";
-    } else {
-      if (_invalidMessage.value.isNotEmpty) {
-        Toast.show(_invalidMessage.value, duration: 3);
-      }
-      return _request.post(
-        _valueThird.value!.itemId!,
-        remark: remark.text,
-        quantity: quantity.text,
-      );
-    }
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.dangerLight,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.danger),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline, color: AppColors.danger),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              style: GoogleFonts.poppins(
+                color: AppColors.dangerDark,
+                fontSize: 13,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
-class Request {
-  final Provider _providerFirst;
-  final Provider _providerSecond;
-  final Provider _providerThird;
-  final Provider _providerUpload;
-  final String _id;
+class _HighlightCard extends StatelessWidget {
+  const _HighlightCard({required this.title, required this.message});
 
-  Request(String id)
-      : _providerFirst = Provider(fetchURL: "/part/option_asset_group"),
-        _providerSecond = Provider(fetchURL: "/part/option_item_type/"),
-        _providerThird = Provider(fetchURL: "/part/option_item/"),
-        _providerUpload = Provider(taskID: id, fetchURL: ''),
-        _id = id;
+  final String title;
+  final String message;
 
-  Future<List<ComplaintDGroup>> get listFirst => _providerFirst
-      .fetchComplaint(group: true)
-      .then((value) => value.map((e) => e as ComplaintDGroup).toList());
-  Future<List<ComplaintDType>> listSecond(String id) => _providerSecond
-          .fetchComplaint(additionalParam: id, type: true)
-          .then((value) => value.map((e) => e as ComplaintDType).toList());
-  Future<List<ComplaintDPart>> listThird(String id) => _providerThird
-          .fetchComplaint(additionalParam: id, part: true)
-          .then((value) => value.map((e) => e as ComplaintDPart).toList());
-  Future<void> post(String itemId,
-          {required String remark, required String quantity}) =>
-      _providerUpload.post(url: "/wo_parts", body: {
-        "woTaskId": _id,
-        "quantity": quantity,
-        "itemId": itemId,
-        "remark": remark,
-      });
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.infoLight,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.info),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              color: AppColors.infoDark,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            message,
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

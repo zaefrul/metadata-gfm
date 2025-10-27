@@ -172,15 +172,23 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
               result.sectionFList.replace(serializers.deserialize(value,
                       specifiedType: const FullType(
                           BuiltList, [FullType(FormFItem)])) as BuiltList<FormFItem>);
-            } else if (tryTechnicianImage(serializers, value)) {
-              result.technicianImages.replace(serializers.deserialize(value,
-                      specifiedType: const FullType(BuiltList, [
-                        FullType(TechnicianImageRepair)
-                      ])) as BuiltList<TechnicianImageRepair>);
-            } else if (tryWoStatus(serializers, value)) {
-              result.wostatusList.replace(serializers.deserialize(value,
-                      specifiedType: const FullType(
-                          BuiltList, [FullType(WorkOrderStatus)])) as BuiltList<WorkOrderStatus>);
+            } else {
+              debugPrint('Checking tryTechnicianImage for list with ${value.length} items');
+              final isTechImage = tryTechnicianImage(serializers, value);
+              debugPrint('tryTechnicianImage returned: $isTechImage');
+              if (isTechImage) {
+                debugPrint('Deserializing technician images - found ${value.length} images');
+                final sanitized = _sanitizeTechnicianImageList(value);
+                result.technicianImages.replace(serializers.deserialize(sanitized,
+                        specifiedType: const FullType(BuiltList, [
+                          FullType(TechnicianImageRepair)
+                        ])) as BuiltList<TechnicianImageRepair>);
+                debugPrint('Deserialization complete - technicianImages has ${result.technicianImages.build().length} items');
+              } else if (tryWoStatus(serializers, value)) {
+                result.wostatusList.replace(serializers.deserialize(value,
+                        specifiedType: const FullType(
+                            BuiltList, [FullType(WorkOrderStatus)])) as BuiltList<WorkOrderStatus>);
+              }
             }
           } else {
             result.result = serializers.deserialize(value.toString(),
@@ -219,6 +227,13 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
       return true;
     }
     final first = value.first;
+    
+    // Check if it's a TechnicianImageRepair instead (has woTaskUploadId)
+    if (first is Map && first.containsKey('woTaskUploadId')) {
+      debugPrint('tryWorkOrderTask: Rejected - has woTaskUploadId (is TechnicianImageRepair)');
+      return false;
+    }
+    
     final hasWorkOrderKeys = first is Map &&
         (first.containsKey('woTaskId') || first.containsKey('woTaskNo'));
     if (!hasWorkOrderKeys) {
@@ -460,12 +475,117 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
 
   bool tryTechnicianImage(Serializers serializers, List<dynamic> value) {
     try {
-      var singleMap = value[0];
+      if (value.isEmpty) {
+        debugPrint('tryTechnicianImage: Empty list');
+        return false;
+      }
+      
+      // Check if first entry has TechnicianImageRepair-specific fields
+      final first = value[0];
+      debugPrint('tryTechnicianImage: First entry type: ${first.runtimeType}');
+      
+      if (first is! Map) {
+        debugPrint('tryTechnicianImage: First entry is not a Map');
+        return false;
+      }
+      
+      // Convert to Map<String, dynamic> for consistent key access
+      Map<String, dynamic> firstMap;
+      if (first is Map<String, dynamic>) {
+        firstMap = first;
+      } else {
+        firstMap = Map<String, dynamic>.from(first);
+      }
+      
+      debugPrint('tryTechnicianImage: First entry keys: ${firstMap.keys.toList()}');
+      
+      // TechnicianImageRepair has unique fields like woTaskUploadId, documentSrc
+      // If it has sectionName, it's a Section, not an image
+      if (firstMap.containsKey('sectionName') || firstMap.containsKey('sectionDesc')) {
+        debugPrint('tryTechnicianImage: Detected section fields, not an image');
+        return false;
+      }
+      
+      // Must have image-specific fields
+      if (!firstMap.containsKey('woTaskUploadId') && !firstMap.containsKey('uploadId')) {
+        debugPrint('tryTechnicianImage: Missing required image fields. Has woTaskUploadId: ${firstMap.containsKey('woTaskUploadId')}, Has uploadId: ${firstMap.containsKey('uploadId')}');
+        return false;
+      }
+      
+      debugPrint('tryTechnicianImage: Field validation passed, normalizing and testing deserialization');
+      var singleMap = _normalizeTechnicianImageEntry(value[0]);  // Normalize before testing
+      debugPrint('tryTechnicianImage: Attempting to deserialize first image after normalization');
       var _ = serializers.deserialize(singleMap,
           specifiedType: const FullType(TechnicianImageRepair)) as TechnicianImageRepair;
+      debugPrint('tryTechnicianImage: SUCCESS');
       return true;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('tryTechnicianImage: FAILED with error: $e');
       return false;
     }
+  }
+
+  List<dynamic> _sanitizeTechnicianImageList(List<dynamic> value) {
+    if (value.isEmpty) {
+      return value;
+    }
+    debugPrint('_sanitizeTechnicianImageList: Sanitizing ${value.length} images');
+    return value
+        .map((entry) => _normalizeTechnicianImageEntry(entry))
+        .toList(growable: false);
+  }
+
+  Map<String, dynamic> _normalizeTechnicianImageEntry(dynamic raw) {
+    Map<String, dynamic> map;
+    if (raw is Map<String, dynamic>) {
+      map = Map<String, dynamic>.from(raw);
+    } else if (raw is Map) {
+      map = raw.map((key, value) => MapEntry(key.toString(), value));
+    } else {
+      debugPrint('_normalizeTechnicianImageEntry: Invalid entry type: ${raw.runtimeType}');
+      return {
+        'woTaskUploadId': '',
+        'woTaskUploadType': '',
+        'woTaskId': '',
+        'woTaskUploadLongitude': '',
+        'woTaskUploadLatitude': '',
+        'woTaskUploadTimestamp': '',
+        'woTaskUploadDesc': '',
+        'uploadId': '',
+        'uploadName': '',
+        'documentDesc': '',
+        'documentFilename': '',
+        'documentSrc': '',
+      };
+    }
+
+    String stringValue(String key) {
+      final value = map[key];
+      if (value == null) return '';
+      if (value is String) return value;
+      return value.toString();
+    }
+
+    const keys = [
+      'woTaskUploadId',
+      'woTaskUploadType',
+      'woTaskId',
+      'woTaskUploadLongitude',
+      'woTaskUploadLatitude',
+      'woTaskUploadTimestamp',
+      'woTaskUploadDesc',
+      'uploadId',
+      'uploadName',
+      'documentDesc',
+      'documentFilename',
+      'documentSrc',
+    ];
+
+    for (final key in keys) {
+      map[key] = stringValue(key);
+    }
+
+    debugPrint('_normalizeTechnicianImageEntry: Normalized entry for uploadId=${map['uploadId']}');
+    return map;
   }
 }

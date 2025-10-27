@@ -40,18 +40,19 @@ class MainBloc {
 
   // -- STATE SUBJECTS
   final BehaviorSubject<List<WorkOrderStatus>> _sections =
-    BehaviorSubject<List<WorkOrderStatus>>.seeded(const []);
+      BehaviorSubject<List<WorkOrderStatus>>.seeded(const []);
   final BehaviorSubject<bool> _enableSubmit =
       BehaviorSubject<bool>.seeded(false);
   final BehaviorSubject<bool> _loading = BehaviorSubject<bool>.seeded(false);
   final BehaviorSubject<ExecutionModel> _execution =
       BehaviorSubject<ExecutionModel>();
-  final BehaviorSubject<int> _pendingActions =
-    BehaviorSubject<int>.seeded(0);
+  final BehaviorSubject<int> _pendingActions = BehaviorSubject<int>.seeded(0);
   final BehaviorSubject<bool> _offlineMode =
-    BehaviorSubject<bool>.seeded(false);
+      BehaviorSubject<bool>.seeded(false);
+  final BehaviorSubject<WorkOrderSnapshotData?> _snapshot =
+    BehaviorSubject<WorkOrderSnapshotData?>.seeded(null);
   final PublishSubject<MutationFeedback> _feedback =
-    PublishSubject<MutationFeedback>();
+      PublishSubject<MutationFeedback>();
 
   // -- INITIALIZER
   MainBloc(
@@ -59,12 +60,13 @@ class MainBloc {
       String status = '',
       required String taskNo,
       required BuildContext context,
-      required String woTaskCategory})
+      required String woTaskCategory,
+      WorkOrderDetailRepository? repository})
       : _id = id,
         _status = status,
         _taskNo = taskNo,
         _taskCategory = woTaskCategory,
-        _repository = WorkOrderDetailRepository() {
+        _repository = repository ?? WorkOrderDetailRepository() {
     setCheckpoint(_status);
     _initialize();
   }
@@ -77,6 +79,7 @@ class MainBloc {
     _execution.close();
     _pendingActions.close();
     _offlineMode.close();
+    _snapshot.close();
     _feedback.close();
   }
 
@@ -88,6 +91,8 @@ class MainBloc {
   Stream<int> get pendingActions$ => _pendingActions.stream;
   Stream<bool> get offlineMode$ => _offlineMode.stream;
   Stream<MutationFeedback> get feedback$ => _feedback.stream;
+  Stream<WorkOrderSnapshotData?> get snapshot$ => _snapshot.stream;
+  WorkOrderSnapshotData? get snapshotValue => _snapshot.valueOrNull;
   String get id => _id;
 
   // -- SETTERS
@@ -110,12 +115,29 @@ class MainBloc {
   }
 
   Future<void> _load({required bool forceRefresh}) async {
+    debugPrint('MainBloc._load: workOrderId=$_id, forceRefresh=$forceRefresh');
     await _refreshOfflineState();
     final forcedOffline = _offlineMode.value;
+    debugPrint('MainBloc._load: forcedOffline=$forcedOffline');
     if (!forcedOffline) {
       await _repository.syncPendingActions();
     }
     await _refreshPendingCount();
+
+    try {
+      final cachedSnapshot = await _repository.loadSnapshot(_id);
+      _snapshot.add(cachedSnapshot);
+      if (forcedOffline && cachedSnapshot != null) {
+        if (cachedSnapshot.sections.isNotEmpty) {
+          _updateSections(cachedSnapshot.sections);
+        }
+        if (cachedSnapshot.execution != null) {
+          _execution.sink.add(cachedSnapshot.execution!);
+        }
+      }
+    } catch (err, st) {
+      debugPrint('MainBloc._load: failed to load snapshot: $err\n$st');
+    }
 
     try {
       final data = await _repository.getSections(
@@ -123,13 +145,27 @@ class MainBloc {
         currentStatus: _status,
         forceRefresh: forceRefresh && !forcedOffline,
         onRemoteUpdate: (updated) {
+          debugPrint(
+              'MainBloc._load: Remote update with ${updated.length} sections');
           _updateSections(updated);
         },
       );
+      debugPrint('MainBloc._load: Successfully loaded ${data.length} sections');
       _updateSections(data);
-    } catch (err) {
-      debugPrint('Failed to load sections: $err');
+    } catch (err, st) {
+      debugPrint('Failed to load sections: $err\n$st');
+      if (err is OfflinePreparationException) {
+        _feedback.add(
+          MutationFeedback(
+            message: err.message,
+            type: MutationFeedbackType.error,
+          ),
+        );
+        await _refreshOfflineState();
+      }
       if (_sections.valueOrNull == null) {
+        debugPrint(
+            'MainBloc._load: Sections stream has no value, seeding empty list');
         _sections.add(const []);
       }
     }
@@ -221,6 +257,30 @@ class MainBloc {
     }
   }
 
+  Future<void> refreshSnapshot() async {
+    try {
+      await _repository.downloadSnapshot(
+        workOrderId: _id,
+        currentStatus: _status,
+      );
+      final refreshed = await _repository.loadSnapshot(_id);
+      _snapshot.add(refreshed);
+      if (refreshed != null) {
+        if (refreshed.sections.isNotEmpty) {
+          _updateSections(refreshed.sections);
+        }
+        if (refreshed.execution != null) {
+          _execution.sink.add(refreshed.execution!);
+        }
+      }
+    } on OfflinePreparationException {
+      rethrow;
+    } catch (err, st) {
+      debugPrint('refreshSnapshot error: $err\n$st');
+      rethrow;
+    }
+  }
+
   Future<void> _handleActionResult({
     required WorkOrderActionResult result,
     required String successMessage,
@@ -253,9 +313,12 @@ class MainBloc {
 
   void _handleActionError(String message, Object err) {
     debugPrint(message);
+    final errorMessage = err is OfflinePreparationException
+        ? err.message
+        : 'We could not complete the request. Please try again.';
     _feedback.add(
       MutationFeedback(
-        message: 'We could not complete the request. Please try again.',
+        message: errorMessage,
         type: MutationFeedbackType.error,
       ),
     );
@@ -386,16 +449,20 @@ class MainBloc {
   }
 
   void openScreen(BuildContext context, WorkOrderStatus order,
-    {bool viewOnly = false, PendingSyncController? pendingSync}) {
+      {bool viewOnly = false, PendingSyncController? pendingSync}) {
     String named = order.sectionName ?? '';
     String desc = order.sectionDesc ?? '';
     Object? object;
+  final snapshotStream = snapshot$;
+    final initialSnapshot = snapshotValue;
 
     if (named == "A") {
       object = ComplaintSectionA(
         id: _id,
         viewer: viewOnly,
         pendingSync: pendingSync,
+        snapshotStream: snapshotStream,
+        initialSnapshot: initialSnapshot,
       );
     } else if (named == "B") {
       if (_status == "Assign" ||
@@ -404,20 +471,28 @@ class MainBloc {
         object = ComplaintAssign(
           id: _id,
           viewer: viewOnly ? true : (checkpoint == 1),
+          snapshotStream: snapshotStream,
+          initialSnapshot: initialSnapshot,
           pendingSync: pendingSync,
         );
       } else if (_status == "WR Check" ||
           _status == "Rejected" ||
           _status == "WR Verified" ||
           _status == "WR Re-Open") {
-        object =
-            ComplaintSectionResponseImage(
-              woTaskId: _id,
-              disable: viewOnly,
-              pendingSync: pendingSync,
-            );
+        object = ComplaintSectionResponseImage(
+          woTaskId: _id,
+          disable: viewOnly,
+          pendingSync: pendingSync,
+          snapshotStream: snapshotStream,
+          initialSnapshot: initialSnapshot,
+        );
       } else {
-        object = ComplaintAssign(id: _id, viewer: true);
+        object = ComplaintAssign(
+          id: _id,
+          viewer: true,
+          snapshotStream: snapshotStream,
+          initialSnapshot: initialSnapshot,
+        );
       }
     } else if (named == "C") {
       if (_status == "Rejected" ||
@@ -430,6 +505,8 @@ class MainBloc {
           viewer: viewOnly ? true : (checkpoint == 1),
           name: named,
           pendingSync: pendingSync,
+          snapshotStream: snapshotStream,
+          initialSnapshot: initialSnapshot,
         );
       }
     } else if (named == "D") {
@@ -441,6 +518,8 @@ class MainBloc {
         _id,
         viewOnly ? true : (checkpoint == 1),
         pendingSync: pendingSync,
+        snapshotStream: snapshotStream,
+        initialSnapshot: initialSnapshot,
       );
     } else if (named == "E" && desc == "Asset No") {
       object = ComplaintSectionD(
@@ -448,6 +527,8 @@ class MainBloc {
         viewer: viewOnly ? true : (checkpoint == 1),
         name: named,
         pendingSync: pendingSync,
+        snapshotStream: snapshotStream,
+        initialSnapshot: initialSnapshot,
       );
     } else if (named == "F" && desc == "Assistants") {
       object = AddTechnicianCheckList(
@@ -466,6 +547,8 @@ class MainBloc {
         viewer: viewOnly ? true : (checkpoint == 1),
         comment: order.comment ?? '',
         pendingSync: pendingSync,
+        snapshotStream: snapshotStream,
+        initialSnapshot: initialSnapshot,
       );
     }
     // Fallback if object is still null or when section is "Comment"

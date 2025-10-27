@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,6 +17,8 @@ class ComplaintSectionD extends StatefulWidget {
   final bool viewer;
   final String name;
   final PendingSyncController? pendingSync;
+  final Stream<WorkOrderSnapshotData?>? snapshotStream;
+  final WorkOrderSnapshotData? initialSnapshot;
 
   const ComplaintSectionD({
     super.key,
@@ -22,6 +26,8 @@ class ComplaintSectionD extends StatefulWidget {
     required this.id,
     required this.viewer,
     this.pendingSync,
+    this.snapshotStream,
+    this.initialSnapshot,
   });
 
   @override
@@ -35,6 +41,7 @@ class _ComplaintSectionDState extends State<ComplaintSectionD> {
   late final WorkOrderDetailRepository _repository;
   final TextEditingController _controller = TextEditingController();
   String _scanError = "";
+  StreamSubscription<WorkOrderSnapshotData?>? _snapshotSub;
 
   @override
   void initState() {
@@ -44,7 +51,31 @@ class _ComplaintSectionDState extends State<ComplaintSectionD> {
       taskID: widget.id,
     );
     _repository = WorkOrderDetailRepository();
+    _applySnapshot(widget.initialSnapshot);
     _loadExisting();
+    _listenToSnapshots();
+  }
+
+  void _listenToSnapshots() {
+    final stream = widget.snapshotStream;
+    if (stream == null) return;
+    _snapshotSub = stream.listen((snapshot) {
+      if (!mounted) return;
+      _applySnapshot(snapshot);
+    });
+  }
+
+  void _applySnapshot(WorkOrderSnapshotData? snapshot) {
+    final detail = snapshot?.complaintDetail;
+    if (detail == null) return;
+    final asset = detail.assetNo ?? '';
+    if (asset.isEmpty) return;
+    if (!mounted) return;
+    if (_assetNo == asset) return;
+    setState(() {
+      _assetNo = asset;
+      _controller.text = asset;
+    });
   }
 
   Future<void> _loadExisting() async {
@@ -65,6 +96,13 @@ class _ComplaintSectionDState extends State<ComplaintSectionD> {
       if (!mounted) return;
       setState(() => _loading = false);
     }
+  }
+
+  @override
+  void dispose() {
+    _snapshotSub?.cancel();
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -249,12 +287,6 @@ class _ComplaintSectionDState extends State<ComplaintSectionD> {
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 }
 

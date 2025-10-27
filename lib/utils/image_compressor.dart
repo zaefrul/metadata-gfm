@@ -2,12 +2,13 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:GEMS/utils/biometric_lock_manager.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 Future<File?> getCompressedImage(ImageSource source) async {
-  // Pick the image from the specified source
-  final picked = await ImagePicker().pickImage(
+  // Pick the image from the specified source (with biometric suppression)
+  final picked = await BiometricLockManager.pickImage(
     source: source,
     maxWidth: 480,
     maxHeight: 640,

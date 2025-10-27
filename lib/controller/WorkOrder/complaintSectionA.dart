@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:GEMS/controller/PPM/Form/openImage.dart';
 import 'package:GEMS/controller/WorkOrder/pending_sync.dart';
@@ -14,12 +16,16 @@ class ComplaintSectionA extends StatefulWidget {
   final bool viewer;
   final String id;
   final PendingSyncController? pendingSync;
+  final Stream<WorkOrderSnapshotData?>? snapshotStream;
+  final WorkOrderSnapshotData? initialSnapshot;
 
   const ComplaintSectionA({
     super.key,
     required this.id,
     this.viewer = false,
     this.pendingSync,
+  this.snapshotStream,
+    this.initialSnapshot,
   });
 
   @override
@@ -29,6 +35,8 @@ class ComplaintSectionA extends StatefulWidget {
 class _ComplaintSectionAState extends State<ComplaintSectionA> {
   late final WorkOrderDetailRepository _repository;
   late Future<WorkOrderDetail?> _detailFuture;
+  WorkOrderDetail? _snapshotDetail;
+  StreamSubscription<WorkOrderSnapshotData?>? _snapshotSub;
 
   _ComplaintSectionAState(String id);
 
@@ -36,7 +44,16 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
   void initState() {
     super.initState();
     _repository = WorkOrderDetailRepository();
+    _snapshotDetail = widget.initialSnapshot?.complaintDetail;
     _detailFuture = _loadDetail();
+  _snapshotSub = widget.snapshotStream?.listen((snapshot) {
+      if (!mounted || snapshot == null || snapshot.complaintDetail == null) {
+        return;
+      }
+      setState(() {
+        _snapshotDetail = snapshot.complaintDetail;
+      });
+    });
   }
 
   Future<WorkOrderDetail?> _loadDetail({bool forceRefresh = false}) async {
@@ -55,6 +72,12 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
       _detailFuture = _loadDetail(forceRefresh: true);
     });
     await _detailFuture;
+  }
+
+  @override
+  void dispose() {
+    _snapshotSub?.cancel();
+    super.dispose();
   }
 
   @override
@@ -82,13 +105,14 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
             child: FutureBuilder<WorkOrderDetail?>(
               future: _detailFuture,
               builder: (ctx, snap) {
-                if (snap.connectionState == ConnectionState.waiting) {
+                if (snap.connectionState == ConnectionState.waiting &&
+                    _snapshotDetail == null) {
                   return _buildLoadingPlaceholder(isWide);
                 }
-                if (snap.hasError) {
+                final detail = snap.data ?? _snapshotDetail;
+                if (snap.hasError && detail == null) {
                   return _buildErrorState(snap.error.toString());
                 }
-                final detail = snap.data;
                 if (detail == null) {
                   return _buildErrorState(
                     'Complaint details are not cached yet for offline use. Please reconnect and refresh.',

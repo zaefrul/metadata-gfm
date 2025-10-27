@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:toast/toast.dart';
 import 'package:GEMS/model/workorder.dart';
@@ -7,17 +9,22 @@ import 'package:GEMS/utils/reference.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:GEMS/controller/WorkOrder/pending_sync.dart';
 import 'package:GEMS/controller/WorkOrder/widgets/pending_sync_banner.dart';
+import 'package:GEMS/data/repository/work_order_detail_repository.dart';
 
 class ComplaintAssign extends StatefulWidget {
   final String id;
   final bool viewer;
   final PendingSyncController? pendingSync;
+  final Stream<WorkOrderSnapshotData?>? snapshotStream;
+  final WorkOrderSnapshotData? initialSnapshot;
 
   const ComplaintAssign({
     super.key,
     required this.id,
     required this.viewer,
     this.pendingSync,
+    this.snapshotStream,
+    this.initialSnapshot,
   });
 
   @override
@@ -41,12 +48,16 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
 
   TechnicianDetails? technicianDetails;
   final TextEditingController _controller = TextEditingController();
+  StreamSubscription<WorkOrderSnapshotData?>? _snapshotSub;
+  bool _hasUserEdited = false;
 
   @override
   void initState() {
     super.initState();
     ToastContext().init(context);
     _prepareCategories();
+    _applySnapshot(widget.initialSnapshot);
+    _listenToSnapshots();
     _loadInitial();
   }
 
@@ -90,6 +101,107 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
       return _internalCategory;
     } else {
       return _publicCategory;
+    }
+  }
+
+  void _listenToSnapshots() {
+    final stream = widget.snapshotStream;
+    if (stream == null) return;
+    _snapshotSub = stream.listen((snapshot) {
+      if (!mounted) return;
+      _applySnapshot(snapshot);
+    });
+  }
+
+  void _applySnapshot(WorkOrderSnapshotData? snapshot) {
+    if (snapshot == null) return;
+
+    final assignment = snapshot.assignment;
+    final hasGroups = snapshot.groupOptions.isNotEmpty;
+    final hasSeverity = snapshot.severityOptions.isNotEmpty;
+    final hasExecutors = snapshot.executorOptions.isNotEmpty;
+    final hasDetails = snapshot.technicianDetails != null;
+    final shouldHydrateAssignment = assignment != null && !_hasUserEdited;
+
+    if (!hasGroups &&
+        !hasSeverity &&
+        !hasExecutors &&
+        !hasDetails &&
+        !shouldHydrateAssignment) {
+      return;
+    }
+
+    setState(() {
+      if (hasGroups) {
+        groupList = snapshot.groupOptions;
+      }
+      if (hasSeverity) {
+        severityList = snapshot.severityOptions;
+      }
+      if (hasExecutors) {
+        executorList = snapshot.executorOptions;
+      }
+      if (hasDetails) {
+        technicianDetails = snapshot.technicianDetails;
+      }
+      if (shouldHydrateAssignment) {
+        _hydrateFromAssignmentInternal(assignment);
+      }
+      loading = false;
+    });
+  }
+
+  void _hydrateFromAssignmentInternal(TechnicianAssign assignment) {
+    typeCategory = assignment.userCategory;
+    assistUserId = assignment.assistUserId.toList(growable: false);
+    dropdownAssist = assignment.woTaskMaxAssistant;
+
+    dropdownId1 = assignment.groupId;
+    dropdownValue1 = _safeFetchStatus(groupList, dropdownId1 ?? '')?.groupName;
+
+    dropdownId2 = assignment.userId;
+    String? executorName =
+        _safeFetchStatus(executorList, dropdownId2 ?? '')?.userName;
+    if ((dropdownId2 ?? '').isNotEmpty && executorName == null) {
+      executorName = assignment.userId;
+      executorList = List<WorkOrderStatus>.from(executorList)
+        ..add(
+          WorkOrderStatus((b) => b
+            ..userId = dropdownId2
+            ..userName = executorName),
+        );
+    }
+    dropdownValue2 = executorName;
+
+    dropdownId3 = assignment.severity;
+    dropdownValue3 =
+        _safeFetchSeverity(severityList, dropdownId3 ?? '')?.severityName;
+
+    dropdownId4 = assignment.woTaskCategory;
+    dropdownValue4 = _findCategoryName(dropdownId4, typeCategory);
+
+    _controller.text = dropdownValue2 ?? assignment.userId;
+  }
+
+  String? _findCategoryName(String? categoryId, String categoryType) {
+    if (categoryId == null || categoryId.isEmpty) {
+      return null;
+    }
+    final source = categoryType == 'Internal'
+        ? _internalCategory
+        : categoryType == 'External'
+            ? _externalCategory
+            : _publicCategory;
+    try {
+      return source.firstWhere((item) => item.groupId == categoryId).groupName;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void _markUserEdited() {
+    if (!_hasUserEdited) {
+      _hasUserEdited = true;
     }
   }
 
@@ -293,6 +405,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
                           items: groupList.map((g) => g.groupName ?? '').whereType<String>().toList(),
                           onChanged: widget.viewer ? null : (v) async {
                             if (v == null) return;
+                            _markUserEdited();
                             setState(() {
                               dropdownValue1 = v;
                               dropdownId1 = groupList.firstWhere((g) => g.groupName == v).groupId;
@@ -315,6 +428,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
                           items: severityList.map((s) => s.severityName ?? '').whereType<String>().toList(),
                           onChanged: widget.viewer ? null : (v) {
                             if (v == null) return;
+                            _markUserEdited();
                             setState(() {
                               dropdownValue3 = v;
                               dropdownId3 = severityList.firstWhere((s) => s.severityName == v).severityId;
@@ -332,6 +446,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
                               .toList(),
                           onChanged: widget.viewer ? null : (v) {
                             if (v == null) return;
+                            _markUserEdited();
                             setState(() {
                               dropdownValue4 = v;
                               dropdownId4 = getDropdown4()
@@ -348,6 +463,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
                           items: ["0","1","2","3","4","5"],
                           onChanged: widget.viewer ? null : (v) {
                             if (v == null) return;
+                            _markUserEdited();
                             setState(() => dropdownAssist = v);
                           },
                         ),
@@ -529,11 +645,21 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
                     );
                   }).toList(),
                   onChanged: (String? newValue) async {
+                    if (newValue == null) return;
+                    _markUserEdited();
+                    final selected = _safeFetchStatus(executorList, newValue);
+                    final resolvedUserId = selected?.userId;
+                    if (resolvedUserId == null || resolvedUserId.isEmpty) {
+                      setState(() => dropdownValue2 = newValue);
+                      _controller.text = newValue;
+                      return;
+                    }
                     setState(() {
                       dropdownValue2 = newValue;
-                      dropdownId2 = executorList.firstWhere((s) => s.userName == newValue).userId;
+                      dropdownId2 = resolvedUserId;
                       loading = true;
                       technicianDetails = null;
+                      _controller.text = newValue;
                     });
                     final resp = await _fetchTechnician;
                     setState(() {
@@ -664,6 +790,13 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _snapshotSub?.cancel();
+    _controller.dispose();
+    super.dispose();
   }
 
   Widget _buildSaveButton() {

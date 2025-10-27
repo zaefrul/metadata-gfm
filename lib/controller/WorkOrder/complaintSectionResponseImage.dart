@@ -11,10 +11,11 @@ import 'package:GEMS/data/repository/work_order_detail_repository.dart';
 import 'package:GEMS/model/response_image.dart';
 import 'package:GEMS/utils/image_compressor.dart';
 import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/utils/location_helper.dart';
+import 'package:GEMS/utils/biometric_lock_manager.dart';
 import 'package:GEMS/view/dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' show basename;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:GEMS/controller/WorkOrder/pending_sync.dart';
@@ -24,12 +25,16 @@ class ComplaintSectionResponseImage extends StatefulWidget {
   final String woTaskId;
   final bool disable;
   final PendingSyncController? pendingSync;
+  final Stream<WorkOrderSnapshotData?>? snapshotStream;
+  final WorkOrderSnapshotData? initialSnapshot;
 
   const ComplaintSectionResponseImage({
     super.key,
     required this.woTaskId,
     this.disable = false,
     this.pendingSync,
+    this.snapshotStream,
+    this.initialSnapshot,
   });
 
   @override
@@ -52,20 +57,24 @@ class _ComplaintSectionResponseImageState
   late final WorkOrderDetailRepository _repository;
   StreamSubscription<int>? _pendingSyncSub;
   int? _lastPendingCount;
+  StreamSubscription<WorkOrderSnapshotData?>? _snapshotSub;
 
   @override
   void initState() {
     super.initState();
     ToastContext().init(context);
     _repository = WorkOrderDetailRepository();
+    _applySnapshot(widget.initialSnapshot);
     _loadExisting();
     _loadPending();
     _watchPendingSync();
+    _listenToSnapshots();
   }
 
   Future<void> _loadPending() async {
     try {
-      final pending = await _repository.getPendingResponseImages(widget.woTaskId);
+      final pending =
+          await _repository.getPendingResponseImages(widget.woTaskId);
       if (!mounted) return;
       setState(() {
         _pending = pending;
@@ -137,7 +146,25 @@ class _ComplaintSectionResponseImageState
   @override
   void dispose() {
     _pendingSyncSub?.cancel();
+    _snapshotSub?.cancel();
     super.dispose();
+  }
+
+  void _listenToSnapshots() {
+  final stream = widget.snapshotStream;
+    if (stream == null) return;
+    _snapshotSub = stream.listen((snapshot) {
+      if (!mounted) return;
+      _applySnapshot(snapshot);
+    });
+  }
+
+  void _applySnapshot(WorkOrderSnapshotData? snapshot) {
+    if (snapshot == null) return;
+    setState(() {
+      _existing = snapshot.responseImages;
+      _loading = false;
+    });
   }
 
   @override
@@ -192,9 +219,8 @@ class _ComplaintSectionResponseImageState
         width: double.infinity,
         child: FloatingActionButton.extended(
           onPressed: _toUpload.isEmpty || _loading ? null : _confirmAndSubmit,
-          backgroundColor: _toUpload.isEmpty 
-              ? AppColors.secondary
-              : AppColors.primary,
+          backgroundColor:
+              _toUpload.isEmpty ? AppColors.secondary : AppColors.primary,
           elevation: 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
@@ -220,77 +246,79 @@ class _ComplaintSectionResponseImageState
     final canAddMore = totalImages < 3;
 
     return SingleChildScrollView(
-      physics: BouncingScrollPhysics(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Upload Response Evidence',
-            style: GoogleFonts.poppins(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              color: Colors.black87,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Document your work with photos (max 3)',
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
-          ),
-          SizedBox(height: 24),
-
-          if (_pending.isNotEmpty) ...[
-            _buildSectionCard(
-              title: 'Waiting to Sync',
-              child: Column(
-                children: [
-                  ..._pending.map(_buildPendingCard),
-                ],
+        physics: BouncingScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Upload Response Evidence',
+              style: GoogleFonts.poppins(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
               ),
             ),
-            SizedBox(height: 16),
-          ],
+            SizedBox(height: 8),
+            Text(
+              'Document your work with photos (max 3)',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
+            SizedBox(height: 24),
 
-          // Existing Images
-          if (_existing.isNotEmpty) ...[
-            _buildSectionCard(
-              title: 'Uploaded Images',
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 0.8,
+            if (_pending.isNotEmpty) ...[
+              _buildSectionCard(
+                title: 'Waiting to Sync',
+                child: Column(
+                  children: [
+                    ..._pending.map(_buildPendingCard),
+                  ],
                 ),
-                itemCount: _existing.length,
-                itemBuilder: (_, i) => _buildExistingCard(_existing[i]),
               ),
-            ),
-            SizedBox(height: 16),
-          ],
+              SizedBox(height: 16),
+            ],
 
-          // Add New Photos
-          if (canAddMore) ...[
-            _buildSectionCard(
-              title: 'Add Photos (${3 - totalImages} remaining)',
-              child: Column(
-                children: [
-                  if (_toUpload.isEmpty)
-                    Container(
+            // Existing Images
+            if (_existing.isNotEmpty) ...[
+              _buildSectionCard(
+                title: 'Uploaded Images',
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 0.8,
+                  ),
+                  itemCount: _existing.length,
+                  itemBuilder: (_, i) => _buildExistingCard(_existing[i]),
+                ),
+              ),
+              SizedBox(height: 16),
+            ],
+
+            // Add New Photos
+            if (canAddMore) ...[
+              _buildSectionCard(
+                title: 'Add Photos (${3 - totalImages} remaining)',
+                child: Column(
+                  children: [
+                    if (_toUpload.isEmpty)
+                      Container(
                         padding: EdgeInsets.all(24),
                         decoration: BoxDecoration(
                           color: Colors.grey[50],
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey[200]!, width: 1.5),
+                          border:
+                              Border.all(color: Colors.grey[200]!, width: 1.5),
                         ),
                         child: Column(
                           children: [
-                            Icon(Icons.photo_library_outlined, size: 40, color: Colors.grey[400]),
+                            Icon(Icons.photo_library_outlined,
+                                size: 40, color: Colors.grey[400]),
                             SizedBox(height: 8),
                             Text(
                               'No photos added yet',
@@ -310,9 +338,7 @@ class _ComplaintSectionResponseImageState
                           ],
                         ),
                       ),
-                    
                     SizedBox(height: 12),
-                    
                     InkWell(
                       onTap: widget.disable ? null : _pickLocalImage,
                       borderRadius: BorderRadius.circular(12),
@@ -338,31 +364,29 @@ class _ComplaintSectionResponseImageState
                         ),
                       ),
                     ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: 16),
-          ],
+              SizedBox(height: 16),
+            ],
 
-          // New Photos to Upload
-          if (_toUpload.isNotEmpty) ...[
-            _buildSectionCard(
-              title: 'Photos to Upload',
-              child: Column(
-                children: [
-                  ..._toUpload.asMap().entries.map(
-                    (e) => _buildLocalCard(e.value, e.key),
-                  ),
-                ],
+            // New Photos to Upload
+            if (_toUpload.isNotEmpty) ...[
+              _buildSectionCard(
+                title: 'Photos to Upload',
+                child: Column(
+                  children: [
+                    ..._toUpload.asMap().entries.map(
+                          (e) => _buildLocalCard(e.value, e.key),
+                        ),
+                  ],
+                ),
               ),
-            ),
+            ],
+            SizedBox(height: 80), // Space for FAB
+            if (!widget.disable && _toUpload.isNotEmpty) _buildSubmitButton(),
           ],
-          SizedBox(height: 80), // Space for FAB
-          if (!widget.disable && _toUpload.isNotEmpty )
-              _buildSubmitButton(),
-        ],
-      )
-    );
+        ));
   }
 
   Widget _buildPendingCard(PendingResponseImage item) {
@@ -444,9 +468,7 @@ class _ComplaintSectionResponseImageState
             Text(
               title,
               style: GoogleFonts.poppins(
-                fontSize: 16, 
-                fontWeight: FontWeight.w600
-              ),
+                  fontSize: 16, fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 12),
             child,
@@ -478,7 +500,8 @@ class _ComplaintSectionResponseImageState
               children: [
                 Expanded(
                   child: ClipRRect(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(8)),
                     child: Image.network(
                       src,
                       fit: BoxFit.cover,
@@ -486,7 +509,8 @@ class _ComplaintSectionResponseImageState
                         if (progress == null) return child;
                         return Center(
                           child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation(AppColors.primary),
+                            valueColor:
+                                AlwaysStoppedAnimation(AppColors.primary),
                           ),
                         );
                       },
@@ -503,8 +527,9 @@ class _ComplaintSectionResponseImageState
                         Text(
                           img.documentDesc,
                           style: GoogleFonts.poppins(
-                            fontSize: 12, color: Colors.grey[600]),
-                          maxLines: 2, overflow: TextOverflow.ellipsis,
+                              fontSize: 12, color: Colors.grey[600]),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ],
@@ -518,7 +543,8 @@ class _ComplaintSectionResponseImageState
         // delete button in the corner:
         if (!widget.disable)
           Positioned(
-            top: 4, right: 4,
+            top: 4,
+            right: 4,
             child: Material(
               color: Colors.white.withOpacity(0.8),
               shape: CircleBorder(),
@@ -579,8 +605,10 @@ class _ComplaintSectionResponseImageState
   }
 
   Future<void> _pickLocalImage() async {
-    final picked =
-        await ImagePicker().pickImage(source: ImageSource.camera);
+    // Suppress biometric lock when opening camera - user never "left" the app
+    BiometricLockManager.suppressNextLock();
+    
+    final picked = await ImagePicker().pickImage(source: ImageSource.camera);
     if (picked == null) return;
 
     setState(() => _loading = true);
@@ -647,9 +675,8 @@ class _ComplaintSectionResponseImageState
     final previous = List<ResponseImage>.from(_existing);
     setState(() {
       _loading = true;
-      _existing = _existing
-          .where((item) => item.woTaskUploadId != uploadId)
-          .toList();
+      _existing =
+          _existing.where((item) => item.woTaskUploadId != uploadId).toList();
     });
 
     try {
@@ -666,7 +693,8 @@ class _ComplaintSectionResponseImageState
           try {
             await widget.pendingSync!.retry();
           } catch (err, st) {
-            debugPrint('Pending sync retry failed after delete queue: $err\n$st');
+            debugPrint(
+                'Pending sync retry failed after delete queue: $err\n$st');
           }
         }
       }
@@ -689,11 +717,14 @@ class _ComplaintSectionResponseImageState
   Future<void> _submitAll() async {
     setState(() => _loading = true);
 
-    final prefs = await SharedPreferences.getInstance();
-    final lat = prefs.getString(prefsLATITUDE) ?? "0.0";
-    final lng = prefs.getString(prefsLONGITUDE) ?? "0.0";
-    if (lat == "0.0" && lng == "0.0") {
-      Toast.show("Please relogin to get location");
+    final location = await resolveDeviceLocation();
+    final lat = location.latitude;
+    final lng = location.longitude;
+    if (!location.hasValidCoordinates) {
+      final message = describeLocationFailure(location.status);
+      if (message.isNotEmpty) {
+        Toast.show(message);
+      }
       if (mounted) {
         setState(() => _loading = false);
       }
@@ -735,11 +766,13 @@ class _ComplaintSectionResponseImageState
 
     String? message;
     if (anySuccess && anyQueued) {
-      message = "Some photos uploaded. Others will sync once you're back online.";
+      message =
+          "Some photos uploaded. Others will sync once you're back online.";
     } else if (anySuccess) {
       message = "Images uploaded";
     } else if (anyQueued) {
-      message = "You're offline right now. We'll sync these photos once you're back online.";
+      message =
+          "You're offline right now. We'll sync these photos once you're back online.";
     } else if (hadError) {
       message = "Failed to upload images";
     }

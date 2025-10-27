@@ -6,7 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 const _dbName = 'gems_offline.db';
-const _dbVersion = 8;
+const _dbVersion = 10;
 
 class OfflineDatabase {
   OfflineDatabase._();
@@ -42,13 +42,18 @@ class OfflineDatabase {
     await db.execute(_WorkOrderChecklistTable.createSql);
     await db.execute(_WorkOrderAttachmentsTable.createSql);
     await db.execute(_ReferenceDataTable.createSql);
+    await db.execute(_ReferenceDataTable.categoryCodeIndexSql);
+    await db.execute(_WorkOrderMaterialsTable.createSql);
     await db.execute(_WorkOrderListTable.createSql);
     await db.execute(_WorkOrderSectionsTable.createSql);
     await db.execute(_WorkOrderExecutionTable.createSql);
     await db.execute(_WorkOrderPendingActionsTable.createSql);
     await db.execute(_WorkOrderComplaintDetailTable.createSql);
     await db.execute(_WorkOrderRepairImagesTable.createSql);
-  await db.execute(_WorkOrderResponseImagesTable.createSql);
+    await db.execute(_WorkOrderResponseImagesTable.createSql);
+    await db.execute(_WorkOrderSnapshotsTable.createSql);
+    await db.execute(_WorkOrderSnapshotSectionsTable.createSql);
+    await db.execute(_WorkOrderSnapshotSectionsTable.snapshotIndexSql);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -84,6 +89,15 @@ class OfflineDatabase {
     if (oldVersion < 8) {
       await db.execute(_WorkOrderResponseImagesTable.createSql);
     }
+    if (oldVersion < 9) {
+      await db.execute(_WorkOrderMaterialsTable.createSql);
+      await db.execute(_ReferenceDataTable.categoryCodeIndexSql);
+    }
+    if (oldVersion < 10) {
+      await db.execute(_WorkOrderSnapshotsTable.createSql);
+      await db.execute(_WorkOrderSnapshotSectionsTable.createSql);
+      await db.execute(_WorkOrderSnapshotSectionsTable.snapshotIndexSql);
+    }
   }
 
   Future<void> clearAll() async {
@@ -94,13 +108,16 @@ class OfflineDatabase {
       await txn.delete(_WorkOrderTasksTable.tableName);
       await txn.delete(_WorkOrderHeadersTable.tableName);
       await txn.delete(_ReferenceDataTable.tableName);
+      await txn.delete(_WorkOrderMaterialsTable.tableName);
       await txn.delete(_WorkOrderListTable.tableName);
       await txn.delete(_WorkOrderSectionsTable.tableName);
       await txn.delete(_WorkOrderExecutionTable.tableName);
       await txn.delete(_WorkOrderPendingActionsTable.tableName);
       await txn.delete(_WorkOrderComplaintDetailTable.tableName);
       await txn.delete(_WorkOrderRepairImagesTable.tableName);
-  await txn.delete(_WorkOrderResponseImagesTable.tableName);
+      await txn.delete(_WorkOrderResponseImagesTable.tableName);
+      await txn.delete(_WorkOrderSnapshotSectionsTable.tableName);
+      await txn.delete(_WorkOrderSnapshotsTable.tableName);
     });
   }
 
@@ -117,7 +134,10 @@ class OfflineDatabase {
       await txn.delete(_WorkOrderPendingActionsTable.tableName);
       await txn.delete(_WorkOrderComplaintDetailTable.tableName);
       await txn.delete(_WorkOrderRepairImagesTable.tableName);
-  await txn.delete(_WorkOrderResponseImagesTable.tableName);
+      await txn.delete(_WorkOrderResponseImagesTable.tableName);
+      await txn.delete(_WorkOrderMaterialsTable.tableName);
+      await txn.delete(_WorkOrderSnapshotSectionsTable.tableName);
+      await txn.delete(_WorkOrderSnapshotsTable.tableName);
     });
   }
 
@@ -221,6 +241,90 @@ class OfflineDatabase {
     });
   }
 
+  Future<void> replaceMaterials(
+    String workOrderId,
+    List<WorkOrderMaterialEntity> materials,
+  ) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      await txn.delete(
+        _WorkOrderMaterialsTable.tableName,
+        where: 'work_order_id = ?',
+        whereArgs: [workOrderId],
+      );
+
+      if (materials.isEmpty) {
+        return;
+      }
+
+      final batch = txn.batch();
+      for (final material in materials) {
+        batch.insert(
+          _WorkOrderMaterialsTable.tableName,
+          material.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+      await batch.commit(noResult: true);
+    });
+  }
+
+  Future<List<WorkOrderMaterialEntity>> getMaterials(String workOrderId) async {
+    final db = await database;
+    final rows = await db.query(
+      _WorkOrderMaterialsTable.tableName,
+      where: 'work_order_id = ?',
+      whereArgs: [workOrderId],
+      orderBy: 'item_order ASC, material_id ASC',
+    );
+    return rows.map(WorkOrderMaterialEntity.fromMap).toList();
+  }
+
+  Future<void> replaceReferenceData({
+    required String category,
+    String? code,
+    required List<ReferenceDataEntity> items,
+  }) async {
+    final db = await database;
+    final scope = code ?? '';
+    await db.transaction((txn) async {
+      await txn.delete(
+        _ReferenceDataTable.tableName,
+        where: 'category = ? AND IFNULL(code, "") = ?',
+        whereArgs: [category, scope],
+      );
+
+      if (items.isEmpty) {
+        return;
+      }
+
+      final batch = txn.batch();
+      for (final item in items) {
+        batch.insert(
+          _ReferenceDataTable.tableName,
+          item.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+      await batch.commit(noResult: true);
+    });
+  }
+
+  Future<List<ReferenceDataEntity>> getReferenceData({
+    required String category,
+    String? code,
+  }) async {
+    final db = await database;
+    final scope = code ?? '';
+    final rows = await db.query(
+      _ReferenceDataTable.tableName,
+      where: 'category = ? AND IFNULL(code, "") = ?',
+      whereArgs: [category, scope],
+      orderBy: 'label COLLATE NOCASE ASC, reference_id ASC',
+    );
+    return rows.map(ReferenceDataEntity.fromMap).toList();
+  }
+
   Future<List<WorkOrderHeaderEntity>> getWorkOrdersByList(
     String listType,
   ) async {
@@ -302,6 +406,75 @@ ORDER BY h.scheduled_start DESC, h.work_order_number DESC
     await db.update(
       _WorkOrderHeadersTable.tableName,
       {'offline_mode_enabled': enabled ? 1 : 0},
+      where: 'work_order_id = ?',
+      whereArgs: [workOrderId],
+    );
+  }
+
+  Future<void> replaceSnapshot(
+    WorkOrderSnapshotEntity snapshot,
+    List<WorkOrderSnapshotSectionEntity> sections,
+  ) async {
+    await ensureWorkOrderHeader(snapshot.workOrderId);
+    final db = await database;
+    await db.transaction((txn) async {
+      await txn.delete(
+        _WorkOrderSnapshotsTable.tableName,
+        where: 'work_order_id = ?',
+        whereArgs: [snapshot.workOrderId],
+      );
+
+      await txn.insert(
+        _WorkOrderSnapshotsTable.tableName,
+        snapshot.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+
+      if (sections.isEmpty) {
+        return;
+      }
+
+      final batch = txn.batch();
+      for (final section in sections) {
+        batch.insert(
+          _WorkOrderSnapshotSectionsTable.tableName,
+          section.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+      await batch.commit(noResult: true);
+    });
+  }
+
+  Future<WorkOrderSnapshot?> getLatestSnapshot(String workOrderId) async {
+    final db = await database;
+    final rows = await db.query(
+      _WorkOrderSnapshotsTable.tableName,
+      where: 'work_order_id = ?',
+      whereArgs: [workOrderId],
+      orderBy: 'created_at DESC',
+      limit: 1,
+    );
+    if (rows.isEmpty) {
+      return null;
+    }
+
+    final metadata = WorkOrderSnapshotEntity.fromMap(rows.first);
+    final sectionRows = await db.query(
+      _WorkOrderSnapshotSectionsTable.tableName,
+      where: 'snapshot_id = ?',
+      whereArgs: [metadata.snapshotId],
+      orderBy: 'position ASC, section_id ASC',
+    );
+    final sections =
+        sectionRows.map(WorkOrderSnapshotSectionEntity.fromMap).toList();
+    return WorkOrderSnapshot(metadata: metadata, sections: sections);
+  }
+
+  Future<void> deleteSnapshotsForWorkOrder(String workOrderId) async {
+    final db = await database;
+    await db.delete(
+      _WorkOrderSnapshotsTable.tableName,
       where: 'work_order_id = ?',
       whereArgs: [workOrderId],
     );
@@ -404,7 +577,8 @@ ORDER BY h.scheduled_start DESC, h.work_order_number DESC
   Future<int> getPendingActionCount({String? workOrderId}) async {
     final db = await database;
     final whereClause = workOrderId != null ? ' WHERE work_order_id = ?' : '';
-    final args = workOrderId != null ? <Object?>[workOrderId] : const <Object?>[];
+    final args =
+        workOrderId != null ? <Object?>[workOrderId] : const <Object?>[];
     final result = await db.rawQuery(
       'SELECT COUNT(*) FROM ${_WorkOrderPendingActionsTable.tableName}$whereClause',
       args,
@@ -573,6 +747,123 @@ class WorkOrderComplaintDetailEntity {
       lastSyncedAt: DateTime.parse(map['last_synced_at'] as String),
     );
   }
+}
+
+@immutable
+class WorkOrderSnapshot {
+  const WorkOrderSnapshot({
+    required this.metadata,
+    required this.sections,
+  });
+
+  final WorkOrderSnapshotEntity metadata;
+  final List<WorkOrderSnapshotSectionEntity> sections;
+}
+
+@immutable
+class WorkOrderSnapshotEntity {
+  const WorkOrderSnapshotEntity({
+    required this.snapshotId,
+    required this.workOrderId,
+    required this.createdAt,
+    this.status,
+    this.summaryJson,
+  });
+
+  final String snapshotId;
+  final String workOrderId;
+  final DateTime createdAt;
+  final String? status;
+  final String? summaryJson;
+
+  Map<String, Object?> toMap() {
+    return {
+      'snapshot_id': snapshotId,
+      'work_order_id': workOrderId,
+      'created_at': createdAt.toIso8601String(),
+      'status': status,
+      'summary_json': summaryJson,
+    };
+  }
+
+  static WorkOrderSnapshotEntity fromMap(Map<String, Object?> map) {
+    return WorkOrderSnapshotEntity(
+      snapshotId: map['snapshot_id'] as String,
+      workOrderId: map['work_order_id'] as String,
+      createdAt: DateTime.parse(map['created_at'] as String),
+      status: map['status'] as String?,
+      summaryJson: map['summary_json'] as String?,
+    );
+  }
+}
+
+@immutable
+class WorkOrderSnapshotSectionEntity {
+  const WorkOrderSnapshotSectionEntity({
+    required this.snapshotId,
+    required this.sectionId,
+    this.sectionName,
+    this.position = 0,
+    this.payloadJson,
+  });
+
+  final String snapshotId;
+  final String sectionId;
+  final String? sectionName;
+  final int position;
+  final String? payloadJson;
+
+  Map<String, Object?> toMap() {
+    return {
+      'snapshot_id': snapshotId,
+      'section_id': sectionId,
+      'section_name': sectionName,
+      'position': position,
+      'payload_json': payloadJson,
+    };
+  }
+
+  static WorkOrderSnapshotSectionEntity fromMap(Map<String, Object?> map) {
+    return WorkOrderSnapshotSectionEntity(
+      snapshotId: map['snapshot_id'] as String,
+      sectionId: map['section_id'] as String,
+      sectionName: map['section_name'] as String?,
+      position: map['position'] as int? ?? 0,
+      payloadJson: map['payload_json'] as String?,
+    );
+  }
+}
+
+class _WorkOrderSnapshotsTable {
+  static const tableName = 'work_order_snapshots';
+  static const createSql = '''
+CREATE TABLE IF NOT EXISTS $tableName (
+  snapshot_id TEXT PRIMARY KEY,
+  work_order_id TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  status TEXT,
+  summary_json TEXT,
+  FOREIGN KEY(work_order_id) REFERENCES ${_WorkOrderHeadersTable.tableName}(work_order_id) ON DELETE CASCADE
+)
+''';
+}
+
+class _WorkOrderSnapshotSectionsTable {
+  static const tableName = 'work_order_snapshot_sections';
+  static const createSql = '''
+CREATE TABLE IF NOT EXISTS $tableName (
+  snapshot_id TEXT NOT NULL,
+  section_id TEXT NOT NULL,
+  section_name TEXT,
+  position INTEGER NOT NULL DEFAULT 0,
+  payload_json TEXT,
+  PRIMARY KEY(snapshot_id, section_id),
+  FOREIGN KEY(snapshot_id) REFERENCES ${_WorkOrderSnapshotsTable.tableName}(snapshot_id) ON DELETE CASCADE
+)
+''';
+
+  static const snapshotIndexSql =
+      'CREATE INDEX IF NOT EXISTS idx_snapshot_sections_snapshot ON $tableName(snapshot_id, position)';
 }
 
 class _WorkOrderListTable {
@@ -887,6 +1178,20 @@ CREATE TABLE IF NOT EXISTS $tableName (
 ''';
 }
 
+class _WorkOrderMaterialsTable {
+  static const tableName = 'work_order_materials';
+  static const createSql = '''
+CREATE TABLE IF NOT EXISTS $tableName (
+  material_id TEXT PRIMARY KEY,
+  work_order_id TEXT NOT NULL,
+  payload_json TEXT NOT NULL,
+  item_order INTEGER NOT NULL DEFAULT 0,
+  last_synced_at TEXT,
+  FOREIGN KEY(work_order_id) REFERENCES ${_WorkOrderHeadersTable.tableName}(work_order_id) ON DELETE CASCADE
+)
+''';
+}
+
 class _ReferenceDataTable {
   static const tableName = 'reference_data';
   static const createSql = '''
@@ -898,6 +1203,11 @@ CREATE TABLE IF NOT EXISTS $tableName (
   updated_at TEXT,
   extra_json TEXT
 )
+''';
+
+  static const categoryCodeIndexSql = '''
+CREATE INDEX IF NOT EXISTS reference_data_category_code_idx
+ON $tableName(category, COALESCE(code, ''))
 ''';
 }
 
@@ -1031,6 +1341,43 @@ class WorkOrderResponseImageEntity {
       documentDesc: map['document_desc'] as String?,
       documentSrc: map['document_src'] as String?,
       capturedAt: _parseDate(map['captured_at']),
+      lastSyncedAt: _parseDate(map['last_synced_at']),
+    );
+  }
+}
+
+@immutable
+class WorkOrderMaterialEntity {
+  const WorkOrderMaterialEntity({
+    required this.materialId,
+    required this.workOrderId,
+    required this.payloadJson,
+    required this.itemOrder,
+    this.lastSyncedAt,
+  });
+
+  final String materialId;
+  final String workOrderId;
+  final String payloadJson;
+  final int itemOrder;
+  final DateTime? lastSyncedAt;
+
+  Map<String, Object?> toMap() {
+    return {
+      'material_id': materialId,
+      'work_order_id': workOrderId,
+      'payload_json': payloadJson,
+      'item_order': itemOrder,
+      'last_synced_at': lastSyncedAt?.toIso8601String(),
+    };
+  }
+
+  static WorkOrderMaterialEntity fromMap(Map<String, Object?> map) {
+    return WorkOrderMaterialEntity(
+      materialId: map['material_id'] as String,
+      workOrderId: map['work_order_id'] as String,
+      payloadJson: map['payload_json'] as String,
+      itemOrder: (map['item_order'] as int?) ?? 0,
       lastSyncedAt: _parseDate(map['last_synced_at']),
     );
   }
