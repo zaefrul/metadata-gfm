@@ -10,7 +10,10 @@ import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/view/dialog.dart';
 import 'package:toast/toast.dart';
 import 'package:GEMS/utils/image_compressor.dart';
-import '../../../../main.dart';
+import 'package:GEMS/data/repository/ppm_repository.dart';
+import 'package:GEMS/controller/PPM/pending_sync.dart';
+import 'package:GEMS/controller/PPM/widgets/pending_sync_banner.dart';
+import 'package:GEMS/utils/biometric_lock_manager.dart';
 
 import 'openImage.dart';
 
@@ -29,6 +32,9 @@ class FormF extends StatefulWidget {
 
 class _FormFState extends State<FormF> {
   late Provider provider;
+  late PPMRepository _repository;
+  PPMPendingSyncController? _pendingSync;
+  
   List<Widget> items = [];
   List<UploadItem> uploadItems = [];
   int? groupValue;
@@ -49,7 +55,17 @@ class _FormFState extends State<FormF> {
         taskID: widget.id,
         fetchURL: "/api/m_ppm.php?type=ppm_section_f&ppmTaskId=");
 
+    _repository = PPMRepository();
+    _pendingSync = PPMPendingSyncController();
+    _pendingSync?.setPPMTaskId(widget.id);
+
     fetch();
+  }
+
+  @override
+  void dispose() {
+    _pendingSync?.dispose();
+    super.dispose();
   }
 
   void fetch() {
@@ -75,7 +91,7 @@ class _FormFState extends State<FormF> {
 
     void alert(String txt) {
       showDialog(
-          context: navigatorKey.currentContext!,
+          context: context,
           builder: (BuildContext context) => CustomDialog(
               description: txt,
               buttonText: "Okay",
@@ -86,6 +102,9 @@ class _FormFState extends State<FormF> {
     }
 
     var children = <Widget>[
+      // Add pending sync banner
+      if (_pendingSync != null)
+        PPMPendingSyncIndicator(controller: _pendingSync!),
       ListTile(
           title: widget.disable
               ? Container()
@@ -235,59 +254,94 @@ class _FormFState extends State<FormF> {
   }
 
   Future<dynamic> get uploadFile async {
+    print('[FormF] uploadFile called');
+    
+    BiometricLockManager.suppressNextLock();
+    
     final XFile? file = await ImagePicker().pickImage(source: ImageSource.camera);
     if (file == null) {
+      print('[FormF] User cancelled camera');
       throw Exception("No file selected");
     }
-    Uint8List? bytes = await compressFile(File(file.path), settings: {
-      "quality": Platform.isIOS ? 60 : 100,
-      "minWidth": 540,
-      "minHeight": 720,
-    });
-    if (bytes == null) {
-      throw Exception("Failed to compress image");
-    }
-    String size = bytes.length.toString();
-    String base64Image = base64Encode(bytes);
-    String desc = "${file.path}.jpg";
 
-    var item = UploadItem("upload_additional_report", widget.id,
-        path: file.path,
-        name: desc,
-        fileName: desc,
-        size: size,
-        data: base64Image,
-        index: uploadItems.length.toString());
-    uploadItems.add(item);
-
-    var tile = getListTile(items.length + 1, unsaveItem: item);
-    setState(() => items.add(tile));
+    print('[FormF] Image captured: ${file.path}');
+    setState(() => loading = true);
 
     try {
-      var result = await provider.post(url: "/api/m_ppm.php", body: item.body);
+      Uint8List? bytes = await compressFile(File(file.path), settings: {
+        "quality": Platform.isIOS ? 60 : 100,
+        "minWidth": 540,
+        "minHeight": 720,
+      });
+      
+      if (bytes == null) {
+        throw Exception("Failed to compress image");
+      }
+
+      print('[FormF] Image compressed: ${bytes.length} bytes');
+      String desc = "${file.path.split('/').last}.jpg";
+
+      // Upload via repository (handles online/offline)
+      final result = await _repository.uploadAdditionalReport(
+        ppmTaskId: widget.id,
+        displayName: desc,
+        filename: desc,
+        sizeBytes: bytes.length,
+        base64Data: base64Encode(bytes),
+      );
+
+      if (result == PPMActionResult.success) {
+        print('[FormF] Upload successful');
+        Toast.show(
+          "Report uploaded successfully",
+          duration: Toast.lengthShort,
+          gravity: Toast.bottom,
+        );
+      } else {
+        print('[FormF] Upload queued for offline sync');
+        Toast.show(
+          "Report saved. Will sync when online.",
+          duration: Toast.lengthLong,
+          gravity: Toast.bottom,
+        );
+      }
+
       fetch();
       widget.refreshStatus();
-      return result;
+      return "Success";
     } catch (err) {
+      print('[FormF] Error uploading: $err');
       setState(() => loading = false);
       widget.refreshStatus();
-      return err;
+      rethrow;
     }
   }
 
-  void onChange(int? value) {
+  void onChange(int? value) async {
     if (value == null) return;
+    
+    print('[FormF] onChange called with value: $value');
     setState(() {
       enableButton = value == 1;
       groupValue = value;
     });
-    provider.post(url: "/api/m_ppm.php", body: {
-      "action": "check_additional_report",
-      "ppmTaskId": widget.id,
-      "checked": value.toString()
-    }).then((_) {
+
+    try {
+      final result = await _repository.checkAdditionalReport(
+        ppmTaskId: widget.id,
+        hasAdditionalReport: value == 1,
+      );
+
+      if (result == PPMActionResult.success) {
+        print('[FormF] Check status saved successfully');
+      } else {
+        print('[FormF] Check status queued for offline sync');
+      }
+
       widget.refreshStatus();
-    });
+    } catch (err) {
+      print('[FormF] Error saving check status: $err');
+    }
   }
 
   void _openViewer({String? path, String? src}) => Navigator.push(

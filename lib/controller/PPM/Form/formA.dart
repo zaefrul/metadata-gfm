@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:GEMS/main.dart';
 import 'package:GEMS/model/form.dart';
+import 'package:GEMS/model/responseValue.dart';
+import 'package:GEMS/model/serializers.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/data/repository/ppm_repository.dart';
 import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/services.dart';
-import 'package:GEMS/model/responseValue.dart';
 import 'package:GEMS/view/dialog.dart';
 import 'package:toast/toast.dart';
 
@@ -39,16 +41,56 @@ class _FormAState extends State<FormA> {
   String assetGroup = "";
 
   late Provider provider;
+  late PPMRepository _repository;
   late bool verified;
 
   @override
   void initState() {
     super.initState();
     verified = widget.verified;
+    _repository = PPMRepository();
     provider = Provider(
       taskID: widget.id,
       fetchURL: "/api/m_ppm.php?type=ppm_section_a&ppmTaskId=",
     );
+  }
+
+  /// Fetch section data - checks offline mode first
+  Future<ResponseValue> _fetchSectionData() async {
+    // Check if offline mode is enabled
+    final isOffline = await _repository.isOfflineModeEnabled(widget.id);
+    
+    if (isOffline) {
+      debugPrint('FormA: Loading from offline cache');
+      final sectionDataJson = await _repository.loadSectionData(widget.id, 'A');
+      
+      if (sectionDataJson != null) {
+        // The cached data is the raw API response data
+        // Wrap it in the expected API response format
+        final cachedResponse = {
+          'success': true,
+          'result': sectionDataJson,
+          'error': '',
+          'errmsg': '',
+        };
+        
+        // Deserialize using the same serializer as Provider.fetch()
+        final responseValue = serializers.deserializeWith(
+          ResponseValue.serializer, 
+          cachedResponse
+        );
+        
+        if (responseValue != null) {
+          return responseValue;
+        }
+        debugPrint('FormA: Failed to deserialize cached data, falling back to API');
+      } else {
+        debugPrint('FormA: No cached data found, falling back to API');
+      }
+    }
+    
+    // Fetch from API (online mode or offline cache miss)
+    return await provider.fetch();
   }
 
   @override
@@ -77,7 +119,7 @@ class _FormAState extends State<FormA> {
               ],
       ),
       body: FutureBuilder<ResponseValue>(
-        future: provider.fetch(),
+        future: _fetchSectionData(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             assetNo = snapshot.data?.sectionAList?.assetNo ?? "";

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:GEMS/main.dart';
 import 'package:GEMS/model/form.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/view/dialog.dart';
 import 'package:toast/toast.dart';
+import 'package:GEMS/data/repository/ppm_repository.dart';
+import 'package:GEMS/controller/PPM/pending_sync.dart';
+import 'package:GEMS/controller/PPM/widgets/pending_sync_banner.dart';
 
 class FormE extends StatefulWidget {
   final String id;
@@ -28,6 +30,9 @@ class FormE extends StatefulWidget {
 
 class _FormEState extends State<FormE> {
   late Provider provider;
+  late PPMRepository _repository;
+  PPMPendingSyncController? _pendingSync;
+  
   bool enableButton = false;
   int? groupValue;
   bool loading = false;
@@ -51,7 +56,18 @@ class _FormEState extends State<FormE> {
       fetchURL: "/api/m_ppm.php?type=ppm_section_e&ppmTaskId=",
     );
 
+    _repository = PPMRepository();
+    _pendingSync = PPMPendingSyncController();
+    _pendingSync?.setPPMTaskId(widget.id);
+
     getListItem();
+  }
+
+  @override
+  void dispose() {
+    _pendingSync?.dispose();
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -63,6 +79,9 @@ class _FormEState extends State<FormE> {
       padding: EdgeInsets.all(16.0),
       child: Column(
         children: <Widget>[
+          // Add pending sync banner
+          if (_pendingSync != null)
+            PPMPendingSyncIndicator(controller: _pendingSync!),
           TextField(
             maxLength: 20,
             enabled: !widget.disable,
@@ -222,35 +241,70 @@ class _FormEState extends State<FormE> {
   }
 
   void upload(String text) async {
-    var item = UploadItem("add_ppm_parts", widget.id, desc: text);
-    await provider.post(url: "/api/m_ppm.php", body: item.body).then((value) {
-      setState(() {
-        loading = false;
-      });
+    print('[FormE] upload called with text: $text');
+    
+    try {
+      final result = await _repository.addMaterial(
+        ppmTaskId: widget.id,
+        description: text,
+      );
+
+      setState(() => loading = false);
+
+      if (result == PPMActionResult.success) {
+        print('[FormE] Material added successfully');
+        Toast.show(
+          "Material added successfully",
+          duration: Toast.lengthShort,
+          gravity: Toast.bottom,
+        );
+      } else {
+        print('[FormE] Material queued for offline sync');
+        Toast.show(
+          "Material saved. Will sync when online.",
+          duration: Toast.lengthLong,
+          gravity: Toast.bottom,
+        );
+      }
+
       getListItem();
       widget.refreshStatus();
-      alert(value);
-    }).catchError((err) => alert(err));
+    } catch (err) {
+      print('[FormE] Error uploading material: $err');
+      setState(() => loading = false);
+      alert(err.toString());
+    }
   }
 
-  void onChange(int value) {
+  void onChange(int value) async {
+    print('[FormE] onChange called with value: $value');
+    
     setState(() {
       enableButton = value == 0 ? false : true;
       groupValue = value;
     });
-    provider.post(url: "/api/m_ppm.php", body: {
-      "action": "check_ppm_parts",
-      "ppmTaskId": widget.id,
-      "checked": value.toString()
-    }).then((value) {
-      print(value);
+
+    try {
+      final result = await _repository.checkMaterialsUsed(
+        ppmTaskId: widget.id,
+        hasMaterials: value == 1,
+      );
+
+      if (result == PPMActionResult.success) {
+        print('[FormE] Check status saved successfully');
+      } else {
+        print('[FormE] Check status queued for offline sync');
+      }
+
       widget.refreshStatus();
-    });
+    } catch (err) {
+      print('[FormE] Error saving check status: $err');
+    }
   }
 
   void alert(String txt) {
     showDialog(
-      context: navigatorKey.currentContext!,
+      context: context,
       builder: (BuildContext context) => CustomDialog(
         description: txt,
         buttonText: "Okay",

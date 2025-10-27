@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:GEMS/main.dart';
 import 'package:GEMS/model/form.dart';
 import 'package:GEMS/model/responseValue.dart';
 import 'package:GEMS/utils/network.dart';
@@ -7,6 +6,9 @@ import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/view/dialog.dart';
 import 'package:GEMS/view/field.dart';
 import 'package:toast/toast.dart';
+import 'package:GEMS/data/repository/ppm_repository.dart';
+import 'package:GEMS/controller/PPM/pending_sync.dart';
+import 'package:GEMS/controller/PPM/widgets/pending_sync_banner.dart';
 
 class FormD extends StatefulWidget {
   final String id;
@@ -22,6 +24,9 @@ class FormD extends StatefulWidget {
 
 class _FormDState extends State<FormD> {
   late Provider provider;
+  late PPMRepository _repository;
+  PPMPendingSyncController? _pendingSync;
+  
   bool loading = false;
   List<UploadItem> items = [];
 
@@ -32,6 +37,16 @@ class _FormDState extends State<FormD> {
       taskID: widget.id,
       fetchURL: "/api/m_ppm.php?type=ppm_section_d&ppmTaskId=",
     );
+    
+    _repository = PPMRepository();
+    _pendingSync = PPMPendingSyncController();
+    _pendingSync?.setPPMTaskId(widget.id);
+  }
+
+  @override
+  void dispose() {
+    _pendingSync?.dispose();
+    super.dispose();
   }
 
   @override
@@ -49,7 +64,12 @@ class _FormDState extends State<FormD> {
       body: FutureBuilder<ResponseValue>(
         future: provider.fetch(),
         builder: (context, AsyncSnapshot<ResponseValue> snapshot) {
-          List<Widget> children = [];
+          List<Widget> children = [
+            // Add pending sync banner
+            if (_pendingSync != null)
+              PPMPendingSyncIndicator(controller: _pendingSync!),
+          ];
+          
           if (snapshot.error != null) {
             return Center(
               child: Text("No Task for Quantitative."),
@@ -100,32 +120,47 @@ class _FormDState extends State<FormD> {
           : FloatingActionButton.extended(
               label: Text("Save"),
               backgroundColor: colorTheme2,
-              onPressed: () {
+              onPressed: () async {
                 if (widget.verified) {
-                  setState(() {
-                    loading = true;
-                  });
+                  print('[FormD] Save button pressed with ${items.length} tasks');
+                  setState(() => loading = true);
 
-                  Map<String, dynamic> body = {
-                    "action": "save_quantitative_tasks",
-                    "ppmTaskId": widget.id,
-                  };
+                  try {
+                    // Convert items to list of maps
+                    final tasks = items.map((item) => {
+                      'id': item.id,
+                      'result': item.statusCheck,
+                      'remark': item.remark,
+                    }).toList();
 
-                  // Add each UploadItem's data to the request body.
-                  for (var f in items) {
-                    body.addAll(f.body);
-                  }
+                    final result = await _repository.saveQuantitativeTasks(
+                      ppmTaskId: widget.id,
+                      tasks: tasks,
+                    );
 
-                  provider
-                      .post(url: "/api/m_ppm.php", body: body)
-                      .then((value) {
+                    if (result == PPMActionResult.success) {
+                      print('[FormD] Tasks saved successfully');
+                      Toast.show(
+                        "Tasks saved successfully",
+                        duration: Toast.lengthShort,
+                        gravity: Toast.bottom,
+                      );
+                    } else {
+                      print('[FormD] Tasks queued for offline sync');
+                      Toast.show(
+                        "Tasks saved. Will sync when online.",
+                        duration: Toast.lengthLong,
+                        gravity: Toast.bottom,
+                      );
+                    }
+
                     widget.refreshStatus();
-                    alert(value);
-                  }).catchError((err) {
-                    alert(err);
-                  }).whenComplete(() {
+                  } catch (err) {
+                    print('[FormD] Error saving tasks: $err');
+                    alert(err.toString());
+                  } finally {
                     setState(() => loading = false);
-                  });
+                  }
                 } else {
                   Toast.show("Please verified this task.");
                 }
@@ -235,7 +270,7 @@ class _FormDState extends State<FormD> {
 
   void alert(String txt) {
     showDialog(
-      context: navigatorKey.currentContext!,
+      context: context,
       builder: (BuildContext context) => CustomDialog(
         description: txt,
         buttonText: "Okay",
@@ -310,7 +345,6 @@ class UploadItem {
     }
   }
 
-  @override
   Map<String, dynamic> get body => {
         "ppmTaskQuan[$index][id]": id,
         "ppmTaskQuan[$index][setValues]": setValues,

@@ -10,13 +10,16 @@ import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:GEMS/view/dialog.dart'; // Assuming CustomDialog is defined here
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:GEMS/utils/image_compressor.dart';
 import 'package:geolocator/geolocator.dart'; // Import for Geolocator
-
-import '../../../main.dart'; // For navigatorKey, colorTheme2, colorTheme3
+import 'package:GEMS/data/repository/ppm_repository.dart';
+import 'package:GEMS/data/local/entities/ppm_entities.dart';
+import 'package:GEMS/controller/PPM/pending_sync.dart';
+import 'package:GEMS/controller/PPM/widgets/pending_sync_banner.dart';
+import 'package:GEMS/utils/biometric_lock_manager.dart';
+import 'package:path/path.dart' show basename;
 
 class FormH extends StatefulWidget {
   final String id;
@@ -46,9 +49,14 @@ class _FormHState extends State<FormH> {
 
   // IMMUTABLE VARIABLES
   late Provider _provider;
+  late PPMRepository _repository;
+  PPMPendingSyncController? _pendingSync;
   bool _loading = false;
   late List<Widget> _children = [];
   Map<String, String> _notes = {};
+  
+  // Image list for pending offline images
+  List<PendingMaintenanceImage> _pending = [];
 
   @override
   void initState() {
@@ -62,7 +70,97 @@ class _FormHState extends State<FormH> {
       taskID: widget.id,
       fetchURL: "/api/m_ppm.php?type=ppm_section_h&ppmTaskId=",
     );
-    _fetch();
+    
+    _repository = PPMRepository();
+    _pendingSync = PPMPendingSyncController();
+    _pendingSync?.setPPMTaskId(widget.id);
+    
+    _loadImages();
+    _loadPendingImages();
+  }
+  
+  @override
+  void dispose() {
+    _pendingSync?.dispose();
+    super.dispose();
+  }
+
+  // ============================================================================
+  // DATA LOADING METHODS
+  // ============================================================================
+
+  Future<void> _loadImages({bool forceRefresh = false}) async {
+    if (!mounted) return;
+    debugPrint('FormH: _loadImages called, forceRefresh=$forceRefresh');
+    setState(() => _loading = true);
+    try {
+      final images = await _repository.getMaintenanceImages(
+        ppmTaskId: widget.id,
+        forceRefresh: forceRefresh,
+        onRemoteUpdate: (latest) {
+          debugPrint('FormH: onRemoteUpdate callback triggered with ${latest.length} images');
+          if (!mounted) return;
+          _updateImageLists(latest);
+        },
+      );
+      if (!mounted) return;
+      debugPrint('FormH: getMaintenanceImages returned ${images.length} images');
+      _updateImageLists(images);
+    } catch (err, st) {
+      debugPrint('Failed to load maintenance images: $err\n$st');
+    } finally {
+      if (mounted) {
+        setState(() => _loading = false);
+      }
+    }
+  }
+
+  Future<void> _loadPendingImages() async {
+    try {
+      debugPrint('FormH: _loadPendingImages called for ppmTaskId=${widget.id}');
+      final pending = await _repository.getPendingMaintenanceImages(widget.id);
+      if (!mounted) return;
+      debugPrint('FormH: Loaded ${pending.length} pending maintenance images');
+      for (var i = 0; i < pending.length; i++) {
+        debugPrint('  - Pending[$i]: type=${pending[i].uploadType}, size=${pending[i].bytes.length} bytes, created=${pending[i].createdAt}');
+      }
+      setState(() {
+        _pending = pending;
+      });
+      debugPrint('FormH: setState completed with ${_pending.length} pending images');
+    } catch (err, st) {
+      debugPrint('Failed to load pending maintenance images: $err\n$st');
+    }
+  }
+
+  void _updateImageLists(List<FormHItem> all) {
+    debugPrint('FormH: _updateImageLists called with ${all.length} total images');
+    
+    final before = all.where((img) => img.ppmTaskUploadType == 'Before').toList();
+    final during = all.where((img) => img.ppmTaskUploadType == 'During').toList();
+    final after = all.where((img) => img.ppmTaskUploadType == 'After').toList();
+    
+    debugPrint('FormH: Categorized - Before: ${before.length}, During: ${during.length}, After: ${after.length}');
+    
+    final notes = <String, String>{};
+    for (final img in all) {
+      notes[img.ppmTaskUploadId] = img.ppmTaskUploadDesc;
+    }
+
+    setState(() {
+      _notes
+        ..clear()
+        ..addAll(notes);
+      
+      // Regenerate children for display
+      _generateChildren([
+        before.isNotEmpty ? before.first : null,
+        during.length > 3 ? during.sublist(0, 3) : during,
+        after.isNotEmpty ? after.first : null,
+      ]);
+    });
+    
+    debugPrint('FormH: setState completed, UI should update now');
   }
 
   @override
@@ -73,21 +171,29 @@ class _FormHState extends State<FormH> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: colorTheme3),
-        title: _getTitle("C. Maintenance Image", bold: true),
+        title: _getTitle("H. Maintenance Image", bold: true),
       ),
-      body: _loading
-          ? Stack(
-              children: <Widget>[
-                _builtBody,
-                Container(
-                  color: Colors.black.withOpacity(0.5),
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                )
-              ],
-            )
-          : _builtBody,
+      body: Column(
+        children: [
+          if (_pendingSync != null)
+            PPMPendingSyncIndicator(controller: _pendingSync!),
+          Expanded(
+            child: _loading
+                ? Stack(
+                    children: <Widget>[
+                      _builtBody,
+                      Container(
+                        color: Colors.black.withOpacity(0.5),
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    ],
+                  )
+                : _builtBody,
+          ),
+        ],
+      ),
       floatingActionButton: _floatingButton, // Use the getter
     );
   }
@@ -250,6 +356,77 @@ class _FormHState extends State<FormH> {
     );
   }
 
+  Widget _pendingCard(PendingMaintenanceImage item) {
+    final timestamp = DateFormat('dd MMM yyyy, HH:mm').format(item.createdAt.toLocal());
+    final coordinates = <String>[
+      if ((item.latitude ?? '').isNotEmpty) item.latitude!,
+      if ((item.longitude ?? '').isNotEmpty) item.longitude!,
+    ].join(', ');
+
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.memory(
+                    item.bytes,
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        timestamp,
+                        style: const TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        coordinates.isEmpty ? 'Location unavailable' : 'Lat/Lon: $coordinates',
+                        style: const TextStyle(color: Colors.black54, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: colorTheme2.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                  child: Text(
+                    'Pending sync',
+                    style: TextStyle(
+                      color: colorTheme2,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              item.displayName ?? 'Maintenance Image',
+              style: const TextStyle(color: Colors.black54),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // FUNCTIONALITY - API
 
   void _fetch() {
@@ -304,39 +481,58 @@ class _FormHState extends State<FormH> {
     });
   }
 
-  void _postImage(UploadItem item) {
+  void _postNotes() async {
     if (!mounted) return;
+    
+    if (_notes.isEmpty) {
+      Toast.show(
+        "No descriptions to save",
+        duration: Toast.lengthShort,
+        gravity: Toast.bottom,
+      );
+      return;
+    }
+
+    print('[FormH] _postNotes called with ${_notes.length} descriptions');
     setState(() => _loading = true);
 
-    _provider.post(url: "/api/m_ppm.php", body: item.body).then((value) {
-      if (!mounted) return;
-      widget.refreshStatus(true); // Pass true to indicate successful update
-      _showAlert("Success", value ?? "Image uploaded successfully.");
-      _fetch(); // Refetch to update the list
-    }).catchError((err) {
-      if (!mounted) return;
-      setState(() => _loading = false);
-      _showAlert("Error", "Failed to upload image: ${err.toString()}");
-    });
-  }
+    try {
+      final result = await _repository.saveMaintenanceImageDescriptions(
+        ppmTaskId: widget.id,
+        descriptions: _notes,
+      );
 
-  void _postNotes() {
-    if (!mounted) return;
-    setState(() => _loading = true);
-
-    var uploadDesc = UploadDesc("save_image_desc", widget.id, notes: _notes);
-
-    _provider.post(url: "/api/m_ppm.php", body: uploadDesc.body).then((value) {
       if (!mounted) return;
-      _notes = {}; // Clear notes after successful save
-      setState(() => _loading = false);
-      _showAlert("Success", value ?? "Descriptions saved successfully.");
-      _fetch(); // Refetch to confirm changes
-    }).catchError((err) {
-      if (!mounted) return;
-      setState(() => _loading = false);
-      _showAlert("Error", "Failed to save descriptions: ${err.toString()}");
-    });
+
+      if (result == PPMActionResult.success) {
+        print('[FormH] Descriptions saved successfully');
+        _notes = {}; // Clear notes after successful save
+        Toast.show(
+          "Descriptions saved successfully",
+          duration: Toast.lengthShort,
+          gravity: Toast.bottom,
+        );
+        // Refresh to confirm changes
+        await _loadImages();
+      } else {
+        // PPMActionResult.queued
+        print('[FormH] Descriptions queued for offline sync');
+        Toast.show(
+          "Descriptions saved. Will sync when online.",
+          duration: Toast.lengthLong,
+          gravity: Toast.bottom,
+        );
+        // Don't clear notes yet - they'll be sent when online
+      }
+    } catch (e, stackTrace) {
+      print('[FormH] Error saving descriptions: $e');
+      print('[FormH] Stack trace: $stackTrace');
+      if (mounted) {
+        _showAlert("Error", "Failed to save descriptions: ${e.toString()}");
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   void _confirmDelete(String id) {
@@ -397,6 +593,14 @@ class _FormHState extends State<FormH> {
       _children.add(_getTitle(_sectionName[i], bold: true));
       var currentSectionData = sectionItem[i];
 
+      // Get pending images for this section
+      final pendingForSection = _pending.where((p) => p.uploadType == i.toString()).toList();
+
+      // Add pending images first
+      for (final pendingImage in pendingForSection) {
+        _children.add(_pendingCard(pendingImage));
+      }
+
       if (i == 1) { // Handling "During" section (index 1)
         List duringItems = (currentSectionData is List) ? currentSectionData : [];
         for (var j = 0; j < 3; j++) { // Always show 3 slots for "During"
@@ -426,80 +630,110 @@ class _FormHState extends State<FormH> {
     // 0 for "Before", 1 for "During", 2 for "After"
     if (!mounted) return;
 
-    Future<File?> getImage() async {
-      try {
-        final XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 70);
-        if (pickedFile != null) return File(pickedFile.path);
-      } catch (e) {
-        print("ImagePicker error: $e");
-        if (mounted) _showAlert("Error", "Could not pick image: $e");
-      }
-      return null;
-    }
+    print('[FormH] _createUploadItem called for section $sectionIndex (${_sectionName[sectionIndex]})');
 
-    Future<Map<String, String>?> getLocation() async {
+    // Use BiometricLockManager to prevent biometric prompts during camera operations
+    BiometricLockManager.suppressNextLock();
+
+    try {
+      // Step 1: Take photo
+      final XFile? pickedFile = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        imageQuality: 70,
+      );
+
+      if (pickedFile == null) {
+        print('[FormH] User cancelled camera');
+        return;
+      }
+
+      print('[FormH] Image captured: ${pickedFile.path}');
+
+      final File imageFile = File(pickedFile.path);
+      final fileName = basename(imageFile.path);
+
+      // Step 2: Get location
+      String latitude = '0.0';
+      String longitude = '0.0';
       try {
         LocationPermission permission = await Geolocator.checkPermission();
         if (permission == LocationPermission.denied) {
           permission = await Geolocator.requestPermission();
         }
-        if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-          if (mounted) _showAlert("Location Denied", "Location permission is required to tag images.");
-          return null;
+        if (permission != LocationPermission.denied && permission != LocationPermission.deniedForever) {
+          final position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.medium,
+            timeLimit: Duration(seconds: 10),
+          );
+          latitude = position.latitude.toString();
+          longitude = position.longitude.toString();
+          print('[FormH] Location obtained: $latitude, $longitude');
+        } else {
+          print('[FormH] Location permission denied - using defaults');
         }
-        Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.medium, timeLimit: Duration(seconds:10));
-        return {'latitude': position.latitude.toString(), 'longitude': position.longitude.toString()};
       } catch (e) {
-        print("Location error: $e");
-        if (mounted) _showAlert("Location Error", "Could not get location: $e. Using default 0.0.");
-        return {'latitude': "0.0", 'longitude': "0.0"}; // Fallback or handle as error
+        print('[FormH] Location error: $e - using defaults');
       }
-    }
 
-    String formattedDate() =>
-        DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
-
-    void processAndUpload(File imageFile, Map<String, String>? locationData) async {
-      if (!mounted) return;
+      // Step 3: Compress image
       setState(() => _loading = true);
 
-      // Corrected call to compressFile
       final Uint8List? bytes = await compressFile(imageFile, settings: {
-        'quality': Platform.isIOS ? 60 : 80, // Quality as integer
-        'minWidth': 640, // minWidth as integer
-        'minHeight': 480  // minHeight as integer
+        'quality': Platform.isIOS ? 60 : 80,
+        'minWidth': 640,
+        'minHeight': 480,
       });
 
       if (bytes == null) {
+        print('[FormH] Image compression failed');
         if (mounted) {
           setState(() => _loading = false);
           _showAlert("Error", "Unable to compress image.");
         }
         return;
       }
-      String base64Image = base64Encode(bytes);
-      String fileName = imageFile.path.split('/').last;
 
-      UploadItem uploadItem = UploadItem(
-        "upload_maintenance_image",
-        widget.id,
-        date: formattedDate(),
-        uploadType: sectionIndex.toString(), // Use the passed sectionIndex
-        longitude: locationData?['longitude'] ?? "0.0",
-        latitude: locationData?['latitude'] ?? "0.0",
-        name: fileName,
+      print('[FormH] Image compressed: ${bytes.length} bytes');
+
+      // Step 4: Upload via repository (handles online/offline)
+      final result = await _repository.uploadMaintenanceImage(
+        ppmTaskId: widget.id,
+        uploadType: sectionIndex.toString(),
+        latitude: latitude,
+        longitude: longitude,
+        displayName: fileName,
         filename: fileName,
-        size: bytes.length.toString(),
-        data: base64Image,
+        sizeBytes: bytes.length,
+        base64Data: base64Encode(bytes),
       );
-      _postImage(uploadItem);
-    }
 
-    File? imageFile = await getImage();
-    if (imageFile != null) {
-      Map<String, String>? location = await getLocation();
-      processAndUpload(imageFile, location);
-    } else {
+      if (result == PPMActionResult.success) {
+        print('[FormH] Upload successful');
+        Toast.show(
+          "Image uploaded successfully",
+          duration: Toast.lengthShort,
+          gravity: Toast.bottom,
+        );
+      } else {
+        // PPMActionResult.queued
+        print('[FormH] Upload queued for offline sync');
+        Toast.show(
+          "Image saved. Will sync when online.",
+          duration: Toast.lengthLong,
+          gravity: Toast.bottom,
+        );
+      }
+
+      // Refresh display
+      await _loadImages();
+
+    } catch (e, stackTrace) {
+      print('[FormH] Error in _createUploadItem: $e');
+      print('[FormH] Stack trace: $stackTrace');
+      if (mounted) {
+        _showAlert("Error", "Failed to process image: $e");
+      }
+    } finally {
       if (mounted) setState(() => _loading = false);
     }
   }

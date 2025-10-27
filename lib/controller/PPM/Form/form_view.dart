@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:built_collection/built_collection.dart';
 import 'package:GEMS/controller/PPM/Form/pdf.dart';
 import 'package:GEMS/model/execution.dart';
 import 'package:GEMS/model/responseValue.dart';
@@ -6,6 +7,9 @@ import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:toast/toast.dart';
 import 'package:GEMS/model/form.dart' as formModel;
+import 'package:GEMS/controller/PPM/pending_sync.dart';
+import 'package:GEMS/controller/PPM/widgets/pending_sync_banner.dart';
+import 'package:GEMS/data/repository/ppm_repository.dart';
 
 import 'add_technician.dart';
 import 'formA.dart';
@@ -61,12 +65,21 @@ class _FormViewState extends State<FormView> {
   ResponseValue? responseValue;
   List<String> statusList = [];
   int checkpoint = 1;
+  PPMPendingSyncController? _pendingSync;
+  final PPMRepository _repository = PPMRepository();
+  bool _isOfflineMode = false;
+  bool _offlineToggleInFlight = false;
+  Future<ExecutionModel>? _timeFuture; // Cache the future
+  bool _isLoading = true; // Track initial load state
 
   _FormViewState({required this.id});
 
   @override
   void initState() {
     super.initState();
+
+    _pendingSync = PPMPendingSyncController();
+    _pendingSync?.setPPMTaskId(widget.id);
 
     if (widget.taskStatus == "Check") checkpoint = 2;
     if (widget.taskStatus == "Verify") checkpoint = 3;
@@ -88,7 +101,97 @@ class _FormViewState extends State<FormView> {
       fetchURL: "/ppm_v2/ppm_section_status/",
     );
 
-    refreshStatus();
+    // Load everything in parallel for faster initial load
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    // Load all data in parallel instead of sequentially
+    await Future.wait([
+      _loadOfflineState(),
+      _loadExecutionInfo(),
+      refreshStatus(),
+    ]);
+    
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _loadExecutionInfo() async {
+    try {
+      final future = Provider(
+        fetchURL: '/ppm_v2/execution_info/',
+        taskID: widget.id,
+      ).getJson(url: '/ppm_v2/execution_info/');
+      
+      final execData = await future;
+      final model = ExecutionModel.fromJson(execData);
+      
+      if (mounted) {
+        _timeFuture = Future.value(model);
+      }
+    } catch (err) {
+      debugPrint('Failed to load execution info: $err');
+      // Set a default/error future so the UI doesn't break
+      if (mounted) {
+        _timeFuture = Future.error(err);
+      }
+    }
+  }
+
+  Future<void> _loadOfflineState() async {
+    final isOffline = await _repository.isOfflineModeEnabled(widget.id);
+    if (mounted) {
+      setState(() {
+        _isOfflineMode = isOffline;
+      });
+    }
+  }
+
+  Future<void> _toggleOfflineMode(bool enable) async {
+    if (_offlineToggleInFlight) return;
+    setState(() {
+      _offlineToggleInFlight = true;
+    });
+    try {
+      await _repository.setOfflineMode(
+        ppmTaskId: widget.id,
+        enabled: enable,
+      );
+      if (mounted) {
+        setState(() {
+          _isOfflineMode = enable;
+        });
+        Toast.show(
+          enable
+              ? 'Offline mode enabled. We will store your updates locally until you sync.'
+              : 'Offline mode disabled. You are back to live updates.',
+          duration: Toast.lengthShort,
+          gravity: Toast.bottom,
+        );
+      }
+    } catch (err) {
+      Toast.show(
+        'Failed to toggle offline mode: $err',
+        duration: Toast.lengthShort,
+        gravity: Toast.bottom,
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _offlineToggleInFlight = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _pendingSync?.dispose();
+    super.dispose();
   }
 
   @override
@@ -121,6 +224,134 @@ class _FormViewState extends State<FormView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Add pending sync banner at the top
+              if (_pendingSync != null)
+                PPMPendingSyncIndicator(controller: _pendingSync!),
+              
+              // Offline Mode Toggle
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Offline mode',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.dark,
+                                ),
+                              ),
+                            ),
+                            Switch(
+                              value: _isOfflineMode,
+                              onChanged: _offlineToggleInFlight
+                                  ? null
+                                  : (value) {
+                                      _toggleOfflineMode(value);
+                                    },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _isOfflineMode
+                              ? 'We\'ll save all updates on this device. All actions will be queued and synced automatically when online.'
+                              : 'Enable offline mode when you expect to lose connectivity. We\'ll cache the task and you can sync later.',
+                          style: const TextStyle(fontSize: 14, height: 1.4),
+                        ),
+                        if (_offlineToggleInFlight) ...[
+                          const SizedBox(height: 12),
+                          const LinearProgressIndicator(minHeight: 3),
+                        ],
+                        // Show snapshot info when offline mode is enabled
+                        if (_isOfflineMode && !_offlineToggleInFlight)
+                          FutureBuilder<Map<String, dynamic>?>(
+                            future: _repository.loadSnapshot(widget.id),
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData || snapshot.data == null) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 12),
+                                  child: Text(
+                                    'Preparing offline copy…',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.dark.withValues(alpha: 0.7),
+                                    ),
+                                  ),
+                                );
+                              }
+                              
+                              final snapshotData = snapshot.data!;
+                              final createdAt = snapshotData['createdAt'] as String?;
+                              final sections = snapshotData['sections'] as List<dynamic>? ?? [];
+                              
+                              String cachedTime = 'Unknown';
+                              if (createdAt != null) {
+                                try {
+                                  final date = DateTime.parse(createdAt);
+                                  final now = DateTime.now();
+                                  final diff = now.difference(date);
+                                  
+                                  if (diff.inMinutes < 1) {
+                                    cachedTime = 'Just now';
+                                  } else if (diff.inHours < 1) {
+                                    cachedTime = '${diff.inMinutes}m ago';
+                                  } else if (diff.inDays < 1) {
+                                    cachedTime = '${diff.inHours}h ago';
+                                  } else {
+                                    cachedTime = '${diff.inDays}d ago';
+                                  }
+                                } catch (_) {
+                                  cachedTime = 'Recently';
+                                }
+                              }
+                              
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Cached $cachedTime',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: AppColors.dark.withValues(alpha: 0.7),
+                                      ),
+                                    ),
+                                    if (sections.isNotEmpty)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 4),
+                                        child: Text(
+                                          '${sections.length} sections available offline',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: AppColors.dark.withValues(alpha: 0.7),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              
               ListView.builder(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 itemCount: statusList.length + 1,
@@ -128,9 +359,23 @@ class _FormViewState extends State<FormView> {
                 physics: NeverScrollableScrollPhysics(),
                 itemBuilder: (context, item) {
                   if (item == 0) {
+                    // Use cached future instead of creating new one
                     return FutureBuilder<ExecutionModel>(
-                      future: _time,
+                      future: _timeFuture,
                       builder: (context, snapshot) {
+                        // Show loading state during initial load
+                        if (_isLoading && !snapshot.hasData) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Loading time allocation..."),
+                              ],
+                            ),
+                          );
+                        }
+                        
                         final String max = snapshot.data?.max ?? "0";
                         final String min = snapshot.data?.min ?? "0";
                         final bool exceed = snapshot.data?.exceed ?? false;
@@ -407,25 +652,81 @@ class _FormViewState extends State<FormView> {
   }
 
   Future<void> refreshStatus() async {
-    var value = await provider.fetch();
-    setState(() {
-      responseValue = value;
-      var result = responseValue!.statusList != null
-          ? responseValue!.statusList!.map((f) => f.ppmTaskSectionStatus).toList()
-          : [];
-      statusList = result.cast<String>();
-    });
-  }
+    // Use cached offline state instead of querying DB again
+    if (_isOfflineMode) {
+      final snapshot = await _repository.loadSnapshot(widget.id);
+      if (snapshot != null) {
+        debugPrint('FormView.refreshStatus: Using cached snapshot data');
+        // Build ResponseValue from snapshot
+        final sections = snapshot['sections'] as List<dynamic>;
+        final formList = sections.map((s) {
+          return formModel.Form((b) => b
+            ..ppmTaskSectionId = ''
+            ..ppmTaskSectionName = s['ppmTaskSectionName'] ?? ''
+            ..ppmTaskId = widget.id
+            ..ppmTaskSectionStatus = s['ppmTaskSectionStatus'] ?? ''
+            ..checkParts = s['checkParts'] ?? ''
+            ..checkAdditionalReport = s['checkAdditionalReport'] ?? '');
+        }).toList();
 
-  Future<ExecutionModel> get _time async {
+        setState(() {
+          responseValue = ResponseValue((b) => b
+            ..success = true
+            ..error = ''
+            ..errmsg = ''
+            ..result = 'cached'
+            ..statusList = ListBuilder(formList));
+          var result = responseValue!.statusList != null
+              ? responseValue!.statusList!.map((f) => f.ppmTaskSectionStatus).toList()
+              : [];
+          statusList = result.cast<String>();
+        });
+        return;
+      }
+    }
+
+    // Fallback to API call
     try {
-      final future = await Provider(
-        fetchURL: '/ppm_v2/execution_info/',
-        taskID: widget.id,
-      ).getJson(url: '/ppm_v2/execution_info/');
-      final model = ExecutionModel.fromJson(future);
-      return model;
+      var value = await provider.fetch();
+      setState(() {
+        responseValue = value;
+        var result = responseValue!.statusList != null
+            ? responseValue!.statusList!.map((f) => f.ppmTaskSectionStatus).toList()
+            : [];
+        statusList = result.cast<String>();
+      });
     } catch (err) {
+      // If API fails and we're in offline mode, try to load snapshot
+      if (_isOfflineMode) {
+        final snapshot = await _repository.loadSnapshot(widget.id);
+        if (snapshot != null) {
+          debugPrint('FormView.refreshStatus: API failed, using cached snapshot');
+          final sections = snapshot['sections'] as List<dynamic>;
+          final formList = sections.map((s) {
+            return formModel.Form((b) => b
+              ..ppmTaskSectionId = ''
+              ..ppmTaskSectionName = s['ppmTaskSectionName'] ?? ''
+              ..ppmTaskId = widget.id
+              ..ppmTaskSectionStatus = s['ppmTaskSectionStatus'] ?? ''
+              ..checkParts = s['checkParts'] ?? ''
+              ..checkAdditionalReport = s['checkAdditionalReport'] ?? '');
+          }).toList();
+
+          setState(() {
+            responseValue = ResponseValue((b) => b
+              ..success = true
+              ..error = ''
+              ..errmsg = ''
+              ..result = 'cached'
+              ..statusList = ListBuilder(formList));
+            var result = responseValue!.statusList != null
+                ? responseValue!.statusList!.map((f) => f.ppmTaskSectionStatus).toList()
+                : [];
+            statusList = result.cast<String>();
+          });
+          return;
+        }
+      }
       rethrow;
     }
   }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:GEMS/main.dart';
 import 'package:GEMS/model/form.dart';
 import 'package:GEMS/model/responseValue.dart';
 import 'package:GEMS/utils/network.dart';
@@ -7,6 +6,9 @@ import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/view/dialog.dart';
 import 'package:GEMS/view/field.dart';
 import 'package:toast/toast.dart';
+import 'package:GEMS/data/repository/ppm_repository.dart';
+import 'package:GEMS/controller/PPM/pending_sync.dart';
+import 'package:GEMS/controller/PPM/widgets/pending_sync_banner.dart';
 
 class FormC extends StatefulWidget {
   final String id;
@@ -22,6 +24,9 @@ class FormC extends StatefulWidget {
 
 class _FormCState extends State<FormC> {
   late Provider provider;
+  late PPMRepository _repository;
+  PPMPendingSyncController? _pendingSync;
+  
   bool loading = false;
   String? dropdownValue;
   List<UploadItem> items = [];
@@ -39,6 +44,16 @@ class _FormCState extends State<FormC> {
       taskID: widget.id,
       fetchURL: "/api/m_ppm.php?type=ppm_section_c&ppmTaskId=",
     );
+    
+    _repository = PPMRepository();
+    _pendingSync = PPMPendingSyncController();
+    _pendingSync?.setPPMTaskId(widget.id);
+  }
+
+  @override
+  void dispose() {
+    _pendingSync?.dispose();
+    super.dispose();
   }
 
   @override
@@ -54,7 +69,10 @@ class _FormCState extends State<FormC> {
       body: FutureBuilder<ResponseValue>(
         future: provider.fetch(),
         builder: (context, AsyncSnapshot<ResponseValue> snapshot) {
-          List<ListTile> children = [
+          List<Widget> children = [
+            // Add pending sync banner
+            if (_pendingSync != null)
+              PPMPendingSyncIndicator(controller: _pendingSync!),
             ListTile(
               title: Text("Enviromental Check"),
             )
@@ -90,31 +108,47 @@ class _FormCState extends State<FormC> {
           : FloatingActionButton.extended(
               label: Text("Save"),
               backgroundColor: colorTheme2,
-              onPressed: () {
+              onPressed: () async {
                 if (widget.verified) {
-                  setState(() {
-                    loading = true;
-                  });
+                  print('[FormC] Save button pressed with ${items.length} tasks');
+                  setState(() => loading = true);
 
-                  Map<String, dynamic> body = {
-                    "action": "save_qualitative_tasks",
-                    "ppmTaskId": widget.id,
-                  };
+                  try {
+                    // Convert items to list of maps
+                    final tasks = items.map((item) => {
+                      'id': item.id,
+                      'result': item.statusCheck,
+                      'remark': item.remark,
+                    }).toList();
 
-                  for (var f in items) {
-                    body.addAll(f.body);
-                  }
+                    final result = await _repository.saveQualitativeTasks(
+                      ppmTaskId: widget.id,
+                      tasks: tasks,
+                    );
 
-                  provider
-                      .post(url: "/api/m_ppm.php", body: body)
-                      .then((value) {
+                    if (result == PPMActionResult.success) {
+                      print('[FormC] Tasks saved successfully');
+                      Toast.show(
+                        "Tasks saved successfully",
+                        duration: Toast.lengthShort,
+                        gravity: Toast.bottom,
+                      );
+                    } else {
+                      print('[FormC] Tasks queued for offline sync');
+                      Toast.show(
+                        "Tasks saved. Will sync when online.",
+                        duration: Toast.lengthLong,
+                        gravity: Toast.bottom,
+                      );
+                    }
+
                     widget.refreshStatus(true);
-                    alert(value);
-                  }).catchError((err) {
-                    alert(err);
-                  }).whenComplete(() {
+                  } catch (err) {
+                    print('[FormC] Error saving tasks: $err');
+                    alert(err.toString());
+                  } finally {
                     setState(() => loading = false);
-                  });
+                  }
                 } else {
                   Toast.show("Please verified this task.");
                 }
@@ -193,7 +227,7 @@ class _FormCState extends State<FormC> {
 
   void alert(String txt) {
     showDialog(
-      context: navigatorKey.currentContext!,
+      context: context,
       builder: (BuildContext context) => CustomDialog(
         description: txt,
         buttonText: "Okay",

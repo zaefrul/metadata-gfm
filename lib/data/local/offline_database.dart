@@ -5,8 +5,10 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
+import 'entities/ppm_entities.dart';
+
 const _dbName = 'gems_offline.db';
-const _dbVersion = 10;
+const _dbVersion = 13; // Incremented for PPM section data storage
 
 class OfflineDatabase {
   OfflineDatabase._();
@@ -54,6 +56,13 @@ class OfflineDatabase {
     await db.execute(_WorkOrderSnapshotsTable.createSql);
     await db.execute(_WorkOrderSnapshotSectionsTable.createSql);
     await db.execute(_WorkOrderSnapshotSectionsTable.snapshotIndexSql);
+    // PPM tables
+    await db.execute(_PPMPendingActionsTable.createSql);
+    await db.execute(_PPMMaintenanceImagesTable.createSql);
+    await db.execute(_PPMTasksTable.createSql);
+    await db.execute(_PPMSnapshotsTable.createSql);
+    await db.execute(_PPMSnapshotSectionsTable.createSql);
+    await db.execute(_PPMSnapshotSectionsTable.snapshotIndexSql);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -97,6 +106,32 @@ class OfflineDatabase {
       await db.execute(_WorkOrderSnapshotsTable.createSql);
       await db.execute(_WorkOrderSnapshotSectionsTable.createSql);
       await db.execute(_WorkOrderSnapshotSectionsTable.snapshotIndexSql);
+    }
+    if (oldVersion < 11) {
+      // Add PPM offline support tables
+      await db.execute(_PPMPendingActionsTable.createSql);
+      await db.execute(_PPMMaintenanceImagesTable.createSql);
+      await db.execute(_PPMTasksTable.createSql);
+    }
+    if (oldVersion < 12) {
+      // Add offline_mode_enabled column to ppm_tasks
+      await db
+          .execute(
+            'ALTER TABLE ${_PPMTasksTable.tableName} ADD COLUMN offline_mode_enabled INTEGER DEFAULT 0',
+          )
+          .catchError((_) => null);
+      // Add PPM snapshot tables
+      await db.execute(_PPMSnapshotsTable.createSql);
+      await db.execute(_PPMSnapshotSectionsTable.createSql);
+      await db.execute(_PPMSnapshotSectionsTable.snapshotIndexSql);
+    }
+    if (oldVersion < 13) {
+      // Add section_data column to ppm_snapshot_sections
+      await db
+          .execute(
+            'ALTER TABLE ${_PPMSnapshotSectionsTable.tableName} ADD COLUMN section_data TEXT',
+          )
+          .catchError((_) => null);
     }
   }
 
@@ -495,6 +530,205 @@ ORDER BY h.scheduled_start DESC, h.work_order_number DESC
     return (result.first['offline_mode_enabled'] as int? ?? 0) == 1;
   }
 
+  // ============================================================================
+  // PPM OFFLINE MODE
+  // ============================================================================
+
+  Future<void> setPPMOfflineMode(
+    String ppmTaskId,
+    bool enabled,
+  ) async {
+    final db = await database;
+    // Ensure the task exists in the database
+    final existing = await db.query(
+      _PPMTasksTable.tableName,
+      where: 'ppm_task_id = ?',
+      whereArgs: [ppmTaskId],
+      limit: 1,
+    );
+    
+    if (existing.isEmpty) {
+      // Insert a new row if it doesn't exist
+      await db.insert(
+        _PPMTasksTable.tableName,
+        {
+          'ppm_task_id': ppmTaskId,
+          'task_no': '',
+          'offline_mode_enabled': enabled ? 1 : 0,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    } else {
+      // Update existing row
+      await db.update(
+        _PPMTasksTable.tableName,
+        {'offline_mode_enabled': enabled ? 1 : 0},
+        where: 'ppm_task_id = ?',
+        whereArgs: [ppmTaskId],
+      );
+    }
+  }
+
+  Future<bool> isPPMOfflineMode(String ppmTaskId) async {
+    final db = await database;
+    final result = await db.query(
+      _PPMTasksTable.tableName,
+      columns: ['offline_mode_enabled'],
+      where: 'ppm_task_id = ?',
+      whereArgs: [ppmTaskId],
+      limit: 1,
+    );
+    if (result.isEmpty) {
+      return false;
+    }
+    return (result.first['offline_mode_enabled'] as int? ?? 0) == 1;
+  }
+
+  // ============================================================================
+  // PPM SNAPSHOTS
+  // ============================================================================
+
+  Future<void> savePPMSnapshot({
+    required String ppmTaskId,
+    required String taskNo,
+    required String siteName,
+    required String status,
+    required List<Map<String, dynamic>> sections,
+    String? executionJson,
+    String? sectionAJson,
+    String? sectionBJson,
+  }) async {
+    final db = await database;
+    final createdAt = DateTime.now().toUtc().toIso8601String();
+
+    await db.transaction((txn) async {
+      // Delete existing snapshot
+      await txn.delete(
+        _PPMSnapshotsTable.tableName,
+        where: 'ppm_task_id = ?',
+        whereArgs: [ppmTaskId],
+      );
+
+      // Insert snapshot metadata
+      await txn.insert(
+        _PPMSnapshotsTable.tableName,
+        {
+          'ppm_task_id': ppmTaskId,
+          'task_no': taskNo,
+          'site_name': siteName,
+          'status': status,
+          'created_at': createdAt,
+          'execution_json': executionJson,
+          'section_a_json': sectionAJson,
+          'section_b_json': sectionBJson,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+
+      // Delete existing sections
+      await txn.delete(
+        _PPMSnapshotSectionsTable.tableName,
+        where: 'ppm_task_id = ?',
+        whereArgs: [ppmTaskId],
+      );
+
+      // Insert sections
+      for (final section in sections) {
+        await txn.insert(
+          _PPMSnapshotSectionsTable.tableName,
+          {
+            'ppm_task_id': ppmTaskId,
+            'section_name': section['ppmTaskSectionName'] ?? '',
+            'section_status': section['ppmTaskSectionStatus'] ?? '',
+            'check_parts': section['checkParts'] ?? '',
+            'check_additional_report': section['checkAdditionalReport'] ?? '',
+            'section_data': section['sectionData'], // Store the full section data JSON
+          },
+        );
+      }
+    });
+  }
+
+  Future<Map<String, dynamic>?> loadPPMSnapshot(String ppmTaskId) async {
+    final db = await database;
+    
+    // Load snapshot metadata
+    final snapshotRows = await db.query(
+      _PPMSnapshotsTable.tableName,
+      where: 'ppm_task_id = ?',
+      whereArgs: [ppmTaskId],
+      limit: 1,
+    );
+
+    if (snapshotRows.isEmpty) {
+      return null;
+    }
+
+    final snapshot = snapshotRows.first;
+
+    // Load sections
+    final sectionRows = await db.query(
+      _PPMSnapshotSectionsTable.tableName,
+      where: 'ppm_task_id = ?',
+      whereArgs: [ppmTaskId],
+      orderBy: 'section_name ASC',
+    );
+
+    final sections = sectionRows.map((row) => {
+      'ppmTaskSectionName': row['section_name'] as String,
+      'ppmTaskSectionStatus': row['section_status'] as String,
+      'checkParts': row['check_parts'] as String,
+      'checkAdditionalReport': row['check_additional_report'] as String,
+      'sectionData': row['section_data'] as String?, // Include section data
+    }).toList();
+
+    return {
+      'ppmTaskId': snapshot['ppm_task_id'],
+      'taskNo': snapshot['task_no'],
+      'siteName': snapshot['site_name'],
+      'status': snapshot['status'],
+      'createdAt': snapshot['created_at'],
+      'executionJson': snapshot['execution_json'],
+      'sectionAJson': snapshot['section_a_json'],
+      'sectionBJson': snapshot['section_b_json'],
+      'sections': sections,
+    };
+  }
+
+  Future<void> deletePPMSnapshot(String ppmTaskId) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      await txn.delete(
+        _PPMSnapshotSectionsTable.tableName,
+        where: 'ppm_task_id = ?',
+        whereArgs: [ppmTaskId],
+      );
+      await txn.delete(
+        _PPMSnapshotsTable.tableName,
+        where: 'ppm_task_id = ?',
+        whereArgs: [ppmTaskId],
+      );
+    });
+  }
+
+  /// Load section data for a specific section
+  Future<String?> loadPPMSectionData(String ppmTaskId, String sectionName) async {
+    final db = await database;
+    final rows = await db.query(
+      _PPMSnapshotSectionsTable.tableName,
+      columns: ['section_data'],
+      where: 'ppm_task_id = ? AND section_name = ?',
+      whereArgs: [ppmTaskId, sectionName],
+      limit: 1,
+    );
+
+    if (rows.isEmpty) {
+      return null;
+    }
+
+    return rows.first['section_data'] as String?;
+  }
+
   Future<void> replaceSections(
     String workOrderId,
     List<WorkOrderSectionEntity> sections,
@@ -609,6 +843,77 @@ ORDER BY h.scheduled_start DESC, h.work_order_number DESC
     );
     if (rows.isEmpty) return null;
     return WorkOrderComplaintDetailEntity.fromMap(rows.first);
+  }
+
+  // ============================================================================
+  // PPM METHODS
+  // ============================================================================
+
+  Future<int> enqueuePPMPendingAction(PPMPendingActionEntity action) async {
+    final db = await database;
+    return db.insert(_PPMPendingActionsTable.tableName, action.toMap());
+  }
+
+  Future<List<PPMPendingActionEntity>> getPPMPendingActions() async {
+    final db = await database;
+    final rows = await db.query(
+      _PPMPendingActionsTable.tableName,
+      orderBy: 'created_at ASC',
+    );
+    return rows.map(PPMPendingActionEntity.fromMap).toList();
+  }
+
+  Future<void> removePPMPendingAction(int id) async {
+    final db = await database;
+    await db.delete(
+      _PPMPendingActionsTable.tableName,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<int> getPPMPendingActionCount({String? ppmTaskId}) async {
+    final db = await database;
+    final whereClause = ppmTaskId != null ? ' WHERE ppm_task_id = ?' : '';
+    final args = ppmTaskId != null ? <Object?>[ppmTaskId] : const <Object?>[];
+    final result = await db.rawQuery(
+      'SELECT COUNT(*) FROM ${_PPMPendingActionsTable.tableName}$whereClause',
+      args,
+    );
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
+
+  Future<void> upsertPPMMaintenanceImage(
+    PPMMaintenanceImageEntity entity,
+  ) async {
+    final db = await database;
+    await db.insert(
+      _PPMMaintenanceImagesTable.tableName,
+      entity.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<PPMMaintenanceImageEntity>> getPPMMaintenanceImages(
+    String ppmTaskId,
+  ) async {
+    final db = await database;
+    final rows = await db.query(
+      _PPMMaintenanceImagesTable.tableName,
+      where: 'ppm_task_id = ?',
+      whereArgs: [ppmTaskId],
+      orderBy: 'timestamp DESC',
+    );
+    return rows.map(PPMMaintenanceImageEntity.fromMap).toList();
+  }
+
+  Future<void> deletePPMMaintenanceImage(String ppmTaskUploadId) async {
+    final db = await database;
+    await db.delete(
+      _PPMMaintenanceImagesTable.tableName,
+      where: 'ppm_task_upload_id = ?',
+      whereArgs: [ppmTaskUploadId],
+    );
   }
 
   Future<void> close() async {
@@ -1498,3 +1803,93 @@ CREATE TABLE $tableName (
 )
 ''';
 }
+
+// ============================================================================
+// PPM TABLES (Preventive Maintenance Module)
+// ============================================================================
+
+class _PPMPendingActionsTable {
+  static const tableName = 'ppm_pending_actions';
+  static const createSql = '''
+CREATE TABLE IF NOT EXISTS $tableName (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ppm_task_id TEXT NOT NULL,
+  action TEXT NOT NULL,
+  payload_json TEXT NOT NULL,
+  created_at TEXT NOT NULL
+)
+''';
+}
+
+class _PPMMaintenanceImagesTable {
+  static const tableName = 'ppm_maintenance_images';
+  static const createSql = '''
+CREATE TABLE IF NOT EXISTS $tableName (
+  ppm_task_upload_id TEXT PRIMARY KEY,
+  ppm_task_id TEXT NOT NULL,
+  upload_type TEXT NOT NULL,
+  latitude TEXT,
+  longitude TEXT,
+  timestamp TEXT,
+  description TEXT,
+  upload_id TEXT,
+  upload_name TEXT,
+  document_desc TEXT,
+  document_filename TEXT,
+  document_src TEXT
+)
+''';
+}
+
+class _PPMTasksTable {
+  static const tableName = 'ppm_tasks';
+  static const createSql = '''
+CREATE TABLE IF NOT EXISTS $tableName (
+  ppm_task_id TEXT PRIMARY KEY,
+  task_no TEXT NOT NULL,
+  site_name TEXT,
+  status TEXT,
+  last_sync TEXT,
+  data_json TEXT,
+  offline_mode_enabled INTEGER DEFAULT 0
+)
+''';
+}
+
+class _PPMSnapshotsTable {
+  static const tableName = 'ppm_snapshots';
+  static const createSql = '''
+CREATE TABLE IF NOT EXISTS $tableName (
+  ppm_task_id TEXT PRIMARY KEY,
+  task_no TEXT NOT NULL,
+  site_name TEXT,
+  status TEXT,
+  created_at TEXT NOT NULL,
+  execution_json TEXT,
+  section_a_json TEXT,
+  section_b_json TEXT
+)
+''';
+}
+
+class _PPMSnapshotSectionsTable {
+  static const tableName = 'ppm_snapshot_sections';
+  static const createSql = '''
+CREATE TABLE IF NOT EXISTS $tableName (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ppm_task_id TEXT NOT NULL,
+  section_name TEXT NOT NULL,
+  section_status TEXT NOT NULL,
+  check_parts TEXT NOT NULL,
+  check_additional_report TEXT NOT NULL,
+  section_data TEXT,
+  FOREIGN KEY (ppm_task_id) REFERENCES ${_PPMSnapshotsTable.tableName}(ppm_task_id) ON DELETE CASCADE
+)
+''';
+
+  static const snapshotIndexSql = '''
+CREATE INDEX IF NOT EXISTS idx_ppm_snapshot_sections_task 
+ON $tableName(ppm_task_id)
+''';
+}
+

@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:GEMS/main.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/data/repository/ppm_repository.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../model/task.dart';
 import 'Form/form_view.dart';
@@ -27,21 +30,125 @@ class _TaskViewState extends State<TaskView>
   List<Task> _listTask = List<Task>.empty(growable: true);
   List<Widget> tiles = List<Widget>.empty(growable: true);
   late Provider _provider;
+  late PPMRepository _repository;
   bool builded = false;
   final int index;
   bool viewer = true;
+  bool _isOnline = true;
+  bool _isCheckingConnectivity = false;
+  Set<String> _offlineTaskIds = {}; // Cache offline task IDs
 
   _TaskViewState(this.index) {
+    _repository = PPMRepository();
     _refresh();
   }
 
-  List<Widget> fetchGenerate(List<Task> listTask) {
-    List<Widget> values = List<Widget>.empty(growable: true);
-    values = List.generate(listTask.length, (item) => tile(listTask[item]));
+  /// Check if device has internet connectivity
+  Future<bool> _checkConnectivity() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } on SocketException catch (_) {
+      return false;
+    }
+  }
 
+  Future<List<Widget>> fetchGenerate(List<Task> listTask) async {
+    // Check connectivity first
+    if (!_isCheckingConnectivity) {
+      _isCheckingConnectivity = true;
+      _isOnline = await _checkConnectivity();
+      _isCheckingConnectivity = false;
+    }
+
+    List<Widget> values = List<Widget>.empty(growable: true);
+    
+    // Build a set of offline-enabled task IDs
+    _offlineTaskIds.clear();
+    for (var task in listTask) {
+      final isOfflineEnabled = await _repository.isOfflineModeEnabled(task.ppmTaskId);
+      if (isOfflineEnabled) {
+        _offlineTaskIds.add(task.ppmTaskId);
+      }
+    }
+    
+    // Filter tasks based on connectivity
+    List<Task> filteredTasks = listTask;
+    if (!_isOnline) {
+      // When offline, only show tasks with offline mode enabled
+      filteredTasks = listTask.where((task) => _offlineTaskIds.contains(task.ppmTaskId)).toList();
+      
+      // Add offline indicator
+      if (filteredTasks.isEmpty) {
+        values.add(_buildOfflineEmptyState());
+      } else {
+        values.add(_buildOfflineHeader(filteredTasks.length));
+      }
+    }
+
+    values.addAll(List.generate(filteredTasks.length, (item) => tile(filteredTasks[item])));
     values.insert(0, filter);
 
     return values;
+  }
+
+  Widget _buildOfflineHeader(int taskCount) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.orange[100],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.orange),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.offline_bolt, color: Colors.orange[800]),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Offline Mode - Showing $taskCount task${taskCount > 1 ? 's' : ''} available offline',
+              style: TextStyle(
+                color: Colors.orange[800],
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOfflineEmptyState() {
+    return Container(
+      padding: EdgeInsets.all(24),
+      margin: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Column(
+        children: [
+          Icon(Icons.cloud_off, size: 48, color: Colors.grey[400]),
+          SizedBox(height: 16),
+          Text(
+            'No Offline Tasks Available',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[700],
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            'You are currently offline. No tasks have been enabled for offline mode.\n\nTo access tasks offline, enable offline mode for them when connected to the internet.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey[600]),
+          ),
+        ],
+      ),
+    );
   }
 
   fetch(String text) {
@@ -77,13 +184,13 @@ class _TaskViewState extends State<TaskView>
 
     _provider = Provider(fetchURL: url);
 
-    _provider.fetch().then((value) {
+    _provider.fetch().then((value) async {
       _listTask = value.taskList?.toList() ?? [];
-      tiles = fetchGenerate(_listTask);
+      tiles = await fetchGenerate(_listTask);
       children = tiles;
       if (builded) setState(() {});
-    }).catchError((err) {
-      tiles = fetchGenerate([]);
+    }).catchError((err) async {
+      tiles = await fetchGenerate([]);
       children = tiles;
       if (builded) setState(() {});
     });
@@ -105,6 +212,7 @@ class _TaskViewState extends State<TaskView>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Call super for AutomaticKeepAliveClientMixin
     _provider.context = context;
 
     builded = true;
@@ -190,6 +298,8 @@ class _TaskViewState extends State<TaskView>
   }
 
   ListTile tile(Task task) {
+    final hasOfflineMode = _offlineTaskIds.contains(task.ppmTaskId);
+    
     return ListTile(
       contentPadding: EdgeInsets.zero,
       title: Card(
@@ -223,13 +333,44 @@ class _TaskViewState extends State<TaskView>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        task.transactionNo,
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              task.transactionNo,
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                          if (hasOfflineMode) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.green,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.offline_bolt, size: 12, color: Colors.white),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Offline',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                       const SizedBox(height: 4),
                       Text(
