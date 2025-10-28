@@ -8,7 +8,7 @@ import 'package:sqflite/sqflite.dart';
 import 'entities/ppm_entities.dart';
 
 const _dbName = 'gems_offline.db';
-const _dbVersion = 13; // Incremented for PPM section data storage
+const _dbVersion = 14; // Incremented for PPM offline actions tracking
 
 class OfflineDatabase {
   OfflineDatabase._();
@@ -63,6 +63,7 @@ class OfflineDatabase {
     await db.execute(_PPMSnapshotsTable.createSql);
     await db.execute(_PPMSnapshotSectionsTable.createSql);
     await db.execute(_PPMSnapshotSectionsTable.snapshotIndexSql);
+    await db.execute(_PPMOfflineActionsTable.createSql);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -132,6 +133,10 @@ class OfflineDatabase {
             'ALTER TABLE ${_PPMSnapshotSectionsTable.tableName} ADD COLUMN section_data TEXT',
           )
           .catchError((_) => null);
+    }
+    if (oldVersion < 14) {
+      // Add offline actions table for tracking start time and other offline operations
+      await db.execute(_PPMOfflineActionsTable.createSql);
     }
   }
 
@@ -914,6 +919,85 @@ ORDER BY h.scheduled_start DESC, h.work_order_number DESC
       where: 'ppm_task_upload_id = ?',
       whereArgs: [ppmTaskUploadId],
     );
+  }
+
+  /// Save offline action (e.g., start time, section save)
+  Future<int> savePPMOfflineAction({
+    required String ppmTaskId,
+    required String actionType,
+    String? actionData,
+    String? timestamp,
+  }) async {
+    final db = await database;
+    return await db.insert(
+      _PPMOfflineActionsTable.tableName,
+      {
+        'ppm_task_id': ppmTaskId,
+        'action_type': actionType,
+        'action_data': actionData,
+        'timestamp': timestamp ?? DateTime.now().toIso8601String(),
+        'synced': 0,
+      },
+    );
+  }
+
+  /// Get all unsynced offline actions
+  Future<List<Map<String, dynamic>>> getPPMUnsyncedActions({String? ppmTaskId}) async {
+    final db = await database;
+    if (ppmTaskId != null) {
+      return await db.query(
+        _PPMOfflineActionsTable.tableName,
+        where: 'synced = 0 AND ppm_task_id = ?',
+        whereArgs: [ppmTaskId],
+        orderBy: 'timestamp ASC',
+      );
+    }
+    return await db.query(
+      _PPMOfflineActionsTable.tableName,
+      where: 'synced = 0',
+      orderBy: 'timestamp ASC',
+    );
+  }
+
+  /// Mark offline action as synced
+  Future<void> markPPMActionSynced(int actionId) async {
+    final db = await database;
+    await db.update(
+      _PPMOfflineActionsTable.tableName,
+      {'synced': 1},
+      where: 'id = ?',
+      whereArgs: [actionId],
+    );
+  }
+
+  /// Mark offline action as failed with error
+  Future<void> markPPMActionFailed(int actionId, String error) async {
+    final db = await database;
+    await db.update(
+      _PPMOfflineActionsTable.tableName,
+      {'sync_error': error},
+      where: 'id = ?',
+      whereArgs: [actionId],
+    );
+  }
+
+  /// Delete synced offline actions
+  Future<void> deleteSyncedPPMActions() async {
+    final db = await database;
+    await db.delete(
+      _PPMOfflineActionsTable.tableName,
+      where: 'synced = 1',
+    );
+  }
+
+  /// Get count of unsynced actions for a task
+  Future<int> getPPMUnsyncedActionCount(String ppmTaskId) async {
+    final db = await database;
+    final result = await db.rawQuery(
+      'SELECT COUNT(*) as count FROM ${_PPMOfflineActionsTable.tableName} WHERE synced = 0 AND ppm_task_id = ?',
+      [ppmTaskId],
+    );
+    return Sqflite.firstIntValue(result) ?? 0;
   }
 
   Future<void> close() async {
@@ -1893,3 +1977,17 @@ ON $tableName(ppm_task_id)
 ''';
 }
 
+class _PPMOfflineActionsTable {
+  static const tableName = 'ppm_offline_actions';
+  static const createSql = '''
+CREATE TABLE IF NOT EXISTS $tableName (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ppm_task_id TEXT NOT NULL,
+  action_type TEXT NOT NULL,
+  action_data TEXT,
+  timestamp TEXT NOT NULL,
+  synced INTEGER DEFAULT 0,
+  sync_error TEXT
+)
+''';
+}

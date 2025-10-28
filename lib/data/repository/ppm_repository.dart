@@ -657,4 +657,76 @@ class PPMRepository {
     debugPrint('PPMRepository.loadSectionData: No cached data found for section $sectionName');
     return null;
   }
+
+  /// Save PPM start time offline (to be synced later)
+  Future<void> savePPMStartTimeOffline({
+    required String ppmTaskId,
+    bool groupExecution = false,
+  }) async {
+    debugPrint('PPMRepository.savePPMStartTimeOffline: Saving start time for task $ppmTaskId');
+    
+    final actionData = json.encode({
+      'ppmTaskId': ppmTaskId,
+      'ppmGroupExecution': groupExecution ? '1' : '0',
+    });
+    
+    await _database.savePPMOfflineAction(
+      ppmTaskId: ppmTaskId,
+      actionType: 'start_time',
+      actionData: actionData,
+    );
+    
+    debugPrint('PPMRepository.savePPMStartTimeOffline: Start time saved to local database');
+  }
+
+  /// Get all unsynced offline actions
+  Future<List<Map<String, dynamic>>> getUnsyncedActions({String? ppmTaskId}) async {
+    return await _database.getPPMUnsyncedActions(ppmTaskId: ppmTaskId);
+  }
+
+  /// Sync offline actions to server
+  Future<void> syncOfflineActions() async {
+    debugPrint('PPMRepository.syncOfflineActions: Starting sync');
+    final actions = await _database.getPPMUnsyncedActions();
+    
+    for (var action in actions) {
+      try {
+        if (action['action_type'] == 'start_time') {
+          final actionData = json.decode(action['action_data']);
+          
+          // Create provider and call the API
+          final provider = Provider(
+            fetchURL: "/api/m_ppm.php",
+          );
+          
+          await provider.post(
+            url: "/api/m_ppm.php",
+            body: {
+              "action": "save_scan_start_time",
+              "ppmTaskId": actionData['ppmTaskId'],
+              "ppmGroupExecution": actionData['ppmGroupExecution'],
+              "startTime": action['timestamp'], // Send actual offline start time
+            },
+          );
+          
+          // Mark as synced
+          await _database.markPPMActionSynced(action['id']);
+          debugPrint('PPMRepository.syncOfflineActions: Synced action ${action['id']} with timestamp ${action['timestamp']}');
+        }
+      } catch (err) {
+        debugPrint('PPMRepository.syncOfflineActions: Failed to sync action ${action['id']}: $err');
+        await _database.markPPMActionFailed(action['id'], err.toString());
+      }
+    }
+    
+    // Clean up synced actions
+    await _database.deleteSyncedPPMActions();
+    debugPrint('PPMRepository.syncOfflineActions: Sync complete');
+  }
+
+  /// Get count of unsynced actions for a task
+  Future<int> getUnsyncedActionCount(String ppmTaskId) async {
+    return await _database.getPPMUnsyncedActionCount(ppmTaskId);
+  }
 }
+

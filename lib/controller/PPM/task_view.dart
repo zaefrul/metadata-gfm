@@ -36,11 +36,20 @@ class _TaskViewState extends State<TaskView>
   bool viewer = true;
   bool _isOnline = true;
   bool _isCheckingConnectivity = false;
+  bool _isLoading = false; // Track loading state
   Set<String> _offlineTaskIds = {}; // Cache offline task IDs
 
   _TaskViewState(this.index) {
     _repository = PPMRepository();
-    _refresh();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Call _refresh after widget is mounted
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refresh();
+    });
   }
 
   /// Check if device has internet connectivity
@@ -182,17 +191,33 @@ class _TaskViewState extends State<TaskView>
   void _fetch(String url) {
     debugPrint("Fetching PPM tasks from: $url");
 
+    // Set loading state only if mounted
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
+
     _provider = Provider(fetchURL: url);
 
     _provider.fetch().then((value) async {
       _listTask = value.taskList?.toList() ?? [];
       tiles = await fetchGenerate(_listTask);
       children = tiles;
-      if (builded) setState(() {});
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }).catchError((err) async {
+      debugPrint("Error fetching tasks: $err");
       tiles = await fetchGenerate([]);
       children = tiles;
-      if (builded) setState(() {});
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     });
   }
 
@@ -216,22 +241,49 @@ class _TaskViewState extends State<TaskView>
     _provider.context = context;
 
     builded = true;
-    return children.isNotEmpty
-        ? RefreshIndicator(
-            onRefresh: _refresh,
-            child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              itemCount: children.length,
-              itemBuilder: (context, index) => children[index],
-              // separatorBuilder: (context, index) {
-              //   return Divider();
-              // },
-            ))
-        : Container(
-            child: Center(
-              child: CircularProgressIndicator(),
+    return Stack(
+      children: [
+        children.isNotEmpty
+            ? RefreshIndicator(
+                onRefresh: _refresh,
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  itemCount: children.length,
+                  itemBuilder: (context, index) => children[index],
+                  // separatorBuilder: (context, index) {
+                  //   return Divider();
+                  // },
+                ))
+            : Container(
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+        // Loading overlay when searching
+        if (_isLoading)
+          Container(
+            color: Colors.black.withOpacity(0.3),
+            child: const Center(
+              child: Card(
+                child: Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text(
+                        'Searching tasks...',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-          );
+          ),
+      ],
+    );
   }
 
   Widget getTitle(String text, {bold = false}) => Container(

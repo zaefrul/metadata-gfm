@@ -135,6 +135,16 @@ class _FormAState extends State<FormA> {
   }
 
   Future<void> scan() async {
+    // Check if offline mode is enabled
+    final isOffline = await _repository.isOfflineModeEnabled(widget.id);
+    
+    if (isOffline) {
+      // Skip QR scan in offline mode - show confirmation dialog
+      _showOfflineStartConfirmation();
+      return;
+    }
+    
+    // Normal QR scan flow for online mode
     try {
       var barcode = await BarcodeScanner.scan();
       if (barcode.rawContent == assetNo) {
@@ -163,20 +173,143 @@ class _FormAState extends State<FormA> {
     Toast.show(keyword);
   }
 
+  void _showOfflineStartConfirmation() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.cloud_off, color: Colors.orange),
+              SizedBox(width: 8),
+              Text("Start Task"),
+              SizedBox(width: 8),
+              Icon(Icons.offline_bolt, size: 20, color: Colors.orange[700]),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("You are in offline mode. The task will start without QR verification."),
+              SizedBox(height: 12),
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue[50],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Asset No:", style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(assetNo),
+                  ],
+                ),
+              ),
+              SizedBox(height: 12),
+              Text(
+                "The start time will be synced when you're back online.",
+                style: TextStyle(fontSize: 12, color: Colors.grey[600], fontStyle: FontStyle.italic),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            dialogButton(
+              "Cancel",
+              () => Navigator.of(context).pop(),
+              AppColors.secondary,
+            ),
+            dialogButton(
+              "Start Task",
+              () {
+                Navigator.of(context).pop();
+                _startTaskOffline();
+              },
+              AppColors.primaryDark,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _startTaskOffline() async {
+    try {
+      // Save start time locally
+      await _repository.savePPMStartTimeOffline(
+        ppmTaskId: widget.id,
+        groupExecution: assetGroup.isNotEmpty,
+      );
+      
+      verified = true;
+      widget.verification?.call(true);
+      
+      Toast.show("Task started in offline mode. Will sync when online.", duration: 3);
+      setState(() {});
+    } catch (err) {
+      Toast.show("Failed to start task: $err");
+    }
+  }
+
   Widget body(FormAItem object) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Asset Details",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Asset Details",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              FutureBuilder<bool>(
+                future: _repository.isOfflineModeEnabled(widget.id),
+                builder: (context, snapshot) {
+                  if (snapshot.data == true) {
+                    return Container(
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.orange[100],
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.orange),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.offline_bolt, size: 16, color: Colors.orange[800]),
+                          SizedBox(width: 4),
+                          Text(
+                            "Offline Mode",
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orange[800],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  return SizedBox.shrink();
+                },
+              ),
+            ],
           ),
           SizedBox(height: 8),
-          Text(
-            "Check the asset details before proceeding. To execute the PPM, scan the asset QR code.",
-            style: TextStyle(fontSize: 14, color: Colors.grey[800]),
+          FutureBuilder<bool>(
+            future: _repository.isOfflineModeEnabled(widget.id),
+            builder: (context, snapshot) {
+              final isOffline = snapshot.data == true;
+              return Text(
+                isOffline 
+                  ? "Offline mode enabled. You can start the task without QR scanning. Tap the camera icon to begin."
+                  : "Check the asset details before proceeding. To execute the PPM, scan the asset QR code.",
+                style: TextStyle(fontSize: 14, color: Colors.grey[800]),
+              );
+            },
           ),
           SizedBox(height: 16),
           Container(

@@ -86,7 +86,6 @@ class _SearchState extends State<Search> {
           onChanged: (text) => setState(() => keyword = text),
           textInputAction: TextInputAction.search,
           onSubmitted: (value) {
-            Toast.show("Loading", duration: 2);
             if (controller.text != searchText) {
               searchText = controller.text;
               if (index == 0) {
