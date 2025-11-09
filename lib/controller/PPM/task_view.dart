@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:GEMS/main.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/utils/pending_sync_controller.dart';
 import 'package:GEMS/data/repository/ppm_repository.dart';
+import 'package:GEMS/widgets/common/pending_sync_banner.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:rxdart/rxdart.dart';
 import '../../model/task.dart';
 import 'Form/form_view.dart';
 
@@ -29,8 +32,10 @@ class _TaskViewState extends State<TaskView>
   List<Widget> children = List<Widget>.empty(growable: true);
   List<Task> _listTask = List<Task>.empty(growable: true);
   List<Widget> tiles = List<Widget>.empty(growable: true);
-  late Provider _provider;
+  Provider? _provider; // Make nullable to avoid late initialization issues
   late PPMRepository _repository;
+  late PendingSyncController _pendingSyncController;
+  final BehaviorSubject<int> _pendingCount = BehaviorSubject<int>.seeded(0);
   bool builded = false;
   final int index;
   bool viewer = true;
@@ -41,15 +46,29 @@ class _TaskViewState extends State<TaskView>
 
   _TaskViewState(this.index) {
     _repository = PPMRepository();
+    _pendingSyncController = PendingSyncController(
+      pendingCount$: _pendingCount.stream,
+      retry: _retryPendingSync,
+    );
   }
 
   @override
   void initState() {
     super.initState();
-    // Call _refresh after widget is mounted
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refresh();
+    // Load offline tasks first (fast), then check online and sync
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Load offline tasks immediately for fast startup
+      await _loadOfflineTasks();
+      // Then refresh from online if available
+      await _refresh();
+      await _refreshPendingCount();
     });
+  }
+
+  @override
+  void dispose() {
+    _pendingCount.close();
+    super.dispose();
   }
 
   /// Check if device has internet connectivity
@@ -60,6 +79,22 @@ class _TaskViewState extends State<TaskView>
     } on SocketException catch (_) {
       return false;
     }
+  }
+
+  /// Refresh the pending action count
+  Future<void> _refreshPendingCount() async {
+    final count = await _repository.getPendingActionCount();
+    if (mounted) {
+      _pendingCount.add(count);
+    }
+  }
+
+  /// Retry syncing pending actions
+  Future<void> _retryPendingSync() async {
+    debugPrint('TaskView: Retrying pending sync...');
+    await _repository.syncPendingActions();
+    await _refreshPendingCount();
+    await _refresh();
   }
 
   Future<List<Widget>> fetchGenerate(List<Task> listTask) async {
@@ -160,35 +195,35 @@ class _TaskViewState extends State<TaskView>
     );
   }
 
-  fetch(String text) {
+  Future<void> fetch(String text) async {
     String url = "/api/m_ppm.php?type=pending_task";
     url += "_search&assetNo=$text";
 
-    _fetch(url);
+    await _fetch(url);
   }
 
-  fetchQR(String text) {
+  Future<void> fetchQR(String text) async {
     String url = "/api/m_ppm.php?type=pending_task";
     url += "_scan_asset&assetNo=$text";
 
-    _fetch(url);
+    await _fetch(url);
   }
 
-  fetchQRAll(String text) {
+  Future<void> fetchQRAll(String text) async {
     String url = "/api/m_ppm.php?type=all_task";
     url += "_scan_asset&assetNo=$text";
 
-    _fetch(url);
+    await _fetch(url);
   }
 
-  fetchAll(String text) {
+  Future<void> fetchAll(String text) async {
     String url = "/api/m_ppm.php?type=all_task";
     url += "_search&searchTxt=$text";
 
-    _fetch(url);
+    await _fetch(url);
   }
 
-  void _fetch(String url) {
+  Future<void> _fetch(String url) async {
     debugPrint("Fetching PPM tasks from: $url");
 
     // Set loading state only if mounted
@@ -198,10 +233,34 @@ class _TaskViewState extends State<TaskView>
       });
     }
 
+    // Check if we're online
+    final isOnline = await _checkConnectivity();
+    
+    if (!isOnline) {
+      // When offline, load tasks from cache
+      debugPrint("Device is offline, loading cached tasks");
+      await _loadOfflineTasks();
+      return;
+    }
+
+    // When online, sync pending actions first
+    try {
+      await _repository.syncPendingActions();
+      await _refreshPendingCount();
+    } catch (err) {
+      debugPrint("Failed to sync pending actions: $err");
+    }
+
+    // When online, fetch from API
     _provider = Provider(fetchURL: url);
 
-    _provider.fetch().then((value) async {
+    try {
+      final value = await _provider!.fetch();
       _listTask = value.taskList?.toList() ?? [];
+      
+      // Cache the tasks for offline use
+      await _cacheTaskList(_listTask);
+      
       tiles = await fetchGenerate(_listTask);
       children = tiles;
       if (mounted) {
@@ -209,27 +268,123 @@ class _TaskViewState extends State<TaskView>
           _isLoading = false;
         });
       }
-    }).catchError((err) async {
+    } catch (err) {
       debugPrint("Error fetching tasks: $err");
-      tiles = await fetchGenerate([]);
+      
+      // Try to load from cache as fallback
+      await _loadOfflineTasks();
+    }
+  }
+
+  /// Cache task list for offline access
+  Future<void> _cacheTaskList(List<Task> tasks) async {
+    try {
+      final db = await _repository.database;
+      
+      // Save each task to the ppm_tasks table
+      for (var task in tasks) {
+        // Check if task already exists
+        final existing = await db.query(
+          'ppm_tasks',
+          where: 'ppm_task_id = ?',
+          whereArgs: [task.ppmTaskId],
+          limit: 1,
+        );
+        
+        if (existing.isNotEmpty) {
+          // Task exists, update only data fields, preserve offline_mode_enabled
+          await db.update(
+            'ppm_tasks',
+            {
+              'task_no': task.transactionNo,
+              'site_name': task.siteName,
+              'status': task.statusDesc,
+              'last_sync': DateTime.now().toIso8601String(),
+              'data_json': task.toJson(),
+              // offline_mode_enabled is NOT updated here - preserve user's choice
+            },
+            where: 'ppm_task_id = ?',
+            whereArgs: [task.ppmTaskId],
+          );
+        } else {
+          // New task, insert with offline_mode_enabled = 0 (default)
+          await db.insert(
+            'ppm_tasks',
+            {
+              'ppm_task_id': task.ppmTaskId,
+              'task_no': task.transactionNo,
+              'site_name': task.siteName,
+              'status': task.statusDesc,
+              'last_sync': DateTime.now().toIso8601String(),
+              'data_json': task.toJson(),
+              'offline_mode_enabled': 0,
+            },
+          );
+        }
+      }
+      
+      debugPrint("Cached ${tasks.length} tasks for offline access");
+    } catch (err) {
+      debugPrint("Error caching tasks: $err");
+    }
+  }
+
+  /// Load tasks from local cache when offline
+  Future<void> _loadOfflineTasks() async {
+    try {
+      final db = await _repository.database;
+      final results = await db.query(
+        'ppm_tasks',
+        where: 'offline_mode_enabled = ?',
+        whereArgs: [1],
+        orderBy: 'last_sync DESC',
+      );
+      
+      debugPrint("Loaded ${results.length} offline tasks from cache");
+      
+      // Convert cached data back to Task objects
+      _listTask = results
+          .map((row) {
+            final jsonStr = row['data_json'] as String;
+            return Task.fromJson(jsonStr);
+          })
+          .where((task) => task != null)
+          .cast<Task>()
+          .toList();
+      
+      tiles = await fetchGenerate(_listTask);
       children = tiles;
+      
+      // Refresh pending count
+      await _refreshPendingCount();
+      
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
       }
-    });
+    } catch (err) {
+      debugPrint("Error loading offline tasks: $err");
+      
+      // Show empty state
+      tiles = await fetchGenerate([]);
+      children = tiles;
+      
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
-  Future<void> _refresh() {
+  Future<void> _refresh() async {
     if (index == 0) {
-      fetchAll("");
+      await fetchAll("");
     } else if (index == 1) {
-      fetch("");
+      await fetch("");
       viewer = false;
     }
-
-    return Future.value();
   }
 
   @override
@@ -238,7 +393,7 @@ class _TaskViewState extends State<TaskView>
   @override
   Widget build(BuildContext context) {
     super.build(context); // Call super for AutomaticKeepAliveClientMixin
-    _provider.context = context;
+    _provider?.context = context; // Use null-safe access
 
     builded = true;
     return Stack(
@@ -248,11 +403,20 @@ class _TaskViewState extends State<TaskView>
                 onRefresh: _refresh,
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  itemCount: children.length,
-                  itemBuilder: (context, index) => children[index],
-                  // separatorBuilder: (context, index) {
-                  //   return Divider();
-                  // },
+                  // Add 1 for PendingSyncIndicator when online
+                  itemCount: children.length + (_isOnline ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    // Show PendingSyncIndicator as first item when online
+                    if (index == 0 && _isOnline) {
+                      return PendingSyncIndicator(
+                        controller: _pendingSyncController,
+                        padding: const EdgeInsets.only(bottom: 8),
+                      );
+                    }
+                    // Adjust index to account for PendingSyncIndicator
+                    final adjustedIndex = _isOnline ? index - 1 : index;
+                    return children[adjustedIndex];
+                  },
                 ))
             : Container(
                 child: Center(

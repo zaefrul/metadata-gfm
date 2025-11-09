@@ -21,24 +21,48 @@ import 'package:file_picker/file_picker.dart';
 /// ```
 class BiometricLockManager {
   static bool _suppressNext = false;
+  static DateTime? _suppressSetTime;
+  static const _suppressTimeoutSeconds = 60; // Max time to suppress (safety)
 
   /// Call this BEFORE opening a system picker to prevent biometric prompt
   /// when the picker closes and app resumes.
   static void suppressNextLock() {
     _suppressNext = true;
+    _suppressSetTime = DateTime.now();
   }
 
   /// Check if next biometric lock should be suppressed.
-  /// Automatically resets to false after being called.
+  /// Returns true if suppression is active and hasn't timed out.
+  /// Does NOT reset the flag - use after checking in paused state.
+  static bool shouldSuppress() {
+    if (!_suppressNext) return false;
+    
+    // Safety timeout: Don't suppress forever if something goes wrong
+    if (_suppressSetTime != null) {
+      final elapsed = DateTime.now().difference(_suppressSetTime!).inSeconds;
+      if (elapsed > _suppressTimeoutSeconds) {
+        reset();
+        return false;
+      }
+    }
+    
+    return true;
+  }
+
+  /// Check if suppression is active, and reset it for next cycle.
+  /// Use this when app transitions from paused → resumed.
   static bool shouldSuppressAndReset() {
-    final suppress = _suppressNext;
-    _suppressNext = false;
+    final suppress = shouldSuppress();
+    if (suppress) {
+      reset();
+    }
     return suppress;
   }
 
   /// Manually reset the suppression flag.
   static void reset() {
     _suppressNext = false;
+    _suppressSetTime = null;
   }
 
   // ========== Wrapper Methods ==========
@@ -52,13 +76,19 @@ class BiometricLockManager {
     CameraDevice preferredCameraDevice = CameraDevice.rear,
   }) async {
     suppressNextLock();
-    return await ImagePicker().pickImage(
-      source: source,
-      maxWidth: maxWidth,
-      maxHeight: maxHeight,
-      imageQuality: imageQuality,
-      preferredCameraDevice: preferredCameraDevice,
-    );
+    try {
+      return await ImagePicker().pickImage(
+        source: source,
+        maxWidth: maxWidth,
+        maxHeight: maxHeight,
+        imageQuality: imageQuality,
+        preferredCameraDevice: preferredCameraDevice,
+      );
+    } finally {
+      // Reset after picker completes (success or failure)
+      // Small delay to ensure lifecycle events have been processed
+      Future.delayed(const Duration(milliseconds: 500), reset);
+    }
   }
 
   /// Pick a single file without triggering biometric lock.
@@ -72,15 +102,21 @@ class BiometricLockManager {
     bool withReadStream = false,
   }) async {
     suppressNextLock();
-    return await FilePicker.platform.pickFiles(
-      dialogTitle: dialogTitle,
-      initialDirectory: initialDirectory,
-      type: type,
-      allowedExtensions: allowedExtensions,
-      allowMultiple: allowMultiple,
-      withData: withData,
-      withReadStream: withReadStream,
-    );
+    try {
+      return await FilePicker.platform.pickFiles(
+        dialogTitle: dialogTitle,
+        initialDirectory: initialDirectory,
+        type: type,
+        allowedExtensions: allowedExtensions,
+        allowMultiple: allowMultiple,
+        withData: withData,
+        withReadStream: withReadStream,
+      );
+    } finally {
+      // Reset after picker completes (success or failure)
+      // Small delay to ensure lifecycle events have been processed
+      Future.delayed(const Duration(milliseconds: 500), reset);
+    }
   }
 
   /// Save a file without triggering biometric lock.
@@ -92,12 +128,18 @@ class BiometricLockManager {
     List<String>? allowedExtensions,
   }) async {
     suppressNextLock();
-    return await FilePicker.platform.saveFile(
-      dialogTitle: dialogTitle,
-      fileName: fileName,
-      initialDirectory: initialDirectory,
-      type: type,
-      allowedExtensions: allowedExtensions,
-    );
+    try {
+      return await FilePicker.platform.saveFile(
+        dialogTitle: dialogTitle,
+        fileName: fileName,
+        initialDirectory: initialDirectory,
+        type: type,
+        allowedExtensions: allowedExtensions,
+      );
+    } finally {
+      // Reset after picker completes (success or failure)
+      // Small delay to ensure lifecycle events have been processed
+      Future.delayed(const Duration(milliseconds: 500), reset);
+    }
   }
 }

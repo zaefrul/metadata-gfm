@@ -184,45 +184,37 @@ class ComplaintSectionState extends State<ComplaintSection> {
           return Column(
             children: [
               _buildOfflineControls(),
-              // Removed PendingSyncIndicator from here - now it's inside the ListView
+              StreamBuilder<bool>(
+                stream: _bloc.offlineMode$,
+                builder: (_, offlineSnapshot) {
+                  final offline = offlineSnapshot.data ?? false;
+                  if (offline) {
+                    return const SizedBox.shrink();
+                  }
+                  return PendingSyncIndicator(
+                      controller: _pendingSyncController);
+                },
+              ),
               // 1) The scrolling list
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: _bloc.refresh,
-                  child: StreamBuilder<bool>(
-                    stream: _bloc.offlineMode$,
-                    builder: (_, offlineSnapshot) {
-                      final offline = offlineSnapshot.data ?? false;
-                      
-                      return ListView.builder(
-                        padding: EdgeInsets.only(top: 12),
-                        // Add 1 for PendingSyncIndicator when online
-                        itemCount: sections.length + (showtime ? 1 : 0) + (offline ? 0 : 1),
-                        itemBuilder: (c, i) {
-                          // Show PendingSyncIndicator as first item when online
-                          if (i == 0 && !offline) {
-                            return PendingSyncIndicator(
-                              controller: _pendingSyncController,
-                            );
-                          }
-                          
-                          // Adjust index to account for PendingSyncIndicator
-                          final adjustedIndex = offline ? i : i - 1;
-                          
-                          if (adjustedIndex == 0 && showtime) {
-                            return _TimeDuration(stream: _bloc.execution$);
-                          }
-                          final idx = adjustedIndex - (showtime ? 1 : 0);
-                          return BuildTile(
-                            workOrderStatus: sections[idx],
-                            onTap: () => _bloc.openScreen(
-                              context,
-                              sections[idx],
-                              viewOnly: widget.viewer,
-                              pendingSync: _pendingSyncController,
-                            ),
-                          );
-                        },
+                  child: ListView.builder(
+                    padding: EdgeInsets.only(top: 12),
+                    itemCount: sections.length + (showtime ? 1 : 0),
+                    itemBuilder: (c, i) {
+                      if (i == 0 && showtime) {
+                        return _TimeDuration(stream: _bloc.execution$);
+                      }
+                      final idx = i - (showtime ? 1 : 0);
+                      return BuildTile(
+                        workOrderStatus: sections[idx],
+                        onTap: () => _bloc.openScreen(
+                          context,
+                          sections[idx],
+                          viewOnly: widget.viewer,
+                          pendingSync: _pendingSyncController,
+                        ),
                       );
                     },
                   ),

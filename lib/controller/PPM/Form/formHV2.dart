@@ -7,6 +7,7 @@ import 'package:GEMS/controller/PPM/Form/openImage.dart';
 import 'package:GEMS/model/form.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/utils/biometric_lock_manager.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:android_intent_plus/android_intent.dart';
@@ -361,7 +362,7 @@ class _FormHState extends State<FormH> {
   String longitude = '';
 
     Future<XFile> getImage() async {
-      final XFile? pickedFile = await ImagePicker().pickImage(
+      final XFile? pickedFile = await BiometricLockManager.pickImage(
         source: ImageSource.camera,
         maxWidth: 480,
         maxHeight: 640,

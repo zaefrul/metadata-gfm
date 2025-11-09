@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:GEMS/utils/image_compressor.dart';
+import 'package:GEMS/utils/biometric_lock_manager.dart';
 import 'package:GEMS/controller/PPM/Form/openImage.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
@@ -479,7 +480,9 @@ class _FormComplaintState extends State<FormComplaint> {
   }
 
   Future<void> _createUploadItem() async {
-    final picked = await ImagePicker().pickImage(source: ImageSource.camera);
+    final picked = await BiometricLockManager.pickImage(
+      source: ImageSource.camera,
+    );
     if (picked == null) return;
     setState(() => loading = true);
     final file = File(picked.path);

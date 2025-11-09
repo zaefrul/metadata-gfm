@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:GEMS/model/form.dart';
 import 'package:GEMS/model/responseValue.dart';
+import 'package:GEMS/model/serializers.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/view/dialog.dart';
@@ -30,6 +33,7 @@ class _FormCState extends State<FormC> {
   bool loading = false;
   String? dropdownValue;
   List<UploadItem> items = [];
+  Future<ResponseValue>? _sectionDataFuture; // Cache the future
 
   String? assetNo;
   String? model;
@@ -48,6 +52,78 @@ class _FormCState extends State<FormC> {
     _repository = PPMRepository();
     _pendingSync = PPMPendingSyncController();
     _pendingSync?.setPPMTaskId(widget.id);
+    
+    _sectionDataFuture = _fetchSectionData(); // Initialize the future
+  }
+
+  /// Check if device has internet connectivity
+  Future<bool> _checkConnectivity() async {
+    try {
+      final result = await InternetAddress.lookup('google.com')
+          .timeout(const Duration(seconds: 3));
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } on SocketException catch (_) {
+      return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Fetch section data - checks offline mode first
+  Future<ResponseValue> _fetchSectionData() async {
+    // Check if offline mode is enabled
+    final isOffline = await _repository.isOfflineModeEnabled(widget.id);
+    
+    if (isOffline) {
+      debugPrint('FormC: Loading from offline cache');
+      final sectionData = await _repository.loadSectionData(widget.id, 'C');
+      
+      if (sectionData != null) {
+        debugPrint('FormC: Cached section data found');
+        
+        // The cached data is already parsed as a Map
+        // Wrap it in the expected API response format
+        final cachedResponse = {
+          'success': true,
+          'result': sectionData,
+          'error': '',
+          'errmsg': '',
+        };
+        
+        try {
+          // Deserialize using the same serializer as Provider.fetch()
+          final responseValue = serializers.deserializeWith(
+            ResponseValue.serializer, 
+            cachedResponse
+          );
+          
+          if (responseValue != null) {
+            debugPrint('FormC: Successfully loaded ${responseValue.sectionCList?.length ?? 0} tasks from cache');
+            return responseValue;
+          }
+        } catch (err) {
+          debugPrint('FormC: Failed to deserialize cached data: $err');
+        }
+      } else {
+        debugPrint('FormC: No cached data found');
+      }
+    }
+    
+    // Check connectivity before trying API
+    final isOnline = await _checkConnectivity();
+    if (!isOnline) {
+      debugPrint('FormC: No internet connection and no cache available');
+      // Return empty response to prevent hanging
+      return ResponseValue((b) => b
+        ..success = false
+        ..error = 'NO_CONNECTION'
+        ..errmsg = 'No internet connection. Please enable offline mode when connected.'
+        ..result = ''
+        ..sectionCList = null);
+    }
+    
+    // Fetch from API (online mode or offline cache miss)
+    return await provider.fetch();
   }
 
   @override
@@ -67,7 +143,7 @@ class _FormCState extends State<FormC> {
         title: getTitle("C. Qualitative Task", bold: true),
       ),
       body: FutureBuilder<ResponseValue>(
-        future: provider.fetch(),
+        future: _sectionDataFuture,
         builder: (context, AsyncSnapshot<ResponseValue> snapshot) {
           List<Widget> children = [
             // Add pending sync banner
@@ -78,7 +154,38 @@ class _FormCState extends State<FormC> {
             )
           ];
 
-          if (snapshot.hasData && items.isEmpty) {
+          // Show error message if no connection and no cache
+          if (snapshot.hasData && snapshot.data?.error == 'NO_CONNECTION') {
+            children.add(
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Card(
+                  color: Colors.orange[50],
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        Icon(Icons.cloud_off, size: 48, color: Colors.orange),
+                        SizedBox(height: 8),
+                        Text(
+                          'No Internet Connection',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Please enable offline mode when connected to internet to access this section offline.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
+
+          if (snapshot.hasData && items.isEmpty && snapshot.data?.sectionCList != null) {
             snapshot.data!.sectionCList?.forEach((f) {
               var updateItem = UploadItem.from(index: items.length.toString(), item: f);
               items.add(updateItem);
@@ -133,6 +240,12 @@ class _FormCState extends State<FormC> {
                         duration: Toast.lengthShort,
                         gravity: Toast.bottom,
                       );
+                      
+                      // Reload the section data to reflect changes
+                      setState(() {
+                        items.clear();
+                        _sectionDataFuture = _fetchSectionData();
+                      });
                     } else {
                       print('[FormC] Tasks queued for offline sync');
                       Toast.show(
@@ -140,6 +253,12 @@ class _FormCState extends State<FormC> {
                         duration: Toast.lengthLong,
                         gravity: Toast.bottom,
                       );
+                      
+                      // In offline mode, we need to reload to show the updated cache
+                      setState(() {
+                        items.clear();
+                        _sectionDataFuture = _fetchSectionData();
+                      });
                     }
 
                     widget.refreshStatus(true);

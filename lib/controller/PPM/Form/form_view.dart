@@ -1,5 +1,9 @@
+import 'dart:io';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:built_collection/built_collection.dart';
+import 'package:intl/intl.dart';
 import 'package:GEMS/controller/PPM/Form/pdf.dart';
 import 'package:GEMS/model/execution.dart';
 import 'package:GEMS/model/responseValue.dart';
@@ -71,6 +75,12 @@ class _FormViewState extends State<FormView> {
   bool _offlineToggleInFlight = false;
   Future<ExecutionModel>? _timeFuture; // Cache the future
   bool _isLoading = true; // Track initial load state
+  
+  // Task completion tracking
+  DateTime? _taskStartTime;
+  DateTime? _taskEndTime;
+  Duration? _taskDuration;
+  bool _taskIsCompleted = false;
 
   _FormViewState({required this.id});
 
@@ -103,6 +113,9 @@ class _FormViewState extends State<FormView> {
 
     // Load everything in parallel for faster initial load
     _initializeData();
+    
+    // Check if task is already completed (from pending actions)
+    _checkCompletionStatus();
   }
 
   Future<void> _initializeData() async {
@@ -122,6 +135,33 @@ class _FormViewState extends State<FormView> {
 
   Future<void> _loadExecutionInfo() async {
     try {
+      // Check connectivity before making API call
+      final isOnline = await _checkConnectivity();
+      
+      if (!isOnline || _isOfflineMode) {
+        // When offline or in offline mode, create a default ExecutionModel
+        debugPrint('FormView._loadExecutionInfo: Using default execution info (offline)');
+        final model = ExecutionModel(
+          '-', // max
+          '-', // min
+          false, // exceed
+          '-', // current
+          '-', // execute
+          '-', // assignTime
+          '-', // responseTimeDue
+          '-', // completionTimeDue
+          '-', // responseTimeSla
+          '-', // completionTimeSla
+          false, // completionTimeExceeded
+          false, // responseTimeExceeded
+        );
+        
+        if (mounted) {
+          _timeFuture = Future.value(model);
+        }
+        return;
+      }
+      
       final future = Provider(
         fetchURL: '/ppm_v2/execution_info/',
         taskID: widget.id,
@@ -135,9 +175,23 @@ class _FormViewState extends State<FormView> {
       }
     } catch (err) {
       debugPrint('Failed to load execution info: $err');
-      // Set a default/error future so the UI doesn't break
+      // Set a default model so the UI doesn't break
       if (mounted) {
-        _timeFuture = Future.error(err);
+        final model = ExecutionModel(
+          '-', // max
+          '-', // min
+          false, // exceed
+          '-', // current
+          '-', // execute
+          '-', // assignTime
+          '-', // responseTimeDue
+          '-', // completionTimeDue
+          '-', // responseTimeSla
+          '-', // completionTimeSla
+          false, // completionTimeExceeded
+          false, // responseTimeExceeded
+        );
+        _timeFuture = Future.value(model);
       }
     }
   }
@@ -148,6 +202,42 @@ class _FormViewState extends State<FormView> {
       setState(() {
         _isOfflineMode = isOffline;
       });
+    }
+  }
+
+  /// Check if device has internet connectivity
+  Future<bool> _checkConnectivity() async {
+    try {
+      final result = await InternetAddress.lookup('google.com')
+          .timeout(const Duration(seconds: 3));
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } on SocketException catch (_) {
+      return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _checkCompletionStatus() async {
+    try {
+      // Check pending actions for completion action
+      final pendingActions = await _repository.getPendingActions(ppmTaskId: widget.id);
+      for (final action in pendingActions) {
+        if (action.action == 'complete_ppm_task') {
+          final payload = json.decode(action.payloadJson);
+          final endTimeStr = payload['endTime'] as String?;
+          if (endTimeStr != null) {
+            setState(() {
+              _taskEndTime = DateTime.parse(endTimeStr);
+              _taskIsCompleted = true;
+              fieldDisable = true;
+            });
+          }
+          break;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error checking completion status: $e');
     }
   }
 
@@ -186,6 +276,126 @@ class _FormViewState extends State<FormView> {
         });
       }
     }
+  }
+
+  Future<void> _endPPMTask() async {
+    // Confirm with user before ending task
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext ctx) => AlertDialog(
+        title: const Text('End PPM Task'),
+        content: const Text(
+          'Are you sure you want to end this PPM task? This will record the completion time.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            child: const Text('End Task'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      // Record end time
+      final endTime = DateTime.now();
+
+      // Call repository to complete task (handles online/offline automatically)
+      final result = await _repository.completeTask(
+        ppmTaskId: widget.id,
+        endTime: endTime,
+      );
+
+      if (!mounted) return;
+
+      // Update completion status
+      setState(() {
+        _taskEndTime = endTime;
+        _taskIsCompleted = true;
+        if (_taskStartTime != null) {
+          _taskDuration = endTime.difference(_taskStartTime!);
+        }
+        fieldDisable = true; // Lock all sections after completion
+      });
+
+      if (result == PPMActionResult.success) {
+        Toast.show(
+          'PPM task completed successfully!',
+          duration: Toast.lengthLong,
+          gravity: Toast.bottom,
+        );
+      } else {
+        // PPMActionResult.queued
+        Toast.show(
+          'Task end time recorded. Will sync when online.',
+          duration: Toast.lengthLong,
+          gravity: Toast.bottom,
+        );
+      }
+
+      // Refresh status to update UI
+      await refreshStatus();
+
+      // Navigate back to task list after a short delay
+      await Future.delayed(const Duration(seconds: 2));
+      if (mounted) {
+        Navigator.of(context).pop();
+        widget.refresh();
+      }
+    } catch (err) {
+      debugPrint('Error ending PPM task: $err');
+      if (mounted) {
+        Toast.show(
+          'Failed to end task: $err',
+          duration: Toast.lengthLong,
+          gravity: Toast.bottom,
+        );
+      }
+    }
+  }
+
+  // Helper methods for completion status UI
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: Colors.green[700]),
+        const SizedBox(width: 8),
+        Text(
+          '$label: ',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.green[800],
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(fontSize: 14),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    return DateFormat('dd MMM yyyy, HH:mm').format(dateTime);
+  }
+
+  String _formatDuration(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    if (hours > 0) {
+      return '$hours hour${hours > 1 ? 's' : ''} $minutes min${minutes > 1 ? 's' : ''}';
+    }
+    return '$minutes minute${minutes > 1 ? 's' : ''}';
   }
 
   @override
@@ -408,6 +618,154 @@ class _FormViewState extends State<FormView> {
                   );
                 },
               ),
+
+              // Task Completion Status Card
+              if (_taskIsCompleted || _taskEndTime != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: FutureBuilder<ExecutionModel>(
+                    future: _timeFuture,
+                    builder: (context, snapshot) {
+                      final String? maxTime = snapshot.data?.max;
+                      final Duration? maxDuration = maxTime != null && maxTime != '-' 
+                          ? Duration(hours: int.tryParse(maxTime) ?? 0) 
+                          : null;
+                      final bool isWithinSLA = _taskDuration != null && maxDuration != null 
+                          ? _taskDuration! <= maxDuration 
+                          : true;
+                      
+                      final cardColor = isWithinSLA ? Colors.green[50] : Colors.orange[50];
+                      final borderColor = isWithinSLA ? Colors.green : Colors.orange;
+                      final iconColor = isWithinSLA ? Colors.green : Colors.orange;
+                      final textColor = isWithinSLA ? Colors.green[800] : Colors.orange[800];
+                      
+                      return Card(
+                        color: cardColor,
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: borderColor, width: 2),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    isWithinSLA ? Icons.check_circle : Icons.warning,
+                                    color: iconColor,
+                                    size: 28,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Task Completed',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: textColor,
+                                          ),
+                                        ),
+                                        if (!isWithinSLA)
+                                          Text(
+                                            'Exceeded SLA',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.orange[600],
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (!isWithinSLA)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: Colors.orange,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: const Text(
+                                        'OVER SLA',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              if (_taskStartTime != null) ...[
+                                _buildInfoRow(
+                                  Icons.play_circle_outline,
+                                  'Start Time',
+                                  _formatDateTime(_taskStartTime!),
+                                ),
+                                const SizedBox(height: 8),
+                              ],
+                              if (_taskEndTime != null) ...[
+                                _buildInfoRow(
+                                  Icons.stop_circle_outlined,
+                                  'End Time',
+                                  _formatDateTime(_taskEndTime!),
+                                ),
+                                const SizedBox(height: 8),
+                              ],
+                              if (_taskDuration != null) ...[
+                                _buildInfoRow(
+                                  Icons.timer_outlined,
+                                  'Duration',
+                                  _formatDuration(_taskDuration!),
+                                ),
+                                if (maxDuration != null) ...[
+                                  const SizedBox(height: 8),
+                                  _buildInfoRow(
+                                    Icons.schedule,
+                                    'Max Allocated',
+                                    _formatDuration(maxDuration),
+                                  ),
+                                ],
+                              ],
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+              // End PPM Button (show when task is in progress and NOT completed)
+              if (!widget.viewer && 
+                  !_taskIsCompleted && 
+                  _taskEndTime == null &&
+                  responseValue?.statusList != null && 
+                  responseValue!.statusList!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.check_circle, color: Colors.white),
+                    label: const Text('End PPM Task', 
+                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                    onPressed: () async {
+                      await _endPPMTask();
+                    },
+                  ),
+                ),
 
               // Bottom Submit Button
               Padding(
@@ -652,11 +1010,14 @@ class _FormViewState extends State<FormView> {
   }
 
   Future<void> refreshStatus() async {
-    // Use cached offline state instead of querying DB again
-    if (_isOfflineMode) {
+    // Check connectivity first
+    final isOnline = await _checkConnectivity();
+    
+    // If offline mode is enabled OR no internet connection, load from cache
+    if (_isOfflineMode || !isOnline) {
       final snapshot = await _repository.loadSnapshot(widget.id);
       if (snapshot != null) {
-        debugPrint('FormView.refreshStatus: Using cached snapshot data');
+        debugPrint('FormView.refreshStatus: ${_isOfflineMode ? "Offline mode" : "No internet"} - Using cached snapshot data');
         // Build ResponseValue from snapshot
         final sections = snapshot['sections'] as List<dynamic>;
         final formList = sections.map((s) {
@@ -682,10 +1043,23 @@ class _FormViewState extends State<FormView> {
           statusList = result.cast<String>();
         });
         return;
+      } else {
+        // No cached data available
+        debugPrint('FormView.refreshStatus: No cached data available for offline mode');
+        setState(() {
+          responseValue = ResponseValue((b) => b
+            ..success = false
+            ..error = 'NO_CACHE'
+            ..errmsg = 'No cached data available. Please enable offline mode when connected to internet.'
+            ..result = ''
+            ..statusList = ListBuilder([]));
+          statusList = [];
+        });
+        return;
       }
     }
 
-    // Fallback to API call
+    // Online and not in offline mode - fetch from API
     try {
       var value = await provider.fetch();
       setState(() {
@@ -696,36 +1070,35 @@ class _FormViewState extends State<FormView> {
         statusList = result.cast<String>();
       });
     } catch (err) {
-      // If API fails and we're in offline mode, try to load snapshot
-      if (_isOfflineMode) {
-        final snapshot = await _repository.loadSnapshot(widget.id);
-        if (snapshot != null) {
-          debugPrint('FormView.refreshStatus: API failed, using cached snapshot');
-          final sections = snapshot['sections'] as List<dynamic>;
-          final formList = sections.map((s) {
-            return formModel.Form((b) => b
-              ..ppmTaskSectionId = ''
-              ..ppmTaskSectionName = s['ppmTaskSectionName'] ?? ''
-              ..ppmTaskId = widget.id
-              ..ppmTaskSectionStatus = s['ppmTaskSectionStatus'] ?? ''
-              ..checkParts = s['checkParts'] ?? ''
-              ..checkAdditionalReport = s['checkAdditionalReport'] ?? '');
-          }).toList();
+      debugPrint('FormView.refreshStatus: API call failed: $err');
+      // API failed, try to use cache as fallback
+      final snapshot = await _repository.loadSnapshot(widget.id);
+      if (snapshot != null) {
+        debugPrint('FormView.refreshStatus: API failed, using cached snapshot as fallback');
+        final sections = snapshot['sections'] as List<dynamic>;
+        final formList = sections.map((s) {
+          return formModel.Form((b) => b
+            ..ppmTaskSectionId = ''
+            ..ppmTaskSectionName = s['ppmTaskSectionName'] ?? ''
+            ..ppmTaskId = widget.id
+            ..ppmTaskSectionStatus = s['ppmTaskSectionStatus'] ?? ''
+            ..checkParts = s['checkParts'] ?? ''
+            ..checkAdditionalReport = s['checkAdditionalReport'] ?? '');
+        }).toList();
 
-          setState(() {
-            responseValue = ResponseValue((b) => b
-              ..success = true
-              ..error = ''
-              ..errmsg = ''
-              ..result = 'cached'
-              ..statusList = ListBuilder(formList));
-            var result = responseValue!.statusList != null
-                ? responseValue!.statusList!.map((f) => f.ppmTaskSectionStatus).toList()
-                : [];
-            statusList = result.cast<String>();
-          });
-          return;
-        }
+        setState(() {
+          responseValue = ResponseValue((b) => b
+            ..success = true
+            ..error = ''
+            ..errmsg = ''
+            ..result = 'cached'
+            ..statusList = ListBuilder(formList));
+          var result = responseValue!.statusList != null
+              ? responseValue!.statusList!.map((f) => f.ppmTaskSectionStatus).toList()
+              : [];
+          statusList = result.cast<String>();
+        });
+        return;
       }
       rethrow;
     }

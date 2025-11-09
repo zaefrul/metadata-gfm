@@ -8,7 +8,7 @@ import 'package:sqflite/sqflite.dart';
 import 'entities/ppm_entities.dart';
 
 const _dbName = 'gems_offline.db';
-const _dbVersion = 15; // Incremented for PPM technician cache
+const _dbVersion = 14; // Incremented for PPM offline actions tracking
 
 class OfflineDatabase {
   OfflineDatabase._();
@@ -64,7 +64,6 @@ class OfflineDatabase {
     await db.execute(_PPMSnapshotSectionsTable.createSql);
     await db.execute(_PPMSnapshotSectionsTable.snapshotIndexSql);
     await db.execute(_PPMOfflineActionsTable.createSql);
-    await db.execute(_PPMTechnicianCacheTable.createSql);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -138,10 +137,6 @@ class OfflineDatabase {
     if (oldVersion < 14) {
       // Add offline actions table for tracking start time and other offline operations
       await db.execute(_PPMOfflineActionsTable.createSql);
-    }
-    if (oldVersion < 15) {
-      // Add technician cache table for offline technician management
-      await db.execute(_PPMTechnicianCacheTable.createSql);
     }
   }
 
@@ -739,46 +734,6 @@ ORDER BY h.scheduled_start DESC, h.work_order_number DESC
     return rows.first['section_data'] as String?;
   }
 
-  /// Save/Update section data for a specific section
-  Future<void> savePPMSectionData({
-    required String ppmTaskId,
-    required String sectionName,
-    required String sectionData,
-  }) async {
-    final db = await database;
-    
-    // Check if section exists
-    final existing = await db.query(
-      _PPMSnapshotSectionsTable.tableName,
-      where: 'ppm_task_id = ? AND section_name = ?',
-      whereArgs: [ppmTaskId, sectionName],
-      limit: 1,
-    );
-
-    if (existing.isEmpty) {
-      // Insert new section
-      await db.insert(
-        _PPMSnapshotSectionsTable.tableName,
-        {
-          'ppm_task_id': ppmTaskId,
-          'section_name': sectionName,
-          'section_data': sectionData,
-          'section_status': '',
-          'check_parts': '',
-          'check_additional_report': '',
-        },
-      );
-    } else {
-      // Update existing section
-      await db.update(
-        _PPMSnapshotSectionsTable.tableName,
-        {'section_data': sectionData},
-        where: 'ppm_task_id = ? AND section_name = ?',
-        whereArgs: [ppmTaskId, sectionName],
-      );
-    }
-  }
-
   Future<void> replaceSections(
     String workOrderId,
     List<WorkOrderSectionEntity> sections,
@@ -904,14 +859,10 @@ ORDER BY h.scheduled_start DESC, h.work_order_number DESC
     return db.insert(_PPMPendingActionsTable.tableName, action.toMap());
   }
 
-  Future<List<PPMPendingActionEntity>> getPPMPendingActions({
-    String? ppmTaskId,
-  }) async {
+  Future<List<PPMPendingActionEntity>> getPPMPendingActions() async {
     final db = await database;
     final rows = await db.query(
       _PPMPendingActionsTable.tableName,
-      where: ppmTaskId != null ? 'ppm_task_id = ?' : null,
-      whereArgs: ppmTaskId != null ? [ppmTaskId] : null,
       orderBy: 'created_at ASC',
     );
     return rows.map(PPMPendingActionEntity.fromMap).toList();
@@ -1047,103 +998,6 @@ ORDER BY h.scheduled_start DESC, h.work_order_number DESC
       [ppmTaskId],
     );
     return Sqflite.firstIntValue(result) ?? 0;
-  }
-
-  // ============================================================================
-  // PPM TECHNICIAN CACHE METHODS
-  // ============================================================================
-
-  /// Cache technician list for a PPM task
-  Future<void> cachePPMTechnicians({
-    required String ppmTaskId,
-    required List<Map<String, dynamic>> technicians,
-    required List<Map<String, dynamic>> selectedTechnicians,
-  }) async {
-    final db = await database;
-    final timestamp = DateTime.now().toIso8601String();
-    
-    await db.transaction((txn) async {
-      // Clear existing cache for this task
-      await txn.delete(
-        _PPMTechnicianCacheTable.tableName,
-        where: 'ppm_task_id = ?',
-        whereArgs: [ppmTaskId],
-      );
-      
-      // Insert all technicians
-      for (final tech in technicians) {
-        await txn.insert(
-          _PPMTechnicianCacheTable.tableName,
-          {
-            'ppm_task_id': ppmTaskId,
-            'user_id': tech['userId'],
-            'user_full_name': tech['userFullName'],
-            'assistant_id': null,
-            'is_selected': 0,
-            'cached_at': timestamp,
-          },
-        );
-      }
-      
-      // Update selected technicians
-      for (final tech in selectedTechnicians) {
-        await txn.update(
-          _PPMTechnicianCacheTable.tableName,
-          {
-            'assistant_id': tech['ppmTaskAssistId'],
-            'is_selected': 1,
-          },
-          where: 'ppm_task_id = ? AND user_id = ?',
-          whereArgs: [ppmTaskId, tech['userId']],
-        );
-      }
-    });
-  }
-
-  /// Get cached technician list for a PPM task
-  Future<List<Map<String, dynamic>>> getCachedPPMTechnicians(
-    String ppmTaskId,
-  ) async {
-    final db = await database;
-    return await db.query(
-      _PPMTechnicianCacheTable.tableName,
-      where: 'ppm_task_id = ? AND is_selected = 0',
-      whereArgs: [ppmTaskId],
-      orderBy: 'user_full_name ASC',
-    );
-  }
-
-  /// Get cached selected technicians for a PPM task
-  Future<List<Map<String, dynamic>>> getCachedPPMSelectedTechnicians(
-    String ppmTaskId,
-  ) async {
-    final db = await database;
-    return await db.query(
-      _PPMTechnicianCacheTable.tableName,
-      where: 'ppm_task_id = ? AND is_selected = 1',
-      whereArgs: [ppmTaskId],
-      orderBy: 'user_full_name ASC',
-    );
-  }
-
-  /// Check if technician cache exists for a task
-  Future<bool> hasCachedPPMTechnicians(String ppmTaskId) async {
-    final db = await database;
-    final result = await db.rawQuery(
-      'SELECT COUNT(*) as count FROM ${_PPMTechnicianCacheTable.tableName} WHERE ppm_task_id = ?',
-      [ppmTaskId],
-    );
-    return (Sqflite.firstIntValue(result) ?? 0) > 0;
-  }
-
-  /// Clear technician cache for a task
-  Future<void> clearPPMTechnicianCache(String ppmTaskId) async {
-    final db = await database;
-    await db.delete(
-      _PPMTechnicianCacheTable.tableName,
-      where: 'ppm_task_id = ?',
-      whereArgs: [ppmTaskId],
-    );
   }
 
   Future<void> close() async {
@@ -2134,21 +1988,6 @@ CREATE TABLE IF NOT EXISTS $tableName (
   timestamp TEXT NOT NULL,
   synced INTEGER DEFAULT 0,
   sync_error TEXT
-)
-''';
-}
-
-class _PPMTechnicianCacheTable {
-  static const tableName = 'ppm_technician_cache';
-  static const createSql = '''
-CREATE TABLE IF NOT EXISTS $tableName (
-  ppm_task_id TEXT NOT NULL,
-  user_id TEXT NOT NULL,
-  user_full_name TEXT NOT NULL,
-  assistant_id TEXT,
-  is_selected INTEGER NOT NULL DEFAULT 0,
-  cached_at TEXT NOT NULL,
-  PRIMARY KEY (ppm_task_id, user_id)
 )
 ''';
 }

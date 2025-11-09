@@ -7,6 +7,7 @@ import 'package:GEMS/data/local/entities/ppm_entities.dart';
 import 'package:GEMS/data/local/offline_database.dart';
 import 'package:GEMS/model/form.dart';
 import 'package:GEMS/utils/network.dart';
+import 'package:sqflite/sqflite.dart';
 
 enum PPMActionResult {
   success,
@@ -16,6 +17,9 @@ enum PPMActionResult {
 class PPMRepository {
   final OfflineDatabase _database = OfflineDatabase.instance;
   DateTime Function() _clock = () => DateTime.now();
+
+  // Expose database for direct queries when needed
+  Future<Database> get database => _database.database;
 
   // For testing purposes
   @visibleForTesting
@@ -164,7 +168,7 @@ class PPMRepository {
 
   Future<PPMActionResult> uploadMaintenanceImage({
     required String ppmTaskId,
-    required String uploadType, // '2' = Before, '3' = During, '4' = After
+    required String uploadType, // '0' = Before, '1' = During, '2' = After
     required String latitude,
     required String longitude,
     required String displayName,
@@ -175,7 +179,7 @@ class PPMRepository {
     return _sendOrQueue(
       ppmTaskId: ppmTaskId,
       body: {
-        'action': 'upload_ppm_maintenance_image',
+        'action': 'upload_maintenance_image',
         'ppmTaskId': ppmTaskId,
         'uploadType': uploadType,
         'longitude': longitude,
@@ -194,7 +198,7 @@ class PPMRepository {
     required Map<String, String> descriptions,
   }) {
     final body = <String, String>{
-      'action': 'save_ppm_maintenance_image_desc',
+      'action': 'save_image_desc',
       'ppmTaskId': ppmTaskId,
     };
     var index = 0;
@@ -287,7 +291,7 @@ class PPMRepository {
   Future<PPMActionResult> saveQualitativeTasks({
     required String ppmTaskId,
     required List<Map<String, String>> tasks,
-  }) {
+  }) async {
     final body = <String, String>{
       'action': 'save_qualitative_tasks',
       'ppmTaskId': ppmTaskId,
@@ -300,10 +304,17 @@ class PPMRepository {
       body['ppmTaskQual[$i][remark]'] = task['remark'] ?? '';
     }
     
-    return _sendOrQueue(
+    final result = await _sendOrQueue(
       ppmTaskId: ppmTaskId,
       body: body,
     );
+    
+    // If queued (offline mode), update the cache so user can see their changes
+    if (result == PPMActionResult.queued) {
+      await updateSectionCCache(ppmTaskId: ppmTaskId, tasks: tasks);
+    }
+    
+    return result;
   }
 
   // ============================================================================
@@ -313,7 +324,7 @@ class PPMRepository {
   Future<PPMActionResult> saveQuantitativeTasks({
     required String ppmTaskId,
     required List<Map<String, String>> tasks,
-  }) {
+  }) async {
     final body = <String, String>{
       'action': 'save_quantitative_tasks',
       'ppmTaskId': ppmTaskId,
@@ -321,15 +332,52 @@ class PPMRepository {
     
     for (var i = 0; i < tasks.length; i++) {
       final task = tasks[i];
-      body['ppmTaskQuant[$i][id]'] = task['id'] ?? '';
-      body['ppmTaskQuant[$i][result]'] = task['result'] ?? '';
-      body['ppmTaskQuant[$i][remark]'] = task['remark'] ?? '';
+      body['ppmTaskQuan[$i][id]'] = task['id'] ?? '';
+      body['ppmTaskQuan[$i][setValues]'] = task['setValues'] ?? '';
+      body['ppmTaskQuan[$i][measuredValues]'] = task['measuredValues'] ?? '';
+      body['ppmTaskQuan[$i][limit]'] = task['limit'] ?? '';
+      body['ppmTaskQuan[$i][result]'] = task['result'] ?? '';
+      body['ppmTaskQuan[$i][remark]'] = task['remark'] ?? '';
     }
     
-    return _sendOrQueue(
+    final result = await _sendOrQueue(
       ppmTaskId: ppmTaskId,
       body: body,
     );
+    
+    // If queued (offline mode), update the cache so user can see their changes
+    if (result == PPMActionResult.queued) {
+      await updateSectionDCache(ppmTaskId: ppmTaskId, tasks: tasks);
+    }
+    
+    return result;
+  }
+
+  // ============================================================================
+  // FORM G - REMARK
+  // ============================================================================
+
+  Future<PPMActionResult> saveRemark({
+    required String ppmTaskId,
+    required String remark,
+  }) async {
+    final body = <String, String>{
+      'action': 'save_ppm_remark',
+      'ppmTaskId': ppmTaskId,
+      'ppmTaskRemark': remark,
+    };
+    
+    final result = await _sendOrQueue(
+      ppmTaskId: ppmTaskId,
+      body: body,
+    );
+    
+    // If queued (offline mode), update the cache so user can see their changes
+    if (result == PPMActionResult.queued) {
+      await updateSectionGCache(ppmTaskId: ppmTaskId, remark: remark);
+    }
+    
+    return result;
   }
 
   // ============================================================================
@@ -421,40 +469,75 @@ class PPMRepository {
   }
 
   Future<void> syncPendingActions() async {
-    debugPrint('PPMRepository.syncPendingActions: Starting sync...');
+    debugPrint('═══════════════════════════════════════════════════════════════');
+    debugPrint('🔄 PPMRepository.syncPendingActions: Starting sync...');
+    debugPrint('═══════════════════════════════════════════════════════════════');
     
     final pending = await _database.getPPMPendingActions();
     if (pending.isEmpty) {
-      debugPrint('PPMRepository.syncPendingActions: No pending actions');
+      debugPrint('✓ PPMRepository.syncPendingActions: No pending actions to sync');
       return;
     }
 
-    debugPrint('PPMRepository.syncPendingActions: Found ${pending.length} pending actions');
+    debugPrint('📋 PPMRepository.syncPendingActions: Found ${pending.length} pending actions');
     
     var successCount = 0;
     var failureCount = 0;
     
     for (final action in pending) {
       try {
-        debugPrint('PPMRepository.syncPendingActions: Processing action ${action.id}: ${action.action}');
+        debugPrint('');
+        debugPrint('┌─────────────────────────────────────────────────────────────');
+        debugPrint('│ Processing Pending Action #${action.id}');
+        debugPrint('├─────────────────────────────────────────────────────────────');
+        debugPrint('│ PPM Task ID: ${action.ppmTaskId}');
+        debugPrint('│ Action Type: ${action.action}');
+        debugPrint('│ Created At: ${action.createdAt}');
         
         final body = json.decode(action.payloadJson) as Map<String, dynamic>;
+        
+        debugPrint('├─────────────────────────────────────────────────────────────');
+        debugPrint('│ 🌐 Sending to API: /api/m_ppm.php');
+        debugPrint('├─────────────────────────────────────────────────────────────');
+        debugPrint('│ Request Body:');
+        body.forEach((key, value) {
+          debugPrint('│   $key: $value');
+        });
+        debugPrint('└─────────────────────────────────────────────────────────────');
+        
         await _post(body);
         
         if (action.id != null) {
           await _database.removePPMPendingAction(action.id!);
           successCount++;
-          debugPrint('PPMRepository.syncPendingActions: Action ${action.id} synced and removed');
+          debugPrint('✅ Action ${action.id} synced successfully and removed from queue');
         }
       } catch (err, st) {
         failureCount++;
-        debugPrint('PPMRepository.syncPendingActions: Failed to sync action ${action.id}: $err\n$st');
+        debugPrint('❌ Failed to sync action ${action.id}: $err');
+        debugPrint('   Stack trace: $st');
         // Don't break - continue with other actions
         continue;
       }
     }
     
-    debugPrint('PPMRepository.syncPendingActions: Sync complete - Success: $successCount, Failed: $failureCount');
+    debugPrint('');
+    debugPrint('═══════════════════════════════════════════════════════════════');
+    debugPrint('📊 Sync Summary:');
+    debugPrint('   ✅ Success: $successCount');
+    debugPrint('   ❌ Failed: $failureCount');
+    debugPrint('   📝 Total: ${pending.length}');
+    debugPrint('═══════════════════════════════════════════════════════════════');
+  }
+
+  /// Get the count of pending actions for a specific task or all tasks
+  Future<int> getPendingActionCount({String? ppmTaskId}) async {
+    return await _database.getPPMPendingActionCount(ppmTaskId: ppmTaskId);
+  }
+
+  /// Get list of pending actions for a specific task or all tasks
+  Future<List<PPMPendingActionEntity>> getPendingActions({String? ppmTaskId}) async {
+    return await _database.getPPMPendingActions(ppmTaskId: ppmTaskId);
   }
 
   // ============================================================================
@@ -613,6 +696,37 @@ class PPMRepository {
       debugPrint('PPMRepository.downloadSnapshot: Failed to fetch execution info (non-critical): $err\n$st');
     }
 
+    // Fetch and cache technician list
+    try {
+      final technicianProvider = Provider(
+        fetchURL: '/ppm_task_assist/dropdown_list/',
+        taskID: ppmTaskId,
+      );
+      final selectedProvider = Provider(
+        fetchURL: '/ppm_task_assist/assistant_list/',
+        taskID: ppmTaskId,
+      );
+      
+      final List<dynamic> technicianList = await technicianProvider.getJson(url: '/ppm_task_assist/dropdown_list/') ?? [];
+      final List<dynamic> selectedList = await selectedProvider.getJson(url: '/ppm_task_assist/assistant_list/') ?? [];
+      
+      // Convert to List<Map<String, dynamic>>
+      final technicians = technicianList.map((e) => e as Map<String, dynamic>).toList();
+      final selectedTechnicians = selectedList.map((e) => e as Map<String, dynamic>).toList();
+      
+      if (technicians.isNotEmpty || selectedTechnicians.isNotEmpty) {
+        await cacheTechnicians(
+          ppmTaskId: ppmTaskId,
+          technicians: technicians,
+          selectedTechnicians: selectedTechnicians,
+        );
+        debugPrint('PPMRepository.downloadSnapshot: Cached ${technicians.length} available and ${selectedTechnicians.length} selected technicians');
+      }
+    } catch (err, st) {
+      debugPrint('PPMRepository.downloadSnapshot: Failed to cache technicians (non-critical): $err\n$st');
+      // Continue even if technician caching fails
+    }
+
     // Save snapshot to database
     await _database.savePPMSnapshot(
       ppmTaskId: ppmTaskId,
@@ -662,21 +776,217 @@ class PPMRepository {
   Future<void> savePPMStartTimeOffline({
     required String ppmTaskId,
     bool groupExecution = false,
+    DateTime? startTime,
   }) async {
-    debugPrint('PPMRepository.savePPMStartTimeOffline: Saving start time for task $ppmTaskId');
+    final timestamp = startTime ?? _clock();
+    debugPrint('PPMRepository.savePPMStartTimeOffline: Saving start time for task $ppmTaskId at $timestamp');
     
     final actionData = json.encode({
       'ppmTaskId': ppmTaskId,
       'ppmGroupExecution': groupExecution ? '1' : '0',
+      'startTime': timestamp.toIso8601String(),
     });
     
     await _database.savePPMOfflineAction(
       ppmTaskId: ppmTaskId,
       actionType: 'start_time',
       actionData: actionData,
+      timestamp: timestamp.toIso8601String(),
     );
     
     debugPrint('PPMRepository.savePPMStartTimeOffline: Start time saved to local database');
+  }
+
+  /// Update Section A data with start time in local cache
+  Future<void> updateSectionAStartTime({
+    required String ppmTaskId,
+    required DateTime startTime,
+  }) async {
+    debugPrint('PPMRepository.updateSectionAStartTime: Updating Section A cache with start time');
+    
+    try {
+      // Load existing section A data
+      final sectionDataJson = await loadSectionData(ppmTaskId, 'A');
+      
+      if (sectionDataJson != null) {
+        // Parse existing data
+        final sectionData = json.decode(sectionDataJson) as Map<String, dynamic>;
+        
+        // Update the ppmTaskTimeStart field with formatted timestamp
+        // Format: "YYYY-MM-DD HH:MM:SS" to match backend format
+        final formattedTime = '${startTime.year.toString().padLeft(4, '0')}-'
+            '${startTime.month.toString().padLeft(2, '0')}-'
+            '${startTime.day.toString().padLeft(2, '0')} '
+            '${startTime.hour.toString().padLeft(2, '0')}:'
+            '${startTime.minute.toString().padLeft(2, '0')}:'
+            '${startTime.second.toString().padLeft(2, '0')}';
+        
+        sectionData['ppmTaskTimeStart'] = formattedTime;
+        
+        // Save back to cache using database method
+        await _database.savePPMSectionData(
+          ppmTaskId: ppmTaskId,
+          sectionName: 'A',
+          sectionData: json.encode(sectionData),
+        );
+        
+        debugPrint('PPMRepository.updateSectionAStartTime: Updated cache with start time: $formattedTime');
+      } else {
+        debugPrint('PPMRepository.updateSectionAStartTime: No cached Section A data found');
+      }
+    } catch (err) {
+      debugPrint('PPMRepository.updateSectionAStartTime: Error updating cache: $err');
+      // Don't throw - this is not critical, the time will sync from server later
+    }
+  }
+
+  /// Update Section D (Quantitative) data in local cache after offline save
+  Future<void> updateSectionDCache({
+    required String ppmTaskId,
+    required List<Map<String, String>> tasks,
+  }) async {
+    debugPrint('PPMRepository.updateSectionDCache: Updating Section D cache with ${tasks.length} tasks');
+    
+    try {
+      // Load existing section D data
+      final sectionData = await loadSectionData(ppmTaskId, 'D');
+      
+      if (sectionData != null && sectionData is Map<String, dynamic>) {
+        // Update the tasks in the section data
+        final sectionDList = sectionData['sectionDList'] as List<dynamic>?;
+        
+        if (sectionDList != null) {
+          // Update each task with the saved values
+          for (var task in tasks) {
+            final taskId = task['id'];
+            final index = sectionDList.indexWhere((t) => t['ppmTaskQuanId'] == taskId);
+            
+            if (index != -1) {
+              sectionDList[index]['ppmTaskQuanSetValues'] = task['setValues'] ?? '';
+              sectionDList[index]['ppmTaskQuanMeasuredValues'] = task['measuredValues'] ?? '';
+              sectionDList[index]['ppmTaskQuanLimit'] = task['limit'] ?? '';
+              sectionDList[index]['ppmTaskQuanResult'] = _convertStatusToText(task['result'] ?? '');
+              sectionDList[index]['ppmTaskQuanRemark'] = task['remark'] ?? '';
+            }
+          }
+          
+          // Save updated data back to cache
+          await _database.savePPMSectionData(
+            ppmTaskId: ppmTaskId,
+            sectionName: 'D',
+            sectionData: json.encode(sectionData),
+          );
+          
+          debugPrint('PPMRepository.updateSectionDCache: Successfully updated cache');
+        }
+      }
+    } catch (err) {
+      debugPrint('PPMRepository.updateSectionDCache: Error updating cache: $err');
+    }
+  }
+
+  /// Update Section C (Qualitative) data in local cache after offline save
+  Future<void> updateSectionCCache({
+    required String ppmTaskId,
+    required List<Map<String, String>> tasks,
+  }) async {
+    debugPrint('PPMRepository.updateSectionCCache: Updating Section C cache with ${tasks.length} tasks');
+    
+    try {
+      // Load existing section C data
+      final sectionData = await loadSectionData(ppmTaskId, 'C');
+      
+      if (sectionData != null && sectionData is Map<String, dynamic>) {
+        // Update the tasks in the section data
+        final sectionCList = sectionData['sectionCList'] as List<dynamic>?;
+        
+        if (sectionCList != null) {
+          // Update each task with the saved values
+          for (var task in tasks) {
+            final taskId = task['id'];
+            final index = sectionCList.indexWhere((t) => t['ppmTaskQualId'] == taskId);
+            
+            if (index != -1) {
+              sectionCList[index]['ppmTaskQualResult'] = _convertStatusToText(task['result'] ?? '');
+              sectionCList[index]['ppmTaskQualRemark'] = task['remark'] ?? '';
+            }
+          }
+          
+          // Save updated data back to cache
+          await _database.savePPMSectionData(
+            ppmTaskId: ppmTaskId,
+            sectionName: 'C',
+            sectionData: json.encode(sectionData),
+          );
+          
+          debugPrint('PPMRepository.updateSectionCCache: Successfully updated cache');
+        }
+      }
+    } catch (err) {
+      debugPrint('PPMRepository.updateSectionCCache: Error updating cache: $err');
+    }
+  }
+
+  /// Update Section G (Remark) cache after offline save
+  Future<void> updateSectionGCache({
+    required String ppmTaskId,
+    required String remark,
+  }) async {
+    debugPrint('PPMRepository.updateSectionGCache: Updating Section G cache with remark');
+    
+    try {
+      // Load existing section G data
+      final sectionData = await loadSectionData(ppmTaskId, 'G');
+      
+      if (sectionData != null && sectionData is Map<String, dynamic>) {
+        // Update the remark in the section data
+        final sectionGList = sectionData['sectionGList'] as Map<String, dynamic>?;
+        
+        if (sectionGList != null) {
+          sectionGList['ppmTaskRemark'] = remark;
+          
+          // Save updated data back to cache
+          await _database.savePPMSectionData(
+            ppmTaskId: ppmTaskId,
+            sectionName: 'G',
+            sectionData: json.encode(sectionData),
+          );
+          
+          debugPrint('PPMRepository.updateSectionGCache: Successfully updated cache');
+        }
+      } else {
+        // If no cache exists, create a new one
+        final newSectionData = {
+          'sectionGList': {
+            'ppmTaskRemark': remark,
+          }
+        };
+        
+        await _database.savePPMSectionData(
+          ppmTaskId: ppmTaskId,
+          sectionName: 'G',
+          sectionData: json.encode(newSectionData),
+        );
+        
+        debugPrint('PPMRepository.updateSectionGCache: Created new cache entry');
+      }
+    } catch (err) {
+      debugPrint('PPMRepository.updateSectionGCache: Error updating cache: $err');
+    }
+  }
+
+  /// Convert status code to text for display
+  String _convertStatusToText(String statusCode) {
+    switch (statusCode) {
+      case '1':
+        return 'Pass';
+      case '0':
+        return 'Fail';
+      case '2':
+        return 'N/A';
+      default:
+        return statusCode;
+    }
   }
 
   /// Get all unsynced offline actions
@@ -689,8 +999,16 @@ class PPMRepository {
     debugPrint('PPMRepository.syncOfflineActions: Starting sync');
     final actions = await _database.getPPMUnsyncedActions();
     
+    debugPrint('PPMRepository.syncOfflineActions: Found ${actions.length} unsynced actions');
+    
     for (var action in actions) {
       try {
+        debugPrint('PPMRepository.syncOfflineActions: Processing action ${action['id']}:');
+        debugPrint('  - Type: ${action['action_type']}');
+        debugPrint('  - PPM Task ID: ${action['ppm_task_id']}');
+        debugPrint('  - Queue Timestamp: ${action['timestamp']}');
+        debugPrint('  - Action Data: ${action['action_data']}');
+        
         if (action['action_type'] == 'start_time') {
           final actionData = json.decode(action['action_data']);
           
@@ -699,19 +1017,37 @@ class PPMRepository {
             fetchURL: "/api/m_ppm.php",
           );
           
+          // Use the recorded start time from the action data (not the queue timestamp)
+          final startTime = actionData['startTime'] ?? action['timestamp'];
+          
+          // Prepare the request body
+          final requestBody = {
+            "action": "save_scan_start_time",
+            "ppmTaskId": actionData['ppmTaskId'],
+            "ppmGroupExecution": actionData['ppmGroupExecution'],
+            "scan_start_timer": startTime, // Backend expects scan_start_timer field
+          };
+          
+          debugPrint('╔════════════════════════════════════════════════════════════════');
+          debugPrint('║ 🔄 SYNCING TO API: /api/m_ppm.php');
+          debugPrint('╠════════════════════════════════════════════════════════════════');
+          debugPrint('║ Request Body:');
+          debugPrint('║   action: ${requestBody['action']}');
+          debugPrint('║   ppmTaskId: ${requestBody['ppmTaskId']}');
+          debugPrint('║   ppmGroupExecution: ${requestBody['ppmGroupExecution']}');
+          debugPrint('║   scan_start_timer: ${requestBody['scan_start_timer']}');
+          debugPrint('╠════════════════════════════════════════════════════════════════');
+          debugPrint('║ Note: scan_start_timer is the OFFLINE start time, not sync time');
+          debugPrint('╚════════════════════════════════════════════════════════════════');
+          
           await provider.post(
             url: "/api/m_ppm.php",
-            body: {
-              "action": "save_scan_start_time",
-              "ppmTaskId": actionData['ppmTaskId'],
-              "ppmGroupExecution": actionData['ppmGroupExecution'],
-              "startTime": action['timestamp'], // Send actual offline start time
-            },
+            body: requestBody,
           );
           
           // Mark as synced
           await _database.markPPMActionSynced(action['id']);
-          debugPrint('PPMRepository.syncOfflineActions: Synced action ${action['id']} with timestamp ${action['timestamp']}');
+          debugPrint('✅ PPMRepository.syncOfflineActions: Successfully synced action ${action['id']}');
         }
       } catch (err) {
         debugPrint('PPMRepository.syncOfflineActions: Failed to sync action ${action['id']}: $err');
@@ -727,6 +1063,137 @@ class PPMRepository {
   /// Get count of unsynced actions for a task
   Future<int> getUnsyncedActionCount(String ppmTaskId) async {
     return await _database.getPPMUnsyncedActionCount(ppmTaskId);
+  }
+
+  // ============================================================================
+  // TECHNICIAN MANAGEMENT
+  // ============================================================================
+
+  /// Cache technician list when enabling offline mode
+  Future<void> cacheTechnicians({
+    required String ppmTaskId,
+    required List<Map<String, dynamic>> technicians,
+    required List<Map<String, dynamic>> selectedTechnicians,
+  }) async {
+    await _database.cachePPMTechnicians(
+      ppmTaskId: ppmTaskId,
+      technicians: technicians,
+      selectedTechnicians: selectedTechnicians,
+    );
+  }
+
+  /// Get technician list (from cache if offline, from API if online)
+  Future<List<Map<String, dynamic>>> getTechnicians(String ppmTaskId) async {
+    final isOffline = await isOfflineModeEnabled(ppmTaskId);
+    
+    if (isOffline) {
+      // Load from cache
+      return await _database.getCachedPPMTechnicians(ppmTaskId);
+    }
+    
+    // Check if cache exists (we can use cached data even in online mode)
+    final hasCache = await _database.hasCachedPPMTechnicians(ppmTaskId);
+    if (hasCache) {
+      return await _database.getCachedPPMTechnicians(ppmTaskId);
+    }
+    
+    // No cache, must be online - return empty (caller should fetch from API)
+    return [];
+  }
+
+  /// Get selected technicians (from cache if offline, from API if online)
+  Future<List<Map<String, dynamic>>> getSelectedTechnicians(String ppmTaskId) async {
+    final isOffline = await isOfflineModeEnabled(ppmTaskId);
+    
+    if (isOffline) {
+      // Load from cache
+      return await _database.getCachedPPMSelectedTechnicians(ppmTaskId);
+    }
+    
+    // Check if cache exists
+    final hasCache = await _database.hasCachedPPMTechnicians(ppmTaskId);
+    if (hasCache) {
+      return await _database.getCachedPPMSelectedTechnicians(ppmTaskId);
+    }
+    
+    // No cache, must be online - return empty (caller should fetch from API)
+    return [];
+  }
+
+  /// Check if technician cache exists
+  Future<bool> hasCachedTechnicians(String ppmTaskId) async {
+    return await _database.hasCachedPPMTechnicians(ppmTaskId);
+  }
+
+  /// Complete PPM task - records end time
+  /// Returns PPMActionResult.success if online, PPMActionResult.queued if offline
+  Future<PPMActionResult> completeTask({
+    required String ppmTaskId,
+    required DateTime endTime,
+  }) async {
+    debugPrint('PPMRepository.completeTask: ppmTaskId=$ppmTaskId, endTime=$endTime');
+
+    final isOffline = await isOfflineModeEnabled(ppmTaskId);
+
+    if (isOffline) {
+      // Queue the complete action for offline sync
+      debugPrint('PPMRepository.completeTask: Offline mode - queuing action');
+      await _database.enqueuePPMPendingAction(
+        PPMPendingActionEntity(
+          ppmTaskId: ppmTaskId,
+          action: 'complete_ppm_task',
+          payloadJson: json.encode({
+            'ppmTaskId': ppmTaskId,
+            'endTime': endTime.toIso8601String(),
+            'completedOffline': true,
+          }),
+          createdAt: DateTime.now(),
+        ),
+      );
+      return PPMActionResult.queued;
+    }
+
+    // Online - call API directly
+    try {
+      final provider = Provider(
+        taskID: ppmTaskId,
+        fetchURL: '/api/m_ppm.php',
+      );
+
+      final body = {
+        'action': 'complete_ppm_task',
+        'ppmTaskId': ppmTaskId,
+        'endTime': endTime.toIso8601String(),
+        'completedOffline': false,
+      };
+
+      final response = await provider.post(url: '/api/m_ppm.php', body: body);
+      debugPrint('PPMRepository.completeTask: API response: $response');
+
+      return PPMActionResult.success;
+    } catch (err, st) {
+      debugPrint('PPMRepository.completeTask: Error calling API: $err\n$st');
+      rethrow;
+    }
+  }
+
+  /// Queue complete task action for offline sync (called by completeTask when offline)
+  Future<void> queueCompleteTask({
+    required String ppmTaskId,
+    required DateTime endTime,
+  }) async {
+    await _database.enqueuePPMPendingAction(
+      PPMPendingActionEntity(
+        ppmTaskId: ppmTaskId,
+        action: 'complete_ppm_task',
+        payloadJson: json.encode({
+          'ppmTaskId': ppmTaskId,
+          'endTime': endTime.toIso8601String(),
+          'completedOffline': true,
+        }),
+        createdAt: DateTime.now(),
+      ),
+    );
   }
 }
 

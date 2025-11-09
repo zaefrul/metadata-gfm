@@ -55,8 +55,9 @@ class _FormHState extends State<FormH> {
   late List<Widget> _children = [];
   Map<String, String> _notes = {};
   
-  // Image list for pending offline images
+  // Image lists - maintain state for uploaded and pending images
   List<PendingMaintenanceImage> _pending = [];
+  List<FormHItem> _uploadedImages = [];
 
   @override
   void initState() {
@@ -126,11 +127,26 @@ class _FormHState extends State<FormH> {
       }
       setState(() {
         _pending = pending;
+        // Regenerate children to show pending images along with uploaded images
+        _regenerateUIFromCurrentState();
       });
       debugPrint('FormH: setState completed with ${_pending.length} pending images');
     } catch (err, st) {
       debugPrint('Failed to load pending maintenance images: $err\n$st');
     }
+  }
+  
+  /// Regenerate UI from current uploaded images state
+  void _regenerateUIFromCurrentState() {
+    final before = _uploadedImages.where((img) => img.ppmTaskUploadType == 'Before').toList();
+    final during = _uploadedImages.where((img) => img.ppmTaskUploadType == 'During').toList();
+    final after = _uploadedImages.where((img) => img.ppmTaskUploadType == 'After').toList();
+    
+    _generateChildren([
+      before.isNotEmpty ? before.first : null,
+      during.length > 3 ? during.sublist(0, 3) : during,
+      after.isNotEmpty ? after.first : null,
+    ]);
   }
 
   void _updateImageLists(List<FormHItem> all) {
@@ -148,6 +164,7 @@ class _FormHState extends State<FormH> {
     }
 
     setState(() {
+      _uploadedImages = all; // Store all uploaded images
       _notes
         ..clear()
         ..addAll(notes);
@@ -632,12 +649,9 @@ class _FormHState extends State<FormH> {
 
     print('[FormH] _createUploadItem called for section $sectionIndex (${_sectionName[sectionIndex]})');
 
-    // Use BiometricLockManager to prevent biometric prompts during camera operations
-    BiometricLockManager.suppressNextLock();
-
     try {
-      // Step 1: Take photo
-      final XFile? pickedFile = await ImagePicker().pickImage(
+      // Step 1: Take photo using BiometricLockManager wrapper
+      final XFile? pickedFile = await BiometricLockManager.pickImage(
         source: ImageSource.camera,
         imageQuality: 70,
       );
@@ -652,7 +666,14 @@ class _FormHState extends State<FormH> {
       final File imageFile = File(pickedFile.path);
       final fileName = basename(imageFile.path);
 
-      // Step 2: Get location
+      // Show immediate feedback - image is being processed
+      Toast.show(
+        "Processing image...",
+        duration: Toast.lengthShort,
+        gravity: Toast.bottom,
+      );
+
+      // Step 2: Get location (don't block UI)
       String latitude = '0.0';
       String longitude = '0.0';
       try {
@@ -663,7 +684,7 @@ class _FormHState extends State<FormH> {
         if (permission != LocationPermission.denied && permission != LocationPermission.deniedForever) {
           final position = await Geolocator.getCurrentPosition(
             desiredAccuracy: LocationAccuracy.medium,
-            timeLimit: Duration(seconds: 10),
+            timeLimit: Duration(seconds: 5), // Reduced from 10 to 5 seconds
           );
           latitude = position.latitude.toString();
           longitude = position.longitude.toString();
@@ -673,11 +694,10 @@ class _FormHState extends State<FormH> {
         }
       } catch (e) {
         print('[FormH] Location error: $e - using defaults');
+        // Continue with defaults, don't block the user
       }
 
-      // Step 3: Compress image
-      setState(() => _loading = true);
-
+      // Step 3: Compress image in background
       final Uint8List? bytes = await compressFile(imageFile, settings: {
         'quality': Platform.isIOS ? 60 : 80,
         'minWidth': 640,
@@ -687,7 +707,6 @@ class _FormHState extends State<FormH> {
       if (bytes == null) {
         print('[FormH] Image compression failed');
         if (mounted) {
-          setState(() => _loading = false);
           _showAlert("Error", "Unable to compress image.");
         }
         return;
@@ -696,7 +715,8 @@ class _FormHState extends State<FormH> {
       print('[FormH] Image compressed: ${bytes.length} bytes');
 
       // Step 4: Upload via repository (handles online/offline)
-      final result = await _repository.uploadMaintenanceImage(
+      // This happens in the background - don't block UI
+      _repository.uploadMaintenanceImage(
         ppmTaskId: widget.id,
         uploadType: sectionIndex.toString(),
         latitude: latitude,
@@ -705,27 +725,58 @@ class _FormHState extends State<FormH> {
         filename: fileName,
         sizeBytes: bytes.length,
         base64Data: base64Encode(bytes),
+      ).then((result) async {
+        if (!mounted) return;
+        
+        if (result == PPMActionResult.success) {
+          print('[FormH] Upload successful');
+          Toast.show(
+            "Image uploaded successfully",
+            duration: Toast.lengthShort,
+            gravity: Toast.bottom,
+          );
+        } else {
+          // PPMActionResult.queued
+          print('[FormH] Upload queued for offline sync');
+          Toast.show(
+            "Image saved. Will sync when online.",
+            duration: Toast.lengthShort,
+            gravity: Toast.bottom,
+          );
+        }
+
+        // Refresh display after successful upload/queue
+        await _loadImages();
+        await _loadPendingImages();
+      }).catchError((e, stackTrace) {
+        print('[FormH] Error uploading: $e');
+        print('[FormH] Stack trace: $stackTrace');
+        if (mounted) {
+          Toast.show(
+            "Failed to save image: $e",
+            duration: Toast.lengthLong,
+            gravity: Toast.bottom,
+          );
+        }
+      });
+
+      // Show pending image immediately (optimistic UI update)
+      final now = DateTime.now();
+      final tempPending = PendingMaintenanceImage(
+        uploadType: sectionIndex.toString(),
+        bytes: bytes,
+        createdAt: now,
+        latitude: latitude,
+        longitude: longitude,
+        displayName: fileName,
       );
 
-      if (result == PPMActionResult.success) {
-        print('[FormH] Upload successful');
-        Toast.show(
-          "Image uploaded successfully",
-          duration: Toast.lengthShort,
-          gravity: Toast.bottom,
-        );
-      } else {
-        // PPMActionResult.queued
-        print('[FormH] Upload queued for offline sync');
-        Toast.show(
-          "Image saved. Will sync when online.",
-          duration: Toast.lengthLong,
-          gravity: Toast.bottom,
-        );
-      }
+      setState(() {
+        _pending.add(tempPending);
+        _regenerateUIFromCurrentState();
+      });
 
-      // Refresh display
-      await _loadImages();
+      print('[FormH] Image added to UI - processing in background');
 
     } catch (e, stackTrace) {
       print('[FormH] Error in _createUploadItem: $e');
@@ -733,8 +784,6 @@ class _FormHState extends State<FormH> {
       if (mounted) {
         _showAlert("Error", "Failed to process image: $e");
       }
-    } finally {
-      if (mounted) setState(() => _loading = false);
     }
   }
 

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:GEMS/model/complaint.dart';
 import 'package:GEMS/model/serializers.dart';
 import 'package:GEMS/utils/image_compressor.dart';
+import 'package:GEMS/utils/biometric_lock_manager.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_size_getter/file_input.dart';
@@ -233,7 +234,9 @@ class BlocCheckin extends Bloc {
   }
 
   void createUploadItem(BuildContext context) async {
-    final value = await ImagePicker().pickImage(source: ImageSource.camera);
+    final value = await BiometricLockManager.pickImage(
+      source: ImageSource.camera,
+    );
     if (value != null) {
       file = File(value.path);
     } else {

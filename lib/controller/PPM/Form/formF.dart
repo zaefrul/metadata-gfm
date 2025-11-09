@@ -256,9 +256,9 @@ class _FormFState extends State<FormF> {
   Future<dynamic> get uploadFile async {
     print('[FormF] uploadFile called');
     
-    BiometricLockManager.suppressNextLock();
-    
-    final XFile? file = await ImagePicker().pickImage(source: ImageSource.camera);
+    final XFile? file = await BiometricLockManager.pickImage(
+      source: ImageSource.camera,
+    );
     if (file == null) {
       print('[FormF] User cancelled camera');
       throw Exception("No file selected");

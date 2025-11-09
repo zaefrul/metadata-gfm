@@ -10,7 +10,6 @@ import 'package:GEMS/model/workorder.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/utils/location_helper.dart';
-import 'package:GEMS/utils/biometric_lock_manager.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' show basename;
 import 'package:toast/toast.dart';
@@ -84,24 +83,17 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
 
   void _applySnapshot(WorkOrderSnapshotData? snapshot) {
     if (snapshot == null) return;
-    debugPrint('ComplaintSectionC: _applySnapshot called with ${snapshot.repairImages.length} repair images');
-    
     final repairs = snapshot.repairImages;
     final notes = <String, String>{};
     for (final img in repairs) {
       notes[img.woTaskUploadId] = img.woTaskUploadDesc;
     }
-    
-    final before = repairs.where((img) => img.woTaskUploadType == 'Before').toList();
-    final during = repairs.where((img) => img.woTaskUploadType == 'During').toList();
-    final after = repairs.where((img) => img.woTaskUploadType == 'After').toList();
-    
-    debugPrint('ComplaintSectionC: Snapshot categorized - Before: ${before.length}, During: ${during.length}, After: ${after.length}');
-    
     setState(() {
-      _before = before;
-      _during = during;
-      _after = after;
+      _before =
+          repairs.where((img) => img.woTaskUploadType == 'Before').toList();
+      _during =
+          repairs.where((img) => img.woTaskUploadType == 'During').toList();
+      _after = repairs.where((img) => img.woTaskUploadType == 'After').toList();
       _notes
         ..clear()
         ..addAll(notes);
@@ -111,20 +103,17 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
 
   Future<void> _loadImages({bool forceRefresh = false}) async {
     if (!mounted) return;
-    debugPrint('ComplaintSectionC: _loadImages called, forceRefresh=$forceRefresh');
     setState(() => _loading = true);
     try {
       final images = await _repository.getRepairImages(
         workOrderId: widget.id,
         forceRefresh: forceRefresh,
         onRemoteUpdate: (latest) {
-          debugPrint('ComplaintSectionC: onRemoteUpdate callback triggered with ${latest.length} images');
           if (!mounted) return;
           _updateImageLists(latest);
         },
       );
       if (!mounted) return;
-      debugPrint('ComplaintSectionC: getRepairImages returned ${images.length} images');
       _updateImageLists(images);
     } catch (err, st) {
       debugPrint('Failed to load repair images: $err\n$st');
@@ -137,33 +126,22 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
 
   Future<void> _loadPendingImages() async {
     try {
-      debugPrint('ComplaintSectionC: _loadPendingImages called for woId=${widget.id}');
       final pending = await _repository.getPendingRepairImages(widget.id);
       if (!mounted) return;
-      debugPrint('ComplaintSectionC: Loaded ${pending.length} pending repair images');
-      for (var i = 0; i < pending.length; i++) {
-        debugPrint('  - Pending[$i]: type=${pending[i].uploadType}, size=${pending[i].bytes.length} bytes, created=${pending[i].createdAt}');
-      }
       setState(() {
         _pending = pending;
       });
-      debugPrint('ComplaintSectionC: setState completed with ${_pending.length} pending images');
     } catch (err, st) {
       debugPrint('Failed to load pending repair images: $err\n$st');
     }
   }
 
   void _updateImageLists(List<TechnicianImageRepair> all) {
-    debugPrint('ComplaintSectionC: _updateImageLists called with ${all.length} total images');
-    
     final before =
         all.where((img) => img.woTaskUploadType == 'Before').toList();
     final during =
         all.where((img) => img.woTaskUploadType == 'During').toList();
     final after = all.where((img) => img.woTaskUploadType == 'After').toList();
-    
-    debugPrint('ComplaintSectionC: Categorized - Before: ${before.length}, During: ${during.length}, After: ${after.length}');
-    
     final notes = <String, String>{};
     for (final img in all) {
       notes[img.woTaskUploadId] = img.woTaskUploadDesc;
@@ -177,8 +155,6 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
         ..clear()
         ..addAll(notes);
     });
-    
-    debugPrint('ComplaintSectionC: setState completed, UI should update now');
   }
 
   void _watchPendingSync() {
@@ -263,8 +239,6 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
     final pending = _pending
         .where((item) => _sectionIndexForUploadType(item.uploadType) == idx)
         .toList();
-    
-    debugPrint('ComplaintSectionC: _imageBlock idx=$idx, remote=${remote.length}, pending=${pending.length}, maxSlots=$maxSlots');
 
     final tiles = <Widget>[];
     for (final item in pending) {
@@ -339,18 +313,6 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
                       width: 64,
                       height: 64,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          width: 64,
-                          height: 64,
-                          color: Colors.grey[300],
-                          child: const Icon(
-                            Icons.broken_image,
-                            color: Colors.grey,
-                            size: 32,
-                          ),
-                        );
-                      },
                     ),
                   ),
                 ),
@@ -482,18 +444,12 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
   }
 
   Future<void> _createUpload(int idx) async {
-    debugPrint('ComplaintSectionC: _createUpload called for section index $idx');
     setState(() => _loading = true);
-    
-    debugPrint('ComplaintSectionC: Fetching device location...');
     final location = await resolveDeviceLocation();
-    debugPrint('ComplaintSectionC: Location result: hasValid=${location.hasValidCoordinates}, lat=${location.latitude}, lng=${location.longitude}, status=${location.status}');
-    
     final lat = location.latitude;
     final lng = location.longitude;
     if (!location.hasValidCoordinates) {
       final message = describeLocationFailure(location.status);
-      debugPrint('ComplaintSectionC: Invalid location, showing message: $message');
       if (message.isNotEmpty) {
         Toast.show(message);
       }
@@ -502,28 +458,15 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
       }
       return;
     }
-    
-    debugPrint('ComplaintSectionC: Location valid, opening camera...');
 
-    debugPrint('ComplaintSectionC: Location valid, opening camera...');
-
-    // Use BiometricLockManager to prevent unwanted biometric prompt
-    final picked = await BiometricLockManager.pickImage(
-      source: ImageSource.camera,
-    );
-    
-    debugPrint('ComplaintSectionC: Camera closed, picked=${picked != null ? "YES" : "NO (user cancelled)"}');
-    
+    final picked = await ImagePicker().pickImage(source: ImageSource.camera);
     if (picked == null) {
-      debugPrint('ComplaintSectionC: No image picked, returning');
       if (mounted) {
         setState(() => _loading = false);
       }
       return;
     }
 
-    debugPrint('ComplaintSectionC: Image picked, path=${picked.path}, compressing...');
-    debugPrint('ComplaintSectionC: Image picked, path=${picked.path}, compressing...');
     final file = File(picked.path);
     final compressed = await compressFile(file, settings: {
       'quality': Platform.isIOS ? 20 : 60,
@@ -531,11 +474,7 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
       'minHeight': 640,
     });
     final bytes = compressed ?? await file.readAsBytes();
-    
-    debugPrint('ComplaintSectionC: Compression done, original size=${await file.length()}, compressed size=${bytes.length}');
-    
     if (bytes.isEmpty) {
-      debugPrint('ComplaintSectionC: ERROR - bytes are empty after compression!');
       Toast.show('Unable to process image');
       if (mounted) {
         setState(() => _loading = false);
@@ -544,8 +483,6 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
     }
 
     final base64Img = base64Encode(bytes);
-    debugPrint('ComplaintSectionC: Uploading repair image, uploadType=${idx + 2}, size=${bytes.length} bytes');
-    
     try {
       final result = await _repository.uploadRepairImage(
         workOrderId: widget.id,
@@ -558,23 +495,15 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
         base64Data: base64Img,
       );
       if (!mounted) return;
-      
-      debugPrint('ComplaintSectionC: Upload result = $result');
-      
       if (result == WorkOrderActionResult.success) {
         Toast.show('Uploaded');
         await _loadPendingImages();
         await _loadImages(forceRefresh: true);
       } else {
-        // Queued for offline sync
         Toast.show(
           'You\'re offline right now. We\'ll sync this photo once you\'re back online.',
         );
-        // Reload pending images to show the queued photo
         await _loadPendingImages();
-        // Also reload remote images in case we're actually online
-        await _loadImages(forceRefresh: true);
-        
         if (widget.pendingSync != null) {
           try {
             await widget.pendingSync!.retry();

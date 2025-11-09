@@ -470,21 +470,13 @@ class WorkOrderDetailRepository {
     bool forceRefresh = false,
     void Function(List<TechnicianImageRepair>)? onRemoteUpdate,
   }) async {
-    debugPrint('WorkOrderRepository.getRepairImages: woId=$workOrderId, forceRefresh=$forceRefresh');
-    
     final cached = await _database.getRepairImages(workOrderId);
-    debugPrint('WorkOrderRepository.getRepairImages: Found ${cached.length} cached images');
-    
     final forcedOffline = await _database.isWorkOrderOfflineMode(workOrderId);
-    debugPrint('WorkOrderRepository.getRepairImages: forcedOffline=$forcedOffline');
 
     if (cached.isNotEmpty && (!forceRefresh || forcedOffline)) {
-      debugPrint('WorkOrderRepository.getRepairImages: Returning ${cached.length} cached images (branch 1)');
       final images = cached.map(_repairImageFromEntity).toList();
       if (!forceRefresh && !forcedOffline && onRemoteUpdate != null) {
-        debugPrint('WorkOrderRepository.getRepairImages: Starting background refresh');
         unawaited(_refreshRepairImages(workOrderId: workOrderId).then((value) {
-          debugPrint('WorkOrderRepository.getRepairImages: Background refresh got ${value.length} images, calling onRemoteUpdate');
           onRemoteUpdate(value);
         }));
       }
@@ -492,57 +484,31 @@ class WorkOrderDetailRepository {
     }
 
     if (forcedOffline && cached.isNotEmpty) {
-      debugPrint('WorkOrderRepository.getRepairImages: Returning ${cached.length} cached images (branch 2 - offline mode)');
       return cached.map(_repairImageFromEntity).toList();
     }
 
-    debugPrint('WorkOrderRepository.getRepairImages: Calling _refreshRepairImages to fetch from API');
     final refreshed = await _refreshRepairImages(workOrderId: workOrderId);
-    debugPrint('WorkOrderRepository.getRepairImages: _refreshRepairImages returned ${refreshed.length} images');
-    
     if (refreshed.isEmpty && cached.isNotEmpty) {
-      debugPrint('WorkOrderRepository.getRepairImages: API returned empty, falling back to ${cached.length} cached images');
       return cached.map(_repairImageFromEntity).toList();
     }
-    
-    debugPrint('WorkOrderRepository.getRepairImages: Final return - ${refreshed.length} images');
     return refreshed;
   }
 
   Future<List<PendingRepairImage>> getPendingRepairImages(
     String workOrderId,
   ) async {
-    debugPrint('WorkOrderRepository.getPendingRepairImages: Fetching for woId=$workOrderId');
-    
     final pending = await _database.getPendingActions();
-    debugPrint('WorkOrderRepository.getPendingRepairImages: Total pending actions in DB: ${pending.length}');
-    
-    if (pending.isEmpty) {
-      debugPrint('WorkOrderRepository.getPendingRepairImages: No pending actions, returning empty list');
-      return const [];
-    }
+    if (pending.isEmpty) return const [];
 
     final results = <PendingRepairImage>[];
     for (final action in pending) {
-      debugPrint('  - Action: id=${action.id}, woId=${action.workOrderId}, action=${action.action}, createdAt=${action.createdAt}');
-      
-      if (action.workOrderId != workOrderId) {
-        debugPrint('    -> Skipped (different work order)');
-        continue;
-      }
-      if (action.action != 'upload_repair_image') {
-        debugPrint('    -> Skipped (action=${action.action})');
-        continue;
-      }
+      if (action.workOrderId != workOrderId) continue;
+      if (action.action != 'upload_repair_image') continue;
       try {
         final payload = json.decode(action.payloadJson) as Map<String, dynamic>;
         final data = payload['fileUpload[data]']?.toString();
-        if (data == null || data.isEmpty) {
-          debugPrint('    -> Skipped (no image data)');
-          continue;
-        }
+        if (data == null || data.isEmpty) continue;
         final bytes = base64Decode(data);
-        debugPrint('    -> Adding to results (uploadType=${payload['uploadType']}, size=${bytes.length} bytes)');
         results.add(
           PendingRepairImage(
             uploadType: payload['uploadType']?.toString() ?? '2',
@@ -554,12 +520,11 @@ class WorkOrderDetailRepository {
           ),
         );
       } catch (err) {
-        debugPrint('    -> ERROR decoding: $err');
+        debugPrint('Failed to decode pending repair image payload: $err');
       }
     }
 
     results.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    debugPrint('WorkOrderRepository.getPendingRepairImages: Returning ${results.length} pending repair images');
     return results;
   }
 
@@ -924,10 +889,7 @@ class WorkOrderDetailRepository {
     required String workOrderId,
   }) async {
     try {
-      debugPrint('WorkOrderRepository._refreshRepairImages: Fetching from API for woId=$workOrderId');
       final images = await _fetchRepairImagesRemote(workOrderId);
-      debugPrint('WorkOrderRepository._refreshRepairImages: API returned ${images.length} images');
-      
       final entities = images
           .map(
             (image) => WorkOrderRepairImageEntity(
@@ -942,10 +904,7 @@ class WorkOrderDetailRepository {
             ),
           )
           .toList();
-      
-      debugPrint('WorkOrderRepository._refreshRepairImages: Saving ${entities.length} entities to database');
       await _database.replaceRepairImages(workOrderId, entities);
-      debugPrint('WorkOrderRepository._refreshRepairImages: Database save complete, returning ${images.length} images');
       return images;
     } catch (err) {
       debugPrint('Failed to refresh repair images: $err');
@@ -1111,9 +1070,6 @@ class WorkOrderDetailRepository {
     final pending = await _database.getPendingActions();
     if (pending.isEmpty) return;
 
-    var hasConnectivityError = false;
-    var failedActions = <String>[];
-
     for (final action in pending) {
       try {
         if (action.action == 'rest') {
@@ -1126,31 +1082,16 @@ class WorkOrderDetailRepository {
         }
         if (action.id != null) {
           await _database.removePendingAction(action.id!);
-          debugPrint('Successfully synced action ${action.id} (${action.action})');
         }
       } on SocketException catch (_) {
         // Still offline; stop replay attempts until connectivity returns.
-        hasConnectivityError = true;
         break;
       } on TimeoutException catch (_) {
-        hasConnectivityError = true;
         break;
       } catch (err) {
-        debugPrint('Failed to replay action ${action.id} (${action.action}): $err');
-        if (action.id != null) {
-          failedActions.add('${action.action} (ID: ${action.id})');
-        }
-        // Continue processing other actions instead of breaking
-        continue;
+        debugPrint('Failed to replay action ${action.id}: $err');
+        break;
       }
-    }
-
-    // Log summary of sync results
-    if (hasConnectivityError) {
-      debugPrint('Sync stopped due to connectivity issues');
-    }
-    if (failedActions.isNotEmpty) {
-      debugPrint('Failed to sync ${failedActions.length} actions: ${failedActions.join(", ")}');
     }
   }
 
@@ -1316,15 +1257,13 @@ class WorkOrderDetailRepository {
   Future<List<TechnicianImageRepair>> _fetchRepairImagesRemote(
     String workOrderId,
   ) async {
-    debugPrint('WorkOrderRepository._fetchRepairImagesRemote: Calling API for woId=$workOrderId');
     final provider = _buildProvider(
       '/api/m_wo.php?type=wo_repair_images&woTaskId=',
       taskId: workOrderId,
     );
     final response = await provider.fetch();
-    final images = response.technicianImages?.toList() ?? const <TechnicianImageRepair>[];
-    debugPrint('WorkOrderRepository._fetchRepairImagesRemote: API response parsed, got ${images.length} images');
-    return images;
+    return response.technicianImages?.toList() ??
+        const <TechnicianImageRepair>[];
   }
 
   Future<List<ComplaintDGroup>> _fetchMaterialGroupsRemote(
@@ -2228,56 +2167,35 @@ class WorkOrderDetailRepository {
     required String workOrderId,
     required Map<String, dynamic> body,
   }) async {
-    final action = body['action']?.toString() ?? 'unknown';
-    debugPrint('WorkOrderRepository._sendOrQueue: action=$action, woId=$workOrderId');
-    
     final forcedOffline = await _database.isWorkOrderOfflineMode(workOrderId);
-    debugPrint('WorkOrderRepository._sendOrQueue: forcedOffline=$forcedOffline');
-    
     if (!forcedOffline) {
       try {
-        debugPrint('WorkOrderRepository._sendOrQueue: Attempting to sync pending actions first...');
         await syncPendingActions();
-        debugPrint('WorkOrderRepository._sendOrQueue: Attempting to post...');
         await _post(body);
-        debugPrint('WorkOrderRepository._sendOrQueue: POST successful, returning success');
         return WorkOrderActionResult.success;
-      } on SocketException catch (e) {
-        debugPrint('WorkOrderRepository._sendOrQueue: SocketException caught: $e');
+      } on SocketException catch (_) {
         await _queueAction(workOrderId, body);
-        debugPrint('WorkOrderRepository._sendOrQueue: Action queued due to SocketException');
         return WorkOrderActionResult.queued;
-      } on TimeoutException catch (e) {
-        debugPrint('WorkOrderRepository._sendOrQueue: TimeoutException caught: $e');
+      } on TimeoutException catch (_) {
         await _queueAction(workOrderId, body);
-        debugPrint('WorkOrderRepository._sendOrQueue: Action queued due to TimeoutException');
         return WorkOrderActionResult.queued;
-      } catch (e) {
-        debugPrint('WorkOrderRepository._sendOrQueue: Unexpected error: $e');
-        rethrow;
       }
     }
 
-    debugPrint('WorkOrderRepository._sendOrQueue: Forced offline mode, queuing action');
     await _queueAction(workOrderId, body);
     return WorkOrderActionResult.queued;
   }
 
   Future<void> _queueAction(
       String workOrderId, Map<String, dynamic> body) async {
-    final action = body['action']?.toString() ?? 'unknown';
-    debugPrint('WorkOrderRepository._queueAction: Queuing action=$action for woId=$workOrderId');
-    
     await _database.enqueuePendingAction(
       WorkOrderPendingActionEntity(
         workOrderId: workOrderId,
-        action: action,
+        action: body['action']?.toString() ?? 'unknown',
         payloadJson: json.encode(body),
         createdAt: _clock(),
       ),
     );
-    
-    debugPrint('WorkOrderRepository._queueAction: Action queued successfully');
   }
 
   Future<void> _queueRestAction(
@@ -2697,24 +2615,8 @@ class WorkOrderDetailRepository {
   }
 
   Future<void> _post(Map<String, dynamic> body) async {
-    final action = body['action'];
-    final woTaskId = body['woTaskId'];
-    
-    // Log diagnostic info for image uploads
-    if (action == 'upload_response_image' || action == 'upload_repair_image') {
-      final base64Data = body['fileUpload[data]'];
-      final sizeKB = base64Data != null ? (base64Data.length / 1024).toStringAsFixed(2) : '0';
-      debugPrint('Uploading image: action=$action, woTaskId=$woTaskId, size=${sizeKB}KB');
-    }
-    
     final provider = _buildProvider('/api/m_wo.php');
-    try {
-      await provider.post(url: '/api/m_wo.php', body: body);
-      debugPrint('Successfully posted action=$action for woTaskId=$woTaskId');
-    } catch (err) {
-      debugPrint('Failed to post action=$action for woTaskId=$woTaskId: $err');
-      rethrow;
-    }
+    await provider.post(url: '/api/m_wo.php', body: body);
   }
 
   Future<WorkOrderDetail?> _refreshComplaintDetail({

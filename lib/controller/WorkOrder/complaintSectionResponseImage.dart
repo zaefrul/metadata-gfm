@@ -12,7 +12,6 @@ import 'package:GEMS/model/response_image.dart';
 import 'package:GEMS/utils/image_compressor.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/utils/location_helper.dart';
-import 'package:GEMS/utils/biometric_lock_manager.dart';
 import 'package:GEMS/view/dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' show basename;
@@ -605,9 +604,6 @@ class _ComplaintSectionResponseImageState
   }
 
   Future<void> _pickLocalImage() async {
-    // Suppress biometric lock when opening camera - user never "left" the app
-    BiometricLockManager.suppressNextLock();
-    
     final picked = await ImagePicker().pickImage(source: ImageSource.camera);
     if (picked == null) return;
 

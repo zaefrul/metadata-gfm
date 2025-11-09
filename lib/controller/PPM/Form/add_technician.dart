@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:GEMS/main.dart';
 import 'package:GEMS/model/responseValue.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/data/repository/ppm_repository.dart';
 import 'package:toast/toast.dart';
 
 class PPMAddTechnician extends StatefulWidget {
@@ -26,26 +29,11 @@ class PPMAddTechnicianState extends State<PPMAddTechnician> {
   final List<_Model> listTechnicianSearch = [];
   final List<_Model> listTechnicianSelected = [];
   final _Controller _provider;
+  bool _isLoading = false; // Start as false to prevent initial spinner
+  bool _hasConnection = true;
+  String? _errorMessage;
 
   PPMAddTechnicianState(String id) : _provider = _Controller(id) {
-    _provider.list.then((value) {
-      // Use addPostFrameCallback to safely call setState after build.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() {
-          listTechnician.addAll(value);
-          listTechnicianSearch.addAll(value);
-        });
-      });
-    });
-
-    _provider.selected.then((value) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() {
-          listTechnicianSelected.addAll(value);
-        });
-      });
-    });
-
     _controller.addListener(() {
       setState(() {
         listTechnicianSearch.clear();
@@ -60,6 +48,110 @@ class PPMAddTechnicianState extends State<PPMAddTechnician> {
         }
       });
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Load data after widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeData();
+    });
+  }
+
+  /// Check if device has internet connectivity
+  Future<bool> _checkConnectivity() async {
+    try {
+      final result = await InternetAddress.lookup('google.com')
+          .timeout(const Duration(seconds: 3));
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } on SocketException catch (_) {
+      return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Initialize data - check cache first, then connectivity if needed
+  Future<void> _initializeData() async {
+    setState(() {
+      _isLoading = true;
+      _hasConnection = true;
+      _errorMessage = null;
+    });
+
+    final repository = PPMRepository();
+    
+    // Check if we have cached data
+    final hasCache = await repository.hasCachedTechnicians(widget.id);
+    
+    if (hasCache) {
+      // Load from cache
+      try {
+        final cachedTechnicians = await repository.getTechnicians(widget.id);
+        final cachedSelected = await repository.getSelectedTechnicians(widget.id);
+        
+        final technicians = cachedTechnicians.map((t) => _Model(
+          t['assistant_id'] ?? '',
+          t['user_id'],
+          t['user_full_name'],
+        )).toList();
+        
+        final selected = cachedSelected.map((t) => _Model(
+          t['assistant_id'] ?? '',
+          t['user_id'],
+          t['user_full_name'],
+        )).toList();
+        
+        if (mounted) {
+          setState(() {
+            listTechnician.addAll(technicians);
+            listTechnicianSearch.addAll(technicians);
+            listTechnicianSelected.addAll(selected);
+            _isLoading = false;
+          });
+        }
+        return;
+      } catch (e) {
+        debugPrint('Failed to load from cache: $e');
+        // Continue to online loading
+      }
+    }
+
+    // No cache, check connectivity
+    final hasInternet = await _checkConnectivity();
+    
+    if (!hasInternet) {
+      setState(() {
+        _isLoading = false;
+        _hasConnection = false;
+        _errorMessage = 'This feature requires internet connection. Please enable offline mode when connected to cache technician list.';
+      });
+      return;
+    }
+
+    // Load data from API
+    try {
+      final technicians = await _provider.list;
+      final selected = await _provider.selected;
+      
+      if (mounted) {
+        setState(() {
+          listTechnician.addAll(technicians);
+          listTechnicianSearch.addAll(technicians);
+          listTechnicianSelected.addAll(selected);
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _hasConnection = false;
+          _errorMessage = 'Failed to load technician list: ${e.toString()}';
+        });
+      }
+    }
   }
 
   @override
@@ -83,49 +175,89 @@ class PPMAddTechnicianState extends State<PPMAddTechnician> {
             },
           ),
         ),
-        body: Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: <Widget>[
-              TextField(
-                controller: _controller,
-                decoration: const InputDecoration(
-                  hintText: "Search",
-                  icon: Icon(Icons.search),
-                ),
-              ),
-              Expanded(
-                child: ListView(
-                  children: listTechnicianSearch.map((f) {
-                    return CheckboxListTile(
-                      title: Text(f.userFullName),
-                      value: checkSelected(f),
-                      onChanged: widget.disable
-                          ? null
-                          : (bool? value) {
-                              if (value == true) {
-                                if (!listTechnicianSelected.contains(f)) {
-                                  setState(() {
-                                    listTechnicianSelected.add(f);
-                                  });
-                                  _provider.add(f);
-                                }
-                              } else {
-                                setState(() {
-                                  listTechnicianSelected.removeWhere(
-                                      (technician) =>
-                                          technician.userId == f.userId);
-                                });
-                                _provider.delete(f);
-                              }
-                            },
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
-          ),
-        ),
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : !_hasConnection
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Card(
+                        color: Colors.orange[50],
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.cloud_off, size: 48, color: Colors.orange),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'Internet Connection Required',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _errorMessage ?? 'This feature requires an active internet connection.',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton.icon(
+                                onPressed: _initializeData,
+                                icon: const Icon(Icons.refresh),
+                                label: const Text('Retry'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: colorTheme2,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                : Container(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      children: <Widget>[
+                        TextField(
+                          controller: _controller,
+                          decoration: const InputDecoration(
+                            hintText: "Search",
+                            icon: Icon(Icons.search),
+                          ),
+                        ),
+                        Expanded(
+                          child: ListView(
+                            children: listTechnicianSearch.map((f) {
+                              return CheckboxListTile(
+                                title: Text(f.userFullName),
+                                value: checkSelected(f),
+                                onChanged: widget.disable
+                                    ? null
+                                    : (bool? value) {
+                                        if (value == true) {
+                                          if (!listTechnicianSelected.contains(f)) {
+                                            setState(() {
+                                              listTechnicianSelected.add(f);
+                                            });
+                                            _provider.add(f);
+                                          }
+                                        } else {
+                                          setState(() {
+                                            listTechnicianSelected.removeWhere(
+                                                (technician) =>
+                                                    technician.userId == f.userId);
+                                          });
+                                          _provider.delete(f);
+                                        }
+                                      },
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
         floatingActionButton: widget.disable
             ? null
             : FloatingActionButton.extended(

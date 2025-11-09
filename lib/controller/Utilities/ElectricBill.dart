@@ -7,11 +7,12 @@ import 'package:GEMS/controller/PPM/Form/openImage.dart';
 import 'package:GEMS/model/meter.dart';
 import 'package:GEMS/model/serializers.dart';
 import 'package:GEMS/utils/image_compressor.dart';
+import 'package:GEMS/utils/biometric_lock_manager.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:rxdart/subjects.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../main.dart';
@@ -276,7 +277,9 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
       Toast.show("Only one picture is required");
       return;
     }
-    final value = await ImagePicker().pickImage(source: ImageSource.camera);
+    final value = await BiometricLockManager.pickImage(
+      source: ImageSource.camera,
+    );
     if (value != null) {
       final file = File(value.path);
       setState(() => listItem.add(file));

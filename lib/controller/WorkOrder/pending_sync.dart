@@ -1,11 +1,4 @@
-import 'dart:async';
+// This file is deprecated. Use the shared version instead:
+// import 'package:GEMS/utils/pending_sync_controller.dart';
 
-class PendingSyncController {
-  const PendingSyncController({
-    required this.pendingCount$,
-    required this.retry,
-  });
-
-  final Stream<int> pendingCount$;
-  final Future<void> Function() retry;
-}
+export 'package:GEMS/utils/pending_sync_controller.dart';

@@ -273,11 +273,21 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive) {
       // Don't set lock flag if we're suppressing (e.g., opening camera/file picker)
-      if (!BiometricLockManager.shouldSuppressAndReset()) {
+      // Use shouldSuppress() here to check without resetting the flag
+      if (!BiometricLockManager.shouldSuppress()) {
         _shouldLockOnResume = true;
       }
-    } else if (state == AppLifecycleState.resumed && _shouldLockOnResume) {
-      _handleResume();
+    } else if (state == AppLifecycleState.resumed) {
+      // Reset suppression flag if it was set (picker operation completed)
+      if (BiometricLockManager.shouldSuppressAndReset()) {
+        // Suppression was active, don't lock
+        _shouldLockOnResume = false;
+      }
+      
+      // Handle biometric lock if needed
+      if (_shouldLockOnResume) {
+        _handleResume();
+      }
     }
   }
 

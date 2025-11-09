@@ -43,6 +43,7 @@ class _FormAState extends State<FormA> {
   late Provider provider;
   late PPMRepository _repository;
   late bool verified;
+  Future<ResponseValue>? _sectionDataFuture; // Cache the future
 
   @override
   void initState() {
@@ -53,6 +54,7 @@ class _FormAState extends State<FormA> {
       taskID: widget.id,
       fetchURL: "/api/m_ppm.php?type=ppm_section_a&ppmTaskId=",
     );
+    _sectionDataFuture = _fetchSectionData(); // Initialize the future
   }
 
   /// Fetch section data - checks offline mode first
@@ -62,28 +64,34 @@ class _FormAState extends State<FormA> {
     
     if (isOffline) {
       debugPrint('FormA: Loading from offline cache');
-      final sectionDataJson = await _repository.loadSectionData(widget.id, 'A');
+      final sectionData = await _repository.loadSectionData(widget.id, 'A');
       
-      if (sectionDataJson != null) {
-        // The cached data is the raw API response data
+      if (sectionData != null) {
+        debugPrint('FormA: Cached section data: $sectionData');
+        
+        // The cached data is already parsed as a Map
         // Wrap it in the expected API response format
         final cachedResponse = {
           'success': true,
-          'result': sectionDataJson,
+          'result': sectionData, // sectionData is already a Map
           'error': '',
           'errmsg': '',
         };
         
-        // Deserialize using the same serializer as Provider.fetch()
-        final responseValue = serializers.deserializeWith(
-          ResponseValue.serializer, 
-          cachedResponse
-        );
-        
-        if (responseValue != null) {
-          return responseValue;
+        try {
+          // Deserialize using the same serializer as Provider.fetch()
+          final responseValue = serializers.deserializeWith(
+            ResponseValue.serializer, 
+            cachedResponse
+          );
+          
+          if (responseValue != null) {
+            debugPrint('FormA: Successfully loaded from cache, ppmTaskTimeStart: ${responseValue.sectionAList?.ppmTaskTimeStart}');
+            return responseValue;
+          }
+        } catch (err) {
+          debugPrint('FormA: Failed to deserialize cached data: $err');
         }
-        debugPrint('FormA: Failed to deserialize cached data, falling back to API');
       } else {
         debugPrint('FormA: No cached data found, falling back to API');
       }
@@ -119,7 +127,7 @@ class _FormAState extends State<FormA> {
               ],
       ),
       body: FutureBuilder<ResponseValue>(
-        future: _fetchSectionData(),
+        future: _sectionDataFuture,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             assetNo = snapshot.data?.sectionAList?.assetNo ?? "";
@@ -236,17 +244,31 @@ class _FormAState extends State<FormA> {
 
   Future<void> _startTaskOffline() async {
     try {
-      // Save start time locally
+      // Record the start time
+      final startTime = DateTime.now();
+      
+      // Save start time action to pending queue (to be synced later)
       await _repository.savePPMStartTimeOffline(
         ppmTaskId: widget.id,
         groupExecution: assetGroup.isNotEmpty,
+        startTime: startTime,
+      );
+      
+      // Update the cached Section A data with the start time
+      await _repository.updateSectionAStartTime(
+        ppmTaskId: widget.id,
+        startTime: startTime,
       );
       
       verified = true;
       widget.verification?.call(true);
       
       Toast.show("Task started in offline mode. Will sync when online.", duration: 3);
-      setState(() {});
+      
+      // Refresh the future to reload the UI with updated start time
+      setState(() {
+        _sectionDataFuture = _fetchSectionData();
+      });
     } catch (err) {
       Toast.show("Failed to start task: $err");
     }
