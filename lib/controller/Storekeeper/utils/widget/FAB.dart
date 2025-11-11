@@ -99,6 +99,15 @@ class _AwesomeFABState extends State<AwesomeFAB>
             ),
           ),
           matrix(
+            y: _matrixY.value * 4.5,
+            child: container(
+              colorTheme3, 
+              "Return Item",
+              value: "Return Item", 
+              icon: Icons.keyboard_return,
+            ),
+          ),
+          matrix(
             y: _matrixY.value * 4.0,
             child: container(
               colorTheme2, 

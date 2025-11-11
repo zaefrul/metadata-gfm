@@ -181,7 +181,8 @@ class _MaterialRequestScreenState extends State<MaterialRequestScreen> {
                         const SizedBox(width: 12),
                       ],
                       FloatingActionButton.extended(
-                        label: Text(_bloc.titleButton(statusId),
+                        heroTag: "approve_submit_button",
+                        label: Text(_bloc.titleButton(statusId, isApproval: widget.isApproval),
                             style: GoogleFonts.poppins(color: Colors.white)),
                         backgroundColor: _bloc.colorButton(statusId),
                         onPressed: () => _bloc

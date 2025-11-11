@@ -22,18 +22,51 @@ class _CheckinRequestState extends State<CheckinRequest> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    print("CheckinRequest: didChangeDependencies called");
     _controller
         .fetchStore(context)
-        .then((value) => setState(() => stores = value));
+        .then((value) {
+          print("CheckinRequest: fetchStore completed, got ${value.length} stores");
+          if (mounted) {
+            setState(() => stores = value);
+          }
+        })
+        .catchError((error) {
+          print("CheckinRequest: fetchStore error: $error");
+          if (mounted) {
+            Toast.show("Failed to load stores: $error", duration: 4);
+          }
+        });
+    
+    // Track dialog state to prevent double pops
+    bool isDialogOpen = false;
+    
     _controller.loadingState$.listen((event) {
-      if (event ?? false) {
+      print("CheckinRequest: loadingState changed to: $event, dialog open: $isDialogOpen");
+      if (event == true && !isDialogOpen) {
+        isDialogOpen = true;
         showDialog(
           context: navigatorKey.currentContext!,
-          builder: (_) => Center(child: CircularProgressIndicator()),
+          barrierDismissible: false,
+          builder: (_) => WillPopScope(
+            onWillPop: () async => false,
+            child: Center(child: CircularProgressIndicator()),
+          ),
         );
-      } else if (event == false) Navigator.pop(context);
+      } else if (event == false && isDialogOpen) {
+        print("CheckinRequest: Closing loading dialog");
+        isDialogOpen = false;
+        if (Navigator.canPop(navigatorKey.currentContext!)) {
+          Navigator.pop(navigatorKey.currentContext!);
+        }
+      }
     });
-    _controller.err$.listen((event) => Toast.show(event, duration: 4));
+    _controller.err$.listen((event) {
+      print("CheckinRequest: Error received: $event");
+      if (mounted) {
+        Toast.show(event, duration: 4);
+      }
+    });
   }
 
   @override
@@ -88,24 +121,63 @@ class _CheckinRequestState extends State<CheckinRequest> {
   }
 
   Widget _addButton(BuildContext context) => FloatingActionButton(
+      heroTag: "add_material_fab",
       backgroundColor: colorTheme2,
       child: Icon(Icons.add),
-      onPressed: () =>
-          Navigator.pushNamed(context, routeAddStockIn).then((value) {
-            if (value != null) _controller.material = value as Item;
-          }));
+      onPressed: () {
+        print("CheckinRequest: Opening add material page");
+        Navigator.pushNamed(context, routeAddStockIn).then((value) {
+          print("CheckinRequest: Add material returned with value type: ${value.runtimeType}");
+          print("CheckinRequest: Add material returned value: $value");
+          if (value != null && value is Item) {
+            print("CheckinRequest: Adding item to controller");
+            _controller.material = value;
+          } else if (value != null) {
+            print("CheckinRequest: ERROR - Received non-Item value: ${value.runtimeType}");
+            Toast.show("Invalid item format received", duration: 3);
+          }
+        });
+      });
 
   Widget _submitButton(BuildContext context) => FloatingActionButton.extended(
+      heroTag: "submit_checkin_fab",
       backgroundColor: colorTheme2,
       label: Text("Submit"),
-      onPressed: () => _controller.submit(context).then((value) {
+      onPressed: () {
+        print("CheckinRequest: Submit button pressed");
+        _controller.submit(context).then((value) {
+          print("CheckinRequest: Submit successful, navigating back");
+          // Show toast BEFORE navigation to prevent deactivated widget error
+          if (mounted) {
             Toast.show("Checkin Successful");
-            Navigator.pop(context);
-          }).catchError((err) => Toast.show(err, duration: 4)));
+            // Small delay to ensure toast is visible before navigation
+            Future.delayed(Duration(milliseconds: 100), () {
+              if (mounted) {
+                Navigator.pop(context);
+              }
+            });
+          }
+        }).catchError((err) {
+          print("CheckinRequest: Submit error: $err");
+          if (mounted) {
+            Toast.show(err.toString(), duration: 4);
+          }
+          return null;
+        });
+      });
 
   Widget get _filter => StreamBuilder<ComplaintDStore>(
       stream: _controller.store$,
       builder: (context, snapshot) {
+        // Find matching value in stores list
+        ComplaintDStore? selectedStore;
+        if (snapshot.hasData && snapshot.data != null) {
+          selectedStore = stores.firstWhere(
+            (store) => store.itemId == snapshot.data?.itemId,
+            orElse: () => stores.isNotEmpty ? stores.first : snapshot.data!,
+          );
+        }
+        
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 12),
           child: Row(
@@ -116,7 +188,7 @@ class _CheckinRequestState extends State<CheckinRequest> {
               ),
               DropdownButton<ComplaintDStore>(
                 underline: Container(),
-                value: snapshot.data,
+                value: selectedStore,
                 hint: Text("Select Store"),
                 onChanged: (ComplaintDStore? newValue) {
                   if (newValue != null) {
@@ -306,9 +378,18 @@ class ViewImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: PhotoView(
-      imageProvider: FileImage(File(file.path)),
-    ));
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: IconThemeData(color: Colors.white),
+      ),
+      body: PhotoView(
+        imageProvider: FileImage(File(file.path)),
+        minScale: PhotoViewComputedScale.contained,
+        maxScale: PhotoViewComputedScale.covered * 2,
+        backgroundDecoration: BoxDecoration(color: Colors.black),
+      ),
+    );
   }
 }

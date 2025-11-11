@@ -6,6 +6,7 @@ import 'package:GEMS/controller/Storekeeper/route/storekeeper/thresholdList.dart
 import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc_inventory.dart';
 import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 import 'package:GEMS/controller/Storekeeper/utils/widget/FAB.dart';
+import 'package:GEMS/controller/ReturnItem/bloc/bloc_return.dart';
 import 'package:GEMS/view/drawer.dart';
 
 import 'dashboard.dart';
@@ -77,6 +78,10 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Colors.white,
       centerTitle: true,
       leading: leading(_key),
+      actions: [
+        _ReturnsBadge(),
+        const SizedBox(width: 8),
+      ],
     );
   }
 
@@ -217,13 +222,94 @@ class _FloatingButton extends StatelessWidget {
                   pageBuilder: (ctx, _, __) => AwesomeFAB(),
                 ),
               ).then((value) {
-                if (value != null) bloc.setView(value);
+                if (value != null) {
+                  // Handle Return Item navigation
+                  if (value == "Return Item") {
+                    Navigator.pushNamed(context, '/return-confirm-list');
+                  } else {
+                    bloc.setView(value);
+                  }
+                }
               });
             },
             child: const Icon(Icons.menu),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ReturnsBadge extends StatefulWidget {
+  const _ReturnsBadge({super.key});
+
+  @override
+  _ReturnsBadgeState createState() => _ReturnsBadgeState();
+}
+
+class _ReturnsBadgeState extends State<_ReturnsBadge> {
+  final ReturnItemBloc _bloc = ReturnItemBloc();
+
+  @override
+  void initState() {
+    super.initState();
+    _bloc.loadPendingReturns();
+  }
+
+  @override
+  void dispose() {
+    _bloc.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<int>(
+      stream: _bloc.pendingCount$,
+      builder: (context, snapshot) {
+        int count = snapshot.data ?? 0;
+
+        return IconButton(
+          icon: Stack(
+            children: [
+              const Icon(
+                Icons.assignment_return,
+                color: colorTheme1,
+                size: 28,
+              ),
+              if (count > 0)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 18,
+                      minHeight: 18,
+                    ),
+                    child: Text(
+                      count > 99 ? '99+' : count.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          onPressed: () {
+            Navigator.pushNamed(context, '/return-confirm-list');
+          },
+          tooltip: 'Pending Returns',
+        );
+      },
     );
   }
 }

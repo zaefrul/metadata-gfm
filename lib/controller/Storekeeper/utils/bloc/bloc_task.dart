@@ -51,7 +51,13 @@ class MaterialTask extends Bloc {
   // Get
   Stream<List<Material>> get materials$ => _materials.stream;
   Stream<RequestTask> get detail$ => _detail.stream;
-  String titleButton(String id) => _statuses[id] ?? "Unknown Status";
+  String titleButton(String id, {bool isApproval = false}) {
+    // For status 33 (pending approval), show different text for storekeeper vs technician
+    if (id == "33" && isApproval) {
+      return "Approve";
+    }
+    return _statuses[id] ?? "Unknown Status";
+  }
   Color colorButton(String id) => _statusesColor[id] ?? colorNull;
   // Set
   set materials(List<Material> values) => _materials.sink.add(values);

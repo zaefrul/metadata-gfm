@@ -363,6 +363,98 @@ await provider.post(url: "/api/m_wo.php", body: {"action": "submit", "data": jso
 
 ---
 
-**Version**: 1.1 (Updated October 2025)  
+## 📦 Return Item Module (Production Ready)
+
+> **Status**: ✅ Implementation Complete | Ready for QA Testing  
+> **Created**: 9 November 2025 | **Completed**: 10 November 2025  
+> **API Docs**: See `MATERIAL_ITEM_API.md` | **Testing Guide**: See `RETURN_ITEM_TESTING_GUIDE.md`
+
+### Business Requirements
+- **Technicians** can return items previously collected from storekeeper
+- **Partial returns supported**: Can return items in batches (e.g., return 2 now, 3 later from 5 collected)
+- **Two-step workflow**: Technician initiates return → Storekeeper confirms receipt
+- **Status tracking**: Collected (36) → Return Pending → Completed (status 47 in ast_part_sub)
+- **Inventory impact**: Items added back to stock after storekeeper confirmation (updates `part_locked`)
+- **WO-agnostic**: Returns not tied to specific Work Orders; shows all collected items across all WOs
+- **Instance tracking**: Uses `ast_part_sub` table with FIFO logic for granular part tracking
+
+### API Endpoints (Production)
+**Base URL**: `https://gems.metadatasystem.my/api/m_inventory.php`
+1. **Technician**: 
+   - `GET /return_eligible_items/:userId` - List items available to return
+   - `POST /request_return` - Submit return request (supports partial quantities)
+   - `GET /return_history?userId=&status=&dateFrom=&dateTo=` - View return history
+   - `GET /return_statistics?userId=` - Get return metrics
+2. **Storekeeper**: 
+   - `GET /storekeeper_pending_returns` - List pending returns
+   - `GET /return_detail/:returnId` - Get return details
+   - `PUT /confirm_return/:returnId` - Confirm receipt & update inventory (transaction-safe)
+
+### Mobile Implementation (Complete)
+**Models & Data Layer**:
+- ✅ `lib/model/return_item.dart` → 3 built_value models (CollectedItem, ReturnRequest, PendingReturn)
+- ✅ `lib/model/serializers.dart` → Models registered for JSON deserialization
+- ✅ `lib/model/return_item.g.dart` → Generated serializers (16 outputs)
+
+**State Management**:
+- ✅ `lib/controller/ReturnItem/bloc/bloc_return.dart` → BLoC with 6 API methods, 3 streams
+- ✅ Methods: loadCollectedItems, submitReturn, loadPendingReturns, getReturnDetail, confirmReturn, getStatistics
+- ✅ Streams: collectedItems$, pendingReturns$, pendingCount$ (for badge)
+
+**UI Screens (4 screens, ~2,600 lines)**:
+- ✅ `return_item_list.dart` (345 lines) - Technician: List collected items with quantity chips, pending badges, pull-to-refresh
+- ✅ `return_item_detail.dart` (465 lines) - Technician: Form with validation, reason dropdown, optional remarks/deadline
+- ✅ `return_confirm_list.dart` (456 lines) - Storekeeper: Pending returns with priority indicators, technician info, time ago chips
+- ✅ `return_confirm_detail.dart` (656 lines) - Storekeeper: Full details, confirm button with dialog, timeline
+
+**Navigation & Integration**:
+- ✅ `lib/main.dart` → 4 routes registered (/return-item-list, /return-item-detail, /return-confirm-list, /return-confirm-detail)
+- ✅ `lib/view/drawer.dart` → Technician menu item "Return Items" added
+- ✅ `lib/controller/Storekeeper/route/storekeeper/homepage.dart` → Badge icon in AppBar with live count
+
+### Key Features Implemented
+- ✅ **Partial returns**: Full support - can return items in batches with quantity validation
+- ✅ **Return reasons**: 4 predefined options (unused_excess, wrong_part, damaged, other) with color coding
+- ✅ **Validation**: Client-side checks (empty, zero, exceeds available) with toast feedback
+- ✅ **Inventory update**: Transaction-safe after storekeeper confirmation
+- ✅ **Real-time badge**: Storekeeper sees live pending count via stream
+- ✅ **Confirmation dialogs**: Both technician submit and storekeeper confirm require confirmation
+- ✅ **Loading states**: Spinners during API calls, disabled buttons, pull-to-refresh
+- ✅ **Empty states**: "No Collected Items" (technician), "All Caught Up!" (storekeeper)
+- ✅ **Error handling**: Toast messages for all error scenarios
+- ✅ **UI/UX polish**: Priority indicators, color-coded reasons, time ago chips, responsive design
+- ✅ **Access control**: All technicians (role 8) and storekeepers (role 16) have access
+- ✅ **Return deadline**: Optional informational field (not enforced)
+- ✅ **Instance tracking**: Uses `ast_part_sub` table with FIFO logic
+
+### Implementation Timeline (Estimated 6-8 days)
+- **Phase 1**: Backend APIs + DB table (2-3 days)
+- **Phase 2**: Mobile models + BLoC (1 day)
+- **Phase 3**: Technician screens (2 days)
+- **Phase 4**: Storekeeper screens (1.5 days)
+- **Phase 5**: Polish + testing (1 day)
+- **Phase 6**: Optional enhancements (post-MVP)
+
+### Key Patterns to Follow
+- **BLoC Pattern**: Extend `Bloc` base class, use `checker(...)` wrapper for async calls
+- **Models**: Use `built_value` with serializers, register in `lib/model/serializers.dart`
+- **UI Components**: Reuse existing card styles, color palette (`AppColors`), Google Fonts (Poppins)
+- **Error Handling**: Toast messages for user feedback, loading indicators during operations
+- **API Integration**: Use `Provider` class for all HTTP calls, handle session expiry
+
+### Related Modules
+- **WorkOrder Material Flow**: `lib/controller/WorkOrder/complaintSectionD_material.dart` (technician requests materials)
+- **Storekeeper Task Flow**: `lib/controller/Storekeeper/utils/bloc/bloc_task.dart` (approve, reserve, checkout)
+- **Inventory Tracking**: Backend confirms quantity deduction handled by `/wo_request/check_out_request/` endpoint
+
+### Implementation Notes
+- Start implementation only after clarifying open questions above
+- Backend team must create `material_returns` table and endpoints first
+- Mobile development can proceed with mock data once API contracts defined
+- Test full round-trip: technician return request → storekeeper confirm → verify inventory updated
+
+---
+
+**Version**: 1.2 (Updated 9 November 2025)  
 **Maintainer**: GEMS Development Team
 

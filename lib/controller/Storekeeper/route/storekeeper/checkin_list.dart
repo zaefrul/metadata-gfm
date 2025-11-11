@@ -146,15 +146,15 @@ class _Material extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String doItemCost = data["doItemCost"];
-    final String doItemTotal = data["doItemTotal"];
-    final String doItemTotalCost = data["doItemTotalCost"];
-    final String doItemValidity = data["doItemValidity"];
-    final String doItemWarranty = data["doItemWarranty"];
-    final String doNo = data["doNo"];
-    final String groupName = data["assetGroupName"];
-    final String itemTypeDesc = data["itemTypeDesc"];
-    final String itemDesc = data["itemDescription"];
+    final String doItemCost = data["doItemCost"] ?? "0.00";
+    final String doItemTotal = data["doItemTotal"] ?? "0";
+    final String doItemTotalCost = data["doItemTotalCost"] ?? "0.00";
+    final String doItemValidity = data["doItemValidity"] ?? "N/A";
+    final String doItemWarranty = data["doItemWarranty"] ?? "N/A";
+    final String doNo = data["doNo"] ?? "";
+    final String groupName = data["assetGroupName"] ?? "Unknown";
+    final String itemTypeDesc = data["itemTypeDesc"] ?? "Unknown";
+    final String itemDesc = data["itemDescription"] ?? "No Description";
 
     return ExpansionTile(
       title: Padding(

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc.dart';
+import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc_checkin.dart';
 import 'package:GEMS/model/complaint.dart';
 import 'package:GEMS/model/user.dart';
 import 'package:GEMS/utils/network.dart';
@@ -123,38 +124,79 @@ class _CheckinAddState extends State<CheckinAdd> {
             ),
             StreamBuilder<MaterialStorePart>(
               stream: widget._controller.third$.cast<MaterialStorePart>(),
-              builder: (context, snapshot) => TextField(
-                enabled: snapshot.hasData && snapshot.data != null,
-                controller: widget._controller.quantity,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: "Quantity", hintText: "0"),
-              ),
+              builder: (context, snapshot) {
+                final isEnabled = snapshot.hasData && snapshot.data != null;
+                return AbsorbPointer(
+                  absorbing: !isEnabled,
+                  child: Opacity(
+                    opacity: isEnabled ? 1.0 : 0.5,
+                    child: TextField(
+                      controller: widget._controller.quantity,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: "Quantity", 
+                        hintText: "0",
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
             StreamBuilder<MaterialStorePart>(
               stream: widget._controller.third$.cast<MaterialStorePart>(),
-              builder: (context, snapshot) => TextField(
-                enabled: snapshot.hasData && snapshot.data != null,
-                controller: widget._controller.remark,
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: "Price Per Unit (RM)", hintText: "10.00"),
-              ),
+              builder: (context, snapshot) {
+                final isEnabled = snapshot.hasData && snapshot.data != null;
+                return AbsorbPointer(
+                  absorbing: !isEnabled,
+                  child: Opacity(
+                    opacity: isEnabled ? 1.0 : 0.5,
+                    child: TextField(
+                      controller: widget._controller.remark,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(
+                        labelText: "Price Per Unit (RM)", 
+                        hintText: "10.00",
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
             StreamBuilder<MaterialStorePart>(
               stream: widget._controller.third$.cast<MaterialStorePart>(),
-              builder: (context, snapshot) => TextField(
-                enabled: snapshot.hasData && snapshot.data != null,
-                controller: widget._controller.subLocation,
-                decoration: const InputDecoration(labelText: "Sub Location"),
-              ),
+              builder: (context, snapshot) {
+                final isEnabled = snapshot.hasData && snapshot.data != null;
+                return AbsorbPointer(
+                  absorbing: !isEnabled,
+                  child: Opacity(
+                    opacity: isEnabled ? 1.0 : 0.5,
+                    child: TextField(
+                      controller: widget._controller.subLocation,
+                      decoration: const InputDecoration(labelText: "Sub Location"),
+                    ),
+                  ),
+                );
+              },
             ),
             StreamBuilder<MaterialStorePart>(
               stream: widget._controller.third$.cast<MaterialStorePart>(),
-              builder: (context, snapshot) => TextField(
-                enabled: snapshot.hasData && snapshot.data != null,
-                controller: widget._controller.warranty,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: "Warranty", hintText: "1"),
-              ),
+              builder: (context, snapshot) {
+                final isEnabled = snapshot.hasData && snapshot.data != null;
+                return AbsorbPointer(
+                  absorbing: !isEnabled,
+                  child: Opacity(
+                    opacity: isEnabled ? 1.0 : 0.5,
+                    child: TextField(
+                      controller: widget._controller.warranty,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: "Warranty", 
+                        hintText: "1",
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -162,8 +204,45 @@ class _CheckinAddState extends State<CheckinAdd> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.done),
         onPressed: () {
+          // Validate all required fields are selected
+          if (widget._controller.selectedFourth == null) {
+            Toast.show("Please select a store", duration: 3);
+            return;
+          }
+          if (widget._controller.first == null) {
+            Toast.show("Please select a group", duration: 3);
+            return;
+          }
+          if (widget._controller.second == null) {
+            Toast.show("Please select a type", duration: 3);
+            return;
+          }
+          if (widget._controller.third == null) {
+            Toast.show("Please select a part", duration: 3);
+            return;
+          }
+          if (widget._controller.quantity.text.isEmpty || 
+              int.tryParse(widget._controller.quantity.text) == null ||
+              int.parse(widget._controller.quantity.text) <= 0) {
+            Toast.show("Please enter a valid quantity", duration: 3);
+            return;
+          }
+          if (widget._controller.remark.text.isEmpty) {
+            Toast.show("Please enter a price per unit", duration: 3);
+            return;
+          }
+          if (widget._controller.warranty.text.isEmpty) {
+            Toast.show("Please enter warranty period", duration: 3);
+            return;
+          }
+          
           final item = widget._controller.value(context);
-          Navigator.pop(context, item);
+          if (item != null) {
+            print("CheckinAdd: Returning item: ${item.toString()}");
+            Navigator.pop(context, item);
+          } else {
+            Toast.show("Failed to create item", duration: 3);
+          }
         },
       ),
     );
@@ -401,15 +480,21 @@ class Controller extends Bloc {
   set invalid(bool value) => _invalidQuantity.sink.add(value);
 
   // METHODS
-  dynamic value(BuildContext context) {
-    return {
-      "remark": remark.text,
-      "quantity": quantity.text,
-      "subLocation": subLocation.text,
-      "warranty": warranty.text,
-      "validity": validity,
-      "selectedPart": third,
-    };
+  Item? value(BuildContext context) {
+    final part = third;
+    if (part == null) return null;
+    
+    return Item(
+      first?.itemName ?? "Unknown Group",
+      second?.itemName ?? "Unknown Type", 
+      part.itemDescription ?? "No Description",
+      part.partId ?? "",
+      quantity.text,
+      remark.text,
+      subLocation.text,
+      warranty.text,
+      validity,
+    );
   }
 
   void getFirst() => _request

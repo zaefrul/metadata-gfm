@@ -19,6 +19,7 @@ import 'gamificationInfo.dart';
 import 'material.dart';
 import 'meter.dart';
 import 'monitor.dart';
+import 'return_item.dart';
 
 part 'serializers.g.dart';
 
@@ -67,6 +68,9 @@ part 'serializers.g.dart';
   GamificationInfo,
   EventAtt,
   EventDetail,
+  CollectedItem,
+  ReturnRequest,
+  PendingReturn,
 ])
 final Serializers serializers =
     (_$serializers.toBuilder()..addPlugin(StandardJsonPlugin())).build();

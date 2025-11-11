@@ -164,23 +164,50 @@ class BlocCheckin extends Bloc {
   }
 
   Future<void> submit(BuildContext context) async {
+    print("BlocCheckin: Starting submit");
     final valuesM = _materials.value;
     final valuesD = _do.value;
-    final fieldStore = _store.value;
+    final fieldStore = _store.valueOrNull;
     final fieldDoNo = _doNo.text;
     final fieldSupplier = _supplierName.text;
 
-    if (valuesM.isEmpty) throw "Please select material";
-    if (valuesD.isEmpty) throw "Please upload DO ";
-    if (fieldDoNo.isEmpty) throw "Please insert Do Number";
-    if (fieldSupplier.isEmpty) throw "Please insert Supplier Name";
+    print("BlocCheckin: Materials count: ${valuesM.length}");
+    print("BlocCheckin: DO attachments count: ${valuesD.length}");
+    print("BlocCheckin: Store: ${fieldStore?.itemName ?? 'NOT SELECTED'}");
+    print("BlocCheckin: DO Number: '$fieldDoNo'");
+    print("BlocCheckin: Supplier: '$fieldSupplier'");
+
+    if (fieldStore == null) {
+      print("BlocCheckin: ERROR - No store selected");
+      throw "Please select a store";
+    }
+    if (valuesM.isEmpty) {
+      print("BlocCheckin: ERROR - No materials");
+      throw "Please select material";
+    }
+    if (valuesD.isEmpty) {
+      print("BlocCheckin: ERROR - No DO attachments");
+      throw "Please upload DO ";
+    }
+    if (fieldDoNo.isEmpty) {
+      print("BlocCheckin: ERROR - No DO number");
+      throw "Please insert Do Number";
+    }
+    if (fieldSupplier.isEmpty) {
+      print("BlocCheckin: ERROR - No supplier name");
+      throw "Please insert Supplier Name";
+    }
+    
+    print("BlocCheckin: All validations passed, preparing to submit");
     final Provider provider = Provider(fetchURL: "/do/check_in_direct");
     provider.context = context;
 
     final body = await param;
+    print("BlocCheckin: Body prepared with ${body.length} fields");
     return checker(
             provider.postUtilities(url: "/do/check_in_direct", body: body))
         .then((_) async {
+      print("BlocCheckin: Submit successful, clearing cache");
       final pref = await SharedPreferences.getInstance();
       pref.remove(_kMaterials);
       pref.remove(_kDoNo);
@@ -191,8 +218,13 @@ class BlocCheckin extends Bloc {
   }
 
   Future<Map> get param async {
+    final store = _store.valueOrNull;
+    if (store == null) {
+      throw "Store not selected";
+    }
+    
     final value = {
-      "storeId": _store.value.itemId,
+      "storeId": store.itemId,
       "doNo": _doNo.text,
       "doDate": DateFormat('yyyy-MM-dd').format(DateTime.now()),
       "supplierName": _supplierName.text,

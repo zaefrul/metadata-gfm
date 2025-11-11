@@ -38,6 +38,12 @@ import 'controller/Storekeeper/route/technician/route_technician.dart';
 import 'controller/Storekeeper/route/storekeeper/checkin_list.dart';
 import 'controller/Storekeeper/route/storekeeper/product_details.dart';
 import 'controller/Storekeeper/route/storekeeper/stockIn_list.dart';
+import 'controller/ReturnItem/return_item_list.dart';
+import 'controller/ReturnItem/return_item_detail.dart';
+import 'controller/ReturnItem/return_confirm_list.dart';
+import 'controller/ReturnItem/return_confirm_detail.dart';
+import 'controller/ReturnItem/api_test_screen.dart';
+import 'view/secret_debug_menu.dart';
 
 import 'controller/login.dart';
 import 'controller/Profile/profile.dart';
@@ -47,6 +53,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:GEMS/model/complaint.dart';
+import 'package:GEMS/model/return_item.dart';
 import 'package:GEMS/config/app_config.dart';
 import 'package:GEMS/model/user.dart';
 import 'package:local_auth/local_auth.dart';
@@ -474,6 +481,32 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       case DebugLogScreen.routeName:
         return MaterialPageRoute(
             builder: (_) => const DebugLogScreen(), settings: settings);
+      case '/return-item-list':
+        return MaterialPageRoute(
+            builder: (_) => ReturnItemList(), settings: settings);
+      case '/return-item-detail':
+        final args = settings.arguments;
+        if (args is! CollectedItem) {
+          throw ArgumentError('/return-item-detail expects CollectedItem argument');
+        }
+        return MaterialPageRoute(
+            builder: (_) => ReturnItemDetail(item: args), settings: settings);
+      case '/return-confirm-list':
+        return MaterialPageRoute(
+            builder: (_) => ReturnConfirmList(), settings: settings);
+      case '/return-confirm-detail':
+        final args = settings.arguments;
+        if (args is! int) {
+          throw ArgumentError('/return-confirm-detail expects int returnId argument');
+        }
+        return MaterialPageRoute(
+            builder: (_) => ReturnConfirmDetail(returnId: args), settings: settings);
+      case '/api-test':
+        return MaterialPageRoute(
+            builder: (_) => ApiTestScreen(), settings: settings);
+      case '/secret-debug-menu':
+        return MaterialPageRoute(
+            builder: (_) => SecretDebugMenu(), settings: settings);
       // builder: (_) => Placeholder(), settings: settings); // Replace Placeholder with the correct widget if known
       default:
         return MaterialPageRoute(builder: (ctx) => ProcumentHomepage());

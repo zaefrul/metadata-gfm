@@ -85,9 +85,23 @@ class MyDashboard extends StatelessWidget {
 
   Future<void> refresh({BuildContext? context}) {
     final Provider provider = Provider(fetchURL: "/part/mobile_dashboard");
-    provider.context = context!;
+    if (context != null) {
+      provider.context = context;
+    }
     return provider.getJson(url: "/part/mobile_dashboard").then((value) {
       _data.sink.add(value);
+    }).catchError((error) {
+      debugPrint("Dashboard refresh error: $error");
+      // Add empty data to prevent infinite loading
+      _data.sink.add({
+        "totalItem": 0,
+        "totalLow": 0,
+        "totalPartAvailable": 0,
+        "totalPartLocked": 0,
+        "totalPartQuantity": 0,
+        "totalStore": 0,
+        "totalValue": "0.00",
+      });
     });
   }
 

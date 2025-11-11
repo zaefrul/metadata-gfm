@@ -43,6 +43,7 @@ class _HomepageState extends State<Homepage> {
   bool _isUtilitiesFeatureEnabled = false;
   bool _isLoading = true;
   String _appVersion = ''; // New state variable for app version
+  int _versionTapCount = 0; // Secret debug menu tap counter
 
   @override
   void initState() {
@@ -69,6 +70,53 @@ class _HomepageState extends State<Homepage> {
         });
       }
     }
+  }
+
+  void _onVersionTap() {
+    if (!mounted) return;
+    
+    setState(() {
+      _versionTapCount++;
+    });
+
+    if (_versionTapCount >= 6 && _versionTapCount <= 9) {
+      // Show countdown toast for last 4 taps (only if still mounted)
+      if (mounted) {
+        int remaining = 10 - _versionTapCount;
+        try {
+          Toast.show(
+            "Navigate to debug menu in $remaining",
+            duration: Toast.lengthShort,
+            gravity: Toast.bottom,
+          );
+        } catch (e) {
+          debugPrint("Toast error: $e");
+        }
+      }
+    } else if (_versionTapCount == 10) {
+      // Reset counter immediately
+      setState(() {
+        _versionTapCount = 0;
+      });
+      
+      // Navigate after a brief delay to ensure any toasts are dismissed
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (mounted) {
+          Navigator.pushNamed(context, '/secret-debug-menu');
+        }
+      });
+      
+      return; // Don't set up the reset timer for this case
+    }
+
+    // Reset counter after 2 seconds of inactivity
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted && _versionTapCount < 10) {
+        setState(() {
+          _versionTapCount = 0;
+        });
+      }
+    });
   }
 
   Future<void> _initializeHomepage() async {
@@ -280,11 +328,14 @@ class _HomepageState extends State<Homepage> {
                 alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 16.0), // Adjust padding as needed
-                  child: Text(
-                    'Version: $_appVersion',
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: Colors.black54, // Or a color that stands out against your background
+                  child: GestureDetector(
+                    onTap: _onVersionTap,
+                    child: Text(
+                      'Version: $_appVersion',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.black54, // Or a color that stands out against your background
+                      ),
                     ),
                   ),
                 ),

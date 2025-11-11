@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../model/user.dart';
-import 'debug_log_screen.dart';
 
 class BuildDrawer extends StatelessWidget {
   final bool isHome;
@@ -52,9 +51,9 @@ class BuildDrawer extends StatelessWidget {
             nav.pop();
             nav.pushNamed("/monitoring");
           }),
-          getTile("Debug Logs", "flash.png", onTap: () {
+          getTile("Return Items", "work_order.png", onTap: () {
             nav.pop();
-            nav.pushNamed(DebugLogScreen.routeName);
+            nav.pushNamed("/return-item-list");
           }),
           Expanded(
             child: Container(

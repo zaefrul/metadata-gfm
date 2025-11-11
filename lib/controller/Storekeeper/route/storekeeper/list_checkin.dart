@@ -9,11 +9,16 @@ class CheckInList extends StatelessWidget {
   final BehaviorSubject<List<dynamic>> _data = BehaviorSubject<List<dynamic>>.seeded([]);
 
   CheckInList({super.key}) {
-    refresh();
+    // Don't call refresh in constructor - it will be called when widget builds
   }
 
   @override
   Widget build(BuildContext context) {
+    // Call refresh once when the widget first builds
+    if (_data.value.isEmpty) {
+      refresh(context: context);
+    }
+    
     return StreamBuilder<List<dynamic>>(
       stream: _data.stream,
       builder: (context, snapshot) {
@@ -40,9 +45,14 @@ class CheckInList extends StatelessWidget {
 
   Future<void> refresh({BuildContext? context}) {
     final Provider provider = Provider(fetchURL: "/do/list_mobile_check_in");
-    provider.context = context!;
+    if (context != null) {
+      provider.context = context;
+    }
     return provider.getJson(url: "/do/list_mobile_check_in").then((value) {
       _data.sink.add(value);
+    }).catchError((error) {
+      debugPrint("Error refreshing check-in list: $error");
+      // Keep the current data on error
     });
   }
 }

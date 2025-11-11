@@ -96,8 +96,8 @@ class Provider {
         (taskID == null ? "" : taskID!));
 
     debugPrint(uri.toString());
-    // debugPrint('token: $token');
-    // debugPrint('deviceID: $deviceID');
+    debugPrint('Authorization header: $token');
+    debugPrint('deviceid header: $deviceID');
     
     var response = await http.get(uri, headers: {
       "Authorization": token,
@@ -200,23 +200,30 @@ class Provider {
         throw "Your session already expired, please relogin.";
       }
 
-      if ((decode["result"] as List).isNotEmpty) {
+      // Handle double-encoded JSON string
+      var result = decode["result"];
+      if (result is String) {
+        debugPrint("Result is double-encoded, decoding again...");
+        result = json.decode(result);
+      }
+
+      if ((result as List).isNotEmpty) {
         if (group) {
-          return deserializeListOf<ComplaintDGroup>(decode["result"]).toList();
+          return deserializeListOf<ComplaintDGroup>(result).toList();
         } else if (type) {
-          return deserializeListOf<ComplaintDType>(decode["result"]).toList();
+          return deserializeListOf<ComplaintDType>(result).toList();
         } else if (part) {
-          return deserializeListOf<ComplaintDPart>(decode["result"]).toList();
+          return deserializeListOf<ComplaintDPart>(result).toList();
         } else if (store) {
-          return deserializeListOf<ComplaintDStore>(decode["result"]).toList();
+          return deserializeListOf<ComplaintDStore>(result).toList();
         } else if (groupStore) {
-          return deserializeListOf<ComplaintDGroupStore>(decode["result"])
+          return deserializeListOf<ComplaintDGroupStore>(result)
               .toList();
         } else if (storePart) {
-          return deserializeListOf<MaterialStorePart>(decode["result"])
+          return deserializeListOf<MaterialStorePart>(result)
               .toList();
         } else if (storeType) {
-          return deserializeListOf<ComplaintDStoreType>(decode["result"])
+          return deserializeListOf<ComplaintDStoreType>(result)
               .toList();
         } else {
           ComplaintResponse responseValue = serializers.deserializeWith(
