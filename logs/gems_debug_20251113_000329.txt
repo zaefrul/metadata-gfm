@@ -1,0 +1,250 @@
+[2025-11-13T00:03:02.782788] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:02.782837] 📊 Sequential Sync Summary:
+[2025-11-13T00:03:02.782876]    ✅ Success: 0 actions
+[2025-11-13T00:03:02.782929]    ❌ Failed: 1 actions
+[2025-11-13T00:03:02.782964]    📝 Total: 1 actions
+[2025-11-13T00:03:02.783003] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:02.784051] PPMPendingSyncController: Updated pending count to 1
+[2025-11-13T00:03:02.784131] PPMPendingSyncController: Sync completed successfully
+[2025-11-13T00:03:04.822716] PPMPendingSyncController: Attempting to sync pending actions...
+[2025-11-13T00:03:04.823104] 
+[2025-11-13T00:03:04.823148] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:04.823211] 🔄 PPMRepository.syncPendingActions: Starting sequential sync...
+[2025-11-13T00:03:04.823253] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:04.825249] 📋 PPMRepository.syncPendingActions: Found 1 pending actions
+[2025-11-13T00:03:04.825324] 
+[2025-11-13T00:03:04.825359] ┌─────────────────────────────────────────────────────────────
+[2025-11-13T00:03:04.825431] │ Syncing action: submit_ppm (id: 14)
+[2025-11-13T00:03:04.825470] │ PPM Task: 2118985
+[2025-11-13T00:03:04.825510] └─────────────────────────────────────────────────────────────
+[2025-11-13T00:03:04.989463] Deserializing result: 
+[2025-11-13T00:03:04.989588] ❌ Failed to sync action: Error on system. Please contact Administrator!
+[2025-11-13T00:03:04.989675] 
+[2025-11-13T00:03:04.989728] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:04.989802] 📊 Sequential Sync Summary:
+[2025-11-13T00:03:04.989849]    ✅ Success: 0 actions
+[2025-11-13T00:03:04.989884]    ❌ Failed: 1 actions
+[2025-11-13T00:03:04.989925]    📝 Total: 1 actions
+[2025-11-13T00:03:04.989960] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:04.991361] PPMPendingSyncController: Updated pending count to 1
+[2025-11-13T00:03:04.991423] PPMPendingSyncController: Sync completed successfully
+[2025-11-13T00:03:08.388443] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118985, result=false
+[2025-11-13T00:03:08.389055] FormView.refreshStatus: Detected 2 pending actions - using cached snapshot
+[2025-11-13T00:03:08.389089] PPMRepository.loadSnapshot: Loading snapshot for ppmTaskId=2118985
+[2025-11-13T00:03:08.389306] PPMRepository.loadSnapshot: No snapshot found
+[2025-11-13T00:03:08.391821] https://gems.metadatasystem.my/ppm_v2/ppm_section_status/2118985
+[2025-11-13T00:03:08.391866] Authorization header: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnZW1zMlwvand0IiwidXNlcklkIjoiMSIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3NjI5NjMxNDksImV4cCI6MTc2Mjk2MzE1OX0.In-onk-mxms3GV1vpKyXQqeuHE1N3TCxD_M-JUaLzdI
+[2025-11-13T00:03:08.391883] deviceid header: BP2A.250605.031.A3
+[2025-11-13T00:03:08.792256] 
+[2025-11-13T00:03:08.792451] Deserializing result: [{ppmTaskSectionId: 17077081, ppmTaskSectionName: A, ppmTaskId: 2118985, ppmTaskSectionStatus: Info, checkParts: N/A, checkAdditionalReport: N/A}, {ppmTaskSectionId: 17077082, ppmTaskSectionName: B, ppmTaskId: 2118985, ppmTaskSectionStatus: Info, checkParts: N/A, checkAdditionalReport: N/A}, {ppmTaskSectionId: 17077083, ppmTaskSectionName: C, ppmTaskId: 2118985, ppmTaskSectionStatus: Completed, checkParts: N/A, checkAdditionalReport: N/A}, {ppmTaskSectionId: 17077084, ppmTaskSectionName: D, ppmTaskId: 2118985, ppmTaskSectionStatus: Completed, checkParts: N/A, checkAdditionalReport: N/A}, {ppmTaskSectionId: 17077085, ppmTaskSectionName: E, ppmTaskId: 2118985, ppmTaskSectionStatus: Completed, checkParts: 1, checkAdditionalReport: N/A}, {ppmTaskSectionId: 17077086, ppmTaskSectionName: F, ppmTaskId: 2118985, ppmTaskSectionStatus: Completed, checkParts: N/A, checkAdditionalReport: 1}, {ppmTaskSectionId: 17077087, ppmTaskSectionName: G, ppmTaskId: 2118985, ppmTaskSectionStatus: Completed, checkParts: N/A, checkAdditionalReport: N/A}, {ppmTaskSectionId: 17077088, ppmTaskSectionName: H, ppmTaskId: 2118985, ppmTaskSectionStatus: Completed, checkParts: N/A, checkAdditionalReport: N/A}, {ppmTaskSectionId: 17296176, ppmTaskSectionName: I, ppmTaskId: 2118985, ppmTaskSectionStatus: Pending, checkParts: N/A, checkAdditionalReport: N/A}]
+[2025-11-13T00:03:08.806824] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118985, result=false
+[2025-11-13T00:03:09.407237] Fetching PPM tasks from: /api/m_ppm.php?type=pending_task_search&assetNo=
+[2025-11-13T00:03:09.407446] Fetching PPM tasks from: /api/m_ppm.php?type=pending_task_search&assetNo=
+[2025-11-13T00:03:09.414299] 
+[2025-11-13T00:03:09.414386] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:09.414414] 🔄 PPMRepository.syncPendingActions: Starting sequential sync...
+[2025-11-13T00:03:09.414431] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:09.414655] 
+[2025-11-13T00:03:09.414695] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:09.414751] 🔄 PPMRepository.syncPendingActions: Starting sequential sync...
+[2025-11-13T00:03:09.414794] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:09.415264] 📋 PPMRepository.syncPendingActions: Found 1 pending actions
+[2025-11-13T00:03:09.415311] 
+[2025-11-13T00:03:09.415324] ┌─────────────────────────────────────────────────────────────
+[2025-11-13T00:03:09.415346] │ Syncing action: submit_ppm (id: 14)
+[2025-11-13T00:03:09.415361] │ PPM Task: 2118985
+[2025-11-13T00:03:09.415379] └─────────────────────────────────────────────────────────────
+[2025-11-13T00:03:09.417880] 📋 PPMRepository.syncPendingActions: Found 1 pending actions
+[2025-11-13T00:03:09.417905] 
+[2025-11-13T00:03:09.417916] ┌─────────────────────────────────────────────────────────────
+[2025-11-13T00:03:09.417932] │ Syncing action: submit_ppm (id: 14)
+[2025-11-13T00:03:09.417944] │ PPM Task: 2118985
+[2025-11-13T00:03:09.417956] └─────────────────────────────────────────────────────────────
+[2025-11-13T00:03:09.520497] Deserializing result: 
+[2025-11-13T00:03:09.520549] ❌ Failed to sync action: Error on system. Please contact Administrator!
+[2025-11-13T00:03:09.520567] 
+[2025-11-13T00:03:09.520586] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:09.520602] 📊 Sequential Sync Summary:
+[2025-11-13T00:03:09.520611]    ✅ Success: 0 actions
+[2025-11-13T00:03:09.520624]    ❌ Failed: 1 actions
+[2025-11-13T00:03:09.520632]    📝 Total: 1 actions
+[2025-11-13T00:03:09.520645] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:09.522299] https://gems.metadatasystem.my/api/m_ppm.php?type=pending_task_search&assetNo=
+[2025-11-13T00:03:09.522322] Authorization header: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnZW1zMlwvand0IiwidXNlcklkIjoiMSIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3NjI5NjMxNDksImV4cCI6MTc2Mjk2MzE1OX0.In-onk-mxms3GV1vpKyXQqeuHE1N3TCxD_M-JUaLzdI
+[2025-11-13T00:03:09.522354] deviceid header: BP2A.250605.031.A3
+[2025-11-13T00:03:09.522978] Deserializing result: 
+[2025-11-13T00:03:09.523001] ❌ Failed to sync action: Error on system. Please contact Administrator!
+[2025-11-13T00:03:09.523022] 
+[2025-11-13T00:03:09.523038] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:09.523047] 📊 Sequential Sync Summary:
+[2025-11-13T00:03:09.523066]    ✅ Success: 0 actions
+[2025-11-13T00:03:09.523073]    ❌ Failed: 1 actions
+[2025-11-13T00:03:09.523082]    📝 Total: 1 actions
+[2025-11-13T00:03:09.523090] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:09.524360] https://gems.metadatasystem.my/api/m_ppm.php?type=pending_task_search&assetNo=
+[2025-11-13T00:03:09.524381] Authorization header: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnZW1zMlwvand0IiwidXNlcklkIjoiMSIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3NjI5NjMxNDksImV4cCI6MTc2Mjk2MzE1OX0.In-onk-mxms3GV1vpKyXQqeuHE1N3TCxD_M-JUaLzdI
+[2025-11-13T00:03:09.524403] deviceid header: BP2A.250605.031.A3
+[2025-11-13T00:03:11.133126] 
+[2025-11-13T00:03:11.133455] Deserializing result: [{taskId: 3305057, ppmTaskId: 2118777, transactionNo: PDEMO25103102095, assetNo: DM003, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305077, ppmTaskId: 2118797, transactionNo: PDEMO25103102115, assetNo: DM004, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305258, ppmTaskId: 2118911, transactionNo: PDEMO25103102229, assetNo: IT004, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305276, ppmTaskId: 2118929, transactionNo: PDEMO25103102247, assetNo: IT005, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305294, ppmTaskId: 2118947, transactionNo: PDEMO25103102265, assetNo: IT006, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305313, ppmTaskId: 2118966, transactionNo: PDEMO25103102284, assetNo: DM011, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305332, ppmTaskId: 2118985, transactionNo: PDEMO25103102303, assetNo: DM012, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305351, ppmTaskId: 2119004, transactionNo: PDEMO25103102322, assetNo: DM013, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3307624, ppmTaskId: 2121262, transactionNo: PDEMO25103103829, assetNo: TN004, siteName: Demo Client, assetTypeName: Network Switch, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3307667, ppmTaskId: 2121305, transactionNo: PDEMO25103103872, assetNo: TN006, siteName: Demo Client, assetTypeName: Network Switch, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3308410, ppmTaskId: 2122046, transactionNo: PDEMO25103104097, assetNo: IT0010, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3308459, ppmTaskId: 2122095, transactionNo: PDEMO25103104146, assetNo: DM012345, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3309370, ppmTaskId: 2123004, transactionNo: PDEMO25103105055, assetNo: DM010, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3309406, ppmTaskId: 2123017, transactionNo: PDEMO25103105068, assetNo: DM20, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3309491, ppmTaskId: 2123102, transactionNo: PDEMO25103105153, assetNo: DM002, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3303034, ppmTaskId: 2118661, transactionNo: PDEMO25103101979, assetNo: , siteName: , assetTypeName: , statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3304999, ppmTaskId: 2118719, transactionNo: PDEMO25103102037, assetNo: , siteName: , assetTypeName: , statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305018, ppmTaskId: 2118738, transactionNo: PDEMO25103102056, assetNo: , siteName: , assetTypeName: , statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3303005, ppmTaskId: 2118639, transactionNo: PDEMO25103101957, assetNo: , siteName: , assetTypeName: , statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 17/10/2025, taskDateDue: 17/10/2025}, {taskId: 3313460, ppmTaskId: 2127059, transactionNo: PDEMO26013109110, assetNo: QW001, siteName: Demo Client, assetTypeName: Network Switch, statusDesc: Open, frequency: [Quarterly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305259, ppmTaskId: 2118912, transactionNo: PDEMO25113002230, assetNo: IT004, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305277, ppmTaskId: 2118930, transactionNo: PDEMO25113002248, assetNo: IT005, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305295, ppmTaskId: 2118948, transactionNo: PDEMO25113002266, assetNo: IT006, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305314, ppmTaskId: 2118967, transactionNo: PDEMO25113002285, assetNo: DM011, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305333, ppmTaskId: 2118986, transactionNo: PDEMO25113002304, assetNo: DM012, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305352, ppmTaskId: 2119005, transactionNo: PDEMO25113002323, assetNo: DM013, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3307625, ppmTaskId: 2121263, transactionNo: PDEMO25113003830, assetNo: TN004, siteName: Demo Client, assetTypeName: Network Switch, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3307668, ppmTaskId: 2121306, transactionNo: PDEMO25113003873, assetNo: TN006, siteName: Demo Client, assetTypeName: Network Switch, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3308411, ppmTaskId: 2122047, transactionNo: PDEMO25113004098, assetNo: IT0010, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3308460, ppmTaskId: 2122096, transactionNo: PDEMO25113004147, assetNo: DM012345, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}]
+[2025-11-13T00:03:11.139582] 
+[2025-11-13T00:03:11.139838] Deserializing result: [{taskId: 3305057, ppmTaskId: 2118777, transactionNo: PDEMO25103102095, assetNo: DM003, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305077, ppmTaskId: 2118797, transactionNo: PDEMO25103102115, assetNo: DM004, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305258, ppmTaskId: 2118911, transactionNo: PDEMO25103102229, assetNo: IT004, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305276, ppmTaskId: 2118929, transactionNo: PDEMO25103102247, assetNo: IT005, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305294, ppmTaskId: 2118947, transactionNo: PDEMO25103102265, assetNo: IT006, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305313, ppmTaskId: 2118966, transactionNo: PDEMO25103102284, assetNo: DM011, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305332, ppmTaskId: 2118985, transactionNo: PDEMO25103102303, assetNo: DM012, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305351, ppmTaskId: 2119004, transactionNo: PDEMO25103102322, assetNo: DM013, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3307624, ppmTaskId: 2121262, transactionNo: PDEMO25103103829, assetNo: TN004, siteName: Demo Client, assetTypeName: Network Switch, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3307667, ppmTaskId: 2121305, transactionNo: PDEMO25103103872, assetNo: TN006, siteName: Demo Client, assetTypeName: Network Switch, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3308410, ppmTaskId: 2122046, transactionNo: PDEMO25103104097, assetNo: IT0010, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3308459, ppmTaskId: 2122095, transactionNo: PDEMO25103104146, assetNo: DM012345, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3309370, ppmTaskId: 2123004, transactionNo: PDEMO25103105055, assetNo: DM010, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3309406, ppmTaskId: 2123017, transactionNo: PDEMO25103105068, assetNo: DM20, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3309491, ppmTaskId: 2123102, transactionNo: PDEMO25103105153, assetNo: DM002, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3303034, ppmTaskId: 2118661, transactionNo: PDEMO25103101979, assetNo: , siteName: , assetTypeName: , statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3304999, ppmTaskId: 2118719, transactionNo: PDEMO25103102037, assetNo: , siteName: , assetTypeName: , statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305018, ppmTaskId: 2118738, transactionNo: PDEMO25103102056, assetNo: , siteName: , assetTypeName: , statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3303005, ppmTaskId: 2118639, transactionNo: PDEMO25103101957, assetNo: , siteName: , assetTypeName: , statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 17/10/2025, taskDateDue: 17/10/2025}, {taskId: 3313460, ppmTaskId: 2127059, transactionNo: PDEMO26013109110, assetNo: QW001, siteName: Demo Client, assetTypeName: Network Switch, statusDesc: Open, frequency: [Quarterly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305259, ppmTaskId: 2118912, transactionNo: PDEMO25113002230, assetNo: IT004, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305277, ppmTaskId: 2118930, transactionNo: PDEMO25113002248, assetNo: IT005, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305295, ppmTaskId: 2118948, transactionNo: PDEMO25113002266, assetNo: IT006, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305314, ppmTaskId: 2118967, transactionNo: PDEMO25113002285, assetNo: DM011, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305333, ppmTaskId: 2118986, transactionNo: PDEMO25113002304, assetNo: DM012, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305352, ppmTaskId: 2119005, transactionNo: PDEMO25113002323, assetNo: DM013, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3307625, ppmTaskId: 2121263, transactionNo: PDEMO25113003830, assetNo: TN004, siteName: Demo Client, assetTypeName: Network Switch, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3307668, ppmTaskId: 2121306, transactionNo: PDEMO25113003873, assetNo: TN006, siteName: Demo Client, assetTypeName: Network Switch, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3308411, ppmTaskId: 2122047, transactionNo: PDEMO25113004098, assetNo: IT0010, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3308460, ppmTaskId: 2122096, transactionNo: PDEMO25113004147, assetNo: DM012345, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}]
+[2025-11-13T00:03:11.161342] Cached 30 tasks for offline access
+[2025-11-13T00:03:11.162204] Cached 30 tasks for offline access
+[2025-11-13T00:03:11.162364] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118777, result=false
+[2025-11-13T00:03:11.162563] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118797, result=false
+[2025-11-13T00:03:11.162675] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118777, result=false
+[2025-11-13T00:03:11.162789] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118911, result=false
+[2025-11-13T00:03:11.162872] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118797, result=false
+[2025-11-13T00:03:11.162952] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118929, result=false
+[2025-11-13T00:03:11.163026] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118911, result=false
+[2025-11-13T00:03:11.163101] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118947, result=false
+[2025-11-13T00:03:11.163176] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118929, result=false
+[2025-11-13T00:03:11.163245] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118966, result=false
+[2025-11-13T00:03:11.163313] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118947, result=false
+[2025-11-13T00:03:11.163381] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118985, result=false
+[2025-11-13T00:03:11.163448] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118966, result=false
+[2025-11-13T00:03:11.163517] PPMRepository.isOfflineModeEnabled: ppmTaskId=2119004, result=false
+[2025-11-13T00:03:11.163583] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118985, result=false
+[2025-11-13T00:03:11.163650] PPMRepository.isOfflineModeEnabled: ppmTaskId=2121262, result=false
+[2025-11-13T00:03:11.163718] PPMRepository.isOfflineModeEnabled: ppmTaskId=2119004, result=false
+[2025-11-13T00:03:11.163783] PPMRepository.isOfflineModeEnabled: ppmTaskId=2121305, result=false
+[2025-11-13T00:03:11.163852] PPMRepository.isOfflineModeEnabled: ppmTaskId=2121262, result=false
+[2025-11-13T00:03:11.163918] PPMRepository.isOfflineModeEnabled: ppmTaskId=2122046, result=false
+[2025-11-13T00:03:11.163981] PPMRepository.isOfflineModeEnabled: ppmTaskId=2121305, result=false
+[2025-11-13T00:03:11.164050] PPMRepository.isOfflineModeEnabled: ppmTaskId=2122095, result=false
+[2025-11-13T00:03:11.164116] PPMRepository.isOfflineModeEnabled: ppmTaskId=2122046, result=false
+[2025-11-13T00:03:11.164181] PPMRepository.isOfflineModeEnabled: ppmTaskId=2123004, result=false
+[2025-11-13T00:03:11.164254] PPMRepository.isOfflineModeEnabled: ppmTaskId=2122095, result=false
+[2025-11-13T00:03:11.164319] PPMRepository.isOfflineModeEnabled: ppmTaskId=2123017, result=false
+[2025-11-13T00:03:11.164387] PPMRepository.isOfflineModeEnabled: ppmTaskId=2123004, result=false
+[2025-11-13T00:03:11.164451] PPMRepository.isOfflineModeEnabled: ppmTaskId=2123102, result=false
+[2025-11-13T00:03:11.164513] PPMRepository.isOfflineModeEnabled: ppmTaskId=2123017, result=false
+[2025-11-13T00:03:11.164582] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118661, result=false
+[2025-11-13T00:03:11.164670] PPMRepository.isOfflineModeEnabled: ppmTaskId=2123102, result=false
+[2025-11-13T00:03:11.164734] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118719, result=false
+[2025-11-13T00:03:11.164798] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118661, result=false
+[2025-11-13T00:03:11.164866] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118738, result=false
+[2025-11-13T00:03:11.164932] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118719, result=false
+[2025-11-13T00:03:11.164996] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118639, result=false
+[2025-11-13T00:03:11.165087] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118738, result=false
+[2025-11-13T00:03:11.165177] PPMRepository.isOfflineModeEnabled: ppmTaskId=2127059, result=false
+[2025-11-13T00:03:11.165251] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118639, result=false
+[2025-11-13T00:03:11.165323] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118912, result=false
+[2025-11-13T00:03:11.165398] PPMRepository.isOfflineModeEnabled: ppmTaskId=2127059, result=false
+[2025-11-13T00:03:11.165470] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118930, result=false
+[2025-11-13T00:03:11.165542] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118912, result=false
+[2025-11-13T00:03:11.165617] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118948, result=false
+[2025-11-13T00:03:11.165711] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118930, result=false
+[2025-11-13T00:03:11.165782] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118967, result=false
+[2025-11-13T00:03:11.165855] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118948, result=false
+[2025-11-13T00:03:11.165926] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118986, result=false
+[2025-11-13T00:03:11.166] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118967, result=false
+[2025-11-13T00:03:11.166075] PPMRepository.isOfflineModeEnabled: ppmTaskId=2119005, result=false
+[2025-11-13T00:03:11.166168] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118986, result=false
+[2025-11-13T00:03:11.166243] PPMRepository.isOfflineModeEnabled: ppmTaskId=2121263, result=false
+[2025-11-13T00:03:11.166315] PPMRepository.isOfflineModeEnabled: ppmTaskId=2119005, result=false
+[2025-11-13T00:03:11.166442] PPMRepository.isOfflineModeEnabled: ppmTaskId=2121306, result=false
+[2025-11-13T00:03:11.166601] PPMRepository.isOfflineModeEnabled: ppmTaskId=2121263, result=false
+[2025-11-13T00:03:11.166684] PPMRepository.isOfflineModeEnabled: ppmTaskId=2122047, result=false
+[2025-11-13T00:03:11.166765] PPMRepository.isOfflineModeEnabled: ppmTaskId=2121306, result=false
+[2025-11-13T00:03:11.166846] PPMRepository.isOfflineModeEnabled: ppmTaskId=2122096, result=false
+[2025-11-13T00:03:11.168455] PPMRepository.isOfflineModeEnabled: ppmTaskId=2122047, result=false
+[2025-11-13T00:03:11.168570] PPMRepository.isOfflineModeEnabled: ppmTaskId=2122096, result=false
+[2025-11-13T00:03:17.774724] TaskView: Retrying pending sync...
+[2025-11-13T00:03:17.774882] 
+[2025-11-13T00:03:17.774926] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:17.774976] 🔄 PPMRepository.syncPendingActions: Starting sequential sync...
+[2025-11-13T00:03:17.775024] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:17.781829] 📋 PPMRepository.syncPendingActions: Found 1 pending actions
+[2025-11-13T00:03:17.781870] 
+[2025-11-13T00:03:17.781891] ┌─────────────────────────────────────────────────────────────
+[2025-11-13T00:03:17.781927] │ Syncing action: submit_ppm (id: 14)
+[2025-11-13T00:03:17.781946] │ PPM Task: 2118985
+[2025-11-13T00:03:17.781976] └─────────────────────────────────────────────────────────────
+[2025-11-13T00:03:17.911721] Deserializing result: 
+[2025-11-13T00:03:17.911870] ❌ Failed to sync action: Error on system. Please contact Administrator!
+[2025-11-13T00:03:17.911923] 
+[2025-11-13T00:03:17.911988] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:17.912046] 📊 Sequential Sync Summary:
+[2025-11-13T00:03:17.912107]    ✅ Success: 0 actions
+[2025-11-13T00:03:17.912156]    ❌ Failed: 1 actions
+[2025-11-13T00:03:17.912209]    📝 Total: 1 actions
+[2025-11-13T00:03:17.912244] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:17.913833] Fetching PPM tasks from: /api/m_ppm.php?type=pending_task_search&assetNo=
+[2025-11-13T00:03:17.917649] 
+[2025-11-13T00:03:17.917775] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:17.917850] 🔄 PPMRepository.syncPendingActions: Starting sequential sync...
+[2025-11-13T00:03:17.917892] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:17.918873] 📋 PPMRepository.syncPendingActions: Found 1 pending actions
+[2025-11-13T00:03:17.918939] 
+[2025-11-13T00:03:17.918974] ┌─────────────────────────────────────────────────────────────
+[2025-11-13T00:03:17.919022] │ Syncing action: submit_ppm (id: 14)
+[2025-11-13T00:03:17.919060] │ PPM Task: 2118985
+[2025-11-13T00:03:17.919100] └─────────────────────────────────────────────────────────────
+[2025-11-13T00:03:18.027639] Deserializing result: 
+[2025-11-13T00:03:18.027777] ❌ Failed to sync action: Error on system. Please contact Administrator!
+[2025-11-13T00:03:18.027848] 
+[2025-11-13T00:03:18.027891] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:18.027933] 📊 Sequential Sync Summary:
+[2025-11-13T00:03:18.027977]    ✅ Success: 0 actions
+[2025-11-13T00:03:18.028013]    ❌ Failed: 1 actions
+[2025-11-13T00:03:18.028055]    📝 Total: 1 actions
+[2025-11-13T00:03:18.028089] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:18.034661] https://gems.metadatasystem.my/api/m_ppm.php?type=pending_task_search&assetNo=
+[2025-11-13T00:03:18.034759] Authorization header: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnZW1zMlwvand0IiwidXNlcklkIjoiMSIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3NjI5NjMxNDksImV4cCI6MTc2Mjk2MzE1OX0.In-onk-mxms3GV1vpKyXQqeuHE1N3TCxD_M-JUaLzdI
+[2025-11-13T00:03:18.034803] deviceid header: BP2A.250605.031.A3
+[2025-11-13T00:03:18.877376] 
+[2025-11-13T00:03:18.877884] Deserializing result: [{taskId: 3305057, ppmTaskId: 2118777, transactionNo: PDEMO25103102095, assetNo: DM003, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305077, ppmTaskId: 2118797, transactionNo: PDEMO25103102115, assetNo: DM004, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305258, ppmTaskId: 2118911, transactionNo: PDEMO25103102229, assetNo: IT004, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305276, ppmTaskId: 2118929, transactionNo: PDEMO25103102247, assetNo: IT005, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305294, ppmTaskId: 2118947, transactionNo: PDEMO25103102265, assetNo: IT006, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305313, ppmTaskId: 2118966, transactionNo: PDEMO25103102284, assetNo: DM011, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305332, ppmTaskId: 2118985, transactionNo: PDEMO25103102303, assetNo: DM012, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305351, ppmTaskId: 2119004, transactionNo: PDEMO25103102322, assetNo: DM013, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3307624, ppmTaskId: 2121262, transactionNo: PDEMO25103103829, assetNo: TN004, siteName: Demo Client, assetTypeName: Network Switch, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3307667, ppmTaskId: 2121305, transactionNo: PDEMO25103103872, assetNo: TN006, siteName: Demo Client, assetTypeName: Network Switch, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3308410, ppmTaskId: 2122046, transactionNo: PDEMO25103104097, assetNo: IT0010, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3308459, ppmTaskId: 2122095, transactionNo: PDEMO25103104146, assetNo: DM012345, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3309370, ppmTaskId: 2123004, transactionNo: PDEMO25103105055, assetNo: DM010, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3309406, ppmTaskId: 2123017, transactionNo: PDEMO25103105068, assetNo: DM20, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3309491, ppmTaskId: 2123102, transactionNo: PDEMO25103105153, assetNo: DM002, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3303034, ppmTaskId: 2118661, transactionNo: PDEMO25103101979, assetNo: , siteName: , assetTypeName: , statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3304999, ppmTaskId: 2118719, transactionNo: PDEMO25103102037, assetNo: , siteName: , assetTypeName: , statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305018, ppmTaskId: 2118738, transactionNo: PDEMO25103102056, assetNo: , siteName: , assetTypeName: , statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3303005, ppmTaskId: 2118639, transactionNo: PDEMO25103101957, assetNo: , siteName: , assetTypeName: , statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 17/10/2025, taskDateDue: 17/10/2025}, {taskId: 3313460, ppmTaskId: 2127059, transactionNo: PDEMO26013109110, assetNo: QW001, siteName: Demo Client, assetTypeName: Network Switch, statusDesc: Open, frequency: [Quarterly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305259, ppmTaskId: 2118912, transactionNo: PDEMO25113002230, assetNo: IT004, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305277, ppmTaskId: 2118930, transactionNo: PDEMO25113002248, assetNo: IT005, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305295, ppmTaskId: 2118948, transactionNo: PDEMO25113002266, assetNo: IT006, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305314, ppmTaskId: 2118967, transactionNo: PDEMO25113002285, assetNo: DM011, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305333, ppmTaskId: 2118986, transactionNo: PDEMO25113002304, assetNo: DM012, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305352, ppmTaskId: 2119005, transactionNo: PDEMO25113002323, assetNo: DM013, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3307625, ppmTaskId: 2121263, transactionNo: PDEMO25113003830, assetNo: TN004, siteName: Demo Client, assetTypeName: Network Switch, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3307668, ppmTaskId: 2121306, transactionNo: PDEMO25113003873, assetNo: TN006, siteName: Demo Client, assetTypeName: Network Switch, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3308411, ppmTaskId: 2122047, transactionNo: PDEMO25113004098, assetNo: IT0010, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3308460, ppmTaskId: 2122096, transactionNo: PDEMO25113004147, assetNo: DM012345, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}]
+[2025-11-13T00:03:18.905050] Cached 30 tasks for offline access
+[2025-11-13T00:03:18.906129] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118777, result=false
+[2025-11-13T00:03:18.906231] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118797, result=false
+[2025-11-13T00:03:18.906325] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118911, result=false
+[2025-11-13T00:03:18.906443] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118929, result=false
+[2025-11-13T00:03:18.906534] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118947, result=false
+[2025-11-13T00:03:18.906621] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118966, result=false
+[2025-11-13T00:03:18.906706] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118985, result=false
+[2025-11-13T00:03:18.906788] PPMRepository.isOfflineModeEnabled: ppmTaskId=2119004, result=false
+[2025-11-13T00:03:18.906874] PPMRepository.isOfflineModeEnabled: ppmTaskId=2121262, result=false
+[2025-11-13T00:03:18.906955] PPMRepository.isOfflineModeEnabled: ppmTaskId=2121305, result=false
+[2025-11-13T00:03:18.907038] PPMRepository.isOfflineModeEnabled: ppmTaskId=2122046, result=false
+[2025-11-13T00:03:18.907188] PPMRepository.isOfflineModeEnabled: ppmTaskId=2122095, result=false
+[2025-11-13T00:03:18.907314] PPMRepository.isOfflineModeEnabled: ppmTaskId=2123004, result=false
+[2025-11-13T00:03:18.907410] PPMRepository.isOfflineModeEnabled: ppmTaskId=2123017, result=false
+[2025-11-13T00:03:18.907504] PPMRepository.isOfflineModeEnabled: ppmTaskId=2123102, result=false
+[2025-11-13T00:03:18.907590] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118661, result=false
+[2025-11-13T00:03:18.907678] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118719, result=false
+[2025-11-13T00:03:18.907758] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118738, result=false
+[2025-11-13T00:03:18.907840] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118639, result=false
+[2025-11-13T00:03:18.907937] PPMRepository.isOfflineModeEnabled: ppmTaskId=2127059, result=false
+[2025-11-13T00:03:18.908018] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118912, result=false
+[2025-11-13T00:03:18.908102] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118930, result=false
+[2025-11-13T00:03:18.908186] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118948, result=false
+[2025-11-13T00:03:18.908267] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118967, result=false
+[2025-11-13T00:03:18.908350] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118986, result=false
+[2025-11-13T00:03:18.908433] PPMRepository.isOfflineModeEnabled: ppmTaskId=2119005, result=false
+[2025-11-13T00:03:18.908517] PPMRepository.isOfflineModeEnabled: ppmTaskId=2121263, result=false
+[2025-11-13T00:03:18.908599] PPMRepository.isOfflineModeEnabled: ppmTaskId=2121306, result=false
+[2025-11-13T00:03:18.908684] PPMRepository.isOfflineModeEnabled: ppmTaskId=2122047, result=false
+[2025-11-13T00:03:18.908766] PPMRepository.isOfflineModeEnabled: ppmTaskId=2122096, result=false
+[2025-11-13T00:03:23.319860] PPMPendingSyncController: Attempting to sync pending actions...
+[2025-11-13T00:03:23.320730] 
+[2025-11-13T00:03:23.320829] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:23.320915] 🔄 PPMRepository.syncPendingActions: Starting sequential sync...
+[2025-11-13T00:03:23.320971] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:23.322602] 📋 PPMRepository.syncPendingActions: Found 1 pending actions
+[2025-11-13T00:03:23.322654] 
+[2025-11-13T00:03:23.322672] ┌─────────────────────────────────────────────────────────────
+[2025-11-13T00:03:23.322697] │ Syncing action: submit_ppm (id: 14)
+[2025-11-13T00:03:23.322714] │ PPM Task: 2118985
+[2025-11-13T00:03:23.322731] └─────────────────────────────────────────────────────────────
+[2025-11-13T00:03:23.436898] Deserializing result: 
+[2025-11-13T00:03:23.437030] ❌ Failed to sync action: Error on system. Please contact Administrator!
+[2025-11-13T00:03:23.437098] 
+[2025-11-13T00:03:23.437133] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:23.437181] 📊 Sequential Sync Summary:
+[2025-11-13T00:03:23.437219]    ✅ Success: 0 actions
+[2025-11-13T00:03:23.437261]    ❌ Failed: 1 actions
+[2025-11-13T00:03:23.437295]    📝 Total: 1 actions
+[2025-11-13T00:03:23.437333] ═══════════════════════════════════════════════════════════════
+[2025-11-13T00:03:23.438655] PPMPendingSyncController: Updated pending count to 1
+[2025-11-13T00:03:23.438787] PPMPendingSyncController: Sync completed successfully

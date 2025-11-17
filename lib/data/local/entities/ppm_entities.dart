@@ -7,6 +7,7 @@ class PPMPendingActionEntity {
   final String action; // 'upload_maintenance_image', 'upload_additional_report', 'save_form_c', etc.
   final String payloadJson;
   final DateTime createdAt;
+  final String actionId; // UUID for batch sync tracking
 
   PPMPendingActionEntity({
     this.id,
@@ -14,6 +15,7 @@ class PPMPendingActionEntity {
     required this.action,
     required this.payloadJson,
     required this.createdAt,
+    required this.actionId,
   });
 
   Map<String, dynamic> toMap() {
@@ -23,6 +25,7 @@ class PPMPendingActionEntity {
       'action': action,
       'payload_json': payloadJson,
       'created_at': createdAt.toIso8601String(),
+      'action_id': actionId,
     };
   }
 
@@ -33,6 +36,7 @@ class PPMPendingActionEntity {
       action: map['action'] as String,
       payloadJson: map['payload_json'] as String,
       createdAt: DateTime.parse(map['created_at'] as String),
+      actionId: map['action_id'] as String? ?? '', // Default for old records
     );
   }
 }

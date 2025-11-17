@@ -316,7 +316,9 @@ class Provider {
     bool includedHeader = true,
   }) async {
     var action = "";
-    if (body != null && body["action"] != null) action = body["action"];
+    if (body != null && body is Map && body["action"] != null) {
+      action = body["action"];
+    }
     if (includedHeader) await init();
 
     final response = await http.post(Uri.parse(netDomain + url),

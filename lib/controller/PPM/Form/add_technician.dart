@@ -412,43 +412,56 @@ class _Controller {
   }
 
   Future<void> add(_Model model) async {
-    final url = "/ppm_task_assist";
-    final Provider provider = Provider(fetchURL: url, taskID: id);
-
-    final body = {
-      "ppmTaskId": id,
-      "assistant": model.userId,
-    };
-
+    final repository = PPMRepository();
+    
     try {
-      final result = await provider.post(url: url, body: body);
-      print(result);
-      Toast.show(result.toString());
+      final result = await repository.addTechnicianAssistant(
+        ppmTaskId: id,
+        userId: model.userId,
+      );
+
+      if (result == PPMActionResult.success) {
+        Toast.show("Technician added successfully");
+      } else {
+        Toast.show("Technician added. Will sync when online.");
+      }
     } catch (e) {
-      // Optionally handle error here
+      Toast.show("Failed to add technician: ${e.toString()}");
     }
   }
 
   Future<void> delete(_Model model) async {
-    final url = "/ppm_task_assist/${model.userId}";
-    final Provider provider = Provider(fetchURL: url, taskID: id);
+    final repository = PPMRepository();
+    
     try {
-      final result = await provider.delete(url: url);
-      print(result);
-      Toast.show(result.toString());
+      final result = await repository.removeTechnicianAssistant(
+        ppmTaskId: id,
+        userId: model.userId,
+      );
+
+      if (result == PPMActionResult.success) {
+        Toast.show("Technician removed successfully");
+      } else {
+        Toast.show("Technician removed. Will sync when online.");
+      }
     } catch (e) {
-      // Optionally handle error here
+      Toast.show("Failed to remove technician: ${e.toString()}");
     }
   }
 
   Future<void> submit() async {
-    final url = "/ppm_v2/save_assistant_list/$id";
-    final Provider provider = Provider(fetchURL: url, taskID: id);
+    final repository = PPMRepository();
+
     try {
-      final result = await provider.post(url: url);
-      Toast.show(result.toString());
+      final result = await repository.submitAssistantList(ppmTaskId: id);
+
+      if (result == PPMActionResult.success) {
+        Toast.show("Technician list submitted successfully");
+      } else {
+        Toast.show("Technician list saved. Will sync when online.");
+      }
     } catch (e) {
-      // Optionally handle error here
+      Toast.show("Failed to submit technician list: ${e.toString()}");
     }
   }
 

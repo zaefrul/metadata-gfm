@@ -8,7 +8,7 @@ import 'package:sqflite/sqflite.dart';
 import 'entities/ppm_entities.dart';
 
 const _dbName = 'gems_offline.db';
-const _dbVersion = 15; // Incremented for PPM technician cache
+const _dbVersion = 17; // Add action_id column for batch sync tracking
 
 class OfflineDatabase {
   OfflineDatabase._();
@@ -143,6 +143,23 @@ class OfflineDatabase {
       // Add technician cache table for offline technician management
       await db.execute(_PPMTechnicianCacheTable.createSql);
     }
+    if (oldVersion < 16) {
+      // Add task_started column to track if task has been manually started offline
+      await db
+          .execute(
+            'ALTER TABLE ${_PPMTasksTable.tableName} ADD COLUMN task_started INTEGER DEFAULT 0',
+          )
+          .catchError((_) => null);
+    }
+    if (oldVersion < 17) {
+      // Add action_id column to ppm_pending_actions for batch sync tracking
+      debugPrint('📦 Migrating database to v17: Add action_id to ppm_pending_actions');
+      await db
+          .execute(
+            'ALTER TABLE ${_PPMPendingActionsTable.tableName} ADD COLUMN action_id TEXT NOT NULL DEFAULT ""',
+          )
+          .catchError((_) => null);
+    }
   }
 
   Future<void> clearAll() async {
@@ -164,6 +181,35 @@ class OfflineDatabase {
       await txn.delete(_WorkOrderSnapshotSectionsTable.tableName);
       await txn.delete(_WorkOrderSnapshotsTable.tableName);
     });
+  }
+
+  /// Recreate PPM tables (useful for fixing migration issues)
+  Future<void> recreatePPMTables() async {
+    final db = await database;
+    try {
+      // Drop existing PPM tables if they exist (ignore errors if they don't)
+      await db.execute('DROP TABLE IF EXISTS ${_PPMSnapshotSectionsTable.tableName}');
+      await db.execute('DROP TABLE IF EXISTS ${_PPMSnapshotsTable.tableName}');
+      await db.execute('DROP TABLE IF EXISTS ${_PPMOfflineActionsTable.tableName}');
+      await db.execute('DROP TABLE IF EXISTS ${_PPMTechnicianCacheTable.tableName}');
+      await db.execute('DROP TABLE IF EXISTS ${_PPMPendingActionsTable.tableName}');
+      await db.execute('DROP TABLE IF EXISTS ${_PPMMaintenanceImagesTable.tableName}');
+      
+      // Recreate all PPM tables with current schema
+      await db.execute(_PPMTasksTable.createSql);
+      await db.execute(_PPMPendingActionsTable.createSql);
+      await db.execute(_PPMMaintenanceImagesTable.createSql);
+      await db.execute(_PPMSnapshotsTable.createSql);
+      await db.execute(_PPMSnapshotSectionsTable.createSql);
+      await db.execute(_PPMSnapshotSectionsTable.snapshotIndexSql);
+      await db.execute(_PPMOfflineActionsTable.createSql);
+      await db.execute(_PPMTechnicianCacheTable.createSql);
+      
+      debugPrint('OfflineDatabase: Successfully recreated all PPM tables');
+    } catch (err, st) {
+      debugPrint('OfflineDatabase: Error recreating PPM tables: $err\n$st');
+      rethrow;
+    }
   }
 
   Future<void> clearWorkOrderData() async {
@@ -594,6 +640,58 @@ ORDER BY h.scheduled_start DESC, h.work_order_number DESC
     return (result.first['offline_mode_enabled'] as int? ?? 0) == 1;
   }
 
+  /// Set task started status (for offline manual start)
+  Future<void> setPPMTaskStarted(
+    String ppmTaskId,
+    bool started,
+  ) async {
+    final db = await database;
+    // Ensure the task exists in the database
+    final existing = await db.query(
+      _PPMTasksTable.tableName,
+      where: 'ppm_task_id = ?',
+      whereArgs: [ppmTaskId],
+      limit: 1,
+    );
+    
+    if (existing.isEmpty) {
+      // Insert a new row if it doesn't exist
+      await db.insert(
+        _PPMTasksTable.tableName,
+        {
+          'ppm_task_id': ppmTaskId,
+          'task_no': '',
+          'task_started': started ? 1 : 0,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    } else {
+      // Update existing row
+      await db.update(
+        _PPMTasksTable.tableName,
+        {'task_started': started ? 1 : 0},
+        where: 'ppm_task_id = ?',
+        whereArgs: [ppmTaskId],
+      );
+    }
+  }
+
+  /// Check if PPM task has been started (for offline mode)
+  Future<bool> isPPMTaskStarted(String ppmTaskId) async {
+    final db = await database;
+    final result = await db.query(
+      _PPMTasksTable.tableName,
+      columns: ['task_started'],
+      where: 'ppm_task_id = ?',
+      whereArgs: [ppmTaskId],
+      limit: 1,
+    );
+    if (result.isEmpty) {
+      return false;
+    }
+    return (result.first['task_started'] as int? ?? 0) == 1;
+  }
+
   // ============================================================================
   // PPM SNAPSHOTS
   // ============================================================================
@@ -610,6 +708,17 @@ ORDER BY h.scheduled_start DESC, h.work_order_number DESC
   }) async {
     final db = await database;
     final createdAt = DateTime.now().toUtc().toIso8601String();
+
+    // Ensure tables exist before transaction (handle migration edge case)
+    try {
+      await db.execute(_PPMSnapshotsTable.createSql);
+      await db.execute(_PPMSnapshotSectionsTable.createSql);
+      await db.execute(_PPMSnapshotSectionsTable.snapshotIndexSql);
+      debugPrint('PPMSnapshot: Created missing tables');
+    } catch (err) {
+      // Tables already exist - this is expected
+      debugPrint('PPMSnapshot: Tables already exist: $err');
+    }
 
     await db.transaction((txn) async {
       // Delete existing snapshot
@@ -662,83 +771,99 @@ ORDER BY h.scheduled_start DESC, h.work_order_number DESC
   Future<Map<String, dynamic>?> loadPPMSnapshot(String ppmTaskId) async {
     final db = await database;
     
-    // Load snapshot metadata
-    final snapshotRows = await db.query(
-      _PPMSnapshotsTable.tableName,
-      where: 'ppm_task_id = ?',
-      whereArgs: [ppmTaskId],
-      limit: 1,
-    );
+    try {
+      // Load snapshot metadata
+      final snapshotRows = await db.query(
+        _PPMSnapshotsTable.tableName,
+        where: 'ppm_task_id = ?',
+        whereArgs: [ppmTaskId],
+        limit: 1,
+      );
 
-    if (snapshotRows.isEmpty) {
+      if (snapshotRows.isEmpty) {
+        return null;
+      }
+
+      final snapshot = snapshotRows.first;
+
+      // Load sections
+      final sectionRows = await db.query(
+        _PPMSnapshotSectionsTable.tableName,
+        where: 'ppm_task_id = ?',
+        whereArgs: [ppmTaskId],
+        orderBy: 'section_name ASC',
+      );
+
+      final sections = sectionRows.map((row) => {
+        'ppmTaskSectionName': row['section_name'] as String,
+        'ppmTaskSectionStatus': row['section_status'] as String,
+        'checkParts': row['check_parts'] as String,
+        'checkAdditionalReport': row['check_additional_report'] as String,
+        'sectionData': row['section_data'] as String?, // Include section data
+      }).toList();
+
+      return {
+        'ppmTaskId': snapshot['ppm_task_id'],
+        'taskNo': snapshot['task_no'],
+        'siteName': snapshot['site_name'],
+        'status': snapshot['status'],
+        'createdAt': snapshot['created_at'],
+        'executionJson': snapshot['execution_json'],
+        'sectionAJson': snapshot['section_a_json'],
+        'sectionBJson': snapshot['section_b_json'],
+        'sections': sections,
+      };
+    } catch (err) {
+      debugPrint('loadPPMSnapshot: Error loading snapshot (tables may not exist): $err');
       return null;
     }
-
-    final snapshot = snapshotRows.first;
-
-    // Load sections
-    final sectionRows = await db.query(
-      _PPMSnapshotSectionsTable.tableName,
-      where: 'ppm_task_id = ?',
-      whereArgs: [ppmTaskId],
-      orderBy: 'section_name ASC',
-    );
-
-    final sections = sectionRows.map((row) => {
-      'ppmTaskSectionName': row['section_name'] as String,
-      'ppmTaskSectionStatus': row['section_status'] as String,
-      'checkParts': row['check_parts'] as String,
-      'checkAdditionalReport': row['check_additional_report'] as String,
-      'sectionData': row['section_data'] as String?, // Include section data
-    }).toList();
-
-    return {
-      'ppmTaskId': snapshot['ppm_task_id'],
-      'taskNo': snapshot['task_no'],
-      'siteName': snapshot['site_name'],
-      'status': snapshot['status'],
-      'createdAt': snapshot['created_at'],
-      'executionJson': snapshot['execution_json'],
-      'sectionAJson': snapshot['section_a_json'],
-      'sectionBJson': snapshot['section_b_json'],
-      'sections': sections,
-    };
   }
 
   Future<void> deletePPMSnapshot(String ppmTaskId) async {
     final db = await database;
-    await db.transaction((txn) async {
-      await txn.delete(
-        _PPMSnapshotSectionsTable.tableName,
-        where: 'ppm_task_id = ?',
-        whereArgs: [ppmTaskId],
-      );
-      await txn.delete(
-        _PPMSnapshotsTable.tableName,
-        where: 'ppm_task_id = ?',
-        whereArgs: [ppmTaskId],
-      );
-    });
+    try {
+      await db.transaction((txn) async {
+        await txn.delete(
+          _PPMSnapshotSectionsTable.tableName,
+          where: 'ppm_task_id = ?',
+          whereArgs: [ppmTaskId],
+        );
+        await txn.delete(
+          _PPMSnapshotsTable.tableName,
+          where: 'ppm_task_id = ?',
+          whereArgs: [ppmTaskId],
+        );
+      });
+    } catch (err) {
+      debugPrint('deletePPMSnapshot: Error deleting snapshot (tables may not exist): $err');
+      // Silently ignore if tables don't exist
+    }
   }
 
   /// Load section data for a specific section
   Future<String?> loadPPMSectionData(String ppmTaskId, String sectionName) async {
     final db = await database;
-    final rows = await db.query(
-      _PPMSnapshotSectionsTable.tableName,
-      columns: ['section_data'],
-      where: 'ppm_task_id = ? AND section_name = ?',
-      whereArgs: [ppmTaskId, sectionName],
-      limit: 1,
-    );
+    try {
+      final rows = await db.query(
+        _PPMSnapshotSectionsTable.tableName,
+        columns: ['section_data'],
+        where: 'ppm_task_id = ? AND section_name = ?',
+        whereArgs: [ppmTaskId, sectionName],
+        limit: 1,
+      );
 
-    if (rows.isEmpty) {
+      if (rows.isEmpty) {
+        return null;
+      }
+
+      return rows.first['section_data'] as String?;
+    } catch (err) {
+      debugPrint('loadPPMSectionData: Error loading section data (table may not exist): $err');
       return null;
     }
-
-    return rows.first['section_data'] as String?;
   }
 
+  /// Save/Update section data for a specific section
   /// Save/Update section data for a specific section
   Future<void> savePPMSectionData({
     required String ppmTaskId,
@@ -747,35 +872,69 @@ ORDER BY h.scheduled_start DESC, h.work_order_number DESC
   }) async {
     final db = await database;
     
-    // Check if section exists
-    final existing = await db.query(
-      _PPMSnapshotSectionsTable.tableName,
-      where: 'ppm_task_id = ? AND section_name = ?',
-      whereArgs: [ppmTaskId, sectionName],
-      limit: 1,
-    );
-
-    if (existing.isEmpty) {
-      // Insert new section
-      await db.insert(
+    try {
+      // Ensure table exists
+      await db.execute(_PPMSnapshotSectionsTable.createSql);
+    } catch (err) {
+      debugPrint('savePPMSectionData: Table already exists or error creating: $err');
+    }
+    
+    try {
+      // Check if section exists
+      final existing = await db.query(
         _PPMSnapshotSectionsTable.tableName,
-        {
-          'ppm_task_id': ppmTaskId,
-          'section_name': sectionName,
-          'section_data': sectionData,
-          'section_status': '',
-          'check_parts': '',
-          'check_additional_report': '',
-        },
+        where: 'ppm_task_id = ? AND section_name = ?',
+        whereArgs: [ppmTaskId, sectionName],
+        limit: 1,
       );
-    } else {
-      // Update existing section
+
+      if (existing.isEmpty) {
+        // Insert new section
+        await db.insert(
+          _PPMSnapshotSectionsTable.tableName,
+          {
+            'ppm_task_id': ppmTaskId,
+            'section_name': sectionName,
+            'section_data': sectionData,
+            'section_status': '',
+            'check_parts': '',
+            'check_additional_report': '',
+          },
+        );
+      } else {
+        // Update existing section
+        await db.update(
+          _PPMSnapshotSectionsTable.tableName,
+          {'section_data': sectionData},
+          where: 'ppm_task_id = ? AND section_name = ?',
+          whereArgs: [ppmTaskId, sectionName],
+        );
+      }
+    } catch (err) {
+      debugPrint('savePPMSectionData: Error saving section data: $err');
+      rethrow;
+    }
+  }
+
+  /// Update section status in cache (e.g., change to "Completed")
+  Future<void> updatePPMSectionStatus({
+    required String ppmTaskId,
+    required String sectionName,
+    required String status,
+  }) async {
+    final db = await database;
+    
+    try {
       await db.update(
         _PPMSnapshotSectionsTable.tableName,
-        {'section_data': sectionData},
+        {'section_status': status},
         where: 'ppm_task_id = ? AND section_name = ?',
         whereArgs: [ppmTaskId, sectionName],
       );
+      debugPrint('updatePPMSectionStatus: Updated $sectionName status to $status for task $ppmTaskId');
+    } catch (err) {
+      debugPrint('updatePPMSectionStatus: Error updating section status: $err');
+      // Non-fatal - continue even if update fails
     }
   }
 
@@ -899,9 +1058,50 @@ ORDER BY h.scheduled_start DESC, h.work_order_number DESC
   // PPM METHODS
   // ============================================================================
 
+  /// Check if action_id column exists in ppm_pending_actions table
+  Future<bool> _ppmPendingActionsHasActionId() async {
+    final db = await database;
+    try {
+      final result = await db.rawQuery('PRAGMA table_info(${_PPMPendingActionsTable.tableName})');
+      return result.any((col) => col['name'] == 'action_id');
+    } catch (err) {
+      debugPrint('OfflineDatabase: Error checking action_id column: $err');
+      return false;
+    }
+  }
+
+  /// Fix ppm_pending_actions table schema by adding missing action_id column
+  Future<void> _fixPPMPendingActionsSchema() async {
+    final db = await database;
+    try {
+      debugPrint('🔧 Fixing ppm_pending_actions schema: Adding action_id column');
+      await db.execute(
+        'ALTER TABLE ${_PPMPendingActionsTable.tableName} ADD COLUMN action_id TEXT NOT NULL DEFAULT ""',
+      );
+      debugPrint('✅ Successfully added action_id column');
+    } catch (err) {
+      debugPrint('❌ Failed to add action_id column: $err');
+      rethrow;
+    }
+  }
+
   Future<int> enqueuePPMPendingAction(PPMPendingActionEntity action) async {
     final db = await database;
-    return db.insert(_PPMPendingActionsTable.tableName, action.toMap());
+    try {
+      return await db.insert(_PPMPendingActionsTable.tableName, action.toMap());
+    } catch (err) {
+      // If insert fails due to missing action_id column, try to fix the schema
+      if (err.toString().contains('action_id')) {
+        debugPrint('⚠️ Detected missing action_id column, attempting to fix schema...');
+        final hasActionId = await _ppmPendingActionsHasActionId();
+        if (!hasActionId) {
+          await _fixPPMPendingActionsSchema();
+          // Retry insert after fixing schema
+          return await db.insert(_PPMPendingActionsTable.tableName, action.toMap());
+        }
+      }
+      rethrow;
+    }
   }
 
   Future<List<PPMPendingActionEntity>> getPPMPendingActions({
@@ -1042,11 +1242,133 @@ ORDER BY h.scheduled_start DESC, h.work_order_number DESC
   /// Get count of unsynced actions for a task
   Future<int> getPPMUnsyncedActionCount(String ppmTaskId) async {
     final db = await database;
-    final result = await db.rawQuery(
+    
+    // Count unsynced offline actions (start_time, images, assistants)
+    final offlineResult = await db.rawQuery(
       'SELECT COUNT(*) as count FROM ${_PPMOfflineActionsTable.tableName} WHERE synced = 0 AND ppm_task_id = ?',
       [ppmTaskId],
     );
-    return Sqflite.firstIntValue(result) ?? 0;
+    final offlineCount = Sqflite.firstIntValue(offlineResult) ?? 0;
+    
+    // Count pending actions (section saves like FormC, FormD, etc.)
+    final pendingResult = await db.rawQuery(
+      'SELECT COUNT(*) as count FROM ${_PPMPendingActionsTable.tableName} WHERE ppm_task_id = ?',
+      [ppmTaskId],
+    );
+    final pendingCount = Sqflite.firstIntValue(pendingResult) ?? 0;
+    
+    return offlineCount + pendingCount;
+  }
+
+  /// Get pending actions summary grouped by section/type
+  Future<Map<String, int>> getPPMPendingActionsSummary(String ppmTaskId) async {
+    final db = await database;
+    
+    // Query both ppm_offline_actions (for start_time, images, etc.)
+    final offlineActions = await db.query(
+      _PPMOfflineActionsTable.tableName,
+      where: 'synced = 0 AND ppm_task_id = ?',
+      whereArgs: [ppmTaskId],
+      orderBy: 'timestamp ASC',
+    );
+    
+    // Query ppm_pending_actions (for section saves like FormC, FormD, etc.)
+    final pendingActions = await db.query(
+      _PPMPendingActionsTable.tableName,
+      where: 'ppm_task_id = ?',
+      whereArgs: [ppmTaskId],
+      orderBy: 'created_at ASC',
+    );
+    
+    final summary = <String, int>{};
+
+    String _prettify(String raw) {
+      return raw
+          .replaceAll('_', ' ')
+          .split(' ')
+          .map((word) => word.isEmpty
+              ? ''
+              : word[0].toUpperCase() + word.substring(1))
+          .join(' ');
+    }
+
+    void _bump(String key) {
+      summary[key] = (summary[key] ?? 0) + 1;
+    }
+    
+    String _mapOfflineActionToSection(String actionType) {
+      if (actionType == 'start_time') {
+        return 'Section A';
+      }
+      if (actionType.startsWith('section_')) {
+        final parts = actionType.split('_');
+        if (parts.length >= 2 && parts[1].isNotEmpty) {
+          final sectionLetter = parts[1][0].toUpperCase();
+          return 'Section $sectionLetter';
+        }
+      }
+      if (actionType.contains('assistant')) {
+        return 'Section I';
+      }
+      if (actionType.contains('image') || actionType.contains('photo')) {
+        return 'Section H';
+      }
+      if (actionType.contains('remark')) {
+        return 'Section G';
+      }
+      return _prettify(actionType);
+    }
+
+    String _mapPendingActionToSection(String actionType) {
+      switch (actionType) {
+        case 'save_qualitative_tasks':
+          return 'Section C';
+        case 'save_quantitative_tasks':
+          return 'Section D';
+        case 'save_lubricant_tasks':
+        case 'check_ppm_parts':
+        case 'add_ppm_parts':
+          return 'Section E';
+        case 'save_checklist_tasks':
+        case 'check_additional_report':
+        case 'upload_additional_report':
+          return 'Section F';
+        case 'save_rectification_tasks':
+        case 'save_ppm_remark':
+          return 'Section G';
+        case 'save_material_request':
+        case 'upload_maintenance_image':
+        case 'upload_ppm_maintenance_image':
+        case 'save_image_desc':
+        case 'save_ppm_images_description':
+          return 'Section H';
+        case 'add_assistant':
+        case 'remove_assistant':
+        case 'save_assistant_list':
+          return 'Section I';
+        case 'complete_ppm_task':
+        case 'submit_ppm':
+          return 'Task Completion';
+        default:
+          return _prettify(actionType);
+      }
+    }
+    
+    // Process offline actions (start_time, images, assistants)
+    for (final action in offlineActions) {
+      final actionType = action['action_type'] as String;
+      final sectionName = _mapOfflineActionToSection(actionType);
+      _bump(sectionName);
+    }
+    
+    // Process pending actions (section saves: FormC, FormD, FormE, FormF, etc.)
+    for (final action in pendingActions) {
+      final actionType = action['action'] as String;
+      final sectionName = _mapPendingActionToSection(actionType);
+      _bump(sectionName);
+    }
+    
+    return summary;
   }
 
   // ============================================================================
@@ -2046,7 +2368,8 @@ CREATE TABLE IF NOT EXISTS $tableName (
   ppm_task_id TEXT NOT NULL,
   action TEXT NOT NULL,
   payload_json TEXT NOT NULL,
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  action_id TEXT NOT NULL DEFAULT ""
 )
 ''';
 }
@@ -2081,7 +2404,8 @@ CREATE TABLE IF NOT EXISTS $tableName (
   status TEXT,
   last_sync TEXT,
   data_json TEXT,
-  offline_mode_enabled INTEGER DEFAULT 0
+  offline_mode_enabled INTEGER DEFAULT 0,
+  task_started INTEGER DEFAULT 0
 )
 ''';
 }

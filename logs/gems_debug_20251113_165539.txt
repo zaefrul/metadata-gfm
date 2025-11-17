@@ -1,0 +1,250 @@
+[2025-11-13T16:55:16.215342] ⚠️ FAILED ACTIONS REMAINING IN QUEUE:
+[2025-11-13T16:55:16.215791]    1. submit_ppm (ID: 8, Task: 2145486)
+[2025-11-13T16:55:16.215824] 
+[2025-11-13T16:55:16.215998] PPMPendingSyncController: Updated pending count to 1
+[2025-11-13T16:55:16.216027] PPMPendingSyncController: Sync completed successfully
+[2025-11-13T16:55:17.578836] PPMPendingSyncController: Attempting to sync pending actions...
+[2025-11-13T16:55:17.579258] 
+[2025-11-13T16:55:17.579300] ═══════════════════════════════════════════════════════════════
+[2025-11-13T16:55:17.579723] 🔄 PPMRepository.syncPendingActions: Starting sequential sync...
+[2025-11-13T16:55:17.579768] ═══════════════════════════════════════════════════════════════
+[2025-11-13T16:55:17.581786] 📋 PPMRepository.syncPendingActions: Found 1 pending actions
+[2025-11-13T16:55:17.581862] 
+[2025-11-13T16:55:17.581903] ┌─────────────────────────────────────────────────────────────
+[2025-11-13T16:55:17.581945] │ 🔄 SYNC ATTEMPT [1/1]
+[2025-11-13T16:55:17.581986] │ Action: submit_ppm
+[2025-11-13T16:55:17.582020] │ Action ID: 8
+[2025-11-13T16:55:17.582054] │ PPM Task: 2145486
+[2025-11-13T16:55:17.582110] │ Created: 2025-11-13 16:52:17.282432
+[2025-11-13T16:55:17.582145] │ Batch ID: 1ab9208e-9d48-4cee-a4f9-aae31a2721f9
+[2025-11-13T16:55:17.582185] │
+[2025-11-13T16:55:17.582216] │ 📦 Full Payload:
+[2025-11-13T16:55:17.582256] │ {"action":"submit_ppm","ppmTaskId":"2145486","checkpoint":"1","result":"1","endTime":"2025-11-13 16:52:17"}
+[2025-11-13T16:55:17.582295] └─────────────────────────────────────────────────────────────
+[2025-11-13T16:55:17.582337] 
+[2025-11-13T16:55:17.582367]    🔍 Parsing payload...
+[2025-11-13T16:55:17.582425]    ✓ Payload parsed successfully
+[2025-11-13T16:55:17.582474]    Keys: action, ppmTaskId, checkpoint, result, endTime
+[2025-11-13T16:55:17.582513] 
+[2025-11-13T16:55:17.582542]    ⚠️ VALIDATING TASK COMPLETION:
+[2025-11-13T16:55:17.582577]    - ppmTaskId: 2145486
+[2025-11-13T16:55:17.582617]    - endTime: 2025-11-13 16:52:17
+[2025-11-13T16:55:17.582652]    - checkpoint: 1
+[2025-11-13T16:55:17.582692]    - result: 1
+[2025-11-13T16:55:17.582722] 
+[2025-11-13T16:55:17.582753] 
+[2025-11-13T16:55:17.582788] 📤 PPMRepository._post: Starting POST request
+[2025-11-13T16:55:17.582826]    Action: submit_ppm
+[2025-11-13T16:55:17.582863]    PPM Task ID: 2145486
+[2025-11-13T16:55:17.582899]    Payload keys: action, ppmTaskId, checkpoint, result, endTime
+[2025-11-13T16:55:17.582936]    ⚠️ CRITICAL: Task completion action
+[2025-11-13T16:55:17.582972]    EndTime: 2025-11-13 16:52:17
+[2025-11-13T16:55:17.583003]    Checkpoint: 1
+[2025-11-13T16:55:17.583043]    Result: 1
+[2025-11-13T16:55:17.583081]    🌐 Sending POST to /api/m_ppm.php...
+[2025-11-13T16:55:17.743167] Deserializing result: 
+[2025-11-13T16:55:17.743307]    ❌ POST failed after 160ms
+[2025-11-13T16:55:17.743357]    Error: Error on system. Please contact Administrator!
+[2025-11-13T16:55:17.743396] 
+[2025-11-13T16:55:17.743445] 
+[2025-11-13T16:55:17.743477]    ❌❌❌ SYNC FAILED ❌❌❌
+[2025-11-13T16:55:17.743608]    Error Type: String
+[2025-11-13T16:55:17.743641]    Error Message: Error on system. Please contact Administrator!
+[2025-11-13T16:55:17.743687] 
+[2025-11-13T16:55:17.743717]    📚 Stack Trace:
+[2025-11-13T16:55:17.743754]    
+[2025-11-13T16:55:17.743791] 
+[2025-11-13T16:55:17.743823]    🔄 Action will remain in queue for retry
+[2025-11-13T16:55:17.743870]    📊 Current success: 0, failed: 1
+[2025-11-13T16:55:17.743905] 
+[2025-11-13T16:55:17.743941] ═══════════════════════════════════════════════════════════════
+[2025-11-13T16:55:17.744020] 
+[2025-11-13T16:55:17.744053] ═══════════════════════════════════════════════════════════════
+[2025-11-13T16:55:17.744098] 📊 FINAL SYNC SUMMARY
+[2025-11-13T16:55:17.744132] ═══════════════════════════════════════════════════════════════
+[2025-11-13T16:55:17.744181]    ✅ Success: 0 actions
+[2025-11-13T16:55:17.744216]    ❌ Failed: 1 actions
+[2025-11-13T16:55:17.744257]    📝 Total: 1 actions
+[2025-11-13T16:55:17.744296]    📈 Success Rate: 0.0%
+[2025-11-13T16:55:17.744329] ═══════════════════════════════════════════════════════════════
+[2025-11-13T16:55:17.744373] 
+[2025-11-13T16:55:17.744402] ⚠️ FAILED ACTIONS REMAINING IN QUEUE:
+[2025-11-13T16:55:17.745529]    1. submit_ppm (ID: 8, Task: 2145486)
+[2025-11-13T16:55:17.745592] 
+[2025-11-13T16:55:17.746407] PPMPendingSyncController: Updated pending count to 1
+[2025-11-13T16:55:17.746519] PPMPendingSyncController: Sync completed successfully
+[2025-11-13T16:55:22.367815] Loaded 0 offline tasks from cache
+[2025-11-13T16:55:22.394759] Fetching PPM tasks from: /api/m_ppm.php?type=pending_task_search&assetNo=
+[2025-11-13T16:55:22.395816] 
+[2025-11-13T16:55:22.395847] ═══════════════════════════════════════════════════════════════
+[2025-11-13T16:55:22.395859] 🔄 PPMRepository.syncPendingActions: Starting sequential sync...
+[2025-11-13T16:55:22.395868] ═══════════════════════════════════════════════════════════════
+[2025-11-13T16:55:22.396300] 📋 PPMRepository.syncPendingActions: Found 1 pending actions
+[2025-11-13T16:55:22.396337] 
+[2025-11-13T16:55:22.396347] ┌─────────────────────────────────────────────────────────────
+[2025-11-13T16:55:22.396360] │ 🔄 SYNC ATTEMPT [1/1]
+[2025-11-13T16:55:22.396372] │ Action: submit_ppm
+[2025-11-13T16:55:22.396381] │ Action ID: 8
+[2025-11-13T16:55:22.396391] │ PPM Task: 2145486
+[2025-11-13T16:55:22.396401] │ Created: 2025-11-13 16:52:17.282432
+[2025-11-13T16:55:22.396412] │ Batch ID: 1ab9208e-9d48-4cee-a4f9-aae31a2721f9
+[2025-11-13T16:55:22.396446] │
+[2025-11-13T16:55:22.396460] │ 📦 Full Payload:
+[2025-11-13T16:55:22.396469] │ {"action":"submit_ppm","ppmTaskId":"2145486","checkpoint":"1","result":"1","endTime":"2025-11-13 16:52:17"}
+[2025-11-13T16:55:22.396492] └─────────────────────────────────────────────────────────────
+[2025-11-13T16:55:22.396502] 
+[2025-11-13T16:55:22.396509]    🔍 Parsing payload...
+[2025-11-13T16:55:22.396526]    ✓ Payload parsed successfully
+[2025-11-13T16:55:22.396541]    Keys: action, ppmTaskId, checkpoint, result, endTime
+[2025-11-13T16:55:22.396548] 
+[2025-11-13T16:55:22.396555]    ⚠️ VALIDATING TASK COMPLETION:
+[2025-11-13T16:55:22.396566]    - ppmTaskId: 2145486
+[2025-11-13T16:55:22.396574]    - endTime: 2025-11-13 16:52:17
+[2025-11-13T16:55:22.396584]    - checkpoint: 1
+[2025-11-13T16:55:22.396594]    - result: 1
+[2025-11-13T16:55:22.396602] 
+[2025-11-13T16:55:22.396616] 
+[2025-11-13T16:55:22.396623] 📤 PPMRepository._post: Starting POST request
+[2025-11-13T16:55:22.396634]    Action: submit_ppm
+[2025-11-13T16:55:22.396643]    PPM Task ID: 2145486
+[2025-11-13T16:55:22.396675]    Payload keys: action, ppmTaskId, checkpoint, result, endTime
+[2025-11-13T16:55:22.396683]    ⚠️ CRITICAL: Task completion action
+[2025-11-13T16:55:22.396693]    EndTime: 2025-11-13 16:52:17
+[2025-11-13T16:55:22.396702]    Checkpoint: 1
+[2025-11-13T16:55:22.396714]    Result: 1
+[2025-11-13T16:55:22.396724]    🌐 Sending POST to /api/m_ppm.php...
+[2025-11-13T16:55:23.083618] Deserializing result: 
+[2025-11-13T16:55:23.083782]    ❌ POST failed after 687ms
+[2025-11-13T16:55:23.083859]    Error: Error on system. Please contact Administrator!
+[2025-11-13T16:55:23.083897] 
+[2025-11-13T16:55:23.083957] 
+[2025-11-13T16:55:23.083996]    ❌❌❌ SYNC FAILED ❌❌❌
+[2025-11-13T16:55:23.084042]    Error Type: String
+[2025-11-13T16:55:23.084097]    Error Message: Error on system. Please contact Administrator!
+[2025-11-13T16:55:23.084132] 
+[2025-11-13T16:55:23.084166]    📚 Stack Trace:
+[2025-11-13T16:55:23.084203]    
+[2025-11-13T16:55:23.084235] 
+[2025-11-13T16:55:23.084270]    🔄 Action will remain in queue for retry
+[2025-11-13T16:55:23.084308]    📊 Current success: 0, failed: 1
+[2025-11-13T16:55:23.084347] 
+[2025-11-13T16:55:23.084377] ═══════════════════════════════════════════════════════════════
+[2025-11-13T16:55:23.084426] 
+[2025-11-13T16:55:23.084455] ═══════════════════════════════════════════════════════════════
+[2025-11-13T16:55:23.084491] 📊 FINAL SYNC SUMMARY
+[2025-11-13T16:55:23.084530] ═══════════════════════════════════════════════════════════════
+[2025-11-13T16:55:23.084568]    ✅ Success: 0 actions
+[2025-11-13T16:55:23.084608]    ❌ Failed: 1 actions
+[2025-11-13T16:55:23.084642]    📝 Total: 1 actions
+[2025-11-13T16:55:23.084688]    📈 Success Rate: 0.0%
+[2025-11-13T16:55:23.084721] ═══════════════════════════════════════════════════════════════
+[2025-11-13T16:55:23.084763] 
+[2025-11-13T16:55:23.084795] ⚠️ FAILED ACTIONS REMAINING IN QUEUE:
+[2025-11-13T16:55:23.086852]    1. submit_ppm (ID: 8, Task: 2145486)
+[2025-11-13T16:55:23.086923] 
+[2025-11-13T16:55:23.094396] https://gems.metadatasystem.my/api/m_ppm.php?type=pending_task_search&assetNo=
+[2025-11-13T16:55:23.094501] Authorization header: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnZW1zMlwvand0IiwidXNlcklkIjoiMSIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3NjMwMjM3NjQsImV4cCI6MTc2MzAyMzc3NH0.URVj5Me9CklWtJtz-l1JO0hkSCJUIgudKtY-MP9ZpWc
+[2025-11-13T16:55:23.094532] deviceid header: BP2A.250605.031.A3
+[2025-11-13T16:55:26.246043] PPMPendingSyncController: Attempting to sync pending actions...
+[2025-11-13T16:55:26.246248] 
+[2025-11-13T16:55:26.246289] ═══════════════════════════════════════════════════════════════
+[2025-11-13T16:55:26.246351] 🔄 PPMRepository.syncPendingActions: Starting sequential sync...
+[2025-11-13T16:55:26.246393] ═══════════════════════════════════════════════════════════════
+[2025-11-13T16:55:26.248196] 📋 PPMRepository.syncPendingActions: Found 1 pending actions
+[2025-11-13T16:55:26.248295] 
+[2025-11-13T16:55:26.248342] ┌─────────────────────────────────────────────────────────────
+[2025-11-13T16:55:26.248389] │ 🔄 SYNC ATTEMPT [1/1]
+[2025-11-13T16:55:26.248435] │ Action: submit_ppm
+[2025-11-13T16:55:26.248471] │ Action ID: 8
+[2025-11-13T16:55:26.248521] │ PPM Task: 2145486
+[2025-11-13T16:55:26.248560] │ Created: 2025-11-13 16:52:17.282432
+[2025-11-13T16:55:26.248597] │ Batch ID: 1ab9208e-9d48-4cee-a4f9-aae31a2721f9
+[2025-11-13T16:55:26.248641] │
+[2025-11-13T16:55:26.248675] │ 📦 Full Payload:
+[2025-11-13T16:55:26.248716] │ {"action":"submit_ppm","ppmTaskId":"2145486","checkpoint":"1","result":"1","endTime":"2025-11-13 16:52:17"}
+[2025-11-13T16:55:26.248757] └─────────────────────────────────────────────────────────────
+[2025-11-13T16:55:26.248801] 
+[2025-11-13T16:55:26.248835]    🔍 Parsing payload...
+[2025-11-13T16:55:26.248896]    ✓ Payload parsed successfully
+[2025-11-13T16:55:26.248942]    Keys: action, ppmTaskId, checkpoint, result, endTime
+[2025-11-13T16:55:26.248980] 
+[2025-11-13T16:55:26.249009]    ⚠️ VALIDATING TASK COMPLETION:
+[2025-11-13T16:55:26.249055]    - ppmTaskId: 2145486
+[2025-11-13T16:55:26.249090]    - endTime: 2025-11-13 16:52:17
+[2025-11-13T16:55:26.249123]    - checkpoint: 1
+[2025-11-13T16:55:26.249161]    - result: 1
+[2025-11-13T16:55:26.249192] 
+[2025-11-13T16:55:26.249229] 
+[2025-11-13T16:55:26.249259] 📤 PPMRepository._post: Starting POST request
+[2025-11-13T16:55:26.249297]    Action: submit_ppm
+[2025-11-13T16:55:26.249334]    PPM Task ID: 2145486
+[2025-11-13T16:55:26.249374]    Payload keys: action, ppmTaskId, checkpoint, result, endTime
+[2025-11-13T16:55:26.249412]    ⚠️ CRITICAL: Task completion action
+[2025-11-13T16:55:26.249447]    EndTime: 2025-11-13 16:52:17
+[2025-11-13T16:55:26.249484]    Checkpoint: 1
+[2025-11-13T16:55:26.249515]    Result: 1
+[2025-11-13T16:55:26.249558]    🌐 Sending POST to /api/m_ppm.php...
+[2025-11-13T16:55:26.970276] Deserializing result: 
+[2025-11-13T16:55:26.970597]    ❌ POST failed after 720ms
+[2025-11-13T16:55:26.970651]    Error: Error on system. Please contact Administrator!
+[2025-11-13T16:55:26.970695] 
+[2025-11-13T16:55:26.970756] 
+[2025-11-13T16:55:26.970859]    ❌❌❌ SYNC FAILED ❌❌❌
+[2025-11-13T16:55:26.970911]    Error Type: String
+[2025-11-13T16:55:26.970943]    Error Message: Error on system. Please contact Administrator!
+[2025-11-13T16:55:26.970981] 
+[2025-11-13T16:55:26.971010]    📚 Stack Trace:
+[2025-11-13T16:55:26.971054]    
+[2025-11-13T16:55:26.971086] 
+[2025-11-13T16:55:26.971116]    🔄 Action will remain in queue for retry
+[2025-11-13T16:55:26.971160]    📊 Current success: 0, failed: 1
+[2025-11-13T16:55:26.971194] 
+[2025-11-13T16:55:26.971229] ═══════════════════════════════════════════════════════════════
+[2025-11-13T16:55:26.971275] 
+[2025-11-13T16:55:26.971336] ═══════════════════════════════════════════════════════════════
+[2025-11-13T16:55:26.971375] 📊 FINAL SYNC SUMMARY
+[2025-11-13T16:55:26.971408] ═══════════════════════════════════════════════════════════════
+[2025-11-13T16:55:26.971452]    ✅ Success: 0 actions
+[2025-11-13T16:55:26.971487]    ❌ Failed: 1 actions
+[2025-11-13T16:55:26.971608]    📝 Total: 1 actions
+[2025-11-13T16:55:26.971649]    📈 Success Rate: 0.0%
+[2025-11-13T16:55:26.971688] ═══════════════════════════════════════════════════════════════
+[2025-11-13T16:55:26.971724] 
+[2025-11-13T16:55:26.971754] ⚠️ FAILED ACTIONS REMAINING IN QUEUE:
+[2025-11-13T16:55:26.973502]    1. submit_ppm (ID: 8, Task: 2145486)
+[2025-11-13T16:55:26.973542] 
+[2025-11-13T16:55:26.974013] PPMPendingSyncController: Updated pending count to 1
+[2025-11-13T16:55:26.974055] PPMPendingSyncController: Sync completed successfully
+[2025-11-13T16:55:31.903875] 
+[2025-11-13T16:55:31.904341] Deserializing result: [{taskId: 3305057, ppmTaskId: 2118777, transactionNo: PDEMO25103102095, assetNo: DM003, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305077, ppmTaskId: 2118797, transactionNo: PDEMO25103102115, assetNo: DM004, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305258, ppmTaskId: 2118911, transactionNo: PDEMO25103102229, assetNo: IT004, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305276, ppmTaskId: 2118929, transactionNo: PDEMO25103102247, assetNo: IT005, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305294, ppmTaskId: 2118947, transactionNo: PDEMO25103102265, assetNo: IT006, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305313, ppmTaskId: 2118966, transactionNo: PDEMO25103102284, assetNo: DM011, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305332, ppmTaskId: 2118985, transactionNo: PDEMO25103102303, assetNo: DM012, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305351, ppmTaskId: 2119004, transactionNo: PDEMO25103102322, assetNo: DM013, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3307624, ppmTaskId: 2121262, transactionNo: PDEMO25103103829, assetNo: TN004, siteName: Demo Client, assetTypeName: Network Switch, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3307667, ppmTaskId: 2121305, transactionNo: PDEMO25103103872, assetNo: TN006, siteName: Demo Client, assetTypeName: Network Switch, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3308410, ppmTaskId: 2122046, transactionNo: PDEMO25103104097, assetNo: IT0010, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3308459, ppmTaskId: 2122095, transactionNo: PDEMO25103104146, assetNo: DM012345, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3309370, ppmTaskId: 2123004, transactionNo: PDEMO25103105055, assetNo: DM010, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3309406, ppmTaskId: 2123017, transactionNo: PDEMO25103105068, assetNo: DM20, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3309491, ppmTaskId: 2123102, transactionNo: PDEMO25103105153, assetNo: DM002, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3303034, ppmTaskId: 2118661, transactionNo: PDEMO25103101979, assetNo: , siteName: , assetTypeName: , statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3304999, ppmTaskId: 2118719, transactionNo: PDEMO25103102037, assetNo: , siteName: , assetTypeName: , statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3305018, ppmTaskId: 2118738, transactionNo: PDEMO25103102056, assetNo: , siteName: , assetTypeName: , statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/10/2025, taskDateDue: 1/10/2025}, {taskId: 3303005, ppmTaskId: 2118639, transactionNo: PDEMO25103101957, assetNo: , siteName: , assetTypeName: , statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 17/10/2025, taskDateDue: 17/10/2025}, {taskId: 3313460, ppmTaskId: 2127059, transactionNo: PDEMO26013109110, assetNo: QW001, siteName: Demo Client, assetTypeName: Network Switch, statusDesc: Open, frequency: [Quarterly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305259, ppmTaskId: 2118912, transactionNo: PDEMO25113002230, assetNo: IT004, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305277, ppmTaskId: 2118930, transactionNo: PDEMO25113002248, assetNo: IT005, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305295, ppmTaskId: 2118948, transactionNo: PDEMO25113002266, assetNo: IT006, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305314, ppmTaskId: 2118967, transactionNo: PDEMO25113002285, assetNo: DM011, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305333, ppmTaskId: 2118986, transactionNo: PDEMO25113002304, assetNo: DM012, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3305352, ppmTaskId: 2119005, transactionNo: PDEMO25113002323, assetNo: DM013, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3307625, ppmTaskId: 2121263, transactionNo: PDEMO25113003830, assetNo: TN004, siteName: Demo Client, assetTypeName: Network Switch, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3307668, ppmTaskId: 2121306, transactionNo: PDEMO25113003873, assetNo: TN006, siteName: Demo Client, assetTypeName: Network Switch, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3308411, ppmTaskId: 2122047, transactionNo: PDEMO25113004098, assetNo: IT0010, siteName: Demo Client, assetTypeName: Firewall, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}, {taskId: 3308460, ppmTaskId: 2122096, transactionNo: PDEMO25113004147, assetNo: DM012345, siteName: Demo Client, assetTypeName: Printer/Photocopies, statusDesc: Open, frequency: [Monthly], technician: , taskStartDue: 1/11/2025, taskDateDue: 1/11/2025}]
+[2025-11-13T16:55:31.939717] Cached 30 tasks for offline access
+[2025-11-13T16:55:31.942537] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118777, result=false
+[2025-11-13T16:55:31.942902] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118797, result=false
+[2025-11-13T16:55:31.943208] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118911, result=false
+[2025-11-13T16:55:31.943525] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118929, result=false
+[2025-11-13T16:55:31.943824] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118947, result=false
+[2025-11-13T16:55:31.944148] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118966, result=false
+[2025-11-13T16:55:31.944522] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118985, result=false
+[2025-11-13T16:55:31.944912] PPMRepository.isOfflineModeEnabled: ppmTaskId=2119004, result=false
+[2025-11-13T16:55:31.945223] PPMRepository.isOfflineModeEnabled: ppmTaskId=2121262, result=false
+[2025-11-13T16:55:31.945500] PPMRepository.isOfflineModeEnabled: ppmTaskId=2121305, result=false
+[2025-11-13T16:55:31.945771] PPMRepository.isOfflineModeEnabled: ppmTaskId=2122046, result=false
+[2025-11-13T16:55:31.946051] PPMRepository.isOfflineModeEnabled: ppmTaskId=2122095, result=false
+[2025-11-13T16:55:31.946318] PPMRepository.isOfflineModeEnabled: ppmTaskId=2123004, result=false
+[2025-11-13T16:55:31.946588] PPMRepository.isOfflineModeEnabled: ppmTaskId=2123017, result=false
+[2025-11-13T16:55:31.946902] PPMRepository.isOfflineModeEnabled: ppmTaskId=2123102, result=false
+[2025-11-13T16:55:31.947247] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118661, result=false
+[2025-11-13T16:55:31.947654] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118719, result=false
+[2025-11-13T16:55:31.948] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118738, result=false
+[2025-11-13T16:55:31.948354] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118639, result=false
+[2025-11-13T16:55:31.948705] PPMRepository.isOfflineModeEnabled: ppmTaskId=2127059, result=false
+[2025-11-13T16:55:31.949049] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118912, result=false
+[2025-11-13T16:55:31.949402] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118930, result=false
+[2025-11-13T16:55:31.949739] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118948, result=false
+[2025-11-13T16:55:31.950076] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118967, result=false
+[2025-11-13T16:55:31.950442] PPMRepository.isOfflineModeEnabled: ppmTaskId=2118986, result=false
+[2025-11-13T16:55:31.950786] PPMRepository.isOfflineModeEnabled: ppmTaskId=2119005, result=false
+[2025-11-13T16:55:31.951129] PPMRepository.isOfflineModeEnabled: ppmTaskId=2121263, result=false
+[2025-11-13T16:55:31.951484] PPMRepository.isOfflineModeEnabled: ppmTaskId=2121306, result=false
+[2025-11-13T16:55:31.951904] PPMRepository.isOfflineModeEnabled: ppmTaskId=2122047, result=false
+[2025-11-13T16:55:31.952295] PPMRepository.isOfflineModeEnabled: ppmTaskId=2122096, result=false

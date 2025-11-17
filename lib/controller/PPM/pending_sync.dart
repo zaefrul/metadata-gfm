@@ -22,6 +22,9 @@ class PPMPendingSyncController {
   }
 
   Stream<int> get pendingCount$ => _pendingCount$.stream;
+  
+  // Expose sync progress from repository
+  Stream<PPMSyncProgress?> get syncProgress$ => _repository.syncProgress$;
 
   int get currentPendingCount => _pendingCount$.value;
 
@@ -39,12 +42,12 @@ class PPMPendingSyncController {
 
   Future<void> retry() async {
     try {
-      debugPrint('PPMPendingSyncController: Attempting to sync pending actions...');
-      await _repository.syncPendingActions();
+      debugPrint('PPMPendingSyncController: Attempting ORDERED sync (start times → pending actions)...');
+      await _repository.syncAllPPMActions();
       await _updatePendingCount();
-      debugPrint('PPMPendingSyncController: Sync completed successfully');
+      debugPrint('PPMPendingSyncController: ORDERED sync completed successfully');
     } catch (err, st) {
-      debugPrint('PPMPendingSyncController: Sync failed: $err\n$st');
+      debugPrint('PPMPendingSyncController: ORDERED sync failed: $err\n$st');
     }
   }
 

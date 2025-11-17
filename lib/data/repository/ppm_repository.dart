@@ -3,20 +3,53 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 import 'package:GEMS/data/local/entities/ppm_entities.dart';
 import 'package:GEMS/data/local/offline_database.dart';
 import 'package:GEMS/model/form.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:uuid/uuid.dart';
+import 'package:rxdart/rxdart.dart';
 
 enum PPMActionResult {
   success,
   queued, // Stored for offline sync
 }
 
+/// Sync progress information
+class PPMSyncProgress {
+  final int current;
+  final int total;
+  final String currentAction;
+  final bool isComplete;
+  final int successCount;
+  final int failedCount;
+
+  PPMSyncProgress({
+    required this.current,
+    required this.total,
+    required this.currentAction,
+    required this.isComplete,
+    required this.successCount,
+    required this.failedCount,
+  });
+
+  double get percentage => total > 0 ? (current / total) : 0.0;
+
+  String get statusText => isComplete
+      ? 'Sync complete: $successCount succeeded, $failedCount failed'
+      : 'Syncing $current of $total: $currentAction';
+}
+
 class PPMRepository {
   final OfflineDatabase _database = OfflineDatabase.instance;
+  final Uuid _uuid = const Uuid();
   DateTime Function() _clock = () => DateTime.now();
+  
+  // Sync progress stream
+  final BehaviorSubject<PPMSyncProgress?> _syncProgress$ = BehaviorSubject<PPMSyncProgress?>.seeded(null);
+  Stream<PPMSyncProgress?> get syncProgress$ => _syncProgress$.stream;
 
   // Expose database for direct queries when needed
   Future<Database> get database => _database.database;
@@ -396,6 +429,10 @@ class PPMRepository {
     if (isOffline) {
       debugPrint('PPMRepository._sendOrQueue: Offline mode enabled, queuing action');
       await _queueAction(ppmTaskId, body);
+      
+      // Update section status to "Completed" when queuing section-completion actions
+      await _updateSectionStatusAfterQueue(ppmTaskId, action);
+      
       return PPMActionResult.queued;
     }
     
@@ -409,11 +446,13 @@ class PPMRepository {
     } on SocketException catch (e) {
       debugPrint('PPMRepository._sendOrQueue: SocketException caught: $e');
       await _queueAction(ppmTaskId, body);
+      await _updateSectionStatusAfterQueue(ppmTaskId, action);
       debugPrint('PPMRepository._sendOrQueue: Action queued due to SocketException');
       return PPMActionResult.queued;
     } on TimeoutException catch (e) {
       debugPrint('PPMRepository._sendOrQueue: TimeoutException caught: $e');
       await _queueAction(ppmTaskId, body);
+      await _updateSectionStatusAfterQueue(ppmTaskId, action);
       debugPrint('PPMRepository._sendOrQueue: Action queued due to TimeoutException');
       return PPMActionResult.queued;
     } catch (e) {
@@ -429,6 +468,20 @@ class PPMRepository {
     final action = body['action']?.toString() ?? 'unknown';
     debugPrint('PPMRepository._queueAction: Queuing action=$action for ppmTaskId=$ppmTaskId');
     
+    // Ensure snapshot exists when first action is queued
+    // This prevents "green but empty" state when syncs fail but actions are queued
+    final snapshotExists = await loadSnapshot(ppmTaskId) != null;
+    if (!snapshotExists) {
+      debugPrint('PPMRepository._queueAction: No snapshot found, creating one to preserve current state...');
+      try {
+        await downloadSnapshot(ppmTaskId: ppmTaskId);
+        debugPrint('PPMRepository._queueAction: Snapshot created successfully');
+      } catch (err) {
+        debugPrint('PPMRepository._queueAction: Failed to create snapshot (non-fatal): $err');
+        // Continue queuing even if snapshot creation fails - action data is more important
+      }
+    }
+    
     // Map WO-style action names to PPM action names
     final ppmAction = action
         .replaceAll('upload_repair_image', 'upload_maintenance_image')
@@ -440,94 +493,424 @@ class PPMRepository {
         action: ppmAction,
         payloadJson: json.encode(body),
         createdAt: _clock(),
+        actionId: _uuid.v4(), // Generate UUID for batch sync tracking
       ),
     );
     
     debugPrint('PPMRepository._queueAction: Action queued successfully');
   }
 
+  /// Update section status after queuing an action (mark as Completed)
+  Future<void> _updateSectionStatusAfterQueue(String ppmTaskId, String action) async {
+    debugPrint('');
+    debugPrint('🔄 PPMRepository._updateSectionStatusAfterQueue');
+    debugPrint('   Action: $action');
+    
+    // Map actions to their corresponding sections
+    String? sectionName;
+    var targetStatus = 'Completed';
+    
+    switch (action) {
+      case 'check_ppm_parts':
+      case 'add_ppm_parts':
+        sectionName = 'E'; // Materials/Spare Parts
+        break;
+      case 'check_additional_report':
+      case 'upload_additional_report':
+        sectionName = 'F'; // Additional Reports
+        break;
+      case 'save_ppm_remark':
+        sectionName = 'G'; // Remarks
+        break;
+      case 'upload_maintenance_image':
+      case 'upload_ppm_maintenance_image':
+      case 'save_image_desc':
+      case 'save_ppm_images_description':
+        sectionName = 'H'; // Images
+        final hasRequiredImages = await _hasRequiredMaintenanceImages(ppmTaskId);
+        targetStatus = hasRequiredImages ? 'Completed' : 'Pending';
+        debugPrint('   📸 Section H coverage check -> Before/During/After present? $hasRequiredImages');
+        break;
+      case 'add_assistant':
+      case 'remove_assistant':
+      case 'save_assistant_list':
+        sectionName = 'I'; // Add Technician
+        debugPrint('   📍 Detected assistant action, will update Section I');
+        break;
+      case 'save_qualitative_tasks':
+        sectionName = 'C'; // Qualitative Tasks
+        break;
+      case 'save_quantitative_tasks':
+        sectionName = 'D'; // Quantitative Tasks
+        break;
+      case 'submit_ppm':
+        debugPrint('   ⚠️ CRITICAL: Task completion action queued');
+        debugPrint('   This should mark the entire PPM as pending completion.');
+        return; // Don't update section status for task completion
+      default:
+        debugPrint('   ℹ️ No section mapping for action=$action');
+    }
+    
+    if (sectionName != null) {
+      debugPrint('   📍 Section: $sectionName');
+      debugPrint('   🔄 Updating status to: $targetStatus');
+      
+      try {
+        await _database.updatePPMSectionStatus(
+          ppmTaskId: ppmTaskId,
+          sectionName: sectionName,
+          status: targetStatus,
+        );
+        
+        debugPrint('   ✅ Section $sectionName status updated to $targetStatus');
+        debugPrint('   ✓ Database update successful');
+      } catch (err, stackTrace) {
+        debugPrint('   ❌ Error updating status: $err');
+        debugPrint('   Stack trace:');
+        final stackLines = stackTrace.toString().split('\n');
+        for (var i = 0; i < stackLines.length && i < 5; i++) {
+          debugPrint('   ${stackLines[i]}');
+        }
+      }
+    }
+  }
+
   Future<void> _post(Map<String, dynamic> body) async {
     final action = body['action'];
     final ppmTaskId = body['ppmTaskId'];
+    
+    debugPrint('');
+    debugPrint('📤 PPMRepository._post: Starting POST request');
+    debugPrint('   Action: $action');
+    debugPrint('   PPM Task ID: $ppmTaskId');
     
     // Log diagnostic info for image uploads
     if (action == 'upload_ppm_maintenance_image') {
       final base64Data = body['fileUpload[data]'];
       final sizeKB = base64Data != null ? (base64Data.length / 1024).toStringAsFixed(2) : '0';
-      debugPrint('Uploading PPM maintenance image: action=$action, ppmTaskId=$ppmTaskId, size=${sizeKB}KB');
+      debugPrint('   Uploading PPM maintenance image: size=${sizeKB}KB');
     }
+    
+    // Log all body keys (not values for security)
+    debugPrint('   Payload keys: ${body.keys.join(", ")}');
+    
+    // Special logging for critical actions
+    if (action == 'submit_ppm') {
+      debugPrint('   ⚠️ CRITICAL: Task completion action');
+      debugPrint('   EndTime: ${body['endTime']}');
+      debugPrint('   Checkpoint: ${body['checkpoint']}');
+      debugPrint('   Result: ${body['result']}');
+    } else if (action == 'save_assistant_list') {
+      debugPrint('   👥 Section I completion (save_assistant_list)');
+      debugPrint('   Endpoint: /api/ppm_v2.php/save_assistant_list/$ppmTaskId');
+    } else if (action == 'add_assistant' || action == 'remove_assistant') {
+      debugPrint('   Assistant ID: ${body['assistant']}');
+    }
+    
+    if (action == 'save_assistant_list') {
+      final provider = Provider(
+        fetchURL: '/api/ppm_v2.php/save_assistant_list/',
+        taskID: ppmTaskId?.toString(),
+      );
+
+      final startTime = DateTime.now();
+      try {
+        await provider.post(
+          url: '/api/ppm_v2.php/save_assistant_list/$ppmTaskId',
+          body: const {},
+        );
+        final duration = DateTime.now().difference(startTime).inMilliseconds;
+        debugPrint('   ✅ save_assistant_list POST successful (${duration}ms)');
+        debugPrint('');
+        return;
+      } catch (err) {
+        final duration = DateTime.now().difference(startTime).inMilliseconds;
+        debugPrint('   ❌ save_assistant_list POST failed after ${duration}ms');
+        debugPrint('   Error: $err');
+        debugPrint('');
+        rethrow;
+      }
+    }
+
+    // Convert all values to strings for HTTP compatibility
+    final bodyAsStrings = body.map((key, value) {
+      if (value == null) {
+        return MapEntry(key, '');
+      } else if (value is bool) {
+        return MapEntry(key, value ? '1' : '0');
+      } else if (value is num) {
+        return MapEntry(key, value.toString());
+      } else {
+        return MapEntry(key, value.toString());
+      }
+    });
     
     final provider = Provider(
       taskID: ppmTaskId.toString(),
       fetchURL: '/api/m_ppm.php',
     );
     
-    await provider.post(
-      url: '/api/m_ppm.php',
-      body: body,
-    );
+    debugPrint('   🌐 Sending POST to /api/m_ppm.php...');
+    final startTime = DateTime.now();
+    
+    try {
+      await provider.post(
+        url: '/api/m_ppm.php',
+        body: bodyAsStrings,
+      );
+      
+      final duration = DateTime.now().difference(startTime).inMilliseconds;
+      debugPrint('   ✅ POST successful (${duration}ms)');
+      debugPrint('');
+    } catch (err) {
+      final duration = DateTime.now().difference(startTime).inMilliseconds;
+      debugPrint('   ❌ POST failed after ${duration}ms');
+      debugPrint('   Error: $err');
+      debugPrint('');
+      rethrow;
+    }
+  }
+
+  /// Syncs ALL PPM actions in the correct order:
+  /// 1. Start times (from ppm_offline_actions)
+  /// 2. All other actions (from ppm_pending_actions)
+  /// 
+  /// This ensures backend receives actions in proper sequence,
+  /// preventing "task not started" errors when trying to complete tasks.
+  Future<void> syncAllPPMActions() async {
+    debugPrint('');
+    debugPrint('═══════════════════════════════════════════════════════════════');
+    debugPrint('🔄 PPMRepository.syncAllPPMActions: Starting ORDERED sync...');
+    debugPrint('═══════════════════════════════════════════════════════════════');
+    
+    try {
+      // STEP 1: Sync start times first (critical for task initialization)
+      debugPrint('');
+      debugPrint('┌─────────────────────────────────────────────────────────────');
+      debugPrint('│ STEP 1: Syncing start times (ppm_offline_actions)...');
+      debugPrint('└─────────────────────────────────────────────────────────────');
+      
+      await syncOfflineActions();
+      
+      debugPrint('✓ STEP 1 complete: Start times synced');
+      
+      // Small delay to ensure backend processes start times
+      await Future.delayed(Duration(milliseconds: 500));
+      
+      // STEP 2: Sync all other actions (sections, complete, etc.)
+      debugPrint('');
+      debugPrint('┌─────────────────────────────────────────────────────────────');
+      debugPrint('│ STEP 2: Syncing pending actions (ppm_pending_actions)...');
+      debugPrint('└─────────────────────────────────────────────────────────────');
+      
+      await syncPendingActions();
+      
+      debugPrint('✓ STEP 2 complete: Pending actions synced');
+      
+      debugPrint('');
+      debugPrint('═══════════════════════════════════════════════════════════════');
+      debugPrint('✓ PPMRepository.syncAllPPMActions: ORDERED sync complete!');
+      debugPrint('═══════════════════════════════════════════════════════════════');
+      
+    } catch (e, stackTrace) {
+      debugPrint('');
+      debugPrint('═══════════════════════════════════════════════════════════════');
+      debugPrint('❌ PPMRepository.syncAllPPMActions: ORDERED sync failed!');
+      debugPrint('Error: $e');
+      debugPrint('Stack trace:');
+      debugPrint('$stackTrace');
+      debugPrint('═══════════════════════════════════════════════════════════════');
+      
+      // Clear progress on error
+      _syncProgress$.add(null);
+      
+      rethrow;
+    }
   }
 
   Future<void> syncPendingActions() async {
+    debugPrint('');
     debugPrint('═══════════════════════════════════════════════════════════════');
-    debugPrint('🔄 PPMRepository.syncPendingActions: Starting sync...');
+    debugPrint('🔄 PPMRepository.syncPendingActions: Starting sequential sync...');
     debugPrint('═══════════════════════════════════════════════════════════════');
     
-    final pending = await _database.getPPMPendingActions();
-    if (pending.isEmpty) {
+    final allPending = await _database.getPPMPendingActions();
+    if (allPending.isEmpty) {
       debugPrint('✓ PPMRepository.syncPendingActions: No pending actions to sync');
+      _syncProgress$.add(null); // Clear progress when no actions
       return;
     }
 
-    debugPrint('📋 PPMRepository.syncPendingActions: Found ${pending.length} pending actions');
+    debugPrint('📋 PPMRepository.syncPendingActions: Found ${allPending.length} pending actions');
+    
+    // CRITICAL: Separate submit_ppm actions (task completion) from others
+    // submit_ppm MUST be synced LAST to ensure sections are completed first
+    final regularActions = allPending.where((a) => a.action != 'submit_ppm').toList();
+    final completionActions = allPending.where((a) => a.action == 'submit_ppm').toList();
+    
+    debugPrint('   📊 Regular actions: ${regularActions.length}');
+    debugPrint('   🏁 Completion actions (submit_ppm): ${completionActions.length}');
+    debugPrint('   🔄 Sync order: Regular actions first, then completions');
+    
+    // Combine in correct order: regular actions first, completions last
+    final pending = [...regularActions, ...completionActions];
     
     var successCount = 0;
-    var failureCount = 0;
+    var failedCount = 0;
+    var currentIndex = 0;
     
-    for (final action in pending) {
-      try {
+    try {
+      // Process each action sequentially (original approach)
+      for (final action in pending) {
+        currentIndex++;
+        
+        // Emit progress update
+        _syncProgress$.add(PPMSyncProgress(
+          current: currentIndex,
+          total: pending.length,
+          currentAction: _getActionDisplayName(action.action),
+          isComplete: false,
+          successCount: successCount,
+          failedCount: failedCount,
+        ));
+        
         debugPrint('');
         debugPrint('┌─────────────────────────────────────────────────────────────');
-        debugPrint('│ Processing Pending Action #${action.id}');
-        debugPrint('├─────────────────────────────────────────────────────────────');
-        debugPrint('│ PPM Task ID: ${action.ppmTaskId}');
-        debugPrint('│ Action Type: ${action.action}');
-        debugPrint('│ Created At: ${action.createdAt}');
-        
-        final body = json.decode(action.payloadJson) as Map<String, dynamic>;
-        
-        debugPrint('├─────────────────────────────────────────────────────────────');
-        debugPrint('│ 🌐 Sending to API: /api/m_ppm.php');
-        debugPrint('├─────────────────────────────────────────────────────────────');
-        debugPrint('│ Request Body:');
-        body.forEach((key, value) {
-          debugPrint('│   $key: $value');
-        });
+        debugPrint('│ 🔄 SYNC ATTEMPT [$currentIndex/${pending.length}]');
+        debugPrint('│ Action: ${action.action}');
+        debugPrint('│ Action ID: ${action.id}');
+        debugPrint('│ PPM Task: ${action.ppmTaskId}');
+        debugPrint('│ Created: ${action.createdAt}');
+        debugPrint('│ Batch ID: ${action.actionId}');
+        debugPrint('│');
+        debugPrint('│ 📦 Full Payload:');
+        debugPrint('│ ${action.payloadJson}');
         debugPrint('└─────────────────────────────────────────────────────────────');
         
-        await _post(body);
-        
-        if (action.id != null) {
-          await _database.removePPMPendingAction(action.id!);
-          successCount++;
-          debugPrint('✅ Action ${action.id} synced successfully and removed from queue');
+        try {
+          debugPrint('');
+          debugPrint('   🔍 Parsing payload...');
+          // Parse the original payload
+          final payload = json.decode(action.payloadJson) as Map<String, dynamic>;
+          debugPrint('   ✓ Payload parsed successfully');
+          debugPrint('   Keys: ${payload.keys.join(", ")}');
+          
+          // Validate critical fields
+          if (action.action == 'submit_ppm') {
+            debugPrint('');
+            debugPrint('   ⚠️ VALIDATING TASK COMPLETION:');
+            debugPrint('   - ppmTaskId: ${payload['ppmTaskId']}');
+            debugPrint('   - endTime: ${payload['endTime']}');
+            debugPrint('   - checkpoint: ${payload['checkpoint']}');
+            debugPrint('   - result: ${payload['result']}');
+            
+            if (payload['endTime'] == null || payload['endTime'].toString().isEmpty) {
+              debugPrint('   ❌ ERROR: Missing endTime in submit_ppm payload!');
+            }
+          } else if (action.action == 'add_assistant' || action.action == 'remove_assistant') {
+            debugPrint('');
+            debugPrint('   👤 ASSISTANT ACTION:');
+            debugPrint('   - ppmTaskId: ${payload['ppmTaskId']}');
+            debugPrint('   - assistant: ${payload['assistant']}');
+            
+            if (payload['assistant'] == null || payload['assistant'].toString().isEmpty) {
+              debugPrint('   ❌ ERROR: Missing assistant ID!');
+            }
+          }
+          
+          debugPrint('');
+          // Send to original endpoint
+          await _post(payload);
+          
+          debugPrint('   🗑️ Removing from pending queue...');
+          // Remove from queue on success
+          if (action.id != null) {
+            await _database.removePPMPendingAction(action.id!);
+            successCount++;
+            debugPrint('   ✅ Action synced and removed from queue');
+            debugPrint('   📊 Current success: $successCount, failed: $failedCount');
+          } else {
+            debugPrint('   ⚠️ Warning: Action has no ID, cannot remove from queue');
+          }
+          
+        } catch (err, stackTrace) {
+          failedCount++;
+          debugPrint('');
+          debugPrint('   ❌❌❌ SYNC FAILED ❌❌❌');
+          debugPrint('   Error Type: ${err.runtimeType}');
+          debugPrint('   Error Message: $err');
+          debugPrint('');
+          debugPrint('   📚 Stack Trace:');
+          final stackLines = stackTrace.toString().split('\n');
+          for (var i = 0; i < stackLines.length && i < 10; i++) {
+            debugPrint('   ${stackLines[i]}');
+          }
+          debugPrint('');
+          debugPrint('   🔄 Action will remain in queue for retry');
+          debugPrint('   📊 Current success: $successCount, failed: $failedCount');
+          // Don't remove from queue - will retry later
+          // Continue with next action
         }
-      } catch (err, st) {
-        failureCount++;
-        debugPrint('❌ Failed to sync action ${action.id}: $err');
-        debugPrint('   Stack trace: $st');
-        // Don't break - continue with other actions
-        continue;
+        
+        debugPrint('');
+        debugPrint('═══════════════════════════════════════════════════════════════');
       }
+      
+      // Emit final progress
+      _syncProgress$.add(PPMSyncProgress(
+        current: pending.length,
+        total: pending.length,
+        currentAction: 'Complete',
+        isComplete: true,
+        successCount: successCount,
+        failedCount: failedCount,
+      ));
+      
+      debugPrint('');
+      debugPrint('═══════════════════════════════════════════════════════════════');
+      debugPrint('📊 FINAL SYNC SUMMARY');
+      debugPrint('═══════════════════════════════════════════════════════════════');
+      debugPrint('   ✅ Success: $successCount actions');
+      debugPrint('   ❌ Failed: $failedCount actions');
+      debugPrint('   📝 Total: ${pending.length} actions');
+      debugPrint('   📈 Success Rate: ${pending.length > 0 ? ((successCount / pending.length) * 100).toStringAsFixed(1) : '0'}%');
+      debugPrint('═══════════════════════════════════════════════════════════════');
+      
+      // Log remaining pending actions if any failed
+      if (failedCount > 0) {
+        debugPrint('');
+        debugPrint('⚠️ FAILED ACTIONS REMAINING IN QUEUE:');
+        final remainingActions = await _database.getPPMPendingActions();
+        for (var i = 0; i < remainingActions.length && i < 5; i++) {
+          final act = remainingActions[i];
+          debugPrint('   ${i + 1}. ${act.action} (ID: ${act.id}, Task: ${act.ppmTaskId})');
+        }
+        if (remainingActions.length > 5) {
+          debugPrint('   ... and ${remainingActions.length - 5} more');
+        }
+        debugPrint('');
+      }
+      
+      // Clear progress after a short delay
+      Future.delayed(const Duration(seconds: 2), () {
+        _syncProgress$.add(null);
+      });
+    } catch (err, st) {
+      debugPrint('');
+      debugPrint('═══════════════════════════════════════════════════════════════');
+      debugPrint('❌❌❌ FATAL SYNC ERROR ❌❌❌');
+      debugPrint('═══════════════════════════════════════════════════════════════');
+      debugPrint('   Error Type: ${err.runtimeType}');
+      debugPrint('   Error: $err');
+      debugPrint('');
+      debugPrint('   Stack Trace:');
+      debugPrint('$st');
+      debugPrint('═══════════════════════════════════════════════════════════════');
+      
+      // Clear progress on fatal error
+      _syncProgress$.add(null);
+      rethrow;
     }
-    
-    debugPrint('');
-    debugPrint('═══════════════════════════════════════════════════════════════');
-    debugPrint('📊 Sync Summary:');
-    debugPrint('   ✅ Success: $successCount');
-    debugPrint('   ❌ Failed: $failureCount');
-    debugPrint('   📝 Total: ${pending.length}');
-    debugPrint('═══════════════════════════════════════════════════════════════');
   }
 
   /// Get the count of pending actions for a specific task or all tasks
@@ -538,6 +921,116 @@ class PPMRepository {
   /// Get list of pending actions for a specific task or all tasks
   Future<List<PPMPendingActionEntity>> getPendingActions({String? ppmTaskId}) async {
     return await _database.getPPMPendingActions(ppmTaskId: ppmTaskId);
+  }
+
+  Future<bool> _hasRequiredMaintenanceImages(String ppmTaskId) async {
+    const required = {'Before', 'During', 'After'};
+    final present = <String>{};
+
+    try {
+      final cached = await _database.getPPMMaintenanceImages(ppmTaskId);
+      for (final entity in cached) {
+        final normalized = _normalizeMaintenanceUploadType(entity.uploadType);
+        if (normalized.isNotEmpty) {
+          present.add(normalized);
+        }
+      }
+    } catch (err) {
+      debugPrint('   ⚠️ Unable to read cached maintenance images: $err');
+    }
+
+    try {
+      final pending = await _database.getPPMPendingActions(ppmTaskId: ppmTaskId);
+      for (final action in pending) {
+        if (action.action == 'upload_maintenance_image' ||
+            action.action == 'upload_ppm_maintenance_image') {
+          try {
+            final payload = json.decode(action.payloadJson) as Map<String, dynamic>;
+            final type = _normalizeMaintenanceUploadType(payload['uploadType']?.toString() ?? '');
+            if (type.isNotEmpty) {
+              present.add(type);
+            }
+          } catch (err) {
+            debugPrint('   ⚠️ Failed to parse maintenance image payload: $err');
+          }
+        }
+      }
+    } catch (err) {
+      debugPrint('   ⚠️ Unable to read pending maintenance images: $err');
+    }
+
+    debugPrint('   📊 Section H available image types: ${present.join(", ")}');
+    return required.every(present.contains);
+  }
+
+  String _normalizeMaintenanceUploadType(String rawType) {
+    final trimmed = rawType.trim();
+    if (trimmed.isEmpty) {
+      return '';
+    }
+
+    final lower = trimmed.toLowerCase();
+    if (lower == 'before' || lower == 'during' || lower == 'after') {
+      return '${lower[0].toUpperCase()}${lower.substring(1)}';
+    }
+
+    final numeric = int.tryParse(lower);
+    if (numeric != null) {
+      switch (numeric) {
+        case 0:
+          return 'Before';
+        case 1:
+          return 'During';
+        case 2:
+          return 'After';
+        case 3:
+          return 'During';
+        case 4:
+          return 'After';
+      }
+    }
+
+    return trimmed;
+  }
+
+  /// Get user-friendly display name for action
+  String _getActionDisplayName(String action) {
+    switch (action) {
+      case 'save_qualitative_tasks':
+        return 'Saving qualitative tasks';
+      case 'save_quantitative_tasks':
+        return 'Saving quantitative tasks';
+      case 'check_ppm_parts':
+        return 'Checking materials';
+      case 'add_ppm_parts':
+        return 'Adding material';
+      case 'check_additional_report':
+        return 'Checking additional report';
+      case 'upload_additional_report':
+        return 'Uploading report';
+      case 'save_ppm_remark':
+        return 'Saving remarks';
+      case 'upload_maintenance_image':
+      case 'upload_ppm_maintenance_image':
+        return 'Uploading image';
+      case 'save_image_desc':
+      case 'save_ppm_images_description':
+        return 'Saving image descriptions';
+      case 'add_assistant':
+        return 'Adding technician';
+      case 'remove_assistant':
+        return 'Removing technician';
+      case 'save_assistant_list':
+        return 'Confirming technician list';
+      case 'submit_ppm':
+        return 'Completing task';
+      default:
+        return action.replaceAll('_', ' ');
+    }
+  }
+
+  void dispose() {
+    _syncProgress$.close();
   }
 
   // ============================================================================
@@ -591,6 +1084,30 @@ class PPMRepository {
   }
 
   // ============================================================================
+  // BATCH SYNC HELPER METHODS (REMOVED - Reverted to sequential sync)
+  // ============================================================================
+  //
+  // The following methods were part of the batch sync implementation that has 
+  // been reverted back to sequential individual API calls:
+  // - _formatMySQLDateTime()
+  // - _transformPayload()
+  // - _transformQualitativeTasks() through _transformCheckAdditionalReport()
+  // - _mapResultToCode()
+  // - _transformCheckPPMParts()
+  //
+  // These methods are preserved in git history (commit before this change).
+  // Reason for revert: Backend deployment delays + complexity not worth the benefit.
+  //
+  // If batch sync is needed again in the future, restore from git history:
+  // git log --oneline --all --grep="batch sync"
+  // git checkout <commit-hash> -- lib/data/repository/ppm_repository.dart
+  // ============================================================================
+
+  // ============================================================================
+  // OFFLINE MODE MANAGEMENT
+  // ============================================================================
+
+  // ============================================================================
   // OFFLINE MODE MANAGEMENT
   // ============================================================================
 
@@ -612,9 +1129,34 @@ class PPMRepository {
         rethrow;
       }
     } else {
-      // Disable offline mode and optionally delete snapshot
+      // Disable offline mode: sync pending actions first, then cleanup
+      debugPrint('PPMRepository.setOfflineMode: Disabling offline mode, checking for pending actions...');
+      
+      // Check if there are pending actions to sync
+      final pendingActions = await _database.getPPMPendingActions(ppmTaskId: ppmTaskId);
+      
+      if (pendingActions.isNotEmpty) {
+        debugPrint('PPMRepository.setOfflineMode: Found ${pendingActions.length} pending actions, syncing before cleanup...');
+        try {
+          // Attempt to sync pending actions
+          await syncPendingActions();
+          debugPrint('PPMRepository.setOfflineMode: Sync completed successfully');
+        } catch (err, st) {
+          debugPrint('PPMRepository.setOfflineMode: Sync failed, keeping pending actions: $err\n$st');
+          // Don't rethrow - allow user to disable offline mode even if sync fails
+          // Pending actions will remain in queue for later retry
+        }
+      } else {
+        debugPrint('PPMRepository.setOfflineMode: No pending actions to sync');
+      }
+      
+      // Disable offline mode and cleanup
       await _database.setPPMOfflineMode(ppmTaskId, false);
       await _database.deletePPMSnapshot(ppmTaskId);
+      // Clear task started status when disabling offline mode
+      await _database.setPPMTaskStarted(ppmTaskId, false);
+      
+      debugPrint('PPMRepository.setOfflineMode: Offline mode disabled successfully');
     }
   }
 
@@ -805,12 +1347,14 @@ class PPMRepository {
     debugPrint('PPMRepository.updateSectionAStartTime: Updating Section A cache with start time');
     
     try {
-      // Load existing section A data
-      final sectionDataJson = await loadSectionData(ppmTaskId, 'A');
+      // Load existing section A data - returns already decoded Map
+      final sectionDataMap = await loadSectionData(ppmTaskId, 'A');
       
-      if (sectionDataJson != null) {
-        // Parse existing data
-        final sectionData = json.decode(sectionDataJson) as Map<String, dynamic>;
+      if (sectionDataMap != null) {
+        // sectionDataMap is already a Map, no need to decode again
+        final sectionData = sectionDataMap is Map<String, dynamic> 
+            ? sectionDataMap 
+            : (json.decode(sectionDataMap) as Map<String, dynamic>);
         
         // Update the ppmTaskTimeStart field with formatted timestamp
         // Format: "YYYY-MM-DD HH:MM:SS" to match backend format
@@ -837,6 +1381,76 @@ class PPMRepository {
     } catch (err) {
       debugPrint('PPMRepository.updateSectionAStartTime: Error updating cache: $err');
       // Don't throw - this is not critical, the time will sync from server later
+    }
+  }
+
+  /// Update Section A (Task Info) end time in local cache after task completion
+  Future<void> updateSectionAEndTime({
+    required String ppmTaskId,
+    required String endTime,
+  }) async {
+    debugPrint('');
+    debugPrint('💾 PPMRepository.updateSectionAEndTime');
+    debugPrint('   PPM Task ID: $ppmTaskId');
+    debugPrint('   End Time: $endTime');
+    
+    try {
+      // Load existing section A data
+      debugPrint('   🔍 Loading cached Section A...');
+      final sectionDataMap = await loadSectionData(ppmTaskId, 'A');
+      
+      if (sectionDataMap != null) {
+        debugPrint('   ✓ Section A found in cache');
+        
+        final sectionData = sectionDataMap is Map<String, dynamic> 
+            ? sectionDataMap 
+            : (json.decode(sectionDataMap) as Map<String, dynamic>);
+        
+        debugPrint('   📦 Current section data keys: ${sectionData.keys.join(", ")}');
+        
+        // Check if start time exists
+        if (sectionData['ppmTaskTimeReceive'] == null || 
+            sectionData['ppmTaskTimeReceive'].toString().isEmpty) {
+          debugPrint('   ⚠️ WARNING: PM Start Date/Time (ppmTaskTimeReceive) is missing!');
+        } else {
+          debugPrint('   ✓ PM Start Date/Time exists: ${sectionData['ppmTaskTimeReceive']}');
+        }
+        
+        // Update the ppmTaskTimeServiced field (this is the "PM End Date/Time" field)
+        debugPrint('   ✏️ Setting ppmTaskTimeServiced = $endTime');
+        sectionData['ppmTaskTimeServiced'] = endTime;
+        
+        // Save back to cache
+        debugPrint('   💾 Saving to database...');
+        await _database.savePPMSectionData(
+          ppmTaskId: ppmTaskId,
+          sectionName: 'A',
+          sectionData: json.encode(sectionData),
+        );
+        
+        debugPrint('   ✅ Section A cache updated successfully');
+        debugPrint('   PM End Date/Time now set to: $endTime');
+        
+        // Verify the update
+        final verifyData = await loadSectionData(ppmTaskId, 'A');
+        if (verifyData != null) {
+          final verifyJson = verifyData is Map<String, dynamic> ? verifyData : json.decode(verifyData);
+          if (verifyJson['ppmTaskTimeServiced'] == endTime) {
+            debugPrint('   ✓ VERIFICATION PASSED: End time persisted correctly');
+          } else {
+            debugPrint('   ❌ VERIFICATION FAILED: End time not persisted!');
+            debugPrint('   Expected: $endTime');
+            debugPrint('   Got: ${verifyJson['ppmTaskTimeServiced']}');
+          }
+        }
+      } else {
+        debugPrint('   ⚠️ WARNING: No Section A cache found!');
+        debugPrint('   This means snapshot was never downloaded or was cleared.');
+      }
+    } catch (err, st) {
+      debugPrint('   ❌ Error updating Section A end time: $err');
+      debugPrint('   Stack trace: $st');
+      // Don't rethrow - this is a cache update, shouldn't block task completion
     }
   }
 
@@ -1025,7 +1639,7 @@ class PPMRepository {
             "action": "save_scan_start_time",
             "ppmTaskId": actionData['ppmTaskId'],
             "ppmGroupExecution": actionData['ppmGroupExecution'],
-            "scan_start_timer": startTime, // Backend expects scan_start_timer field
+            "startTime": startTime, // Backend expects startTime field (confirmed by backend team)
           };
           
           debugPrint('╔════════════════════════════════════════════════════════════════');
@@ -1035,9 +1649,9 @@ class PPMRepository {
           debugPrint('║   action: ${requestBody['action']}');
           debugPrint('║   ppmTaskId: ${requestBody['ppmTaskId']}');
           debugPrint('║   ppmGroupExecution: ${requestBody['ppmGroupExecution']}');
-          debugPrint('║   scan_start_timer: ${requestBody['scan_start_timer']}');
+          debugPrint('║   startTime: ${requestBody['startTime']}');
           debugPrint('╠════════════════════════════════════════════════════════════════');
-          debugPrint('║ Note: scan_start_timer is the OFFLINE start time, not sync time');
+          debugPrint('║ Note: startTime is the OFFLINE start time, not sync time');
           debugPrint('╚════════════════════════════════════════════════════════════════');
           
           await provider.post(
@@ -1125,35 +1739,186 @@ class PPMRepository {
     return await _database.hasCachedPPMTechnicians(ppmTaskId);
   }
 
+  /// Add technician assistant - with offline support
+  Future<PPMActionResult> addTechnicianAssistant({
+    required String ppmTaskId,
+    required String userId,
+  }) async {
+    debugPrint('PPMRepository.addTechnicianAssistant: Adding assistant $userId to task $ppmTaskId');
+    
+    final body = <String, String>{
+      'action': 'add_assistant',
+      'ppmTaskId': ppmTaskId,
+      'assistant': userId,
+    };
+
+    final result = await _sendOrQueue(
+      ppmTaskId: ppmTaskId,
+      body: body,
+    );
+
+    // If queued (offline mode), update the cache so user can see their changes
+    if (result == PPMActionResult.queued) {
+      debugPrint('PPMRepository.addTechnicianAssistant: Action queued, updating cache');
+      await _updateSelectedTechniciansCache(ppmTaskId: ppmTaskId, userId: userId, isAdd: true);
+    }
+
+    return result;
+  }
+
+  /// Remove technician assistant - with offline support
+  Future<PPMActionResult> removeTechnicianAssistant({
+    required String ppmTaskId,
+    required String userId,
+  }) async {
+    debugPrint('PPMRepository.removeTechnicianAssistant: Removing assistant $userId from task $ppmTaskId');
+    
+    final body = <String, String>{
+      'action': 'remove_assistant',
+      'ppmTaskId': ppmTaskId,
+      'assistant': userId,
+    };
+
+    final result = await _sendOrQueue(
+      ppmTaskId: ppmTaskId,
+      body: body,
+    );
+
+    // If queued (offline mode), update the cache so user can see their changes
+    if (result == PPMActionResult.queued) {
+      debugPrint('PPMRepository.removeTechnicianAssistant: Action queued, updating cache');
+      await _updateSelectedTechniciansCache(ppmTaskId: ppmTaskId, userId: userId, isAdd: false);
+    }
+
+    return result;
+  }
+
+  /// Submit the assistant list (even when empty) to mark Section I as completed
+  Future<PPMActionResult> submitAssistantList({
+    required String ppmTaskId,
+  }) async {
+    debugPrint('PPMRepository.submitAssistantList: Submitting assistant list for task $ppmTaskId');
+
+    final body = <String, String>{
+      'action': 'save_assistant_list',
+      'ppmTaskId': ppmTaskId,
+    };
+
+    try {
+      final result = await _sendOrQueue(
+        ppmTaskId: ppmTaskId,
+        body: body,
+      );
+
+      if (result == PPMActionResult.success) {
+        debugPrint('PPMRepository.submitAssistantList: Assistant list submitted successfully');
+        await _database.updatePPMSectionStatus(
+          ppmTaskId: ppmTaskId,
+          sectionName: 'I',
+          status: 'Completed',
+        );
+      } else {
+        debugPrint('PPMRepository.submitAssistantList: Assistant list queued for sync');
+      }
+
+      return result;
+    } catch (err) {
+      debugPrint('PPMRepository.submitAssistantList: Failed to submit assistant list: $err');
+      rethrow;
+    }
+  }
+
+  /// Update cached selected technicians after add/remove
+  Future<void> _updateSelectedTechniciansCache({
+    required String ppmTaskId,
+    required String userId,
+    required bool isAdd,
+  }) async {
+    try {
+      final db = await _database.database;
+      
+      if (isAdd) {
+        // Mark technician as selected
+        await db.rawUpdate(
+          'UPDATE ${_getPPMTechnicianCacheTableName()} SET is_selected = 1 WHERE ppm_task_id = ? AND user_id = ?',
+          [ppmTaskId, userId],
+        );
+        debugPrint('PPMRepository._updateSelectedTechniciansCache: Marked $userId as selected');
+      } else {
+        // Mark technician as not selected
+        await db.rawUpdate(
+          'UPDATE ${_getPPMTechnicianCacheTableName()} SET is_selected = 0 WHERE ppm_task_id = ? AND user_id = ?',
+          [ppmTaskId, userId],
+        );
+        debugPrint('PPMRepository._updateSelectedTechniciansCache: Unmarked $userId as selected');
+      }
+    } catch (err) {
+      debugPrint('PPMRepository._updateSelectedTechniciansCache: Error updating cache: $err');
+    }
+  }
+
+  /// Helper to get technician cache table name (private table, need to access it carefully)
+  String _getPPMTechnicianCacheTableName() => 'ppm_technician_cache';
+
   /// Complete PPM task - records end time
   /// Returns PPMActionResult.success if online, PPMActionResult.queued if offline
   Future<PPMActionResult> completeTask({
     required String ppmTaskId,
     required DateTime endTime,
   }) async {
-    debugPrint('PPMRepository.completeTask: ppmTaskId=$ppmTaskId, endTime=$endTime');
+    debugPrint('');
+    debugPrint('═══════════════════════════════════════════════════════════════');
+    debugPrint('🏁 PPMRepository.completeTask');
+    debugPrint('═══════════════════════════════════════════════════════════════');
+    debugPrint('   PPM Task ID: $ppmTaskId');
+    debugPrint('   End Time: $endTime');
 
     final isOffline = await isOfflineModeEnabled(ppmTaskId);
+    debugPrint('   Offline Mode: $isOffline');
+    
+    // Format endTime as MySQL datetime (YYYY-MM-DD HH:MM:SS)
+    final formattedEndTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(endTime);
+    debugPrint('   Formatted End Time: $formattedEndTime');
 
     if (isOffline) {
       // Queue the complete action for offline sync
-      debugPrint('PPMRepository.completeTask: Offline mode - queuing action');
+      debugPrint('   📦 Queuing task completion for offline sync...');
+      
+      final payload = {
+        'action': 'submit_ppm',
+        'ppmTaskId': ppmTaskId,
+        'checkpoint': '1',
+        'result': '1',
+        'remark': '',  // Required by backend (can be empty string)
+        'endTime': formattedEndTime,
+      };
+      
+      debugPrint('   Payload: $payload');
+      
       await _database.enqueuePPMPendingAction(
         PPMPendingActionEntity(
           ppmTaskId: ppmTaskId,
-          action: 'complete_ppm_task',
-          payloadJson: json.encode({
-            'ppmTaskId': ppmTaskId,
-            'endTime': endTime.toIso8601String(),
-            'completedOffline': true,
-          }),
+          action: 'submit_ppm',
+          payloadJson: json.encode(payload),
           createdAt: DateTime.now(),
+          actionId: _uuid.v4(),
         ),
       );
+      
+      debugPrint('   ✓ Task completion queued successfully');
+      
+      // Update Section A cache with end time
+      debugPrint('   💾 Updating Section A cache with end time...');
+      await updateSectionAEndTime(ppmTaskId: ppmTaskId, endTime: formattedEndTime);
+      debugPrint('   ✓ Section A cache updated');
+      
+      debugPrint('   ✅ OFFLINE COMPLETION SUCCESSFUL');
+      debugPrint('═══════════════════════════════════════════════════════════════');
       return PPMActionResult.queued;
     }
 
     // Online - call API directly
+    debugPrint('   🌐 Online mode - calling API directly...');
     try {
       final provider = Provider(
         taskID: ppmTaskId,
@@ -1161,18 +1926,25 @@ class PPMRepository {
       );
 
       final body = {
-        'action': 'complete_ppm_task',
+        'action': 'submit_ppm',
         'ppmTaskId': ppmTaskId,
-        'endTime': endTime.toIso8601String(),
-        'completedOffline': false,
+        'checkpoint': '1',
+        'result': '1',
+        'remark': '',  // Required by backend (can be empty string)
+        'endTime': formattedEndTime,
       };
 
+      debugPrint('   Request body: $body');
       final response = await provider.post(url: '/api/m_ppm.php', body: body);
-      debugPrint('PPMRepository.completeTask: API response: $response');
+      debugPrint('   API Response: $response');
+      debugPrint('   ✅ ONLINE COMPLETION SUCCESSFUL');
+      debugPrint('═══════════════════════════════════════════════════════════════');
 
       return PPMActionResult.success;
     } catch (err, st) {
-      debugPrint('PPMRepository.completeTask: Error calling API: $err\n$st');
+      debugPrint('   ❌ API call failed: $err');
+      debugPrint('   Stack: $st');
+      debugPrint('═══════════════════════════════════════════════════════════════');
       rethrow;
     }
   }
@@ -1182,18 +1954,43 @@ class PPMRepository {
     required String ppmTaskId,
     required DateTime endTime,
   }) async {
+    // Format endTime as MySQL datetime (YYYY-MM-DD HH:MM:SS)
+    final formattedEndTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(endTime);
+    
     await _database.enqueuePPMPendingAction(
       PPMPendingActionEntity(
         ppmTaskId: ppmTaskId,
-        action: 'complete_ppm_task',
+        action: 'submit_ppm',
         payloadJson: json.encode({
           'ppmTaskId': ppmTaskId,
-          'endTime': endTime.toIso8601String(),
-          'completedOffline': true,
+          'checkpoint': '1',
+          'result': '1',
+          'endTime': formattedEndTime,
         }),
         createdAt: DateTime.now(),
+        actionId: _uuid.v4(),
       ),
     );
+  }
+
+  /// Get pending actions count for a task
+  Future<int> getPendingActionsCount(String ppmTaskId) async {
+    return await _database.getPPMUnsyncedActionCount(ppmTaskId);
+  }
+
+  /// Get pending actions summary (grouped by section)
+  Future<Map<String, int>> getPendingActionsSummary(String ppmTaskId) async {
+    return await _database.getPPMPendingActionsSummary(ppmTaskId);
+  }
+
+  /// Set task started status (persists across app restarts)
+  Future<void> setTaskStarted(String ppmTaskId, bool started) async {
+    await _database.setPPMTaskStarted(ppmTaskId, started);
+  }
+
+  /// Check if task has been started (persists across app restarts)
+  Future<bool> isTaskStarted(String ppmTaskId) async {
+    return await _database.isPPMTaskStarted(ppmTaskId);
   }
 }
 

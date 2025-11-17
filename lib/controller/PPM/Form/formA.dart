@@ -10,6 +10,8 @@ import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/services.dart';
 import 'package:GEMS/view/dialog.dart';
 import 'package:toast/toast.dart';
+import 'package:GEMS/controller/PPM/pending_sync.dart';
+import 'package:GEMS/controller/PPM/widgets/pending_sync_banner.dart';
 
 class FormA extends StatefulWidget {
   final String id;
@@ -42,6 +44,7 @@ class _FormAState extends State<FormA> {
 
   late Provider provider;
   late PPMRepository _repository;
+  PPMPendingSyncController? _pendingSync;
   late bool verified;
   Future<ResponseValue>? _sectionDataFuture; // Cache the future
 
@@ -50,11 +53,27 @@ class _FormAState extends State<FormA> {
     super.initState();
     verified = widget.verified;
     _repository = PPMRepository();
+    _pendingSync = PPMPendingSyncController();
+    _pendingSync?.setPPMTaskId(widget.id);
     provider = Provider(
       taskID: widget.id,
       fetchURL: "/api/m_ppm.php?type=ppm_section_a&ppmTaskId=",
     );
     _sectionDataFuture = _fetchSectionData(); // Initialize the future
+    _checkTaskStartedStatus(); // Check if task was previously started offline
+  }
+
+  /// Check if task was previously started (persisted state)
+  Future<void> _checkTaskStartedStatus() async {
+    final isStarted = await _repository.isTaskStarted(widget.id);
+    if (isStarted && !verified) {
+      debugPrint('FormA: Task was previously started offline, restoring verified state');
+      setState(() {
+        verified = true;
+      });
+      // Notify parent widget
+      widget.verification?.call(true);
+    }
   }
 
   /// Fetch section data - checks offline mode first
@@ -260,6 +279,9 @@ class _FormAState extends State<FormA> {
         startTime: startTime,
       );
       
+      // Persist task started status (survives app restart)
+      await _repository.setTaskStarted(widget.id, true);
+      
       verified = true;
       widget.verification?.call(true);
       
@@ -280,6 +302,9 @@ class _FormAState extends State<FormA> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Add pending sync banner
+          if (_pendingSync != null)
+            PPMPendingSyncIndicator(controller: _pendingSync!),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -502,9 +527,11 @@ class _FormAState extends State<FormA> {
         "ppmTaskId": widget.id,
         "ppmGroupExecution": groupExecution ? "1" : "0",
       },
-    ).then((value) {
+    ).then((value) async {
       verified = true;
       widget.verification?.call(true);
+      // Persist task started status (survives app restart)
+      await _repository.setTaskStarted(widget.id, true);
       alert(value);
     }).catchError((err) {
       verified = false;

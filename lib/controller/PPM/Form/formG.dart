@@ -9,6 +9,8 @@ import 'package:GEMS/view/dialog.dart';
 import 'package:toast/toast.dart';
 import 'package:GEMS/data/repository/ppm_repository.dart';
 import '../../../main.dart';
+import 'package:GEMS/controller/PPM/pending_sync.dart';
+import 'package:GEMS/controller/PPM/widgets/pending_sync_banner.dart';
 
 class FormG extends StatefulWidget {
   final String id;
@@ -32,6 +34,7 @@ class _FormGState extends State<FormG> {
   bool loading = false;
   late Provider provider;
   late PPMRepository _repository;
+  PPMPendingSyncController? _pendingSync;
   late UploadItem _uploadItem;  // <-- Initialize it here instead.
   Future<ResponseValue>? _sectionDataFuture; // Cache the future
 
@@ -44,6 +47,8 @@ class _FormGState extends State<FormG> {
     );
     
     _repository = PPMRepository();
+    _pendingSync = PPMPendingSyncController();
+    _pendingSync?.setPPMTaskId(widget.id);
     _uploadItem = UploadItem("save_ppm_remark", widget.id); // initialization here
     _sectionDataFuture = _fetchSectionData(); // Initialize the future
   }
@@ -175,16 +180,26 @@ class _FormGState extends State<FormG> {
                       children: <Widget>[
                         Padding(
                           padding: EdgeInsets.all(16),
-                          child: TextField(
-                            enabled: !widget.disable,
-                            controller: TextEditingController(
-                                text: snapshot.data!.sectionGList?.ppmTaskRemark ?? ""),
-                            keyboardType: TextInputType.multiline,
-                            maxLength: 500,
-                            maxLines: null,
-                            onChanged: (value) {
-                              _uploadItem.ppmTaskRemark = value;
-                            },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Add pending sync banner
+                              if (_pendingSync != null)
+                                PPMPendingSyncIndicator(controller: _pendingSync!),
+                              Expanded(
+                                child: TextField(
+                                  enabled: !widget.disable,
+                                  controller: TextEditingController(
+                                      text: snapshot.data!.sectionGList?.ppmTaskRemark ?? ""),
+                                  keyboardType: TextInputType.multiline,
+                                  maxLength: 500,
+                                  maxLines: null,
+                                  onChanged: (value) {
+                                    _uploadItem.ppmTaskRemark = value;
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         Container(
@@ -195,16 +210,26 @@ class _FormGState extends State<FormG> {
                     )
                   : Padding(
                       padding: EdgeInsets.all(16),
-                      child: TextField(
-                        enabled: !widget.disable,
-                        controller: TextEditingController(
-                            text: snapshot.data!.sectionGList?.ppmTaskRemark ?? ""),
-                        keyboardType: TextInputType.multiline,
-                        maxLength: 500,
-                        maxLines: null,
-                        onChanged: (value) {
-                          _uploadItem.ppmTaskRemark = value;
-                        },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Add pending sync banner
+                          if (_pendingSync != null)
+                            PPMPendingSyncIndicator(controller: _pendingSync!),
+                          Expanded(
+                            child: TextField(
+                              enabled: !widget.disable,
+                              controller: TextEditingController(
+                                  text: snapshot.data!.sectionGList?.ppmTaskRemark ?? ""),
+                              keyboardType: TextInputType.multiline,
+                              maxLength: 500,
+                              maxLines: null,
+                              onChanged: (value) {
+                                _uploadItem.ppmTaskRemark = value;
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ));
         },

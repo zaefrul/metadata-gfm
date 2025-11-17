@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:local_auth/local_auth.dart';
 
-import '../view/button.dart';
 import '../utils/reference.dart';
 import '../utils/network.dart';
 import 'forgotPassword.dart';
@@ -13,14 +12,15 @@ import '../utils/auth_secure_storage.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
+
   @override
-  _LoginState createState() => _LoginState();
+  State<Login> createState() => _LoginState();
 }
 
 class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<Alignment> _logoAlignment;
-  late Animation<double> _formOpacity;
+  late Animation<Alignment> _cardAlignment;
+  late Animation<double> _contentOpacity;
 
   String? _username;
   String? _password;
@@ -29,6 +29,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   bool secure = true;
   bool _biometricAvailable = false;
   bool _biometricEnabled = false;
+  bool _rememberMe = false;
 
   final LocalAuthentication _localAuthentication = LocalAuthentication();
 
@@ -36,7 +37,6 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    // check if already logged in
     User.getPrefUser.then((_) {
       if (!mounted) return;
       Navigator.of(context).pushReplacementNamed("/homepage");
@@ -46,24 +46,22 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       _initBiometric();
     });
 
-    // 3s total, first half moves logo, second half fades form in
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
     );
 
-    _logoAlignment = AlignmentTween(
+    _cardAlignment = AlignmentTween(
       begin: Alignment.center,
-      end: const Alignment(0, -0.7),
+      end: const Alignment(0, -0.1),
     ).animate(
       CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.5, curve: Curves.easeOut)),
     );
 
-    _formOpacity = Tween<double>(begin: 0, end: 1).animate(
+    _contentOpacity = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _controller, curve: const Interval(0.5, 1.0, curve: Curves.easeIn)),
     );
 
-    // kick off
     _controller.forward();
   }
 
@@ -77,67 +75,31 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     ToastContext().init(context);
 
-    // while we’re still checking prefs, just show the background
-    if (userExist) return _background;
+    if (userExist) {
+      return _initialBackground();
+    }
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.white,
       body: Stack(
+        fit: StackFit.expand,
         children: [
-          _background,
-
-          // Animated logo
-          AnimatedBuilder(
-            animation: _controller,
-            builder: (_, __) => Align(
-              alignment: _logoAlignment.value,
-              child: _logo,
-            ),
+          Image.asset(
+            'assets/login-bg.jpg',
+            fit: BoxFit.cover,
           ),
-
-          // Fading-in form
-          FadeTransition(
-            opacity: _formOpacity,
-            child: Align(
-              alignment: const Alignment(0, 0.30),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _field("User ID", (v) => _username = v),
-                  const SizedBox(height: 16),
-                  _field(
-                    "Password",
-                    (v) => _password = v,
-                    secure: secure,
-                    rightIcon: GestureDetector(
-                      child: Icon(
-                        secure ? Icons.visibility : Icons.visibility_off,
-                        color: AppColors.secondaryDark,
-                      ),
-                      onTap: () => setState(() => secure = !secure),
-                    ),
+          SafeArea(
+            child: AnimatedBuilder(
+              animation: _controller,
+              builder: (context, _) => Align(
+                alignment: _cardAlignment.value,
+                child: FadeTransition(
+                  opacity: _contentOpacity,
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.zero,
+                    child: _buildLoginCard(),
                   ),
-                  const SizedBox(height: 40),
-                  _submitButton,
-                  if (_biometricEnabled) ...[
-                    const SizedBox(height: 12),
-                    _biometricButton,
-                  ],
-                  const SizedBox(height: 16),
-                  GestureDetector(
-                    child: Text(
-                      "Forgot Password?",
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const Forgot()),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -146,63 +108,279 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget get _background => SizedBox(
-        height: double.infinity,
-        width: double.infinity,
-        child: Image.asset("assets/bg.jpg", fit: BoxFit.fill),
-      );
-
-  Widget get _logo => Padding(
-        padding: const EdgeInsets.all(50.0),
-        child: Image.asset("assets/logo.png"),
-      );
-
-  Widget _field(String label, ValueChanged<String> onChanged,
-        {bool secure = false, Widget? rightIcon}) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: TextField(
-          decoration: InputDecoration(
-            labelText: label,
-            suffixIcon: rightIcon,
-          ),
-          onChanged: onChanged,
-          obscureText: secure,
-        ),
-      );
-    }
-
-  Widget get _submitButton => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 60),
-    child: SizedBox(
-      width: double.infinity,  // take all the space left by your padding
-      height: 48,               // your desired button height
-      child: Button(
-        text: userlogIn ? "Loading…" : "LOGIN",
-        onPressed: userlogIn
-          ? () async {} 
-          : () async => await _onLoginPressed(),
-        color: AppColors.primaryDark,
+  Widget _initialBackground() {
+    return SizedBox(
+      height: double.infinity,
+      width: double.infinity,
+      child: Image.asset(
+        'assets/login-bg.jpg',
+        fit: BoxFit.cover,
+        alignment: Alignment.center,
       ),
-    ),
-  );
+    );
+  }
 
-  Widget get _biometricButton => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 60),
-        child: SizedBox(
-          width: double.infinity,
-          height: 48,
-          child: OutlinedButton.icon(
-            icon: const Icon(Icons.fingerprint),
-            label: const Text("Sign in with biometrics"),
-            onPressed: userlogIn ? null : () => _handleBiometricLogin(auto: false),
+  Widget _buildLoginCard() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(32),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 30,
+            offset: const Offset(0, 18),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+            child: Container(
+              height: 200,
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  // Approx. CSS: linear-gradient(135deg, #ceeef0 0%, #e7eaec 100%)
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFFCEEFF0),
+                    Color(0xFFE7EAEC),
+                  ],
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'assets/logo-cropped.png',
+                    height: 80, // adjust as you like
+                    fit: BoxFit.contain,
+                  )
+                  // const SizedBox(height: 12)
+                  // ,
+                  // Text(
+                  //   'Log in to your account',
+                  //   style: TextStyle(
+                  //     color: Colors.black.withOpacity(0.8),
+                  //     fontSize: 18,
+                  //     fontWeight: FontWeight.w600,
+                  //   ),
+                  // ),
+                ],
+              ),
+            ),
+          ),
+          Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
+            ),
+            child: FadeTransition(
+              opacity: _contentOpacity,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _inputField(
+                      label: 'User ID',
+                      hintText: 'example: abubakar',
+                      onChanged: (v) => _username = v,
+                    ),
+                    const SizedBox(height: 20),
+                    _passwordField(),
+                    const SizedBox(height: 12),
+                    _rememberRow(),
+                    const SizedBox(height: 24),
+                    _primaryButton(),
+                    if (_biometricEnabled) ...[
+                      const SizedBox(height: 16),
+                      _biometricButton(),
+                    ],
+                    const SizedBox(height: 24),
+                    // _signupPrompt(),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _inputField({
+    required String label,
+    required ValueChanged<String> onChanged,
+    String? hintText,
+  }) {
+    final baseBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(18),
+      borderSide: BorderSide(color: AppColors.secondary.withValues(alpha: 0.2)),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: AppColors.dark,
+            fontWeight: FontWeight.w600,
           ),
         ),
-      );
+        const SizedBox(height: 8),
+        TextField(
+          onChanged: onChanged,
+          decoration: InputDecoration(
+            hintText: hintText,
+            filled: true,
+            fillColor: const Color(0xFFF8F9FB),
+            border: baseBorder,
+            enabledBorder: baseBorder,
+            focusedBorder: baseBorder.copyWith(
+              borderSide: BorderSide(color: AppColors.primary, width: 1.4),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _passwordField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Password',
+              style: TextStyle(
+                color: AppColors.dark,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const Forgot()),
+              ),
+              child: Text(
+                'Forgot Password?',
+                style: TextStyle(color: AppColors.primary),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          obscureText: secure,
+          onChanged: (v) => _password = v,
+          decoration: InputDecoration(
+            hintText: '••••••••',
+            filled: true,
+            fillColor: const Color(0xFFF8F9FB),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(color: AppColors.secondary.withValues(alpha: 0.2)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(18),
+              borderSide: BorderSide(color: AppColors.primary, width: 1.4),
+            ),
+            suffixIcon: IconButton(
+              icon: Icon(
+                secure ? Icons.visibility_off : Icons.visibility,
+                color: AppColors.secondaryDark,
+              ),
+              onPressed: () => setState(() => secure = !secure),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _rememberRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Remember me next time',
+          style: TextStyle(color: AppColors.secondaryDark),
+        ),
+        Checkbox(
+          value: _rememberMe,
+          onChanged: (value) => setState(() => _rememberMe = value ?? false),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          activeColor: AppColors.primary,
+        ),
+      ],
+    );
+  }
+
+  Widget _primaryButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromRGBO(0, 173, 168, 1),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+          elevation: 0,
+        ),
+        onPressed: userlogIn ? null : () async => await _onLoginPressed(),
+        child: Text(
+          userlogIn ? 'Loading…' : 'Log in',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  Widget _biometricButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: OutlinedButton.icon(
+        style: OutlinedButton.styleFrom(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+        ),
+        icon: const Icon(Icons.fingerprint),
+        label: const Text('Sign in with biometrics'),
+        onPressed: userlogIn ? null : () => _handleBiometricLogin(auto: false),
+      ),
+    );
+  }
+
+  Widget _signupPrompt() {
+    return Center(
+      child: Text.rich(
+        TextSpan(
+          text: "Don't have an account? ",
+          style: TextStyle(color: Colors.grey.shade600),
+          children: [
+            TextSpan(
+              text: 'Sign up',
+              style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Future<void> _onLoginPressed() async {
     setState(() => userlogIn = true);
-    // location check, login logic, etc.
+
     if (!(await _keepLocationSession())) {
       Toast.show("Please login in an area with good GPS", backgroundColor: AppColors.danger);
       setState(() => userlogIn = false);

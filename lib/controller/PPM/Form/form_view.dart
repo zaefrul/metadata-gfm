@@ -75,6 +75,7 @@ class _FormViewState extends State<FormView> {
   bool _offlineToggleInFlight = false;
   Future<ExecutionModel>? _timeFuture; // Cache the future
   bool _isLoading = true; // Track initial load state
+  int _rebuildCounter = 0; // Force FutureBuilder to rebuild
   
   // Task completion tracking
   DateTime? _taskStartTime;
@@ -220,10 +221,10 @@ class _FormViewState extends State<FormView> {
 
   Future<void> _checkCompletionStatus() async {
     try {
-      // Check pending actions for completion action
+      // Check pending actions for completion action (submit_ppm or legacy complete_ppm_task)
       final pendingActions = await _repository.getPendingActions(ppmTaskId: widget.id);
       for (final action in pendingActions) {
-        if (action.action == 'complete_ppm_task') {
+        if (action.action == 'submit_ppm' || action.action == 'complete_ppm_task') {
           final payload = json.decode(action.payloadJson);
           final endTimeStr = payload['endTime'] as String?;
           if (endTimeStr != null) {
@@ -243,10 +244,62 @@ class _FormViewState extends State<FormView> {
 
   Future<void> _toggleOfflineMode(bool enable) async {
     if (_offlineToggleInFlight) return;
+    
+    // If disabling offline mode, check for pending actions and confirm
+    if (!enable) {
+      final pendingCount = await _repository.getPendingActionsCount(widget.id);
+      
+      if (pendingCount > 0) {
+        // Show confirmation dialog
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Sync Pending Changes?'),
+              content: Text(
+                'You have $pendingCount pending changes that haven\'t been synced yet.\n\n'
+                'Disabling offline mode will automatically sync these changes to the server.\n\n'
+                'Continue?'
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                  ),
+                  child: Text('Sync & Disable'),
+                ),
+              ],
+            );
+          },
+        );
+        
+        if (confirmed != true) return; // User cancelled
+      }
+    }
+    
     setState(() {
       _offlineToggleInFlight = true;
     });
+    
     try {
+      if (!enable) {
+        final pendingCount = await _repository.getPendingActionsCount(widget.id);
+        
+        if (pendingCount > 0) {
+          // Show syncing message
+          Toast.show(
+            'Syncing $pendingCount pending changes...',
+            duration: Toast.lengthLong,
+            gravity: Toast.bottom,
+          );
+        }
+      }
+      
       await _repository.setOfflineMode(
         ppmTaskId: widget.id,
         enabled: enable,
@@ -255,11 +308,17 @@ class _FormViewState extends State<FormView> {
         setState(() {
           _isOfflineMode = enable;
         });
+        
+        // Get final pending count to show appropriate message
+        final finalPendingCount = await _repository.getPendingActionsCount(widget.id);
+        
         Toast.show(
           enable
-              ? 'Offline mode enabled. We will store your updates locally until you sync.'
-              : 'Offline mode disabled. You are back to live updates.',
-          duration: Toast.lengthShort,
+              ? 'Offline mode enabled. Updates will be stored locally.'
+              : finalPendingCount > 0
+                  ? 'Offline mode disabled. Note: $finalPendingCount changes could not be synced (network issue). They will sync when online.'
+                  : 'Offline mode disabled. All changes synced successfully.',
+          duration: Toast.lengthLong,
           gravity: Toast.bottom,
         );
       }
@@ -278,7 +337,263 @@ class _FormViewState extends State<FormView> {
     }
   }
 
+  void _showPendingActionsModal(BuildContext context) async {
+    final summary = await _repository.getPendingActionsSummary(widget.id);
+    
+    if (!mounted) return;
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: DraggableScrollableSheet(
+            initialChildSize: 0.5,
+            minChildSize: 0.3,
+            maxChildSize: 0.8,
+            expand: false,
+            builder: (context, scrollController) {
+              return Column(
+                children: [
+                  // Handle bar
+                  Container(
+                    margin: EdgeInsets.only(top: 12),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  // Title
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Icon(Icons.pending_actions, color: Colors.amber.shade700),
+                        SizedBox(width: 12),
+                        Text(
+                          'Pending Changes',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.dark,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Divider(height: 1),
+                  // Content
+                  Expanded(
+                    child: summary.isEmpty
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.check_circle_outline,
+                                  size: 64,
+                                  color: Colors.green,
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  'No pending changes',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : ListView(
+                            controller: scrollController,
+                            padding: EdgeInsets.all(16),
+                            children: [
+                              Text(
+                                'These changes will be synced when you\'re back online:',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                              SizedBox(height: 16),
+                              ...summary.entries.map((entry) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: Container(
+                                    padding: EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.amber[50],
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Colors.amber.shade200,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 32,
+                                          height: 32,
+                                          decoration: BoxDecoration(
+                                            color: Colors.amber,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              '${entry.value}',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                entry.key,
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: AppColors.dark,
+                                                ),
+                                              ),
+                                              SizedBox(height: 2),
+                                              Text(
+                                                '${entry.value} ${entry.value == 1 ? 'change' : 'changes'} pending',
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  color: Colors.grey[600],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Icon(
+                                          Icons.sync,
+                                          color: Colors.amber.shade700,
+                                          size: 20,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              SizedBox(height: 16),
+                              Container(
+                                padding: EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue[50],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.info_outline, size: 20, color: Colors.blue[700]),
+                                    SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        'Changes will sync automatically when you have internet connection.',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.blue[900],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
+                  // Close button
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'Close',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _endPPMTask() async {
+    // Task must be started before it can be ended
+    if (_taskStartTime == null) {
+      Toast.show(
+        'Start the task before ending it.',
+        duration: Toast.lengthShort,
+        gravity: Toast.bottom,
+      );
+      return;
+    }
+
+    // Ensure every section is marked as completed before ending the task
+    final incompleteSections = <String>[];
+    const requiredSections = {'C', 'D', 'E', 'F', 'G', 'H', 'I'};
+
+    if (responseValue?.statusList != null && responseValue!.statusList!.isNotEmpty) {
+      for (final section in responseValue!.statusList!) {
+        final status = section.ppmTaskSectionStatus;
+        final sectionName = section.ppmTaskSectionName;
+
+        if (!requiredSections.contains(sectionName)) {
+          continue; // Sections A & B are informational, ignore others not in the set
+        }
+
+        if (status != 'Completed') {
+          final displayName = sectionName.isNotEmpty ? 'Section $sectionName' : 'a section';
+          incompleteSections.add(displayName);
+        }
+      }
+    }
+
+    if (incompleteSections.isNotEmpty) {
+      Toast.show(
+        'Complete ${incompleteSections.join(', ')} before ending the task.',
+        duration: Toast.lengthShort,
+        gravity: Toast.bottom,
+      );
+      return;
+    }
+
     // Confirm with user before ending task
     final confirmed = await showDialog<bool>(
       context: context,
@@ -441,124 +756,196 @@ class _FormViewState extends State<FormView> {
               // Offline Mode Toggle
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: FutureBuilder<int>(
+                  future: _repository.getPendingActionsCount(widget.id),
+                  builder: (context, pendingSnapshot) {
+                    final pendingCount = pendingSnapshot.data ?? 0;
+                    final hasPendingActions = pendingCount > 0;
+                    
+                    return Card(
+                      elevation: 2,
+                      color: hasPendingActions 
+                          ? Colors.amber[50] 
+                          : Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: hasPendingActions
+                            ? BorderSide(color: Colors.amber.shade300, width: 1.5)
+                            : BorderSide.none,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Text(
-                                'Offline mode',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.dark,
-                                ),
-                              ),
-                            ),
-                            Switch(
-                              value: _isOfflineMode,
-                              onChanged: _offlineToggleInFlight
-                                  ? null
-                                  : (value) {
-                                      _toggleOfflineMode(value);
-                                    },
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _isOfflineMode
-                              ? 'We\'ll save all updates on this device. All actions will be queued and synced automatically when online.'
-                              : 'Enable offline mode when you expect to lose connectivity. We\'ll cache the task and you can sync later.',
-                          style: const TextStyle(fontSize: 14, height: 1.4),
-                        ),
-                        if (_offlineToggleInFlight) ...[
-                          const SizedBox(height: 12),
-                          const LinearProgressIndicator(minHeight: 3),
-                        ],
-                        // Show snapshot info when offline mode is enabled
-                        if (_isOfflineMode && !_offlineToggleInFlight)
-                          FutureBuilder<Map<String, dynamic>?>(
-                            future: _repository.loadSnapshot(widget.id),
-                            builder: (context, snapshot) {
-                              if (!snapshot.hasData || snapshot.data == null) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(top: 12),
-                                  child: Text(
-                                    'Preparing offline copy…',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: AppColors.dark.withValues(alpha: 0.7),
-                                    ),
-                                  ),
-                                );
-                              }
-                              
-                              final snapshotData = snapshot.data!;
-                              final createdAt = snapshotData['createdAt'] as String?;
-                              final sections = snapshotData['sections'] as List<dynamic>? ?? [];
-                              
-                              String cachedTime = 'Unknown';
-                              if (createdAt != null) {
-                                try {
-                                  final date = DateTime.parse(createdAt);
-                                  final now = DateTime.now();
-                                  final diff = now.difference(date);
-                                  
-                                  if (diff.inMinutes < 1) {
-                                    cachedTime = 'Just now';
-                                  } else if (diff.inHours < 1) {
-                                    cachedTime = '${diff.inMinutes}m ago';
-                                  } else if (diff.inDays < 1) {
-                                    cachedTime = '${diff.inHours}h ago';
-                                  } else {
-                                    cachedTime = '${diff.inDays}d ago';
-                                  }
-                                } catch (_) {
-                                  cachedTime = 'Recently';
-                                }
-                              }
-                              
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 12),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Cached $cachedTime',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: AppColors.dark.withValues(alpha: 0.7),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        'Offline mode',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.dark,
+                                        ),
                                       ),
-                                    ),
-                                    if (sections.isNotEmpty)
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 4),
-                                        child: Text(
-                                          '${sections.length} sections available offline',
+                                      if (hasPendingActions) ...[
+                                        SizedBox(width: 8),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                          decoration: BoxDecoration(
+                                            color: Colors.amber,
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.pending_actions,
+                                                size: 12,
+                                                color: Colors.white,
+                                              ),
+                                              SizedBox(width: 4),
+                                              Text(
+                                                'Pending Sync',
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                                Switch(
+                                  value: _isOfflineMode,
+                                  onChanged: _offlineToggleInFlight
+                                      ? null
+                                      : (value) {
+                                          _toggleOfflineMode(value);
+                                        },
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              _isOfflineMode
+                                  ? 'We\'ll save all updates on this device. All actions will be queued and synced automatically when online.'
+                                  : 'Enable offline mode when you expect to lose connectivity. We\'ll cache the task and you can sync later.',
+                              style: const TextStyle(fontSize: 14, height: 1.4),
+                            ),
+                            if (_offlineToggleInFlight) ...[
+                              const SizedBox(height: 12),
+                              const LinearProgressIndicator(minHeight: 3),
+                            ],
+                            // Show snapshot info when offline mode is enabled
+                            if (_isOfflineMode && !_offlineToggleInFlight)
+                              FutureBuilder<Map<String, dynamic>?>(
+                                future: _repository.loadSnapshot(widget.id),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData || snapshot.data == null) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(top: 12),
+                                      child: Text(
+                                        'Preparing offline copy…',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: AppColors.dark.withValues(alpha: 0.7),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                  
+                                  final snapshotData = snapshot.data!;
+                                  final createdAt = snapshotData['createdAt'] as String?;
+                                  final sections = snapshotData['sections'] as List<dynamic>? ?? [];
+                                  
+                                  String cachedTime = 'Unknown';
+                                  if (createdAt != null) {
+                                    try {
+                                      final date = DateTime.parse(createdAt);
+                                      final now = DateTime.now();
+                                      final diff = now.difference(date);
+                                      
+                                      if (diff.inMinutes < 1) {
+                                        cachedTime = 'Just now';
+                                      } else if (diff.inHours < 1) {
+                                        cachedTime = '${diff.inMinutes}m ago';
+                                      } else if (diff.inDays < 1) {
+                                        cachedTime = '${diff.inHours}h ago';
+                                      } else {
+                                        cachedTime = '${diff.inDays}d ago';
+                                      }
+                                    } catch (_) {
+                                      cachedTime = 'Recently';
+                                    }
+                                  }
+                                  
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 12),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Cached $cachedTime',
                                           style: TextStyle(
                                             fontSize: 13,
                                             color: AppColors.dark.withValues(alpha: 0.7),
                                           ),
                                         ),
-                                      ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                      ],
-                    ),
-                  ),
+                                        if (sections.isNotEmpty)
+                                          Padding(
+                                            padding: const EdgeInsets.only(top: 4),
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  '${sections.length} sections available offline',
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    color: AppColors.dark.withValues(alpha: 0.7),
+                                                  ),
+                                                ),
+                                                if (hasPendingActions) ...[
+                                                  Text(
+                                                    ' • ',
+                                                    style: TextStyle(
+                                                      fontSize: 13,
+                                                      color: AppColors.dark.withValues(alpha: 0.7),
+                                                    ),
+                                                  ),
+                                                  GestureDetector(
+                                                    onTap: () => _showPendingActionsModal(context),
+                                                    child: Text(
+                                                      'View pending changes',
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        color: Colors.amber.shade700,
+                                                        fontWeight: FontWeight.w600,
+                                                        decoration: TextDecoration.underline,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ],
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
               
@@ -741,31 +1128,41 @@ class _FormViewState extends State<FormView> {
                   ),
                 ),
 
-              // End PPM Button (show when task is in progress and NOT completed)
-              if (!widget.viewer && 
-                  !_taskIsCompleted && 
-                  _taskEndTime == null &&
-                  responseValue?.statusList != null && 
-                  responseValue!.statusList!.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.check_circle, color: Colors.white),
-                    label: const Text('End PPM Task', 
-                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+              // End PPM Button (show when task is in progress, NOT completed, and OFFLINE MODE is enabled)
+              FutureBuilder<bool>(
+                future: _repository.isOfflineModeEnabled(widget.id),
+                builder: (context, offlineSnapshot) {
+                  final isOfflineEnabled = offlineSnapshot.data ?? false;
+                  
+                  if (!widget.viewer && 
+                      !_taskIsCompleted && 
+                      _taskEndTime == null &&
+                      isOfflineEnabled &&
+                      responseValue?.statusList != null && 
+                      responseValue!.statusList!.isNotEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.check_circle, color: Colors.white),
+                        label: const Text('End PPM Task', 
+                            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 2,
+                        ),
+                        onPressed: () async {
+                          await _endPPMTask();
+                        },
                       ),
-                      elevation: 2,
-                    ),
-                    onPressed: () async {
-                      await _endPPMTask();
-                    },
-                  ),
-                ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
 
               // Bottom Submit Button
               Padding(
@@ -866,71 +1263,108 @@ class _FormViewState extends State<FormView> {
   }
 
   Widget tile(String item, String statusDesc, String parts, String report) {
-    final Color accent = _getStatusColor(statusDesc);
-    final Color bgColor = _getStatusCardColor(statusDesc);
-    final String title = titles[item] ?? 'Section';
+    return FutureBuilder<Map<String, int>>(
+      key: ValueKey('tile_${item}_$_rebuildCounter'), // Force rebuild when counter changes
+      future: _isOfflineMode ? _repository.getPendingActionsSummary(widget.id) : Future.value({}),
+      builder: (context, pendingSnapshot) {
+        final pendingActions = pendingSnapshot.data ?? {};
+        
+        // Check if this section has pending changes (completed offline but not synced)
+        final sectionKey = 'Section ${item.toUpperCase()}';
+        final hasPendingChanges = pendingActions.containsKey(sectionKey) && pendingActions[sectionKey]! > 0;
+        
+        // If offline mode and has pending changes, treat as completed (use secondary color)
+        final effectiveStatus = (_isOfflineMode && hasPendingChanges) ? 'Completed' : statusDesc;
+        
+        final Color accent = _getStatusColor(effectiveStatus);
+        final Color bgColor = _getStatusCardColor(effectiveStatus);
+        final String title = titles[item] ?? 'Section';
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
-      ),
-      child: InkWell(
-        onTap: () => _openFormSection(item, parts, report),
-        borderRadius: BorderRadius.circular(12),
-        child: Row(
-          children: [
-            // Accent stripe
-            Container(
-              width: 6,
-              height: 72,
-              decoration: BoxDecoration(
-                color: accent,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(12),
-                  bottomLeft: Radius.circular(12),
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+          ),
+          child: InkWell(
+            onTap: () => _openFormSection(item, parts, report),
+            borderRadius: BorderRadius.circular(12),
+            child: Row(
+              children: [
+                // Accent stripe
+                Container(
+                  width: 6,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: accent,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      bottomLeft: Radius.circular(12),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(width: 12),
+                const SizedBox(width: 12),
 
-            // Section icon
-            Icon(Icons.assignment, color: accent),
-            const SizedBox(width: 12),
+                // Section icon
+                Icon(Icons.assignment, color: accent),
+                const SizedBox(width: 12),
 
-            // Title and Status
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.dark,
-                    ),
+                // Title and Status
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.dark,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Text(
+                            effectiveStatus,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: accent,
+                            ),
+                          ),
+                          if (_isOfflineMode && hasPendingChanges) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.amber,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                'Pending Sync',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    statusDesc,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: accent,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                ),
 
-            Icon(Icons.chevron_right, color: Colors.black38),
-            const SizedBox(width: 8),
-          ],
-        ),
-      ),
+                Icon(Icons.chevron_right, color: Colors.black38),
+                const SizedBox(width: 8),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -1010,8 +1444,56 @@ class _FormViewState extends State<FormView> {
   }
 
   Future<void> refreshStatus() async {
+    // Increment rebuild counter to force FutureBuilder widgets to rebuild
+    setState(() {
+      _rebuildCounter++;
+    });
+    
     // Check connectivity first
     final isOnline = await _checkConnectivity();
+    // If there are pending (unsynced) actions for this task, prefer cached snapshot
+    // so the UI shows the user's offline-entered values until sync completes.
+    try {
+      final pendingCount = await _repository.getPendingActionsCount(widget.id);
+      if (pendingCount > 0) {
+        debugPrint('FormView.refreshStatus: Detected $pendingCount pending actions - using cached snapshot');
+        final snapshot = await _repository.loadSnapshot(widget.id);
+        if (snapshot != null) {
+          // Use cached snapshot and return early
+          debugPrint('FormView.refreshStatus: Using cached snapshot due to pending actions');
+          final sections = snapshot['sections'] as List<dynamic>;
+          final formList = sections.map((s) {
+            return formModel.Form((b) => b
+              ..ppmTaskSectionId = ''
+              ..ppmTaskSectionName = s['ppmTaskSectionName'] ?? ''
+              ..ppmTaskId = widget.id
+              ..ppmTaskSectionStatus = s['ppmTaskSectionStatus'] ?? ''
+              ..checkParts = s['checkParts'] ?? ''
+              ..checkAdditionalReport = s['checkAdditionalReport'] ?? '');
+          }).toList();
+
+          if (mounted) {
+            setState(() {
+              responseValue = ResponseValue((b) => b
+                ..success = true
+                ..error = ''
+                ..errmsg = ''
+                ..result = 'cached'
+                ..statusList = ListBuilder(formList));
+              var result = responseValue!.statusList != null
+                  ? responseValue!.statusList!.map((f) => f.ppmTaskSectionStatus).toList()
+                  : [];
+              statusList = result.cast<String>();
+            });
+          }
+          return;
+        }
+        // If no snapshot exists, fall through to connectivity checks below
+      }
+    } catch (err) {
+      debugPrint('FormView.refreshStatus: Error while checking pending count: $err');
+      // proceed normally
+    }
     
     // If offline mode is enabled OR no internet connection, load from cache
     if (_isOfflineMode || !isOnline) {
