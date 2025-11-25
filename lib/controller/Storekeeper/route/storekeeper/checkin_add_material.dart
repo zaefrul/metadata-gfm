@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc.dart';
 import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc_checkin.dart';
 import 'package:GEMS/model/complaint.dart';
@@ -133,6 +134,7 @@ class _CheckinAddState extends State<CheckinAdd> {
                     child: TextField(
                       controller: widget._controller.quantity,
                       keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: const InputDecoration(
                         labelText: "Quantity", 
                         hintText: "0",
@@ -189,6 +191,7 @@ class _CheckinAddState extends State<CheckinAdd> {
                     child: TextField(
                       controller: widget._controller.warranty,
                       keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: const InputDecoration(
                         labelText: "Warranty", 
                         hintText: "1",
@@ -364,7 +367,6 @@ class Controller extends Bloc {
       setfirst(null);
       setsecond(null);
       setthird(null);
-      fourth = "";
       invalid = true;
       remark.text = "";
       quantity.text = "";
@@ -373,7 +375,6 @@ class Controller extends Bloc {
     _valueFirst.listen((value) {
       setsecond(null);
       setthird(null);
-      fourth = "";
       invalid = true;
       remark.text = "";
       quantity.text = "";
@@ -382,7 +383,6 @@ class Controller extends Bloc {
 
     _valueSecond.listen((value) {
       setthird(null);
-      fourth = "";
       invalid = true;
       remark.text = "";
       quantity.text = "";
@@ -396,22 +396,32 @@ class Controller extends Bloc {
     });
 
     _quantity.addListener(() {
-      final value = int.tryParse(_quantity.text);
-      if (value == null) {
+      final raw = _quantity.text.trim();
+      if (raw.isEmpty) {
         invalid = true;
-        fourth = "";
-        invalidMessage =
-            "Quantity must be less than ${_valueThird.value?.partCount ?? "0"}";
-      } else {
-        if (value == 0) {
-          invalid = true;
-          fourth = "";
-          invalidMessage = "Quantity cannot be 0";
-        } else {
-          invalidMessage = null;
-          invalid = false;
-        }
+        invalidMessage = "Please enter a quantity";
+        return;
       }
+
+      final value = int.tryParse(raw);
+      if (value == null || value <= 0) {
+        invalid = true;
+        invalidMessage = value == 0
+            ? "Quantity cannot be 0"
+            : "Quantity must be numeric";
+        return;
+      }
+
+      final maxAvailable = int.tryParse(_valueThird.value?.partCount ?? "");
+      if (maxAvailable != null && maxAvailable > 0 && value > maxAvailable) {
+        invalid = true;
+        invalidMessage =
+            "Quantity cannot exceed $maxAvailable";
+        return;
+      }
+
+      invalidMessage = null;
+      invalid = false;
     });
 
     _request.listFourth().then((value) => listFourth = value);
@@ -475,7 +485,6 @@ class Controller extends Bloc {
       _listSecond.sink.add(values);
   set listThird(List<MaterialStorePart> values) => _listThird.sink.add(values);
   set listFourth(List<ComplaintDStore> values) => _listFourth.sink.add(values);
-  set fourth(String value) => _quantity.text = value;
   set invalidMessage(String? value) => _invalidMessage.sink.add(value);
   set invalid(bool value) => _invalidQuantity.sink.add(value);
 

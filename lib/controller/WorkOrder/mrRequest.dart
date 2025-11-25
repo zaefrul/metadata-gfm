@@ -9,7 +9,7 @@ import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:GEMS/model/serializers.dart';
-import '../Storekeeper/utils/constant.dart'; // for routeMaterialRequestView
+import '../Storekeeper/utils/constant.dart'; // for MR approval routes
 
 class MRTaskList extends StatefulWidget {
   // now initialized once on the widget
@@ -172,7 +172,7 @@ class _MRTaskCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         onTap: () => Navigator.pushNamed(
           context,
-          routeMaterialRequestView,
+          routeMateralRequest,
           arguments: task,
         ),
         child: Container(

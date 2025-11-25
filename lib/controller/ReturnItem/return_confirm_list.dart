@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:GEMS/controller/ReturnItem/bloc/bloc_return.dart';
-import 'package:GEMS/model/return_item.dart';
+import 'package:GEMS/model/return_ticket_models.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:toast/toast.dart';
@@ -82,14 +82,14 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
             builder: (context, loadingSnapshot) {
               bool isLoading = loadingSnapshot.data ?? false;
               
-              return StreamBuilder<List<PendingReturn>>(
+              return StreamBuilder<List<ReturnTicketSummary>>(
                 stream: _bloc.pendingReturns$,
                 builder: (context, snapshot) {
                   if (isLoading && (!snapshot.hasData || snapshot.data!.isEmpty)) {
                     return Center(child: CircularProgressIndicator(color: AppColors.primary));
                   }
                   
-                  List<PendingReturn> returns = snapshot.data ?? [];
+                  List<ReturnTicketSummary> returns = snapshot.data ?? [];
                   
                   if (returns.isEmpty) {
                     return _buildEmptyState();
@@ -136,14 +136,24 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
     );
   }
   
-  Widget _buildReturnCard(PendingReturn item) {
+  Widget _buildReturnCard(ReturnTicketSummary ticket) {
+    debugPrint('Building card for ticket ID: ${ticket.returnTicketId}, Items: ${ticket.items.length}, woTaskNo: ${ticket.woTaskNo}');
+    final ReturnTicketItem? firstItem =
+      ticket.items.isNotEmpty ? ticket.items.first : null;
+    final String subtitle =
+      (firstItem != null && firstItem.itemDescription.isNotEmpty)
+        ? firstItem.itemDescription
+        : 'Pending items';
+    final String workOrderLabel =
+      ticket.woTaskNo.isNotEmpty ? ticket.woTaskNo : 'Work Order Pending';
+    final DateTime? submitted = ticket.submittedAt;
     return Card(
       margin: EdgeInsets.only(bottom: 12),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () => _navigateToDetail(item),
+        onTap: () => _navigateToDetail(ticket.returnTicketId),
         child: Padding(
           padding: EdgeInsets.all(16),
           child: Column(
@@ -156,7 +166,7 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
                     width: 4,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: _getPriorityColor(item.returnRequestDate),
+                      color: _getPriorityColor(submitted),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -166,7 +176,7 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          item.partName ?? 'Unknown Item',
+                          workOrderLabel,
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -175,11 +185,9 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
                         ),
                         SizedBox(height: 2),
                         Text(
-                          'Code: ${item.partCode ?? 'N/A'}',
+                          subtitle,
                           style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
-                          ),
+                              fontSize: 12, color: AppColors.textSecondary),
                         ),
                       ],
                     ),
@@ -205,7 +213,7 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Technician',
+                            ticket.siteName,
                             style: GoogleFonts.poppins(
                               fontSize: 10,
                               color: AppColors.primary,
@@ -213,7 +221,7 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
                             ),
                           ),
                           Text(
-                            item.technicianName ?? 'Unknown',
+                            ticket.technicianName,
                             style: GoogleFonts.poppins(
                               fontSize: 13,
                               color: AppColors.textPrimary,
@@ -227,103 +235,30 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
                 ),
               ),
               SizedBox(height: 12),
-              
-              // Return details grid
+              _buildOrderMetadata(ticket),
+
+              SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(
                     child: _buildInfoChip(
-                      'Quantity',
-                      (item.quantityReturned ?? 0).toString(),
-                      Icons.inventory_2,
-                      AppColors.accentLight,
-                      AppColors.accent,
+                      label: 'Items Pending',
+                      value: ticket.itemCount.toString(),
+                      icon: Icons.inventory_2,
                     ),
                   ),
                   SizedBox(width: 8),
                   Expanded(
                     child: _buildInfoChip(
-                      'WO',
-                      item.workOrderNo ?? 'N/A',
-                      Icons.description,
-                      AppColors.infoLight,
-                      AppColors.info,
+                      label: 'Part Subs',
+                      value: ticket.partSubIds.length.toString(),
+                      icon: Icons.qr_code_2,
                     ),
                   ),
                 ],
               ),
+
               SizedBox(height: 12),
-              
-              // Return reason
-              Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: _getReasonColor(item.returnReason).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                        color: _getReasonColor(item.returnReason),
-                        width: 1,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          _getReasonIcon(item.returnReason),
-                          size: 14,
-                          color: _getReasonColor(item.returnReason),
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          _formatReason(item.returnReason),
-                          style: GoogleFonts.poppins(
-                            fontSize: 11,
-                            color: _getReasonColor(item.returnReason),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              
-              // Remarks (if any)
-              if (item.returnRemarks != null && item.returnRemarks!.isNotEmpty) ...[
-                SizedBox(height: 10),
-                Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppColors.gray100,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.comment, size: 14, color: AppColors.gray600),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          item.returnRemarks!,
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
-                            fontStyle: FontStyle.italic,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-              
-              SizedBox(height: 12),
-              
-              // Footer: Request date
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -332,7 +267,7 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
                       Icon(Icons.schedule, size: 14, color: AppColors.gray500),
                       SizedBox(width: 4),
                       Text(
-                        'Requested: ${_formatDate(item.returnRequestDate)}',
+                        'Submitted: ${_formatDate(submitted)}',
                         style: GoogleFonts.poppins(fontSize: 11, color: AppColors.gray600),
                       ),
                     ],
@@ -344,7 +279,7 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      _getTimeAgo(item.returnRequestDate),
+                      _getTimeAgo(submitted),
                       style: GoogleFonts.poppins(
                         fontSize: 10,
                         color: AppColors.warningDark,
@@ -361,7 +296,66 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
     );
   }
   
-  Widget _buildInfoChip(String label, String value, IconData icon, Color bgColor, Color iconColor) {
+  Widget _buildOrderMetadata(ReturnTicketSummary ticket) {
+    final wo = ticket.woTaskNo.isNotEmpty ? ticket.woTaskNo : 'N/A';
+    final mr = ticket.woTaskRequestNo.isNotEmpty ? ticket.woTaskRequestNo : 'N/A';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Work Order',
+          style: GoogleFonts.poppins(fontSize: 11, color: AppColors.gray600),
+        ),
+        SizedBox(height: 4),
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: AppColors.primary50,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            wo,
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.primary,
+            ),
+          ),
+        ),
+        SizedBox(height: 10),
+        Text(
+          'Material Request',
+          style: GoogleFonts.poppins(fontSize: 11, color: AppColors.gray600),
+        ),
+        SizedBox(height: 4),
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: AppColors.primary50,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            mr,
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.primary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoChip({
+    required String label,
+    required String value,
+    required IconData icon,
+  }) {
+    final Color bgColor = AppColors.primary50;
+    final Color iconColor = AppColors.primary;
     return Container(
       padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -380,7 +374,7 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
                   label,
                   style: GoogleFonts.poppins(
                     fontSize: 10,
-                    color: iconColor.withValues(alpha: 0.8),
+                    color: iconColor.withOpacity(0.8),
                   ),
                 ),
                 Text(
@@ -400,93 +394,33 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
     );
   }
   
-  Color _getPriorityColor(String? requestDate) {
-    if (requestDate == null) return AppColors.gray400;
-    
-    try {
-      DateTime date = DateTime.parse(requestDate);
-      Duration diff = DateTime.now().difference(date);
-      
-      if (diff.inHours < 24) return AppColors.success; // Recent
-      if (diff.inDays < 3) return AppColors.warning; // Normal
-      return AppColors.danger; // Urgent
-    } catch (e) {
-      return AppColors.gray400;
-    }
+  Color _getPriorityColor(DateTime? date) {
+    if (date == null) return AppColors.gray400;
+    final diff = DateTime.now().difference(date);
+    if (diff.inHours < 24) return AppColors.success;
+    if (diff.inDays < 3) return AppColors.warning;
+    return AppColors.danger;
   }
-  
-  Color _getReasonColor(String? reason) {
-    switch (reason) {
-      case 'unused_excess':
-        return AppColors.info;
-      case 'wrong_part':
-        return AppColors.warning;
-      case 'damaged':
-        return AppColors.danger;
-      default:
-        return AppColors.gray600;
-    }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return 'N/A';
+    return DateFormat('dd MMM yyyy, HH:mm').format(date);
   }
-  
-  IconData _getReasonIcon(String? reason) {
-    switch (reason) {
-      case 'unused_excess':
-        return Icons.inventory;
-      case 'wrong_part':
-        return Icons.error_outline;
-      case 'damaged':
-        return Icons.warning;
-      default:
-        return Icons.help_outline;
-    }
+
+  String _getTimeAgo(DateTime? date) {
+    if (date == null) return '';
+    final diff = DateTime.now().difference(date);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    return '${(diff.inDays / 7).floor()}w ago';
   }
-  
-  String _formatReason(String? reason) {
-    switch (reason) {
-      case 'unused_excess':
-        return 'Unused / Excess';
-      case 'wrong_part':
-        return 'Wrong Part';
-      case 'damaged':
-        return 'Damaged';
-      case 'other':
-        return 'Other';
-      default:
-        return reason ?? 'Unknown';
-    }
-  }
-  
-  String _formatDate(String? dateStr) {
-    if (dateStr == null || dateStr.isEmpty) return 'N/A';
-    try {
-      DateTime date = DateTime.parse(dateStr);
-      return DateFormat('dd MMM yyyy, HH:mm').format(date);
-    } catch (e) {
-      return dateStr;
-    }
-  }
-  
-  String _getTimeAgo(String? dateStr) {
-    if (dateStr == null) return '';
-    
-    try {
-      DateTime date = DateTime.parse(dateStr);
-      Duration diff = DateTime.now().difference(date);
-      
-      if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-      if (diff.inHours < 24) return '${diff.inHours}h ago';
-      if (diff.inDays < 7) return '${diff.inDays}d ago';
-      return '${(diff.inDays / 7).floor()}w ago';
-    } catch (e) {
-      return '';
-    }
-  }
-  
-  void _navigateToDetail(PendingReturn item) {
+
+  void _navigateToDetail(String ticketId) {
     Navigator.pushNamed(
       context,
       '/return-confirm-detail',
-      arguments: item.returnId,
+      arguments: ticketId,
     ).then((_) => _refresh());
   }
   

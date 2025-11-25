@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:GEMS/controller/ReturnItem/bloc/bloc_return.dart';
-import 'package:GEMS/model/return_item.dart';
-import 'package:GEMS/model/user.dart';
+import 'package:GEMS/model/return_ticket_models.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:toast/toast.dart';
-import 'package:intl/intl.dart';
 
 class ReturnItemList extends StatefulWidget {
+  const ReturnItemList({super.key});
+
   @override
-  _ReturnItemListState createState() => _ReturnItemListState();
+  State<ReturnItemList> createState() => _ReturnItemListState();
 }
 
 class _ReturnItemListState extends State<ReturnItemList> {
   final ReturnItemBloc _bloc = ReturnItemBloc();
-  User? _user;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
   
   @override
   void initState() {
     super.initState();
-    _loadUser();
+    _bloc.loadCollectedItems();
+    _searchController.addListener(_onSearchChanged);
   }
   
   @override
@@ -27,19 +29,34 @@ class _ReturnItemListState extends State<ReturnItemList> {
     super.didChangeDependencies();
     ToastContext().init(context);
   }
-  
-  Future<void> _loadUser() async {
-    var pref = await User.getPrefUser;
-    _user = User.fromMap(pref);
-    if (_user != null) {
-      _bloc.loadCollectedItems(_user!.userID);
+
+  void _onSearchChanged() {
+    final value = _searchController.text.trim().toLowerCase();
+    if (value != _searchQuery) {
+      setState(() {
+        _searchQuery = value;
+      });
     }
   }
-  
+
   Future<void> _refresh() async {
-    if (_user != null) {
-      await _bloc.loadCollectedItems(_user!.userID);
-    }
+    await _bloc.loadCollectedItems();
+  }
+
+  List<ReturnPartGroup> _applySearch(List<ReturnPartGroup> items) {
+    if (_searchQuery.isEmpty) return items;
+    return items.where((item) {
+      final needle = _searchQuery;
+      bool contains(String? value) =>
+          value != null && value.toLowerCase().contains(needle);
+      return contains(item.itemDescription) ||
+          contains(item.partId) ||
+          item.instances.any((instance) =>
+              contains(instance.partSubNo) ||
+              contains(instance.partSubId) ||
+              contains(instance.woTaskNo) ||
+              contains(instance.woTaskRequestNo));
+    }).toList(growable: false);
   }
   
   @override
@@ -66,29 +83,45 @@ class _ReturnItemListState extends State<ReturnItemList> {
             builder: (context, loadingSnapshot) {
               bool isLoading = loadingSnapshot.data ?? false;
               
-              return StreamBuilder<List<CollectedItem>>(
+              return StreamBuilder<List<ReturnPartGroup>>(
                 stream: _bloc.collectedItems$,
                 builder: (context, snapshot) {
                   if (isLoading && (!snapshot.hasData || snapshot.data!.isEmpty)) {
                     return Center(child: CircularProgressIndicator(color: AppColors.primary));
                   }
                   
-                  List<CollectedItem> items = snapshot.data ?? [];
-                  
-                  if (items.isEmpty) {
-                    return _buildEmptyState();
-                  }
-                  
-                  return RefreshIndicator(
-                    onRefresh: _refresh,
-                    color: AppColors.primary,
-                    child: ListView.builder(
-                      padding: EdgeInsets.all(16),
-                      itemCount: items.length,
-                      itemBuilder: (context, index) {
-                        return _buildItemCard(items[index]);
-                      },
-                    ),
+                  List<ReturnPartGroup> items = snapshot.data ?? [];
+                  final filtered = _applySearch(items);
+                  final bool hasItems = items.isNotEmpty;
+                  final bool hasResults = filtered.isNotEmpty;
+
+                  return Column(
+                    children: [
+                      _buildSearchField(),
+                      Expanded(
+                        child: RefreshIndicator(
+                          onRefresh: _refresh,
+                          color: AppColors.primary,
+                          child: hasResults
+                              ? ListView.builder(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 12),
+                                  itemCount: filtered.length,
+                                  itemBuilder: (context, index) {
+                                    return _buildItemCard(filtered[index]);
+                                  },
+                                )
+                              : _buildEmptyScrollable(
+                                  title: hasItems
+                                      ? 'No Results'
+                                      : 'No Collected Items',
+                                  subtitle: hasItems
+                                      ? 'Try a different keyword'
+                                      : 'Items you collect will appear here',
+                                ),
+                        ),
+                      ),
+                    ],
                   );
                 },
               );
@@ -99,7 +132,7 @@ class _ReturnItemListState extends State<ReturnItemList> {
     );
   }
   
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState({String title = 'No Collected Items', String subtitle = 'Items you collect will appear here'}) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -107,23 +140,56 @@ class _ReturnItemListState extends State<ReturnItemList> {
           Icon(Icons.inventory_2_outlined, size: 80, color: AppColors.gray400),
           SizedBox(height: 16),
           Text(
-            'No Collected Items',
+            title,
             style: GoogleFonts.poppins(fontSize: 18, color: AppColors.gray600, fontWeight: FontWeight.w500),
           ),
           SizedBox(height: 8),
           Text(
-            'Items you collect will appear here',
+            subtitle,
             style: GoogleFonts.poppins(fontSize: 14, color: AppColors.gray500),
           ),
         ],
       ),
     );
   }
+
+  Widget _buildEmptyScrollable({required String title, required String subtitle}) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 80),
+      children: [
+        _buildEmptyState(title: title, subtitle: subtitle),
+      ],
+    );
+  }
+
+  Widget _buildSearchField() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: TextField(
+        controller: _searchController,
+        decoration: InputDecoration(
+          hintText: 'Search by item, serial, WO, or MR...',
+          prefixIcon: Icon(Icons.search, color: AppColors.gray500),
+          suffixIcon: _searchQuery.isEmpty
+              ? null
+              : IconButton(
+                  icon: Icon(Icons.clear, color: AppColors.gray500),
+                  onPressed: () {
+                    _searchController.clear();
+                    _onSearchChanged();
+                  },
+                ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        ),
+      ),
+    );
+  }
   
-  Widget _buildItemCard(CollectedItem item) {
-    bool hasPending = item.hasPendingReturn ?? false;
-    int availableQty = item.quantityAvailableToReturn ?? 0;
-    bool canReturn = !hasPending && availableQty > 0;
+  Widget _buildItemCard(ReturnPartGroup group) {
+    final bool canReturn = group.totalAvailable > 0;
+    final hasSerialized = group.hasSerialized;
     
     return Card(
       margin: EdgeInsets.only(bottom: 12),
@@ -131,7 +197,7 @@ class _ReturnItemListState extends State<ReturnItemList> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: canReturn ? () => _navigateToDetail(item) : null,
+        onTap: canReturn ? () => _navigateToDetail(group) : null,
         child: Padding(
           padding: EdgeInsets.all(16),
           child: Column(
@@ -143,7 +209,7 @@ class _ReturnItemListState extends State<ReturnItemList> {
                 children: [
                   Expanded(
                     child: Text(
-                      item.partName ?? 'Unknown Item',
+                      group.itemDescription,
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -151,121 +217,48 @@ class _ReturnItemListState extends State<ReturnItemList> {
                       ),
                     ),
                   ),
-                  if (hasPending)
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: AppColors.warningLight,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        'Pending',
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          color: AppColors.warningDark,
-                          fontWeight: FontWeight.w600,
-                        ),
+                  Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: canReturn
+                          ? AppColors.successLight
+                          : AppColors.gray200,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      canReturn ? 'Available' : 'Unavailable',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: canReturn
+                            ? AppColors.successDark
+                            : AppColors.gray600,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  if (!canReturn && !hasPending)
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: AppColors.gray200,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        'Not Available',
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          color: AppColors.gray600,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                  ),
                 ],
               ),
               SizedBox(height: 8),
               
               // Part code
-              Text(
-                'Code: ${item.partCode ?? 'N/A'}',
-                style: GoogleFonts.poppins(fontSize: 13, color: AppColors.textSecondary),
-              ),
-              SizedBox(height: 4),
-              
-              // WO number
-              Text(
-                'WO: ${item.workOrderNo ?? 'N/A'}',
-                style: GoogleFonts.poppins(fontSize: 13, color: AppColors.textSecondary),
-              ),
-              SizedBox(height: 12),
-              
-              // Quantity info chips
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _buildQuantityChip(
-                    'Collected',
-                    (item.quantityCollected ?? 0).toString(),
-                    AppColors.primary50,
-                    AppColors.primary,
-                  ),
-                  _buildQuantityChip(
-                    'In Possession',
-                    (item.partsInPossession ?? 0).toString(),
-                    AppColors.successLight,
-                    AppColors.success,
-                  ),
-                  _buildQuantityChip(
-                    'Available',
-                    availableQty.toString(),
-                    availableQty > 0 ? AppColors.accentLight : AppColors.gray200,
-                    availableQty > 0 ? AppColors.accent : AppColors.gray600,
-                  ),
-                ],
-              ),
-              SizedBox(height: 12),
-              
-              // Collected date
               Row(
                 children: [
-                  Icon(Icons.calendar_today, size: 14, color: AppColors.gray500),
-                  SizedBox(width: 6),
-                  Text(
-                    'Collected: ${_formatDate(item.collectedDate)}',
-                    style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textSecondary),
-                  ),
+                  _buildStatChip('Available', group.totalAvailable.toString(),
+                      AppColors.success),
+                  SizedBox(width: 8),
+                  _buildStatChip(
+                      'Collected', group.totalCollected.toString(), AppColors.primary),
+                  SizedBox(width: 8),
+                  _buildStatChip('Returned', group.totalReturned.toString(),
+                      AppColors.warning),
                 ],
               ),
-              
-              // Pending return info
-              if (hasPending && item.pendingReturnQuantity != null) ...[
-                SizedBox(height: 10),
-                Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppColors.warningLight,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.warning, width: 1),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.hourglass_empty, size: 16, color: AppColors.warningDark),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Return pending: ${item.pendingReturnQuantity} items awaiting confirmation',
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: AppColors.warningDark,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+              if (hasSerialized) ...[
+                SizedBox(height: 12),
+                Text(
+                  '${group.serializedInstances.length} serial item(s) pending',
+                  style: GoogleFonts.poppins(fontSize: 12, color: AppColors.gray600),
                 ),
               ],
               
@@ -275,7 +268,7 @@ class _ReturnItemListState extends State<ReturnItemList> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: () => _navigateToDetail(item),
+                    onPressed: () => _navigateToDetail(group),
                     icon: Icon(Icons.keyboard_return, size: 18),
                     label: Text(
                       'Return Items',
@@ -299,54 +292,46 @@ class _ReturnItemListState extends State<ReturnItemList> {
     );
   }
   
-  Widget _buildQuantityChip(String label, String value, Color bgColor, Color textColor) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '$label: ',
-            style: GoogleFonts.poppins(fontSize: 11, color: textColor.withValues(alpha: 0.8)),
-          ),
-          Text(
-            value,
-            style: GoogleFonts.poppins(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              color: textColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-  
-  String _formatDate(String? dateStr) {
-    if (dateStr == null || dateStr.isEmpty) return 'N/A';
-    try {
-      DateTime date = DateTime.parse(dateStr);
-      return DateFormat('dd MMM yyyy').format(date);
-    } catch (e) {
-      return dateStr;
-    }
-  }
-  
-  void _navigateToDetail(CollectedItem item) {
+  void _navigateToDetail(ReturnPartGroup group) {
     Navigator.pushNamed(
       context,
       '/return-item-detail',
-      arguments: item,
+      arguments: group,
     ).then((_) => _refresh());
+  }
+
+  Widget _buildStatChip(String label, String value, Color color) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label,
+                style: GoogleFonts.poppins(fontSize: 11, color: color)),
+            SizedBox(height: 4),
+            Text(
+              value,
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
   
   @override
   void dispose() {
     _bloc.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 }

@@ -1,28 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:GEMS/controller/ReturnItem/bloc/bloc_return.dart';
-import 'package:GEMS/model/return_item.dart';
+import 'package:GEMS/model/return_ticket_models.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:toast/toast.dart';
 import 'package:intl/intl.dart';
 
 class ReturnItemDetail extends StatefulWidget {
-  final CollectedItem item;
+  final ReturnPartGroup group;
   
-  const ReturnItemDetail({Key? key, required this.item}) : super(key: key);
+  const ReturnItemDetail({super.key, required this.group});
 
   @override
-  _ReturnItemDetailState createState() => _ReturnItemDetailState();
+  State<ReturnItemDetail> createState() => _ReturnItemDetailState();
 }
 
 class _ReturnItemDetailState extends State<ReturnItemDetail> {
   final ReturnItemBloc _bloc = ReturnItemBloc();
-  final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _remarksController = TextEditingController();
+  final TextEditingController _quantityController = TextEditingController();
   
   String _selectedReason = 'unused_excess';
-  DateTime? _selectedDeadline;
+  late final bool _isQuantityMode;
+  late final int _maxQuantity;
   
   final Map<String, String> _reasonOptions = {
     'unused_excess': 'Unused / Excess',
@@ -34,8 +35,11 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
   @override
   void initState() {
     super.initState();
-    // Default quantity to maximum available
-    _quantityController.text = (widget.item.quantityAvailableToReturn ?? 0).toString();
+    _maxQuantity = widget.group.totalAvailable;
+    _isQuantityMode = widget.group.totalAvailable > 1 || widget.group.hasBulk;
+    if (_maxQuantity > 0) {
+      _quantityController.text = _maxQuantity.toString();
+    }
   }
   
   @override
@@ -46,8 +50,6 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
   
   @override
   Widget build(BuildContext context) {
-    int maxQty = widget.item.quantityAvailableToReturn ?? 0;
-    
     return Scaffold(
       backgroundColor: AppColors.bgDefault,
       appBar: AppBar(
@@ -80,7 +82,7 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
                     SizedBox(height: 20),
                     
                     // Return Form
-                    _buildFormCard(maxQty, isLoading),
+                    _buildFormCard(isLoading),
                   ],
                 ),
               );
@@ -92,6 +94,7 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
   }
   
   Widget _buildItemInfoCard() {
+    final group = widget.group;
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -110,7 +113,7 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
             ),
             SizedBox(height: 12),
             Text(
-              widget.item.partName ?? 'Unknown Item',
+              group.itemDescription,
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -118,40 +121,113 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
               ),
             ),
             SizedBox(height: 8),
-            _buildInfoRow('Code', widget.item.partCode ?? 'N/A'),
-            _buildInfoRow('WO Number', widget.item.workOrderNo ?? 'N/A'),
-            _buildInfoRow('Collected', '${widget.item.quantityCollected ?? 0} items'),
-            _buildInfoRow('In Possession', '${widget.item.partsInPossession ?? 0} items'),
-            _buildInfoRow('Available to Return', '${widget.item.quantityAvailableToReturn ?? 0} items'),
+            _buildQuantitySummary(group),
+            if (group.serializedInstances.isNotEmpty) ...[
+              SizedBox(height: 20),
+              Text(
+                'Serialized Items (${group.serializedInstances.length})',
+                style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.gray600,
+                ),
+              ),
+              SizedBox(height: 8),
+              ...group.serializedInstances.map(_buildSerializedCard),
+            ],
+            if (group.bulkBuckets.isNotEmpty) ...[
+              SizedBox(height: 20),
+              Text(
+                'Material Requests (${group.bulkBuckets.length})',
+                style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.gray600,
+                ),
+              ),
+              SizedBox(height: 8),
+              ...group.bulkBuckets.map(_buildBulkBucketCard),
+            ],
           ],
         ),
       ),
     );
   }
   
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Text(
-            '$label: ',
-            style: GoogleFonts.poppins(fontSize: 13, color: AppColors.textSecondary),
+  Widget _buildQuantitySummary(ReturnPartGroup group) {
+    Widget chip(String label, String value, Color color) {
+      return Expanded(
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          margin: EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(12),
           ),
-          Text(
-            value,
-            style: GoogleFonts.poppins(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: AppColors.textPrimary,
-            ),
+          child: Column(
+            children: [
+              Text(
+                label,
+                style: GoogleFonts.poppins(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: color.withValues(alpha: 0.9),
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                value,
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: color.withValues(alpha: 0.9),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      );
+    }
+
+    return Row(
+      children: [
+        chip('Collected', group.totalCollected.toString(), AppColors.primary),
+        chip('Returned', group.totalReturned.toString(), AppColors.warning),
+        chip('Available', group.totalAvailable.toString(), AppColors.success),
+      ],
+    );
+  }
+
+  Widget _buildQuantityInput() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Return Quantity *',
+          style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500),
+        ),
+        SizedBox(height: 8),
+        TextField(
+          controller: _quantityController,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          decoration: InputDecoration(
+            hintText: 'Enter quantity (max $_maxQuantity)',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            contentPadding: EdgeInsets.all(12),
+          ),
+          style: GoogleFonts.poppins(fontSize: 14),
+        ),
+        SizedBox(height: 6),
+        Text(
+          'Adjust the number if you plan to return less than the available quantity.',
+          style: GoogleFonts.poppins(fontSize: 12, color: AppColors.gray600),
+        ),
+      ],
     );
   }
   
-  Widget _buildFormCard(int maxQty, bool isLoading) {
+  Widget _buildFormCard(bool isLoading) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -169,27 +245,7 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
               ),
             ),
             SizedBox(height: 16),
-            
-            // Quantity Input
-            Text(
-              'Quantity to Return *',
-              style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500),
-            ),
-            SizedBox(height: 8),
-            TextField(
-              controller: _quantityController,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: InputDecoration(
-                hintText: 'Enter quantity (1 - $maxQty)',
-                suffixText: 'Max: $maxQty',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-              ),
-              style: GoogleFonts.poppins(fontSize: 14),
-            ),
-            SizedBox(height: 16),
-            
+
             // Return Reason Dropdown
             Text(
               'Return Reason *',
@@ -224,6 +280,18 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
               ),
             ),
             SizedBox(height: 16),
+
+            if (_isQuantityMode) ...[
+              _buildQuantityInput(),
+              SizedBox(height: 16),
+            ] else ...[
+              SizedBox(height: 8),
+              Text(
+                'This group has 1 item available to return. It will be submitted using FIFO order.',
+                style: GoogleFonts.poppins(fontSize: 12, color: AppColors.gray600),
+              ),
+              SizedBox(height: 16),
+            ],
             
             // Remarks (Optional)
             Text(
@@ -244,44 +312,13 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
             ),
             SizedBox(height: 16),
             
-            // Deadline Date (Optional)
-            Text(
-              'Expected Return Date (Optional)',
-              style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500),
-            ),
-            SizedBox(height: 8),
-            InkWell(
-              onTap: () => _selectDeadline(),
-              child: Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.gray400),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _selectedDeadline == null
-                          ? 'Select date'
-                          : DateFormat('dd MMM yyyy, HH:mm').format(_selectedDeadline!),
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: _selectedDeadline == null ? AppColors.gray500 : AppColors.textPrimary,
-                      ),
-                    ),
-                    Icon(Icons.calendar_today, size: 18, color: AppColors.gray500),
-                  ],
-                ),
-              ),
-            ),
             SizedBox(height: 24),
             
             // Submit Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: isLoading ? null : () => _submitReturn(maxQty),
+                onPressed: isLoading ? null : _submitReturn,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: AppColors.onPrimary,
@@ -336,76 +373,39 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
     );
   }
   
-  Future<void> _selectDeadline() async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now().add(Duration(days: 1)),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(Duration(days: 365)),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(primary: AppColors.primary),
-          ),
-          child: child!,
-        );
-      },
-    );
-    
-    if (pickedDate != null) {
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay(hour: 17, minute: 0),
-        builder: (context, child) {
-          return Theme(
-            data: Theme.of(context).copyWith(
-              colorScheme: ColorScheme.light(primary: AppColors.primary),
-            ),
-            child: child!,
-          );
-        },
-      );
-      
-      if (pickedTime != null) {
-        setState(() {
-          _selectedDeadline = DateTime(
-            pickedDate.year,
-            pickedDate.month,
-            pickedDate.day,
-            pickedTime.hour,
-            pickedTime.minute,
-          );
-        });
-      }
-    }
+  String _formatDateTime(String? raw) {
+    if (raw == null || raw.isEmpty) return 'N/A';
+    final dt = DateTime.tryParse(raw);
+    if (dt == null) return raw;
+    return DateFormat('dd MMM yyyy, HH:mm').format(dt);
   }
-  
-  Future<void> _submitReturn(int maxQty) async {
-    // Validation
-    String qtyText = _quantityController.text.trim();
-    if (qtyText.isEmpty) {
-      Toast.show('Please enter quantity to return', duration: Toast.lengthLong, gravity: Toast.bottom);
+
+  Future<void> _submitReturn() async {
+    if (widget.group.totalAvailable <= 0) {
+      Toast.show('This part is no longer eligible for return',
+          duration: Toast.lengthLong, gravity: Toast.bottom);
       return;
     }
-    
-    int qty = int.tryParse(qtyText) ?? 0;
-    if (qty <= 0) {
-      Toast.show('Quantity must be greater than 0', duration: Toast.lengthLong, gravity: Toast.bottom);
-      return;
+
+    int quantity;
+    if (_isQuantityMode) {
+      final parsed = _validatedQuantity();
+      if (parsed == null) {
+        return;
+      }
+      quantity = parsed;
+    } else {
+      quantity = 1;
     }
-    
-    if (qty > maxQty) {
-      Toast.show('Quantity cannot exceed $maxQty', duration: Toast.lengthLong, gravity: Toast.bottom);
-      return;
-    }
-    
-    // Show confirmation dialog
+
     bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Confirm Return', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
         content: Text(
-          'Are you sure you want to return $qty item(s)?',
+          _isQuantityMode
+              ? 'Return $quantity item(s) from ${widget.group.itemDescription}?'
+              : 'Return ${widget.group.itemDescription}?',
           style: GoogleFonts.poppins(),
         ),
         actions: [
@@ -424,41 +424,133 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
     
     if (confirmed != true) return;
     
+    final remarks = _remarksController.text.trim().isEmpty
+        ? null
+        : _remarksController.text.trim();
+
     try {
-      String? deadlineStr;
-      if (_selectedDeadline != null) {
-        deadlineStr = DateFormat('yyyy-MM-dd HH:mm:ss').format(_selectedDeadline!);
-      }
-      
-      await _bloc.submitReturn(
-        woTaskPartsId: widget.item.woTaskPartsId!,
-        quantityReturned: qty,
+      final result = await _bloc.submitGroupedReturn(
+        group: widget.group,
+        quantity: quantity,
         returnReason: _selectedReason,
-        returnRemarks: _remarksController.text.trim().isEmpty 
-            ? null 
-            : _remarksController.text.trim(),
-        returnDeadlineDate: deadlineStr,
+        returnRemarks: remarks,
       );
-      
+
+      if (!mounted) return;
+      final ticketId =
+          result.returnTicketIds.isNotEmpty ? result.returnTicketIds.first : null;
+
       Toast.show(
-        'Return request submitted successfully',
+        ticketId == null
+            ? 'Return submitted for verification'
+            : 'Return ticket #$ticketId queued for verification',
         duration: Toast.lengthLong,
         gravity: Toast.bottom,
       );
-      
-      // Go back to list
+
       Navigator.pop(context);
     } catch (e) {
       // Error already displayed via error stream
-      print('Submit error: $e');
+      debugPrint('Submit error: $e');
     }
+  }
+  
+  int? _validatedQuantity() {
+    final text = _quantityController.text.trim();
+    final value = int.tryParse(text);
+    if (value == null || value <= 0) {
+      Toast.show('Enter a valid quantity',
+          duration: Toast.lengthLong, gravity: Toast.bottom);
+      return null;
+    }
+    if (value > _maxQuantity) {
+      Toast.show('Quantity cannot exceed $_maxQuantity',
+          duration: Toast.lengthLong, gravity: Toast.bottom);
+      return null;
+    }
+    return value;
   }
   
   @override
   void dispose() {
-    _quantityController.dispose();
     _remarksController.dispose();
+    _quantityController.dispose();
     _bloc.dispose();
     super.dispose();
+  }
+
+  Widget _buildSerializedCard(ReturnPartInstance instance) {
+    final serial = instance.partSubNo.isNotEmpty
+        ? instance.partSubNo
+        : instance.partSubId;
+    return Container(
+      margin: EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.gray100,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            serial,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          SizedBox(height: 4),
+          Text(
+            'WO ${instance.woTaskNo} · MR ${instance.woTaskRequestNo}',
+            style: GoogleFonts.poppins(fontSize: 12, color: AppColors.gray600),
+          ),
+          SizedBox(height: 4),
+          Text(
+            'Checkout: ${_formatDateTime(instance.checkOutTime)}',
+            style: GoogleFonts.poppins(fontSize: 12, color: AppColors.gray600),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBulkBucketCard(ReturnPartInstance instance) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.gray200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'MR ${instance.woTaskRequestNo}',
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          SizedBox(height: 4),
+          Text(
+            'WO ${instance.woTaskNo}',
+            style: GoogleFonts.poppins(fontSize: 12, color: AppColors.gray600),
+          ),
+          SizedBox(height: 4),
+          Text(
+            'Available: ${instance.quantityAvailableToReturn}',
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppColors.success,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -1,202 +1,249 @@
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc.dart';
-import 'package:GEMS/model/return_item.dart';
-import 'package:GEMS/utils/network.dart';
-import 'package:GEMS/model/serializers.dart';
-import 'package:GEMS/model/responseValue.dart';
+import 'package:GEMS/model/return_ticket_models.dart';
+
+import '../return_ticket_service.dart';
 
 class ReturnItemBloc extends Bloc {
-  // Streams
-  final BehaviorSubject<List<CollectedItem>> _collectedItems = 
-      BehaviorSubject.seeded([]);
-  final BehaviorSubject<List<PendingReturn>> _pendingReturns = 
-      BehaviorSubject.seeded([]);
-  final BehaviorSubject<int> _pendingCount = 
-      BehaviorSubject.seeded(0);
-  
-  // Stream getters
-  Stream<List<CollectedItem>> get collectedItems$ => _collectedItems.stream;
-  Stream<List<PendingReturn>> get pendingReturns$ => _pendingReturns.stream;
+  final ReturnTicketService _service = ReturnTicketService();
+
+  final BehaviorSubject<List<ReturnPartGroup>> _collectedItems =
+      BehaviorSubject.seeded(const <ReturnPartGroup>[]);
+    final BehaviorSubject<List<ReturnTicketSummary>> _pendingReturns =
+      BehaviorSubject.seeded(const <ReturnTicketSummary>[]);
+  final BehaviorSubject<int> _pendingCount = BehaviorSubject.seeded(0);
+
+  Stream<List<ReturnPartGroup>> get collectedItems$ => _collectedItems.stream;
+  Stream<List<ReturnTicketSummary>> get pendingReturns$ => _pendingReturns.stream;
   Stream<int> get pendingCount$ => _pendingCount.stream;
-  
-  /// Load eligible items for technician
-  Future<void> loadCollectedItems(String userId) => 
-      checker(_fetchCollectedItems(userId));
-  
-  Future<void> _fetchCollectedItems(String userId) async {
-    debugPrint("=== Return Items BLoC ===");
-    debugPrint("Fetching collected items for user: $userId");
-    
-    Provider provider = Provider(fetchURL: "/api/m_inventory.php?action=return_eligible_items&id=$userId");
-    await provider.init();
-    ResponseValue response = await provider.fetch();
-    
-    if (response.success == true) {
-      if (response.result != null && response.result is List && (response.result as List).isNotEmpty) {
-        List<CollectedItem> items = [];
-        
-        for (var item in (response.result as List)) {
-          items.add(serializers.deserializeWith(
-            CollectedItem.serializer,
-            item,
-          )!);
-        }
-        
-        debugPrint("Loaded ${items.length} collected items");
-        _collectedItems.sink.add(items);
-      } else {
-        debugPrint("No collected items found");
-        _collectedItems.sink.add([]);
-      }
-    } else {
-      throw Exception(response.errmsg);
-    }
+
+  Future<void> loadCollectedItems() => checker(_fetchCollectedItems());
+
+  Future<void> _fetchCollectedItems() async {
+    debugPrint('Fetching collected part instances (ReturnTicketService)');
+    final itemsFuture = _service.fetchCollectedItems();
+    final summaryFuture = _service.fetchCollectedSummary();
+
+    final items = await itemsFuture;
+    final summary = await summaryFuture;
+
+    final List<ReturnPartInstance> serializedItems =
+        items.where((item) => item.isSerialized).toList(growable: true);
+    final List<ReturnPartInstance> quantityItems = summary
+        .where((entry) => entry.quantityAvailableToReturn > 0)
+        .map(ReturnPartInstance.fromSummary)
+        .toList(growable: true);
+
+    final combined = <ReturnPartInstance>[
+      ...serializedItems,
+      ...quantityItems,
+    ];
+
+    final groups = _groupByPart(combined);
+    _collectedItems.sink.add(groups);
   }
-  
-  /// Submit return request
-  Future<String> submitReturn({
-    required String woTaskPartsId,
-    required int quantityReturned,
+
+  List<ReturnPartGroup> _groupByPart(List<ReturnPartInstance> items) {
+    if (items.isEmpty) return const <ReturnPartGroup>[];
+
+    final Map<String, List<ReturnPartInstance>> grouped = {};
+    for (final item in items) {
+      final key = '${item.partId}::${item.itemDescription}';
+      grouped.putIfAbsent(key, () => <ReturnPartInstance>[]).add(item);
+    }
+
+    final groups = grouped.values.map((instances) {
+      instances.sort((a, b) => _compareCheckout(a.checkOutTime, b.checkOutTime));
+      final first = instances.first;
+      return ReturnPartGroup(
+        partId: first.partId,
+        itemDescription: first.itemDescription,
+        instances: List.unmodifiable(instances),
+      );
+    }).toList(growable: false);
+
+    groups.sort((a, b) => a.itemDescription
+        .toLowerCase()
+        .compareTo(b.itemDescription.toLowerCase()));
+    return groups;
+  }
+
+  int _compareCheckout(String? a, String? b) {
+    if (a == null && b == null) return 0;
+    if (a == null) return 1;
+    if (b == null) return -1;
+    final dateA = DateTime.tryParse(a);
+    final dateB = DateTime.tryParse(b);
+    if (dateA == null && dateB == null) return 0;
+    if (dateA == null) return 1;
+    if (dateB == null) return -1;
+    return dateA.compareTo(dateB);
+  }
+
+  Future<ReturnSubmissionResult> submitReturnByPartSub({
+    required List<String> partSubIds,
     required String returnReason,
     String? returnRemarks,
-    String? returnDeadlineDate,
   }) async {
-    return await checker(_submitReturnRequest(
-      woTaskPartsId: woTaskPartsId,
-      quantityReturned: quantityReturned,
+    final payload = [
+      ReturnPartsRequestItem(
+        partSubIds: partSubIds,
+        returnReason: returnReason,
+        returnRemarks: returnRemarks,
+      ),
+    ];
+
+    return await checker(
+      _service.submitReturn(items: payload),
+    ) as ReturnSubmissionResult;
+  }
+
+  Future<ReturnSubmissionResult> submitReturnByQuantity({
+    required String woTaskPartsId,
+    required int quantity,
+    required String returnReason,
+    String? returnRemarks,
+  }) async {
+    final payload = [
+      ReturnPartsRequestItem(
+        woTaskPartsId: woTaskPartsId,
+        quantity: quantity,
+        returnReason: returnReason,
+        returnRemarks: returnRemarks,
+      ),
+    ];
+
+    return await checker(
+      _service.submitReturn(items: payload),
+    ) as ReturnSubmissionResult;
+  }
+
+  Future<ReturnSubmissionResult> submitGroupedReturn({
+    required ReturnPartGroup group,
+    required int quantity,
+    required String returnReason,
+    String? returnRemarks,
+  }) async {
+    final payload = _buildGroupedPayload(
+      group: group,
+      quantity: quantity,
       returnReason: returnReason,
       returnRemarks: returnRemarks,
-      returnDeadlineDate: returnDeadlineDate,
-    )) as String;
+    );
+
+    final result = await checker(
+      _service.submitReturn(items: payload),
+    ) as ReturnSubmissionResult;
+
+    await loadCollectedItems();
+    return result;
   }
-  
-  Future<String> _submitReturnRequest({
-    required String woTaskPartsId,
-    required int quantityReturned,
+
+  List<ReturnPartsRequestItem> _buildGroupedPayload({
+    required ReturnPartGroup group,
+    required int quantity,
     required String returnReason,
     String? returnRemarks,
-    String? returnDeadlineDate,
-  }) async {
-    Provider provider = Provider(fetchURL: "/api/m_inventory.php");
-    await provider.init();
-    
-    Map<String, dynamic> body = {
-      "action": "request_return",
-      "woTaskPartsId": woTaskPartsId,
-      "quantityReturned": quantityReturned.toString(),
-      "returnReason": returnReason,
-    };
-    
-    if (returnRemarks != null && returnRemarks.isNotEmpty) {
-      body["returnRemarks"] = returnRemarks;
+  }) {
+    int remaining = quantity;
+    if (remaining <= 0) {
+      throw Exception('Quantity must be greater than zero');
     }
-    
-    if (returnDeadlineDate != null && returnDeadlineDate.isNotEmpty) {
-      body["returnDeadlineDate"] = returnDeadlineDate;
-    }
-    
-    dynamic response = await provider.post(
-      url: "/api/m_inventory.php",
-      body: body,
-    );
-    
-    // Post method returns ResponseValue on success or throws error
-    if (response is ResponseValue) {
-      return response.result.toString(); // Returns return_id
-    } else {
-      return response.toString(); // Returns the errmsg from successful post
-    }
-  }
-  
-  /// Load pending returns for storekeeper
-  Future<void> loadPendingReturns() => 
-      checker(_fetchPendingReturns());
-  
-  Future<void> _fetchPendingReturns() async {
-    Provider provider = Provider(fetchURL: "/api/m_inventory.php?action=storekeeper_pending_returns");
-    await provider.init();
-    ResponseValue response = await provider.fetch();
-    
-    if (response.success == true) {
-      if (response.result != null && (response.result as List).isNotEmpty) {
-        List<PendingReturn> returns = [];
-        
-        for (var item in (response.result as List)) {
-          returns.add(serializers.deserializeWith(
-            PendingReturn.serializer,
-            item,
-          )!);
-        }
-        
-        _pendingReturns.sink.add(returns);
-        _pendingCount.sink.add(returns.length);
-      } else {
-        _pendingReturns.sink.add([]);
-        _pendingCount.sink.add(0);
+
+    final List<ReturnPartsRequestItem> payload = [];
+
+    final serialized = group.serializedInstances.toList(growable: false)
+      ..sort((a, b) => _compareCheckout(a.checkOutTime, b.checkOutTime));
+
+    final Map<String, List<String>> serialsByRequest = {};
+    for (final instance in serialized) {
+      if (remaining == 0) break;
+      if (instance.quantityAvailableToReturn <= 0) {
+        continue;
       }
-    } else {
-      throw Exception(response.errmsg);
+      serialsByRequest
+          .putIfAbsent(instance.woTaskPartsId, () => <String>[])
+          .add(instance.partSubId);
+      remaining -= 1;
     }
-  }
-  
-  /// Get return detail
-  Future<PendingReturn> getReturnDetail(String returnId) async {
-    return await checker(_fetchReturnDetail(returnId)) as PendingReturn;
-  }
-  
-  Future<PendingReturn> _fetchReturnDetail(String returnId) async {
-    Provider provider = Provider(fetchURL: "/api/m_inventory.php?action=return_detail&id=$returnId");
-    await provider.init();
-    ResponseValue response = await provider.fetch();
-    
-    if (response.success == true && response.result != null) {
-      return serializers.deserializeWith(
-        PendingReturn.serializer,
-        response.result,
-      )!;
-    } else {
-      throw Exception(response.errmsg);
-    }
-  }
-  
-  /// Confirm return receipt (storekeeper)
-  Future<void> confirmReturn(String returnId) => 
-      checker(_confirmReturnReceipt(returnId));
-  
-  Future<void> _confirmReturnReceipt(String returnId) async {
-    Provider provider = Provider(fetchURL: "/api/m_inventory.php");
-    await provider.init();
-    
-    await provider.put(body: {
-      "action": "confirm_return",
-      "id": returnId,
+
+    serialsByRequest.forEach((_, partSubIds) {
+      payload.add(ReturnPartsRequestItem(
+        partSubIds: partSubIds,
+        returnReason: returnReason,
+        returnRemarks: returnRemarks,
+      ));
     });
-    
-    // If no exception thrown, operation was successful
-    // Provider.put throws error on failure
-  }
-  
-  /// Get return statistics (optional)
-  Future<Map<String, dynamic>> getStatistics({String? userId}) async {
-    return await checker(_fetchStatistics(userId)) as Map<String, dynamic>;
-  }
-  
-  Future<Map<String, dynamic>> _fetchStatistics(String? userId) async {
-    String url = "/api/m_inventory.php?action=return_statistics";
-    if (userId != null) {
-      url += "&userId=$userId";
+
+    if (remaining > 0) {
+      final bulk = group.bulkBuckets.toList(growable: false)
+        ..sort((a, b) => _compareCheckout(a.checkOutTime, b.checkOutTime));
+
+      for (final bucket in bulk) {
+        if (remaining == 0) break;
+        final available = bucket.quantityAvailableToReturn;
+        if (available <= 0) continue;
+        final take = remaining < available ? remaining : available;
+        payload.add(ReturnPartsRequestItem(
+          woTaskPartsId: bucket.woTaskPartsId,
+          quantity: take,
+          returnReason: returnReason,
+          returnRemarks: returnRemarks,
+        ));
+        remaining -= take;
+      }
     }
-    
-    Provider provider = Provider(fetchURL: url);
-    await provider.init();
-    ResponseValue response = await provider.fetch();
-    
-    if (response.success == true && response.result != null) {
-      return response.result as Map<String, dynamic>;
-    } else {
-      throw Exception(response.errmsg);
+
+    if (remaining > 0) {
+      throw Exception('Not enough items available to return for ${group.itemDescription}');
     }
+
+    return payload;
+  }
+
+  Future<void> loadPendingReturns({bool includeDetails = true}) =>
+      checker(_fetchPendingReturns(includeDetails: includeDetails));
+
+  Future<void> _fetchPendingReturns({bool includeDetails = true}) async {
+    final tickets =
+        await _service.fetchReturnTickets(includeDetails: includeDetails);
+    _pendingReturns.sink.add(tickets);
+    _pendingCount.sink.add(tickets.length);
+  }
+
+  ReturnTicketSummary? findTicket(String ticketId) {
+    try {
+      return _pendingReturns.value
+          .firstWhere((e) => e.returnTicketId == ticketId);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<ReturnTicketSummary?> refreshAndFind(String ticketId) async {
+    await loadPendingReturns(includeDetails: true);
+    return findTicket(ticketId);
+  }
+
+  Future<ReturnVerifyResult> verifyTicket({
+    required String ticketId,
+    required String action,
+    List<String>? partSubIds,
+    String? remark,
+  }) async {
+    final result = await checker(
+      _service.verifyTicket(
+        returnTicketId: ticketId,
+        action: action,
+        partSubIds: partSubIds,
+        remark: remark,
+      ),
+    ) as ReturnVerifyResult;
+
+    // Refresh local cache after verification so list reflects new status
+    await loadPendingReturns(includeDetails: true);
+    return result;
   }
   
   @override

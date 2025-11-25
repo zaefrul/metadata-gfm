@@ -53,7 +53,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:GEMS/model/complaint.dart';
-import 'package:GEMS/model/return_item.dart';
+import 'package:GEMS/model/return_ticket_models.dart';
 import 'package:GEMS/config/app_config.dart';
 import 'package:GEMS/model/user.dart';
 import 'package:local_auth/local_auth.dart';
@@ -486,18 +486,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             builder: (_) => ReturnItemList(), settings: settings);
       case '/return-item-detail':
         final args = settings.arguments;
-        if (args is! CollectedItem) {
-          throw ArgumentError('/return-item-detail expects CollectedItem argument');
+        if (args is! ReturnPartGroup) {
+          throw ArgumentError('/return-item-detail expects ReturnPartGroup argument');
         }
         return MaterialPageRoute(
-            builder: (_) => ReturnItemDetail(item: args), settings: settings);
+            builder: (_) => ReturnItemDetail(group: args), settings: settings);
       case '/return-confirm-list':
         return MaterialPageRoute(
             builder: (_) => ReturnConfirmList(), settings: settings);
       case '/return-confirm-detail':
         final args = settings.arguments;
-        if (args is! int) {
-          throw ArgumentError('/return-confirm-detail expects int returnId argument');
+        if (args is! String) {
+          throw ArgumentError('/return-confirm-detail expects String returnId argument');
         }
         return MaterialPageRoute(
             builder: (_) => ReturnConfirmDetail(returnId: args), settings: settings);
