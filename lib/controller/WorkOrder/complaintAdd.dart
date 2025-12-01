@@ -291,6 +291,8 @@ class _ComplaintAddState extends State<ComplaintAdd> {
     });
 
     try {
+      debugPrint(
+          '[MaterialAdd] workOrderId=${widget.args.workOrderId}, itemId=${part.itemId}, qty=${_quantityController.text.trim()}, remark=${_remarkController.text.trim()}');
       final result = await _repository.addMaterial(
         workOrderId: widget.args.workOrderId,
         itemId: part.itemId!,
@@ -300,6 +302,7 @@ class _ComplaintAddState extends State<ComplaintAdd> {
         assetGroupName: _selectedGroup?.itemName,
         itemTypeDesc: _selectedType?.itemName ?? _selectedType?.itemTypeDesc,
       );
+      debugPrint('[MaterialAdd] result=$result');
 
       _showResultToast(result);
       if (mounted) {

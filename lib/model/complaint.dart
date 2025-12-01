@@ -187,6 +187,7 @@ abstract class RequestTask implements Built<RequestTask, RequestTaskBuilder> {
   String? get woTypeDesc; 
   String? get collectTime;
   String? get siteName;
+  String? get woTaskId;
 
   RequestTask._();
   factory RequestTask([void Function(RequestTaskBuilder) updates]) = _$RequestTask;
@@ -196,7 +197,28 @@ abstract class RequestTask implements Built<RequestTask, RequestTaskBuilder> {
   }
 
   static RequestTask fromJson(Map<String, dynamic> json) {
-    return serializers.deserializeWith(RequestTask.serializer, json)!;
+    final normalized = Map<String, dynamic>.from(json);
+
+    void ensureField(String target, List<String> fallbacks) {
+      if (normalized[target] != null) return;
+      for (final fb in fallbacks) {
+        final value = normalized[fb] ?? json[fb];
+        if (value != null) {
+          normalized[target] = value;
+          return;
+        }
+      }
+    }
+
+    ensureField('woTaskId', const ['wo_task_id', 'woTaskID']);
+    ensureField('woTaskRequestId', const ['wo_task_request_id']);
+    ensureField('woTaskRequestNo', const ['wo_task_request_no']);
+    ensureField('woTaskNo', const ['wo_task_no']);
+    ensureField('woSeverityDesc', const ['wo_severity_desc']);
+    ensureField('collectTime', const ['collect_time']);
+    ensureField('siteName', const ['site_name']);
+
+    return serializers.deserializeWith(RequestTask.serializer, normalized)!;
   }
 
   static Serializer<RequestTask> get serializer => _$requestTaskSerializer;

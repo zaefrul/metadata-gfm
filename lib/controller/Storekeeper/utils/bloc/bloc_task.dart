@@ -36,7 +36,13 @@ class MaterialTask extends Bloc {
     "48": colorTheme4
   };
 
-  MaterialTask(String id) : _request = Request(id) {
+  MaterialTask({
+    required String requestId,
+    String? workOrderId,
+  }) : _request = Request(
+          requestId: requestId,
+          workOrderId: workOrderId,
+        ) {
     refresh();
   }
 
@@ -65,10 +71,13 @@ class MaterialTask extends Bloc {
 
   // Method
   Future<void> refresh() async {
-    checker(_request.materials.then((value) {
-      materials = value;
-      return _request.info;
-    }).then((value) => detail = value));
+    checker(() async {
+      final info = await _request.info;
+      detail = info;
+      final woTaskId = info.woTaskId;
+      final mats = await _request.materials(workOrderId: woTaskId);
+      materials = mats;
+    }());
   }
 
   Future<void> onclick(bool isApproval) {
@@ -94,7 +103,8 @@ class MaterialTask extends Bloc {
 }
 
 class Request extends _Utils {
-  final Provider _providerGET;
+  final String _requestId;
+  final String? _initialWorkOrderId;
   final Provider _providerINFO;
   final Provider _providerSUBMIT;
   final Provider _providerRESERVED;
@@ -102,25 +112,58 @@ class Request extends _Utils {
   final Provider _providerCHECKOUT;
   final Provider _providerREJECT;
 
-  Request(String id)
-      : _providerGET =
-            Provider(fetchURL: "/wo_parts/wo_parts_list/", taskID: id),
-        _providerINFO =
-            Provider(fetchURL: "/wo_request/request_details/", taskID: id),
-        _providerSUBMIT =
-            Provider(fetchURL: "/wo_request/approve_request/", taskID: id),
-        _providerRESERVED =
-            Provider(fetchURL: "/wo_request/reserve_request/", taskID: id),
+  Request({
+    required String requestId,
+    String? workOrderId,
+  })  : _requestId = requestId,
+        _initialWorkOrderId = workOrderId,
+        _providerINFO = Provider(
+          fetchURL: "/wo_request/request_details/",
+          taskID: workOrderId ?? requestId,
+        ),
+        _providerSUBMIT = Provider(
+          fetchURL: "/wo_request/approve_request/",
+          taskID: requestId,
+        ),
+        _providerRESERVED = Provider(
+          fetchURL: "/wo_request/reserve_request/",
+          taskID: requestId,
+        ),
         _providerORDER = Provider(fetchURL: "/wo_request/order_request/"),
-        _providerCHECKOUT =
-            Provider(fetchURL: "/wo_request/check_out_request/", taskID: id),
-        _providerREJECT =
-            Provider(fetchURL: "/wo_request/reject_request/", taskID: id);
+        _providerCHECKOUT = Provider(
+          fetchURL: "/wo_request/check_out_request/",
+          taskID: requestId,
+        ),
+        _providerREJECT = Provider(
+          fetchURL: "/wo_request/reject_request/",
+          taskID: requestId,
+        );
 
   Future<RequestTask> get info =>
       _providerINFO.getJson(url: "/wo_request/request_details/").then((value) => _Utils.task(value));
-  Future<List<Material>> get materials =>
-      _providerGET.getJson(url: "/wo_request/request_details/").then((value) => _Utils.material(value));
+
+  Future<List<Material>> materials({String? workOrderId}) {
+    final effectiveId = _resolveWorkOrderId(workOrderId);
+    final provider = Provider(
+      fetchURL: "/wo_parts/wo_parts_list/",
+      taskID: effectiveId,
+    );
+    return provider
+        .getJson(url: "/wo_parts/wo_parts_list/")
+        .then((value) => _Utils.material(value));
+  }
+
+  String _resolveWorkOrderId(String? override) {
+    String? candidate = override?.trim();
+    if (candidate != null && candidate.isNotEmpty) {
+      return candidate;
+    }
+    candidate = _initialWorkOrderId?.trim();
+    if (candidate != null && candidate.isNotEmpty) {
+      return candidate;
+    }
+    return _requestId;
+  }
 
   Future<void> get order => _providerORDER.post(url: "");
   Future<void> get submit => _providerSUBMIT.put();

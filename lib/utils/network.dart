@@ -76,6 +76,7 @@ class Provider {
   late BuildContext context;
   late String deviceID;
   late String token;
+  static bool _sessionDialogVisible = false;
 
   Provider({required this.fetchURL, this.taskID});
 
@@ -462,23 +463,48 @@ class Provider {
     return Future.error("Please try again.");
   }
 
-  void alert(String txt) {
-    showDialog(
-        context: navigatorKey.currentContext!,
+  Future<void> alert(String txt) async {
+    final navigator = navigatorKey.currentState;
+    final dialogContext = navigatorKey.currentContext;
+
+    if (navigator == null || dialogContext == null || !navigator.mounted) {
+      debugPrint("Navigator not ready to show session alert");
+      return;
+    }
+
+    if (_sessionDialogVisible) {
+      return;
+    }
+    _sessionDialogVisible = true;
+
+    try {
+      await showDialog(
+        context: dialogContext,
+        barrierDismissible: false,
         builder: (BuildContext context) => CustomDialog(
-              title: "Expired Session",
-              description: txt,
-              buttonText: "Okay",
-              image: Image.asset(
-                "assets/icon_trans.png",
-                height: 40,
-              ),
-            )).whenComplete(() async {
-      var userPref = await User.getPrefUser;
-      var user = User.fromMap(userPref);
-      user.removeUser();
-      Navigator.pop(context);
-      Navigator.pushReplacementNamed(context, "/");
-    });
+          title: "Expired Session",
+          description: txt,
+          buttonText: "Okay",
+          image: Image.asset(
+            "assets/icon_trans.png",
+            height: 40,
+          ),
+        ),
+      );
+
+      try {
+        var userPref = await User.getPrefUser;
+        var user = User.fromMap(userPref);
+        await user.removeUser();
+      } catch (err) {
+        debugPrint("Unable to clear expired session: $err");
+      }
+
+      if (navigator.mounted) {
+        navigator.pushNamedAndRemoveUntil("/", (route) => false);
+      }
+    } finally {
+      _sessionDialogVisible = false;
+    }
   }
 }

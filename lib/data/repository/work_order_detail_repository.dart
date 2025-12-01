@@ -2255,21 +2255,27 @@ class WorkOrderDetailRepository {
     required Map<String, dynamic> payload,
   }) async {
     final forcedOffline = await _database.isWorkOrderOfflineMode(workOrderId);
+    debugPrint(
+        '[RestOrQueue] woTaskId=$workOrderId forcedOffline=$forcedOffline payloadType=${payload['type']} method=${payload['method']} url=${payload['url']}');
     if (!forcedOffline) {
       try {
         await syncPendingActions();
         await _sendRest(payload);
+        debugPrint('[RestOrQueue] sent immediately');
         return WorkOrderActionResult.success;
       } on SocketException catch (_) {
         await _queueRestAction(workOrderId, payload);
+        debugPrint('[RestOrQueue] queued due to SocketException');
         return WorkOrderActionResult.queued;
       } on TimeoutException catch (_) {
         await _queueRestAction(workOrderId, payload);
+        debugPrint('[RestOrQueue] queued due to TimeoutException');
         return WorkOrderActionResult.queued;
       }
     }
 
     await _queueRestAction(workOrderId, payload);
+    debugPrint('[RestOrQueue] forced offline, queued action');
     return WorkOrderActionResult.queued;
   }
 
@@ -2421,6 +2427,7 @@ class WorkOrderDetailRepository {
         'statusDesc': 'Pending',
       },
     };
+    debugPrint('[MaterialAddRepo] payload=$payload');
     return _sendRestOrQueue(
       workOrderId: workOrderId,
       payload: payload,

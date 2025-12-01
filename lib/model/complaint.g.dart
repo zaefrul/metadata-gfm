@@ -996,6 +996,13 @@ class _$RequestTaskSerializer implements StructuredSerializer<RequestTask> {
         ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
+    value = object.woTaskId;
+    if (value != null) {
+      result
+        ..add('woTaskId')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(String)));
+    }
     return result;
   }
 
@@ -1060,6 +1067,10 @@ class _$RequestTaskSerializer implements StructuredSerializer<RequestTask> {
           break;
         case 'siteName':
           result.siteName = serializers.deserialize(value,
+              specifiedType: const FullType(String)) as String?;
+          break;
+        case 'woTaskId':
+          result.woTaskId = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
           break;
       }
@@ -2762,6 +2773,8 @@ class _$RequestTask extends RequestTask {
   final String? collectTime;
   @override
   final String? siteName;
+  @override
+  final String? woTaskId;
 
   factory _$RequestTask([void Function(RequestTaskBuilder)? updates]) =>
       (RequestTaskBuilder()..update(updates))._build();
@@ -2779,7 +2792,8 @@ class _$RequestTask extends RequestTask {
       this.woTaskRequestNo,
       this.woTypeDesc,
       this.collectTime,
-      this.siteName})
+      this.siteName,
+      this.woTaskId})
       : super._();
   @override
   RequestTask rebuild(void Function(RequestTaskBuilder) updates) =>
@@ -2804,7 +2818,8 @@ class _$RequestTask extends RequestTask {
         woTaskRequestNo == other.woTaskRequestNo &&
         woTypeDesc == other.woTypeDesc &&
         collectTime == other.collectTime &&
-        siteName == other.siteName;
+        siteName == other.siteName &&
+        woTaskId == other.woTaskId;
   }
 
   @override
@@ -2823,6 +2838,7 @@ class _$RequestTask extends RequestTask {
     _$hash = $jc(_$hash, woTypeDesc.hashCode);
     _$hash = $jc(_$hash, collectTime.hashCode);
     _$hash = $jc(_$hash, siteName.hashCode);
+    _$hash = $jc(_$hash, woTaskId.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -2842,7 +2858,8 @@ class _$RequestTask extends RequestTask {
           ..add('woTaskRequestNo', woTaskRequestNo)
           ..add('woTypeDesc', woTypeDesc)
           ..add('collectTime', collectTime)
-          ..add('siteName', siteName))
+          ..add('siteName', siteName)
+          ..add('woTaskId', woTaskId))
         .toString();
   }
 }
@@ -2906,6 +2923,10 @@ class RequestTaskBuilder implements Builder<RequestTask, RequestTaskBuilder> {
   String? get siteName => _$this._siteName;
   set siteName(String? siteName) => _$this._siteName = siteName;
 
+  String? _woTaskId;
+  String? get woTaskId => _$this._woTaskId;
+  set woTaskId(String? woTaskId) => _$this._woTaskId = woTaskId;
+
   RequestTaskBuilder();
 
   RequestTaskBuilder get _$this {
@@ -2924,6 +2945,7 @@ class RequestTaskBuilder implements Builder<RequestTask, RequestTaskBuilder> {
       _woTypeDesc = $v.woTypeDesc;
       _collectTime = $v.collectTime;
       _siteName = $v.siteName;
+      _woTaskId = $v.woTaskId;
       _$v = null;
     }
     return this;
@@ -2958,6 +2980,7 @@ class RequestTaskBuilder implements Builder<RequestTask, RequestTaskBuilder> {
           woTypeDesc: woTypeDesc,
           collectTime: collectTime,
           siteName: siteName,
+          woTaskId: woTaskId,
         );
     replace(_$result);
     return _$result;
