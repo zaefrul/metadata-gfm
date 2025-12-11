@@ -94,6 +94,7 @@ class _MaterialRequestScreenState extends State<MaterialRequestScreen> {
   }
 
   bool _canAddMaterials(RequestTask? task, String? workOrderId) {
+    if (!widget.isApproval) return false;
     if (_isRejected(task)) return false;
     return workOrderId != null && workOrderId.isNotEmpty;
   }
@@ -115,14 +116,14 @@ class _MaterialRequestScreenState extends State<MaterialRequestScreen> {
       ..statusDesc = material.statusDesc
       ..images = material.images?.toBuilder());
 
-    final changed = await Navigator.pushNamed<bool>(
+    final changed = await Navigator.pushNamed(
       context,
       storekeeper_constants.routeMaterial,
       arguments: MaterialEditArguments(
         workOrderId: woTaskId,
         material: editable,
       ),
-    );
+    ) as bool?;
 
     if (changed == true) {
       await _bloc.refresh();
@@ -301,7 +302,8 @@ class _MaterialRequestScreenState extends State<MaterialRequestScreen> {
                         final mats = msnap.data ?? [];
                         final String? woTaskId = _resolveWorkOrderId(data);
                         final bool canAdd = _canAddMaterials(data, woTaskId);
-                        final bool canEdit = !_isRejected(data) && woTaskId != null;
+                        final bool canEdit =
+                          widget.isApproval && !_isRejected(data) && woTaskId != null;
                         final String? editableWoTaskId = canEdit ? woTaskId : null;
                         final VoidCallback? addHandler =
                           (canAdd && woTaskId != null)
@@ -461,6 +463,20 @@ class _MaterialCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                  if (onTap != null) ...[
+                    const SizedBox(height: 12),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton.icon(
+                        onPressed: onTap,
+                        icon: const Icon(Icons.edit_outlined),
+                        label: const Text('Edit quantity'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                  ],
                   if (isApproval) ...[
                     const SizedBox(height: 12),
                     Divider(color: AppColors.divider),

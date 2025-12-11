@@ -374,7 +374,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         if (args is! MaterialEditArguments) {
           throw ArgumentError('routeMaterial expects MaterialEditArguments');
         }
-        return MaterialPageRoute(
+        return MaterialPageRoute<bool?>(
             builder: (context) => MaterialEdit(args), settings: settings);
       case routeTechnician:
         if (settings.arguments != null) {

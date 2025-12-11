@@ -49,11 +49,51 @@ class CheckInList extends StatelessWidget {
       provider.context = context;
     }
     return provider.getJson(url: "/do/list_mobile_check_in").then((value) {
-      _data.sink.add(value);
+      final List<dynamic> items = _normalizeList(value);
+      items.sort(_sortLatestFirst);
+      _data.sink.add(items);
     }).catchError((error) {
       debugPrint("Error refreshing check-in list: $error");
       // Keep the current data on error
     });
+  }
+
+  List<dynamic> _normalizeList(dynamic value) {
+    if (value is List) return List<dynamic>.from(value);
+    if (value is Map<String, dynamic> && value['result'] is List) {
+      return List<dynamic>.from(value['result'] as List);
+    }
+    return <dynamic>[];
+  }
+
+  int _sortLatestFirst(dynamic a, dynamic b) {
+    final DateTime? dateA = _extractTimestamp(a);
+    final DateTime? dateB = _extractTimestamp(b);
+    if (dateA == null && dateB == null) return 0;
+    if (dateA == null) return 1;
+    if (dateB == null) return -1;
+    return dateB.compareTo(dateA);
+  }
+
+  DateTime? _extractTimestamp(dynamic entry) {
+    if (entry is! Map<String, dynamic>) return null;
+    final DateTime? timestamp = _parseTimestamp(entry['doTimestamp']);
+    if (timestamp != null) return timestamp;
+    return _parseTimestamp(entry['doDate']);
+  }
+
+  DateTime? _parseTimestamp(dynamic raw) {
+    if (raw == null) return null;
+    final String text = raw.toString();
+    if (text.isEmpty) return null;
+    final int? numValue = int.tryParse(text);
+    if (numValue != null) {
+      if (text.length >= 13) {
+        return DateTime.fromMillisecondsSinceEpoch(numValue);
+      }
+      return DateTime.fromMillisecondsSinceEpoch(numValue * 1000);
+    }
+    return DateTime.tryParse(text);
   }
 }
 

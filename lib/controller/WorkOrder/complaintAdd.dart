@@ -336,6 +336,7 @@ class _ComplaintAddState extends State<ComplaintAdd> {
   @override
   Widget build(BuildContext context) {
     ToastContext().init(context);
+    final double bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return Scaffold(
       backgroundColor: AppColors.gray100,
@@ -352,13 +353,18 @@ class _ComplaintAddState extends State<ComplaintAdd> {
         centerTitle: true,
         iconTheme: const IconThemeData(color: AppColors.primary),
       ),
-      body: Stack(
-        children: [
-          RefreshIndicator(
-            onRefresh: () => _loadGroups(forceRefresh: true),
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(20),
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Stack(
+          children: [
+            RefreshIndicator(
+              onRefresh: () => _loadGroups(forceRefresh: true),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -442,7 +448,13 @@ class _ComplaintAddState extends State<ComplaintAdd> {
                       children: [
                         TextFormField(
                           controller: _quantityController,
-                          keyboardType: TextInputType.number,
+                          keyboardType:
+                              const TextInputType.numberWithOptions(decimal: false),
+                          textInputAction: TextInputAction.next,
+                          onEditingComplete: () =>
+                              FocusScope.of(context).nextFocus(),
+                          onTapOutside: (_) =>
+                              FocusScope.of(context).unfocus(),
                           decoration: _inputDecoration('Quantity').copyWith(
                             errorText: _quantityValue == null &&
                                     _quantityController.text.isNotEmpty
@@ -457,6 +469,11 @@ class _ComplaintAddState extends State<ComplaintAdd> {
                         TextFormField(
                           controller: _remarkController,
                           maxLines: 3,
+                          textInputAction: TextInputAction.done,
+                          onEditingComplete: () =>
+                              FocusScope.of(context).unfocus(),
+                          onTapOutside: (_) =>
+                              FocusScope.of(context).unfocus(),
                           decoration: _inputDecoration('Remark (optional)'),
                         ),
                       ],
@@ -467,36 +484,42 @@ class _ComplaintAddState extends State<ComplaintAdd> {
               ),
             ),
           ),
-          if (_loadingGroups || _loadingOptions || _submitting)
-            Positioned.fill(
-              child: Container(
-                color: Colors.black.withValues(alpha: 0.1),
-                child: const Center(
-                  child: CircularProgressIndicator(),
+            if (_loadingGroups || _loadingOptions || _submitting)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.onPrimary,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+      bottomNavigationBar: AnimatedPadding(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.only(bottom: bottomInset),
+        child: SafeArea(
+          minimum: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.onPrimary,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-            ),
-            onPressed: _hasValidSelection && !_submitting ? _submit : null,
-            icon: const Icon(Icons.save_alt),
-            label: Text(
-              'Save Material',
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w600,
+              onPressed: _hasValidSelection && !_submitting ? _submit : null,
+              icon: const Icon(Icons.save_alt),
+              label: Text(
+                'Save Material',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),
