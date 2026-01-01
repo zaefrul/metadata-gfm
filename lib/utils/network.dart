@@ -305,7 +305,12 @@ class Provider {
       if (decode['success'] == true) {
         return decode["result"];
       } else {
-        return Future.error(decode['errmsg']);
+        // Backend sometimes throws DB-layer "Select query result empty" even for
+        // list endpoints. Treat it as an empty list instead of a hard error.
+        if (decode["error"] == "Select query result empty") {
+          return [];
+        }
+        return Future.error(decode['errmsg'] ?? "Please try again.");
       }
     }
     return Future.error("Please try again.");

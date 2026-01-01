@@ -31,7 +31,9 @@ class _WorkOrderState extends State<WorkOrderView> with TickerProviderStateMixin
     User.getPrefUser
         .then((value) => User.fromMap(value))
         .then((user) {
-          isSupervisor = user.roles.any((element) => element.id == "17");
+          // Role 17 historically owns the MR Approval tab; MR Reviewer uses role 27.
+          // Allow either role to see the MR Approval task list.
+          isSupervisor = user.roles.any((element) => element.id == "17" || element.id == "27");
           int length = isSupervisor ? 3 : 2;
           setState(() {
             _tabController = TabController(vsync: this, length: length);

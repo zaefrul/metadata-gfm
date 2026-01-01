@@ -47,6 +47,14 @@ class _MRTaskListState extends State<MRTaskList> {
     "48": "Waiting for Purchase",
   };
 
+  String _statusLabelFor(RequestTask task) {
+    // MR Reviewer tasks share statusId=33 with supervisors; differentiate via checkpoint.
+    if (task.statusId == '33' && task.checkpointDesc == 'MR Reviewer') {
+      return 'Review';
+    }
+    return _statuses[task.statusId] ?? 'Unknown';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -85,7 +93,7 @@ class _MRTaskListState extends State<MRTaskList> {
   List<RequestTask> get _visibleTasks {
     if (_currentFilter == 'All Status') return _tasks;
     return _tasks
-        .where((t) => MRTaskList._statuses[t.statusId] == _currentFilter)
+      .where((t) => _statusLabelFor(t) == _currentFilter)
         .toList();
   }
 
@@ -108,7 +116,10 @@ class _MRTaskListState extends State<MRTaskList> {
                 ),
                 items: [
                   'All Status',
-                  ..._statuses.values,
+                  ...{
+                    ..._statuses.values,
+                    'Review',
+                  },
                 ]
                     .map((label) => DropdownMenuItem(
                           value: label,
@@ -158,8 +169,9 @@ class _MRTaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusLabel =
-        MRTaskList._statuses[task.statusId] ?? 'Unknown';
+    final statusLabel = (task.statusId == '33' && task.checkpointDesc == 'MR Reviewer')
+      ? 'Review'
+      : (MRTaskList._statuses[task.statusId] ?? 'Unknown');
     final color = _colorFor(task.statusId ?? "");
     final bg = _bgColorFor(task.statusId ?? "");
 

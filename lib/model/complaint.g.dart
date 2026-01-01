@@ -933,6 +933,20 @@ class _$RequestTaskSerializer implements StructuredSerializer<RequestTask> {
         ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
+    value = object.checkpointId;
+    if (value != null) {
+      result
+        ..add('checkpointId')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(String)));
+    }
+    value = object.checkpointDesc;
+    if (value != null) {
+      result
+        ..add('checkpointDesc')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(String)));
+    }
     value = object.taskFrom;
     if (value != null) {
       result
@@ -1031,6 +1045,14 @@ class _$RequestTaskSerializer implements StructuredSerializer<RequestTask> {
           break;
         case 'statusId':
           result.statusId = serializers.deserialize(value,
+              specifiedType: const FullType(String)) as String?;
+          break;
+        case 'checkpointId':
+          result.checkpointId = serializers.deserialize(value,
+              specifiedType: const FullType(String)) as String?;
+          break;
+        case 'checkpointDesc':
+          result.checkpointDesc = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
           break;
         case 'taskFrom':
@@ -2756,6 +2778,10 @@ class _$RequestTask extends RequestTask {
   @override
   final String? statusId;
   @override
+  final String? checkpointId;
+  @override
+  final String? checkpointDesc;
+  @override
   final String? taskFrom;
   @override
   final String? taskReceivedTime;
@@ -2784,6 +2810,8 @@ class _$RequestTask extends RequestTask {
       this.requestTime,
       this.statusDesc,
       this.statusId,
+      this.checkpointId,
+      this.checkpointDesc,
       this.taskFrom,
       this.taskReceivedTime,
       this.woSeverityDesc,
@@ -2810,6 +2838,8 @@ class _$RequestTask extends RequestTask {
         requestTime == other.requestTime &&
         statusDesc == other.statusDesc &&
         statusId == other.statusId &&
+        checkpointId == other.checkpointId &&
+        checkpointDesc == other.checkpointDesc &&
         taskFrom == other.taskFrom &&
         taskReceivedTime == other.taskReceivedTime &&
         woSeverityDesc == other.woSeverityDesc &&
@@ -2829,6 +2859,8 @@ class _$RequestTask extends RequestTask {
     _$hash = $jc(_$hash, requestTime.hashCode);
     _$hash = $jc(_$hash, statusDesc.hashCode);
     _$hash = $jc(_$hash, statusId.hashCode);
+    _$hash = $jc(_$hash, checkpointId.hashCode);
+    _$hash = $jc(_$hash, checkpointDesc.hashCode);
     _$hash = $jc(_$hash, taskFrom.hashCode);
     _$hash = $jc(_$hash, taskReceivedTime.hashCode);
     _$hash = $jc(_$hash, woSeverityDesc.hashCode);
@@ -2850,6 +2882,8 @@ class _$RequestTask extends RequestTask {
           ..add('requestTime', requestTime)
           ..add('statusDesc', statusDesc)
           ..add('statusId', statusId)
+          ..add('checkpointId', checkpointId)
+          ..add('checkpointDesc', checkpointDesc)
           ..add('taskFrom', taskFrom)
           ..add('taskReceivedTime', taskReceivedTime)
           ..add('woSeverityDesc', woSeverityDesc)
@@ -2882,6 +2916,15 @@ class RequestTaskBuilder implements Builder<RequestTask, RequestTaskBuilder> {
   String? _statusId;
   String? get statusId => _$this._statusId;
   set statusId(String? statusId) => _$this._statusId = statusId;
+
+  String? _checkpointId;
+  String? get checkpointId => _$this._checkpointId;
+  set checkpointId(String? checkpointId) => _$this._checkpointId = checkpointId;
+
+  String? _checkpointDesc;
+  String? get checkpointDesc => _$this._checkpointDesc;
+  set checkpointDesc(String? checkpointDesc) =>
+      _$this._checkpointDesc = checkpointDesc;
 
   String? _taskFrom;
   String? get taskFrom => _$this._taskFrom;
@@ -2936,6 +2979,8 @@ class RequestTaskBuilder implements Builder<RequestTask, RequestTaskBuilder> {
       _requestTime = $v.requestTime;
       _statusDesc = $v.statusDesc;
       _statusId = $v.statusId;
+      _checkpointId = $v.checkpointId;
+      _checkpointDesc = $v.checkpointDesc;
       _taskFrom = $v.taskFrom;
       _taskReceivedTime = $v.taskReceivedTime;
       _woSeverityDesc = $v.woSeverityDesc;
@@ -2971,6 +3016,8 @@ class RequestTaskBuilder implements Builder<RequestTask, RequestTaskBuilder> {
           requestTime: requestTime,
           statusDesc: statusDesc,
           statusId: statusId,
+          checkpointId: checkpointId,
+          checkpointDesc: checkpointDesc,
           taskFrom: taskFrom,
           taskReceivedTime: taskReceivedTime,
           woSeverityDesc: woSeverityDesc,
