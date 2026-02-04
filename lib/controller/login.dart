@@ -161,7 +161,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                 children: [
                   Image.asset(
                     'assets/logo-cropped.png',
-                    height: 80, // adjust as you like
+                    height: 200, // adjust as you like
                     fit: BoxFit.contain,
                   )
                   // const SizedBox(height: 12)

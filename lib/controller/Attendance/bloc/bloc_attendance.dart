@@ -15,6 +15,8 @@ import 'bloc.dart';
 
 class BlocAttendance extends Bloc {
   late Timer _timer;
+  StreamSubscription<DateTime>? _calendarDaySubscription;
+  bool _isDisposed = false;
 
   // Using non-nullable BehaviorSubjects (if initial values are available)
   final BehaviorSubject<TabController> _tabController = BehaviorSubject<TabController>();
@@ -38,11 +40,13 @@ class BlocAttendance extends Bloc {
     refreshAttendance();
 
     // Listen to calendar day changes to update attendance info.
-    _calendarDay.listen((value) =>
+    _calendarDaySubscription = _calendarDay.listen((value) =>
         refreshAttendanceInfo(value.year, value.month, value.day));
 
     _timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
-      _clock.sink.add(DateFormat("hh:mm:ss").format(DateTime.now()));
+      if (!_isDisposed) {
+        _clock.sink.add(DateFormat("hh:mm:ss").format(DateTime.now()));
+      }
     });
   }
 
@@ -61,6 +65,9 @@ class BlocAttendance extends Bloc {
 
   @override
   void dispose() {
+    _isDisposed = true;
+    _calendarDaySubscription?.cancel();
+    _timer.cancel();
     _tabController.value.dispose();
     _tabController.close();
     _calendarDay.close();
@@ -69,12 +76,12 @@ class BlocAttendance extends Bloc {
     _kAttendance.close();
     _buttonStatus.close();
     _clock.close();
-    _timer.cancel();
     super.dispose();
   }
 
   // Returns the events for a given day (or an empty list if none).
   List<EventAtt> getEventsForDay(DateTime day) {
+    if (!_kEvents.hasValue) return [];
     return _kEvents.value[day] ?? [];
   }
 
@@ -90,10 +97,15 @@ class BlocAttendance extends Bloc {
     provider.getJson(url: "/att_transaction/mobile/main_info")
         .then((value) => Attendance.fromJson(value))
         .then((value) {
-      _kAttendance.sink.add(value);
-      attndId = value.attTransactionId.toString();
-      if (value.button == "Check In") _buttonStatus.sink.add(true);
-      if (value.button == "Check Out") _buttonStatus.sink.add(false);
+      if (_isDisposed) return;
+      try {
+        _kAttendance.sink.add(value);
+        attndId = value.attTransactionId.toString();
+        if (value.button == "Check In") _buttonStatus.sink.add(true);
+        if (value.button == "Check Out") _buttonStatus.sink.add(false);
+      } catch (e) {
+        // Stream already closed, ignore
+      }
     });
   }
 
@@ -105,8 +117,13 @@ class BlocAttendance extends Bloc {
     provider.getJson(url: "/att_transaction/mobile/calendar_daily_info/$year-$month-$day")
         .then((value) => EventDetail.fromJson(value))
         .then((value) {
-      if (value != null) {
-        _kEvent.sink.add(value);
+      if (_isDisposed) return;
+      try {
+        if (value != null) {
+          _kEvent.sink.add(value);
+        }
+      } catch (e) {
+        // Stream already closed, ignore
       }
     });
   }
@@ -121,10 +138,12 @@ class BlocAttendance extends Bloc {
 
     // Loop for previous months (if needed)
     for (int startedMonth = 1; startedMonth < currentMonth; startedMonth++) {
+      if (_isDisposed) return;
       final list = await fillCalendar(currentYear, startedMonth);
       eventsDate.addAll(list);
     }
 
+    if (_isDisposed) return;
     final list = await fillCalendar(currentYear, currentMonth);
     eventsDate.addAll(list);
 
@@ -136,10 +155,15 @@ class BlocAttendance extends Bloc {
           ifAbsent: () => [e]);
     }
 
-    _kEvents.sink.add(LinkedHashMap<DateTime, List<EventAtt>>(
-      equals: isSameDay,
-      hashCode: getHashCode,
-    )..addAll(_kEventSource));
+    if (_isDisposed) return;
+    try {
+      _kEvents.sink.add(LinkedHashMap<DateTime, List<EventAtt>>(
+        equals: isSameDay,
+        hashCode: getHashCode,
+      )..addAll(_kEventSource));
+    } catch (e) {
+      // Stream already closed, ignore
+    }
   }
 
   Future<List<EventAtt>> fillCalendar(int year, int month) async {
