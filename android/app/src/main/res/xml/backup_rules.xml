@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!--
+      flutter_secure_storage with encryptedSharedPreferences stores data in shared prefs.
+      If these prefs are restored onto a fresh install, Android Keystore keys won't match,
+      leading to BAD_DECRYPT/BadPaddingException and broken biometric login.
+    -->
+    <exclude domain="sharedpref" path="FlutterSecureStorage.xml"/>
+</full-backup-content>

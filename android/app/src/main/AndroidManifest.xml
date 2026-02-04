@@ -8,6 +8,8 @@
     <application
         android:label="GEMS 2.0"
         android:name="${applicationName}"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:icon="@mipmap/launcher_icon">
         <activity
             android:name="com.gfm.gems.v3.MainActivity"

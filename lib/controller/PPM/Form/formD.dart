@@ -270,6 +270,9 @@ class _FormDState extends State<FormD> {
                         gravity: Toast.bottom,
                       );
                       
+                      // Refresh pending count immediately so banner shows
+                      await _pendingSync?.refreshPendingCount();
+                      
                       // In offline mode, we need to update the cache with saved values
                       // Reload to show the saved state
                       setState(() {

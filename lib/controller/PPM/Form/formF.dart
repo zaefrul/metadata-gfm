@@ -304,6 +304,9 @@ class _FormFState extends State<FormF> {
           duration: Toast.lengthLong,
           gravity: Toast.bottom,
         );
+        
+        // Refresh pending count immediately so banner shows
+        await _pendingSync?.refreshPendingCount();
       }
 
       fetch();

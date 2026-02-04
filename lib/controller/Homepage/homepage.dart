@@ -459,7 +459,7 @@ class _HomepageState extends State<Homepage> {
       _FeatureUIData("StoreKeeper", Icons.inventory_2_outlined, routeDashboard, enabled: _isStorekeeperFeatureEnabled),
       _FeatureUIData("Utilities", Icons.folder_special_outlined, routeUtilities, enabled: _isUtilitiesFeatureEnabled),
       _FeatureUIData("Leaderboard", Icons.emoji_events_outlined, routeLeaderboard),
-      _FeatureUIData("Attendance", Icons.event_available_outlined, null, onTap: _openAttendanceForm),
+      _FeatureUIData("Attendance", Icons.event_available_outlined, routeAttendance),
       _FeatureUIData("Suggestion", Icons.lightbulb_outline, null, onTap: _openSuggestionForm),
     ];
 
@@ -485,12 +485,8 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  void _openAttendanceForm() async {
-    _launchUrlHelper("https://forms.office.com/r/CYvjipHJ4S");
-  }
-
   void _openSuggestionForm() async {
-    _launchUrlHelper("https://forms.office.com/r/ANOTHER_FORM_ID");
+    _launchUrlHelper("https://forms.office.com/r/CYvjipHJ4S");
   }
 
   Future<void> _launchUrlHelper(String urlString) async {

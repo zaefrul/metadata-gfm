@@ -265,6 +265,9 @@ class _FormEState extends State<FormE> {
           duration: Toast.lengthLong,
           gravity: Toast.bottom,
         );
+        
+        // Refresh pending count immediately so banner shows
+        await _pendingSync?.refreshPendingCount();
       }
 
       getListItem();

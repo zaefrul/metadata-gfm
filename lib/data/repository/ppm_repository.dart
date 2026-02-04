@@ -795,6 +795,20 @@ class PPMRepository {
           debugPrint('   ✓ Payload parsed successfully');
           debugPrint('   Keys: ${payload.keys.join(", ")}');
           
+          // Fix legacy payloads that may be missing required fields
+          if (action.action == 'submit_ppm') {
+            // Ensure action field is present
+            if (!payload.containsKey('action')) {
+              payload['action'] = 'submit_ppm';
+              debugPrint('   🔧 Fixed: Added missing action field');
+            }
+            // Ensure remark field is present (required by backend)
+            if (!payload.containsKey('remark')) {
+              payload['remark'] = '';
+              debugPrint('   🔧 Fixed: Added missing remark field');
+            }
+          }
+          
           // Validate critical fields
           if (action.action == 'submit_ppm') {
             debugPrint('');
@@ -803,6 +817,7 @@ class PPMRepository {
             debugPrint('   - endTime: ${payload['endTime']}');
             debugPrint('   - checkpoint: ${payload['checkpoint']}');
             debugPrint('   - result: ${payload['result']}');
+            debugPrint('   - remark: ${payload['remark']}');
             
             if (payload['endTime'] == null || payload['endTime'].toString().isEmpty) {
               debugPrint('   ❌ ERROR: Missing endTime in submit_ppm payload!');
@@ -1962,9 +1977,11 @@ class PPMRepository {
         ppmTaskId: ppmTaskId,
         action: 'submit_ppm',
         payloadJson: json.encode({
+          'action': 'submit_ppm',
           'ppmTaskId': ppmTaskId,
           'checkpoint': '1',
           'result': '1',
+          'remark': '',  // Required by backend (can be empty string)
           'endTime': formattedEndTime,
         }),
         createdAt: DateTime.now(),

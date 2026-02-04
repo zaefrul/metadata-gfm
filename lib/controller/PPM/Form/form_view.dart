@@ -1449,6 +1449,9 @@ class _FormViewState extends State<FormView> {
       _rebuildCounter++;
     });
     
+    // Refresh pending sync count immediately so banner reflects current state
+    await _pendingSync?.refreshPendingCount();
+    
     // Check connectivity first
     final isOnline = await _checkConnectivity();
     // If there are pending (unsynced) actions for this task, prefer cached snapshot

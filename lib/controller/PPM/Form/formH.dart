@@ -539,6 +539,8 @@ class _FormHState extends State<FormH> {
           duration: Toast.lengthLong,
           gravity: Toast.bottom,
         );
+        // Refresh pending count immediately so banner shows
+        await _pendingSync?.refreshPendingCount();
         // Don't clear notes yet - they'll be sent when online
       }
     } catch (e, stackTrace) {
@@ -743,6 +745,8 @@ class _FormHState extends State<FormH> {
             duration: Toast.lengthShort,
             gravity: Toast.bottom,
           );
+          // Refresh pending count immediately so banner shows
+          await _pendingSync?.refreshPendingCount();
         }
 
         // Refresh display after successful upload/queue

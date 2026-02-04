@@ -260,6 +260,9 @@ class _FormGState extends State<FormG> {
                     } else {
                       alert("Remark saved. Will sync when online.");
                       
+                      // Refresh pending count immediately so banner shows
+                      await _pendingSync?.refreshPendingCount();
+                      
                       // In offline mode, reload to show the saved state
                       setState(() {
                         _sectionDataFuture = _fetchSectionData();

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthSecureStorage {
@@ -35,20 +36,35 @@ class AuthSecureStorage {
   }
 
   static Future<bool> isEnabled() async {
-    final value = await _storage.read(
-      key: _enabledKey,
-      aOptions: _androidOptions,
-      iOptions: _iosOptions,
-    );
-    return value == 'true';
+    try {
+      final value = await _storage.read(
+        key: _enabledKey,
+        aOptions: _androidOptions,
+        iOptions: _iosOptions,
+      );
+      return value == 'true';
+    } on PlatformException catch (e) {
+      await _handleCorruptSecureStorage(e);
+      return false;
+    } catch (_) {
+      return false;
+    }
   }
 
   static Future<BiometricCredentials?> readCredentials() async {
-    final raw = await _storage.read(
-      key: _credentialsKey,
-      aOptions: _androidOptions,
-      iOptions: _iosOptions,
-    );
+    String? raw;
+    try {
+      raw = await _storage.read(
+        key: _credentialsKey,
+        aOptions: _androidOptions,
+        iOptions: _iosOptions,
+      );
+    } on PlatformException catch (e) {
+      await _handleCorruptSecureStorage(e);
+      return null;
+    } catch (_) {
+      return null;
+    }
     if (raw == null || raw.isEmpty) return null;
     try {
       final decoded = jsonDecode(raw) as Map<String, dynamic>;
@@ -58,6 +74,24 @@ class AuthSecureStorage {
       return BiometricCredentials(username: username, password: password);
     } catch (_) {
       return null;
+    }
+  }
+
+  static Future<void> _handleCorruptSecureStorage(PlatformException e) async {
+    // On Android, `encryptedSharedPreferences: true` can throw
+    // BAD_DECRYPT/BadPaddingException if the backing prefs were restored from
+    // backup but the keystore key is new (common after reinstall) or if data is
+    // corrupted. In that state, biometric won't work anyway, so clear the
+    // biometric entries to recover.
+    final msg = (e.message ?? '').toLowerCase();
+    final looksLikeDecryptIssue =
+        msg.contains('badpadding') || msg.contains('bad_decrypt') || msg.contains('decrypt');
+    if (!looksLikeDecryptIssue) return;
+
+    try {
+      await disable();
+    } catch (_) {
+      // Best-effort cleanup; ignore.
     }
   }
 

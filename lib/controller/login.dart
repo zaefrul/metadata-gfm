@@ -4,6 +4,7 @@ import 'package:GEMS/model/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:GEMS/utils/biometric_lock_manager.dart';
 
 import '../utils/reference.dart';
 import '../utils/network.dart';
@@ -191,7 +192,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                   children: [
                     _inputField(
                       label: 'User ID',
-                      hintText: 'example: abubakar',
+                      hintText: '',
                       onChanged: (v) => _username = v,
                     ),
                     const SizedBox(height: 20),
@@ -285,7 +286,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
           obscureText: secure,
           onChanged: (v) => _password = v,
           decoration: InputDecoration(
-            hintText: '••••••••',
+            hintText: '',
             filled: true,
             fillColor: const Color(0xFFF8F9FB),
             border: OutlineInputBorder(
@@ -471,14 +472,21 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       final isSupported = await _localAuthentication.isDeviceSupported();
       final canCheck = await _localAuthentication.canCheckBiometrics;
       final hasDeviceBiometric = isSupported && canCheck;
-      final enabled = await AuthSecureStorage.isEnabled();
+      if (mounted) {
+        setState(() {
+          _biometricAvailable = hasDeviceBiometric;
+        });
+      }
+
+      final enabledFlag = await AuthSecureStorage.isEnabled();
       final storedCreds = await AuthSecureStorage.readCredentials();
 
       if (!mounted) return;
 
       setState(() {
-        _biometricAvailable = hasDeviceBiometric;
-        _biometricEnabled = enabled && storedCreds != null;
+        // Be resilient to drift between the flag and the stored creds.
+        // If creds exist but the flag is missing/false (legacy or partial wipe), still show the button.
+        _biometricEnabled = hasDeviceBiometric && (enabledFlag || storedCreds != null);
       });
     } catch (e) {
       debugPrint('Biometric init failed: $e');
@@ -499,6 +507,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     }
 
     try {
+      BiometricLockManager.suppressNextLock();
       final didAuthenticate = await _localAuthentication.authenticate(
         localizedReason: 'Authenticate to sign in to GEMS',
         options: const AuthenticationOptions(
@@ -519,7 +528,8 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
       final user = await login(creds.username, creds.password);
       user.saveUser();
-      await AuthSecureStorage.updateCredentials(creds.username, creds.password);
+      // Ensure the enabled flag and creds stay consistent (prevents button disappearing).
+      await AuthSecureStorage.enable(creds.username, creds.password);
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, "/homepage");
       Toast.show("Welcome back, ${user.username}!", backgroundColor: AppColors.success);

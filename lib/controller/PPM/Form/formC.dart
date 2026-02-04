@@ -254,6 +254,9 @@ class _FormCState extends State<FormC> {
                         gravity: Toast.bottom,
                       );
                       
+                      // Refresh pending count immediately so banner shows
+                      await _pendingSync?.refreshPendingCount();
+                      
                       // In offline mode, we need to reload to show the updated cache
                       setState(() {
                         items.clear();

@@ -569,6 +569,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
     _isAuthenticating = true;
     try {
+      BiometricLockManager.suppressNextLock();
       final didAuth = await _localAuth.authenticate(
         localizedReason: 'Authenticate to continue using GEMS',
         options: const AuthenticationOptions(
