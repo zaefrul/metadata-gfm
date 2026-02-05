@@ -816,8 +816,9 @@ class _FormHState extends State<FormH> {
         mapsUri = Uri.parse(googleMapsUrl);
       }
 
+      // Use BiometricLockManager to prevent biometric prompt when returning from maps
       if (await canLaunchUrl(mapsUri)) {
-        await launchUrl(mapsUri);
+        await BiometricLockManager.launchExternalUrl(mapsUri);
       } else {
         if (mounted) _showAlert("Error", "Could not launch map application.");
       }

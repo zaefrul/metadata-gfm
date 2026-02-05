@@ -3,6 +3,7 @@ import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 import 'package:GEMS/model/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:GEMS/utils/biometric_lock_manager.dart';
 import '../../utils/network.dart';
 
 class Support extends StatelessWidget {
@@ -125,7 +126,8 @@ class Support extends StatelessWidget {
 
   Future<void> openPhone() async {
     final Uri phoneUri = Uri(scheme: 'tel', path: '60341010555');
-    if (!await launchUrl(phoneUri)) {
+    // Use BiometricLockManager to prevent biometric prompt when returning
+    if (!await BiometricLockManager.launchExternalUrl(phoneUri)) {
       throw 'Could not launch $phoneUri';
     }
   }
@@ -138,35 +140,40 @@ class Support extends StatelessWidget {
     final String url =
         "mailto:$email?subject=Mobile App Support (From : ${value.username})&body=Complainer:${value.email}\nName:${value.firstName} ${value.lastName} \nPhone Number : ${value.contactNo} \nYour Complaint: ";
     final Uri emailUri = Uri.parse(url);
-    if (!await launchUrl(emailUri)) {
+    // Use BiometricLockManager to prevent biometric prompt when returning
+    if (!await BiometricLockManager.launchExternalUrl(emailUri)) {
       throw 'Could not launch $emailUri';
     }
   }
 
   Future<void> openExecutor() async {
     final Uri uri = Uri.parse("$netDomain/api/pdf/user_manual_executor.pdf");
-    if (!await launchUrl(uri)) {
+    // Use BiometricLockManager to prevent biometric prompt when returning
+    if (!await BiometricLockManager.launchExternalUrl(uri)) {
       throw 'Could not launch $uri';
     }
   }
 
   Future<void> openReviewer() async {
     final Uri uri = Uri.parse("$netDomain/api/pdf/user_manual_reviewer.pdf");
-    if (!await launchUrl(uri)) {
+    // Use BiometricLockManager to prevent biometric prompt when returning
+    if (!await BiometricLockManager.launchExternalUrl(uri)) {
       throw 'Could not launch $uri';
     }
   }
 
   Future<void> openVerifier() async {
     final Uri uri = Uri.parse("$netDomain/api/pdf/user_manual_verifier.pdf");
-    if (!await launchUrl(uri)) {
+    // Use BiometricLockManager to prevent biometric prompt when returning
+    if (!await BiometricLockManager.launchExternalUrl(uri)) {
       throw 'Could not launch $uri';
     }
   }
 
   Future<void> openWOExecutor() async {
     final Uri uri = Uri.parse("$netDomain/api/pdf/user_manual_wo_executor.pdf");
-    if (!await launchUrl(uri)) {
+    // Use BiometricLockManager to prevent biometric prompt when returning
+    if (!await BiometricLockManager.launchExternalUrl(uri)) {
       throw 'Could not launch $uri';
     }
   }
@@ -174,7 +181,8 @@ class Support extends StatelessWidget {
   Future<void> openWOReviewer() async {
     final Uri uri =
         Uri.parse("$netDomain/api/pdf/user_manual_wo_complainer.pdf");
-    if (!await launchUrl(uri)) {
+    // Use BiometricLockManager to prevent biometric prompt when returning
+    if (!await BiometricLockManager.launchExternalUrl(uri)) {
       throw 'Could not launch $uri';
     }
   }
@@ -182,7 +190,8 @@ class Support extends StatelessWidget {
   Future<void> openWOVerifier() async {
     final Uri uri =
         Uri.parse("$netDomain/api/pdf/user_manual_wo_assigner.pdf");
-    if (!await launchUrl(uri)) {
+    // Use BiometricLockManager to prevent biometric prompt when returning
+    if (!await BiometricLockManager.launchExternalUrl(uri)) {
       throw 'Could not launch $uri';
     }
   }

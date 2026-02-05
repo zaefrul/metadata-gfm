@@ -16,6 +16,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:toast/toast.dart';
 // Removed flutter_image_compress import
 import 'package:url_launcher/url_launcher.dart';
+import 'package:GEMS/utils/biometric_lock_manager.dart';
 import '../../main.dart';
 
 class WaterBillScreen extends StatefulWidget {
@@ -332,10 +333,11 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
           'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
       String appleUrl = 'https://maps.apple.com/?sll=$latitude,$longitude';
 
+      // Use BiometricLockManager to prevent biometric prompt when returning from maps
       if (await canLaunch(googleUrl)) {
-        await launch(googleUrl);
+        await BiometricLockManager.launchExternalUrlString(googleUrl);
       } else if (await canLaunch(appleUrl))
-        await launch(appleUrl);
+        await BiometricLockManager.launchExternalUrlString(appleUrl);
       else
         throw 'Could not launch url';
     }

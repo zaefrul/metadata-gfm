@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart'; // Import package_info_plus
+import 'package:GEMS/utils/biometric_lock_manager.dart';
 
 import 'resetPassword.dart';
 
@@ -490,9 +491,10 @@ class _HomepageState extends State<Homepage> {
   }
 
   Future<void> _launchUrlHelper(String urlString) async {
-    final Uri url = Uri.parse(urlString);
     try {
-      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      // Use BiometricLockManager to prevent biometric prompt when returning from browser
+      final launched = await BiometricLockManager.launchExternalUrlString(urlString);
+      if (!launched) {
         throw 'Could not launch $urlString';
       }
     } catch (e) {

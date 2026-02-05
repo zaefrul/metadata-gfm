@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:GEMS/utils/biometric_lock_manager.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/view/dialog.dart';
 import 'package:GEMS/view/signature.dart';
@@ -164,7 +165,8 @@ class _PDFState extends State<PDF> {
         onPressed: () async {
           final uri = Uri.parse(src);
           if (await canLaunchUrl(uri)) {
-            await launchUrl(uri);
+            // Use BiometricLockManager to prevent biometric prompt when returning
+            await BiometricLockManager.launchExternalUrl(uri);
           } else {
             debugPrint('Could not launch $src');
           }

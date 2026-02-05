@@ -438,10 +438,11 @@ class _FormHState extends State<FormH> {
       final appleUrl = 'https://maps.apple.com/?sll=$latitude,$longitude';
       final Uri googleUri = Uri.parse(googleUrl);
       final Uri appleUri = Uri.parse(appleUrl);
+      // Use BiometricLockManager to prevent biometric prompt when returning from maps
       if (await canLaunchUrl(googleUri)) {
-        await launchUrl(googleUri);
+        await BiometricLockManager.launchExternalUrl(googleUri);
       } else if (await canLaunchUrl(appleUri))
-        await launchUrl(appleUri);
+        await BiometricLockManager.launchExternalUrl(appleUri);
       else
         throw 'Could not launch url';
     }

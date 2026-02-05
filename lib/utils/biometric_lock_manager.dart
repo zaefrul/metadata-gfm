@@ -1,5 +1,6 @@
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Utility to suppress biometric lock during system picker operations.
 ///
@@ -141,5 +142,40 @@ class BiometricLockManager {
       // Small delay to ensure lifecycle events have been processed
       Future.delayed(const Duration(milliseconds: 500), reset);
     }
+  }
+
+  // ========== URL Launcher Methods ==========
+
+  /// Launch an external URL without triggering biometric lock.
+  /// Use this for opening web pages, maps, phone calls, etc.
+  static Future<bool> launchExternalUrl(
+    Uri url, {
+    LaunchMode mode = LaunchMode.externalApplication,
+    WebViewConfiguration webViewConfiguration = const WebViewConfiguration(),
+    String? webOnlyWindowName,
+  }) async {
+    suppressNextLock();
+    try {
+      return await launchUrl(
+        url,
+        mode: mode,
+        webViewConfiguration: webViewConfiguration,
+        webOnlyWindowName: webOnlyWindowName,
+      );
+    } finally {
+      // Reset after a delay to allow lifecycle events to process
+      // External URLs may take longer to return from
+      Future.delayed(const Duration(seconds: 2), reset);
+    }
+  }
+
+  /// Launch a URL string without triggering biometric lock.
+  /// Convenience method that parses the string to Uri.
+  static Future<bool> launchExternalUrlString(
+    String urlString, {
+    LaunchMode mode = LaunchMode.externalApplication,
+  }) async {
+    final Uri url = Uri.parse(urlString);
+    return launchExternalUrl(url, mode: mode);
   }
 }

@@ -7,6 +7,7 @@ import 'package:GEMS/controller/WorkOrder/widgets/pending_sync_banner.dart';
 import 'package:GEMS/data/repository/work_order_detail_repository.dart';
 import 'package:GEMS/model/workorder.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:GEMS/utils/biometric_lock_manager.dart';
 // import 'package:GEMS/controller/Storekeeper/utils/constant.dart'; // for colorTheme2
 import 'package:GEMS/utils/reference.dart';
 import 'package:shimmer/shimmer.dart';
@@ -413,10 +414,11 @@ Future<void> _openMap(double lat, double lng) async {
   final Uri googleUri = Uri.parse(googleMapsUrl);
   final Uri appleUri = Uri.parse(appleMapsUrl);
 
+  // Use BiometricLockManager to prevent biometric prompt when returning from maps
   if (await canLaunchUrl(googleUri)) {
-    await launchUrl(googleUri);
+    await BiometricLockManager.launchExternalUrl(googleUri);
   } else if (await canLaunchUrl(appleUri)) {
-    await launchUrl(appleUri);
+    await BiometricLockManager.launchExternalUrl(appleUri);
   } else {
     throw 'Could not launch any map for $lat,$lng';
   }
