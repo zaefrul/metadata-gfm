@@ -184,17 +184,7 @@ class ComplaintSectionState extends State<ComplaintSection> {
           return Column(
             children: [
               _buildOfflineControls(),
-              StreamBuilder<bool>(
-                stream: _bloc.offlineMode$,
-                builder: (_, offlineSnapshot) {
-                  final offline = offlineSnapshot.data ?? false;
-                  if (offline) {
-                    return const SizedBox.shrink();
-                  }
-                  return PendingSyncIndicator(
-                      controller: _pendingSyncController);
-                },
-              ),
+              PendingSyncIndicator(controller: _pendingSyncController),
               // 1) The scrolling list
               Expanded(
                 child: RefreshIndicator(

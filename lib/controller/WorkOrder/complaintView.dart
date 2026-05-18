@@ -111,10 +111,12 @@ class ComplaintViewState extends State<ComplaintView> {
 
     if (dropdownType != "All Type") {
       filtered = filtered.where((item) {
-        final task = item.task;
-        final typeCode = dropdownType == "Work Order" ? "WO" : "WR";
-        return task.woTaskTypeInit == typeCode ||
-            task.woTaskType == dropdownType;
+        final taskNo = item.task.woTaskNo.toUpperCase();
+        if (dropdownType == "Work Order") {
+          return taskNo.startsWith("WO");
+        } else {
+          return taskNo.startsWith("WR");
+        }
       });
     }
 
@@ -245,8 +247,7 @@ class ComplaintViewState extends State<ComplaintView> {
           return body(const []);
         }
 
-        final data = snapshot.data ?? _filterTask;
-        return body(data);
+        return body(_filterTask);
       },
     );
   }
