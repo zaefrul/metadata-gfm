@@ -31,12 +31,14 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   bool _biometricAvailable = false;
   bool _biometricEnabled = false;
   bool _rememberMe = false;
+  NetworkSource _selectedNetworkSource = NetworkSource.gemsPlus;
 
   final LocalAuthentication _localAuthentication = LocalAuthentication();
 
   @override
   void initState() {
     super.initState();
+    _loadNetworkSource();
 
     User.getPrefUser.then((_) {
       if (!mounted) return;
@@ -56,14 +58,24 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       begin: Alignment.center,
       end: const Alignment(0, -0.1),
     ).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.5, curve: Curves.easeOut)),
+      CurvedAnimation(
+          parent: _controller,
+          curve: const Interval(0.0, 0.5, curve: Curves.easeOut)),
     );
 
     _contentOpacity = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.5, 1.0, curve: Curves.easeIn)),
+      CurvedAnimation(
+          parent: _controller,
+          curve: const Interval(0.5, 1.0, curve: Curves.easeIn)),
     );
 
     _controller.forward();
+  }
+
+  Future<void> _loadNetworkSource() async {
+    final source = await NetworkEnvironment.load();
+    if (!mounted) return;
+    setState(() => _selectedNetworkSource = source);
   }
 
   @override
@@ -197,6 +209,8 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                     ),
                     const SizedBox(height: 20),
                     _passwordField(),
+                    const SizedBox(height: 18),
+                    _networkSelector(),
                     const SizedBox(height: 12),
                     _rememberRow(),
                     const SizedBox(height: 24),
@@ -214,6 +228,44 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _networkSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'System',
+          style: TextStyle(
+            color: AppColors.dark,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
+          child: SegmentedButton<NetworkSource>(
+            showSelectedIcon: false,
+            segments: const [
+              ButtonSegment<NetworkSource>(
+                value: NetworkSource.gemsPlus,
+                label: Text('GEMS+'),
+              ),
+              ButtonSegment<NetworkSource>(
+                value: NetworkSource.gems20,
+                label: Text('GEMS 2.0'),
+              ),
+            ],
+            selected: {_selectedNetworkSource},
+            onSelectionChanged: userlogIn
+                ? null
+                : (selection) {
+                    setState(() => _selectedNetworkSource = selection.first);
+                  },
+          ),
+        ),
+      ],
     );
   }
 
@@ -291,7 +343,8 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
             fillColor: const Color(0xFFF8F9FB),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(18),
-              borderSide: BorderSide(color: AppColors.secondary.withValues(alpha: 0.2)),
+              borderSide:
+                  BorderSide(color: AppColors.secondary.withValues(alpha: 0.2)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(18),
@@ -335,13 +388,15 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color.fromRGBO(0, 173, 168, 1),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
           elevation: 0,
         ),
         onPressed: userlogIn ? null : () async => await _onLoginPressed(),
         child: Text(
           userlogIn ? 'Loading…' : 'Log in',
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+          style: const TextStyle(
+              fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
         ),
       ),
     );
@@ -353,7 +408,8 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       height: 52,
       child: OutlinedButton.icon(
         style: OutlinedButton.styleFrom(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
         ),
         icon: const Icon(Icons.fingerprint),
         label: const Text('Sign in with biometrics'),
@@ -371,7 +427,8 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
           children: [
             TextSpan(
               text: 'Sign up',
-              style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                  color: AppColors.primary, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -383,24 +440,31 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     setState(() => userlogIn = true);
 
     if (!(await _keepLocationSession())) {
-      Toast.show("Please login in an area with good GPS", backgroundColor: AppColors.danger);
+      Toast.show("Please login in an area with good GPS",
+          backgroundColor: AppColors.danger);
       setState(() => userlogIn = false);
       return;
     }
 
-    if (_username == null || _password == null || _username!.isEmpty || _password!.isEmpty) {
-      Toast.show("Please fill out all fields", backgroundColor: AppColors.warning);
+    if (_username == null ||
+        _password == null ||
+        _username!.isEmpty ||
+        _password!.isEmpty) {
+      Toast.show("Please fill out all fields",
+          backgroundColor: AppColors.warning);
       setState(() => userlogIn = false);
       return;
     }
 
     try {
-      final user = await login(_username!, _password!);
+      final user =
+          await login(_username!, _password!, source: _selectedNetworkSource);
       user.saveUser();
       await _handlePostLoginBiometric();
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, "/homepage");
-      Toast.show("Welcome to GEMS, ${user.username}!", backgroundColor: AppColors.success);
+      Toast.show("Welcome to GEMS, ${user.username}!",
+          backgroundColor: AppColors.success);
     } catch (e) {
       Toast.show(e.toString(), backgroundColor: AppColors.danger);
     } finally {
@@ -430,10 +494,15 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
   Future<void> _handlePostLoginBiometric() async {
     if (!_biometricAvailable || _username == null || _password == null) return;
+    final networkSource = NetworkEnvironment.valueFor(_selectedNetworkSource);
 
     final alreadyEnabled = await AuthSecureStorage.isEnabled();
     if (alreadyEnabled) {
-      await AuthSecureStorage.updateCredentials(_username!, _password!);
+      await AuthSecureStorage.updateCredentials(
+        _username!,
+        _password!,
+        networkSource: networkSource,
+      );
       if (!mounted) return;
       setState(() => _biometricEnabled = true);
       return;
@@ -441,7 +510,11 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
     final shouldEnable = await _showEnableBiometricDialog();
     if (shouldEnable == true) {
-      await AuthSecureStorage.enable(_username!, _password!);
+      await AuthSecureStorage.enable(
+        _username!,
+        _password!,
+        networkSource: networkSource,
+      );
       if (!mounted) return;
       setState(() => _biometricEnabled = true);
     }
@@ -452,7 +525,8 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Enable biometric login'),
-        content: const Text('Would you like to sign in faster using Face ID / Touch ID next time?'),
+        content: const Text(
+            'Would you like to sign in faster using Face ID / Touch ID next time?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
@@ -486,7 +560,8 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       setState(() {
         // Be resilient to drift between the flag and the stored creds.
         // If creds exist but the flag is missing/false (legacy or partial wipe), still show the button.
-        _biometricEnabled = hasDeviceBiometric && (enabledFlag || storedCreds != null);
+        _biometricEnabled =
+            hasDeviceBiometric && (enabledFlag || storedCreds != null);
       });
     } catch (e) {
       debugPrint('Biometric init failed: $e');
@@ -518,21 +593,33 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
       if (!didAuthenticate) {
         if (!auto) {
-          Toast.show('Biometric authentication cancelled.', backgroundColor: AppColors.warning);
+          Toast.show('Biometric authentication cancelled.',
+              backgroundColor: AppColors.warning);
         }
         return;
       }
 
       if (!mounted) return;
-      setState(() => userlogIn = true);
+      final source = creds.networkSource == null
+          ? _selectedNetworkSource
+          : NetworkEnvironment.sourceFromValue(creds.networkSource);
+      setState(() {
+        userlogIn = true;
+        _selectedNetworkSource = source;
+      });
 
-      final user = await login(creds.username, creds.password);
+      final user = await login(creds.username, creds.password, source: source);
       user.saveUser();
       // Ensure the enabled flag and creds stay consistent (prevents button disappearing).
-      await AuthSecureStorage.enable(creds.username, creds.password);
+      await AuthSecureStorage.enable(
+        creds.username,
+        creds.password,
+        networkSource: NetworkEnvironment.valueFor(source),
+      );
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, "/homepage");
-      Toast.show("Welcome back, ${user.username}!", backgroundColor: AppColors.success);
+      Toast.show("Welcome back, ${user.username}!",
+          backgroundColor: AppColors.success);
     } catch (e) {
       Toast.show(e.toString(), backgroundColor: AppColors.danger);
     } finally {

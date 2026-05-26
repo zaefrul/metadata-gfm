@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
-import 'package:GEMS/controller/Storekeeper/utils/widget/dialog.dart';
 import 'package:GEMS/model/user.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
@@ -12,7 +11,6 @@ import 'package:GEMS/view/drawer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart'; // Import package_info_plus
 import 'package:GEMS/utils/biometric_lock_manager.dart';
 
@@ -43,6 +41,7 @@ class _HomepageState extends State<Homepage> {
   bool _isStorekeeperFeatureEnabled = false;
   bool _isUtilitiesFeatureEnabled = false;
   bool _isLoading = true;
+  bool _profileImageLoadFailed = false;
   String _appVersion = ''; // New state variable for app version
   int _versionTapCount = 0; // Secret debug menu tap counter
 
@@ -75,7 +74,6 @@ class _HomepageState extends State<Homepage> {
 
   void _onVersionTap() {
     if (!mounted) return;
-    
     setState(() {
       _versionTapCount++;
     });
@@ -145,7 +143,7 @@ class _HomepageState extends State<Homepage> {
 
   Future<void> _setupFirebaseMessaging() async {
     try {
-      String? token = await _firebaseMessaging.getToken();
+      final token = await _getFirebaseMessagingToken();
       if (token != null && mounted) {
         final provider = Provider(fetchURL: "/api/m_ppm.php")..context = context;
         await provider.post(url: "/api/m_ppm.php", body: {
@@ -157,6 +155,26 @@ class _HomepageState extends State<Homepage> {
     } catch (e) {
       debugPrint("Error setting up Firebase Messaging: $e");
     }
+  }
+
+  Future<String?> _getFirebaseMessagingToken() async {
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      String? apnsToken;
+      for (int attempt = 0; attempt < 5; attempt++) {
+        apnsToken = await _firebaseMessaging.getAPNSToken();
+        if (apnsToken != null) {
+          break;
+        }
+        await Future.delayed(const Duration(milliseconds: 300));
+      }
+
+      if (apnsToken == null) {
+        debugPrint("Skipping FCM token setup: APNS token is not ready yet");
+        return null;
+      }
+    }
+
+    return _firebaseMessaging.getToken();
   }
 
   Future<void> _loadUserDataAndPermissions() async {
@@ -186,6 +204,7 @@ class _HomepageState extends State<Homepage> {
           _currentUser = user;
           _isStorekeeperFeatureEnabled = tempIsStorekeeper;
           _isUtilitiesFeatureEnabled = tempIsUtilities;
+          _profileImageLoadFailed = false;
         });
       }
     } catch (e) {
@@ -392,7 +411,7 @@ class _HomepageState extends State<Homepage> {
     String? imageUrl = user.imageUrl;
     bool hasValidUrl = false;
 
-    if (imageUrl.isNotEmpty) {
+    if (!_profileImageLoadFailed && imageUrl.isNotEmpty) {
       if (!imageUrl.startsWith("http://") && !imageUrl.startsWith("https://")) {
         imageUrl = "https:$imageUrl";
       }
@@ -429,6 +448,11 @@ class _HomepageState extends State<Homepage> {
             : const AssetImage('assets/profile_plain.png') as ImageProvider,
         onBackgroundImageError: hasValidUrl ? (dynamic exception, StackTrace? stackTrace) {
           debugPrint("Error loading profile image: $exception");
+          if (mounted && !_profileImageLoadFailed) {
+            setState(() {
+              _profileImageLoadFailed = true;
+            });
+          }
         } : null,
         child: (!hasValidUrl || (imageUrl == null) )
             ? _buildInitialsAvatar(user)
@@ -544,7 +568,7 @@ class _FeatureListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isEnabled = feature.enabled && onTap != null;
-    final Color tileColor = isEnabled ? (AppColors.primary ?? Colors.blue) : (AppColors.secondary ?? Colors.grey.shade400);
+    final Color tileColor = isEnabled ? AppColors.primary : AppColors.secondary;
     final Color contentColor = isEnabled ? Colors.white : Colors.white70;
 
     return PressScaleWidget(
@@ -556,7 +580,7 @@ class _FeatureListItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),

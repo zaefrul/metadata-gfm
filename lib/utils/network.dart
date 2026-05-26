@@ -9,6 +9,7 @@ import 'package:GEMS/view/dialog.dart';
 
 import '../model/user.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
@@ -17,12 +18,78 @@ import '../main.dart';
 
 // final String netDomain = "https://gems.metadatasystem.my";
 // final String netDomain = "https://gfmgems.globalfm.com.my";
-final String netDomain = "https://gems.jkr.gov.my";
+const String jkrDomain = "https://gems.jkr.gov.my";
+const String globalDomain = "https://gfmgems.globalfm.com.my";
+String get netDomain => NetworkEnvironment.currentDomain;
 // final String netDomain = "http://localhost/gems2";
 final String netLogin = "/api/m_login.php";
 final String netLogout = "";
 
-Future<User> login(String username, String password) async {
+enum NetworkSource { gemsPlus, gems20 }
+
+class NetworkEnvironment {
+  static const String prefsKey = "NETWORK_SOURCE";
+  static const String gemsPlusValue = "gemsPlus";
+  static const String gems20Value = "gems20";
+
+  static NetworkSource _currentSource = NetworkSource.gemsPlus;
+
+  static NetworkSource get currentSource => _currentSource;
+  static String get currentDomain => domainFor(_currentSource);
+
+  static Future<NetworkSource> load() async {
+    final prefs = await SharedPreferences.getInstance();
+    _currentSource = sourceFromValue(prefs.getString(prefsKey));
+    return _currentSource;
+  }
+
+  static Future<void> save(NetworkSource source) async {
+    _currentSource = source;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(prefsKey, valueFor(source));
+  }
+
+  static String domainFor(NetworkSource source) {
+    switch (source) {
+      case NetworkSource.gems20:
+        return globalDomain;
+      case NetworkSource.gemsPlus:
+        return jkrDomain;
+    }
+  }
+
+  static String labelFor(NetworkSource source) {
+    switch (source) {
+      case NetworkSource.gems20:
+        return "GEMS 2.0";
+      case NetworkSource.gemsPlus:
+        return "GEMS+";
+    }
+  }
+
+  static String valueFor(NetworkSource source) {
+    switch (source) {
+      case NetworkSource.gems20:
+        return gems20Value;
+      case NetworkSource.gemsPlus:
+        return gemsPlusValue;
+    }
+  }
+
+  static NetworkSource sourceFromValue(String? value) {
+    switch (value) {
+      case gems20Value:
+        return NetworkSource.gems20;
+      case gemsPlusValue:
+      default:
+        return NetworkSource.gemsPlus;
+    }
+  }
+}
+
+Future<User> login(String username, String password,
+    {NetworkSource? source}) async {
+  final selectedSource = source ?? await NetworkEnvironment.load();
   var deviceId = await getDeviceDetails();
 
   var body = {
@@ -32,7 +99,8 @@ Future<User> login(String username, String password) async {
     "deviceId": deviceId
   };
   try {
-    final response = await http.post(Uri.parse(netDomain + netLogin),
+    final response = await http.post(
+        Uri.parse(NetworkEnvironment.domainFor(selectedSource) + netLogin),
         headers: {
           HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded',
         },
@@ -41,6 +109,7 @@ Future<User> login(String username, String password) async {
     var result = json.decode(response.body);
 
     if (result["success"] == true) {
+      await NetworkEnvironment.save(selectedSource);
       var user = User.fromMap(response.body);
       user.responseJSON = response.body;
       return user;
@@ -82,6 +151,7 @@ class Provider {
   Provider({required this.fetchURL, this.taskID});
 
   Future init() async {
+    await NetworkEnvironment.load();
     deviceID = await getDeviceDetails();
 
     var pref = await User.getPrefUser;
@@ -92,15 +162,13 @@ class Provider {
   Future<ResponseValue> fetch() async {
     await init();
 
-
-    final uri = Uri.parse(netDomain +
-        fetchURL +
-        (taskID == null ? "" : taskID!));
+    final uri =
+        Uri.parse(netDomain + fetchURL + (taskID == null ? "" : taskID!));
 
     debugPrint(uri.toString());
     debugPrint('Authorization header: $token');
     debugPrint('deviceid header: $deviceID');
-    
+
     var response = await http.get(uri, headers: {
       "Authorization": token,
       "deviceid": deviceID,
@@ -115,11 +183,11 @@ class Provider {
           decode["error"] == "Expired token") {
         alert("Your session already expired, please relogin.");
       }
-      
+
       // Branch based on type of decode["result"].
       if (decode["result"] is List) {
-        ResponseValue responseValue = serializers.deserializeWith(
-            ResponseValue.serializer, decode)!;
+        ResponseValue responseValue =
+            serializers.deserializeWith(ResponseValue.serializer, decode)!;
         if (responseValue.success == true) {
           return responseValue;
         } else {
@@ -129,8 +197,8 @@ class Provider {
         }
       } else if (decode["result"] is Map<String, dynamic>) {
         // When the response returns a Map instead of a List:
-        ResponseValue responseValue = serializers.deserializeWith(
-            ResponseValue.serializer, decode)!;
+        ResponseValue responseValue =
+            serializers.deserializeWith(ResponseValue.serializer, decode)!;
         if (responseValue.success == true) {
           return responseValue;
         } else {
@@ -138,32 +206,33 @@ class Provider {
         }
       } else if (decode["result"] is String) {
         // You could attempt to decode the string if it should be JSON,
-          // or handle it in a different way.
-          try {
-            var decodedResult = json.decode(decode["result"]);
-            // Now, if decodedResult is a List:
-            if (decodedResult is List && decodedResult.isNotEmpty) {
-              decode["result"] = decodedResult;
-              ResponseValue responseValue = serializers.deserializeWith(
-                  ResponseValue.serializer, decode)!;
-              if (responseValue.success == true) {
-                return responseValue;
-              } else {
-                return Future.error(responseValue.errmsg);
-              }
-            }
-          } catch (_) {
-            // If decoding fails, handle the string directly or throw an error.
-            ResponseValue responseValue = serializers.deserializeWith(
-                ResponseValue.serializer, decode)!;
+        // or handle it in a different way.
+        try {
+          var decodedResult = json.decode(decode["result"]);
+          // Now, if decodedResult is a List:
+          if (decodedResult is List && decodedResult.isNotEmpty) {
+            decode["result"] = decodedResult;
+            ResponseValue responseValue =
+                serializers.deserializeWith(ResponseValue.serializer, decode)!;
             if (responseValue.success == true) {
               return responseValue;
             } else {
               return Future.error(responseValue.errmsg);
             }
           }
+        } catch (_) {
+          // If decoding fails, handle the string directly or throw an error.
+          ResponseValue responseValue =
+              serializers.deserializeWith(ResponseValue.serializer, decode)!;
+          if (responseValue.success == true) {
+            return responseValue;
+          } else {
+            return Future.error(responseValue.errmsg);
+          }
+        }
       } else {
-        return Future.error("Unexpected type for result: ${decode["result"].runtimeType}");
+        return Future.error(
+            "Unexpected type for result: ${decode["result"].runtimeType}");
       }
     }
     return Future.error("Please try again.");
@@ -219,14 +288,11 @@ class Provider {
         } else if (store) {
           return deserializeListOf<ComplaintDStore>(result).toList();
         } else if (groupStore) {
-          return deserializeListOf<ComplaintDGroupStore>(result)
-              .toList();
+          return deserializeListOf<ComplaintDGroupStore>(result).toList();
         } else if (storePart) {
-          return deserializeListOf<MaterialStorePart>(result)
-              .toList();
+          return deserializeListOf<MaterialStorePart>(result).toList();
         } else if (storeType) {
-          return deserializeListOf<ComplaintDStoreType>(result)
-              .toList();
+          return deserializeListOf<ComplaintDStoreType>(result).toList();
         } else {
           ComplaintResponse responseValue = serializers.deserializeWith(
               ComplaintResponse.serializer, decode)!;
@@ -286,7 +352,8 @@ class Provider {
 
     print(fetchURL);
 
-    final uri = Uri.parse(netDomain + fetchURL + (taskID == null ? "" : taskID!));
+    final uri =
+        Uri.parse(netDomain + fetchURL + (taskID == null ? "" : taskID!));
     var response = await http.get(uri, headers: {
       "Authorization": token,
       "Deviceid": deviceID,
@@ -331,12 +398,14 @@ class Provider {
     final response = await http.post(Uri.parse(netDomain + url),
         headers: includedHeader
             ? {
-                HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded',
+                HttpHeaders.contentTypeHeader:
+                    'application/x-www-form-urlencoded',
                 "Authorization": token,
                 "Deviceid": deviceID
               }
             : {
-                HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded',
+                HttpHeaders.contentTypeHeader:
+                    'application/x-www-form-urlencoded',
               },
         body: body);
 
@@ -367,7 +436,8 @@ class Provider {
     return Future.error("Please try again.");
   }
 
-  Future<dynamic> postUtilities({ // For utility posts.
+  Future<dynamic> postUtilities({
+    // For utility posts.
     required String url,
     dynamic body,
   }) async {
@@ -412,12 +482,14 @@ class Provider {
         Uri.parse(netDomain + fetchURL + (taskID == null ? "" : taskID!)),
         headers: includedHeader
             ? {
-                HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded',
+                HttpHeaders.contentTypeHeader:
+                    'application/x-www-form-urlencoded',
                 "Authorization": token,
                 "Deviceid": deviceID
               }
             : {
-                HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded',
+                HttpHeaders.contentTypeHeader:
+                    'application/x-www-form-urlencoded',
               },
         body: body);
 

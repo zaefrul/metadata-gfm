@@ -11,12 +11,17 @@ class AuthSecureStorage {
 
   static const FlutterSecureStorage _storage = FlutterSecureStorage();
 
-  static Future<void> enable(String username, String password) async {
+  static Future<void> enable(
+    String username,
+    String password, {
+    String? networkSource,
+  }) async {
     await _storage.write(
       key: _credentialsKey,
       value: jsonEncode({
         'username': username,
         'password': password,
+        if (networkSource != null) 'networkSource': networkSource,
       }),
       aOptions: _androidOptions,
       iOptions: _iosOptions,
@@ -29,10 +34,14 @@ class AuthSecureStorage {
     );
   }
 
-  static Future<void> updateCredentials(String username, String password) async {
+  static Future<void> updateCredentials(
+    String username,
+    String password, {
+    String? networkSource,
+  }) async {
     final enabled = await isEnabled();
     if (!enabled) return;
-    await enable(username, password);
+    await enable(username, password, networkSource: networkSource);
   }
 
   static Future<bool> isEnabled() async {
@@ -70,8 +79,13 @@ class AuthSecureStorage {
       final decoded = jsonDecode(raw) as Map<String, dynamic>;
       final username = decoded['username'] as String?;
       final password = decoded['password'] as String?;
+      final networkSource = decoded['networkSource'] as String?;
       if (username == null || password == null) return null;
-      return BiometricCredentials(username: username, password: password);
+      return BiometricCredentials(
+        username: username,
+        password: password,
+        networkSource: networkSource,
+      );
     } catch (_) {
       return null;
     }
@@ -84,8 +98,9 @@ class AuthSecureStorage {
     // corrupted. In that state, biometric won't work anyway, so clear the
     // biometric entries to recover.
     final msg = (e.message ?? '').toLowerCase();
-    final looksLikeDecryptIssue =
-        msg.contains('badpadding') || msg.contains('bad_decrypt') || msg.contains('decrypt');
+    final looksLikeDecryptIssue = msg.contains('badpadding') ||
+        msg.contains('bad_decrypt') ||
+        msg.contains('decrypt');
     if (!looksLikeDecryptIssue) return;
 
     try {
@@ -120,6 +135,11 @@ class AuthSecureStorage {
 class BiometricCredentials {
   final String username;
   final String password;
+  final String? networkSource;
 
-  const BiometricCredentials({required this.username, required this.password});
+  const BiometricCredentials({
+    required this.username,
+    required this.password,
+    this.networkSource,
+  });
 }
