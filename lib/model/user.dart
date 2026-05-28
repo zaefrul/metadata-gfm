@@ -1,9 +1,11 @@
+import 'package:GEMS/data/local/offline_database.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 final String kUserPrefs = "USER";
 final String kUserSignature = "SIGNATURE";
+const String _kSessionContextPrefsKey = "SESSION_CONTEXT";
 
 class User {
   final String token;
@@ -55,7 +57,7 @@ class User {
       for (var each in rolesJson) {
         var r = Role.fromJson(each as Map<String, dynamic>);
         roleList.add(r);
-            }
+      }
     }
     // Ensure that address is not null. You may throw an exception or provide a default.
     if (address == null) {
@@ -122,9 +124,16 @@ class User {
 
   removeUser() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove(prefsLATITUDE);
-    prefs.remove(prefsLONGITUDE);
-    prefs.remove(kUserPrefs);
+    await prefs.remove(prefsLATITUDE);
+    await prefs.remove(prefsLONGITUDE);
+    await prefs.remove(kUserPrefs);
+    await prefs.remove(_kSessionContextPrefsKey);
+
+    try {
+      await OfflineDatabase.instance.clearAll();
+    } catch (_) {
+      // Best-effort cache clear during logout/session reset.
+    }
   }
 
   static Future<String> get getPrefUser async {

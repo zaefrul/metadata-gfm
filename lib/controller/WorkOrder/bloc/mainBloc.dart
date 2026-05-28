@@ -40,7 +40,7 @@ class MainBloc {
 
   // -- STATE SUBJECTS
   final BehaviorSubject<List<WorkOrderStatus>> _sections =
-      BehaviorSubject<List<WorkOrderStatus>>.seeded(const []);
+      BehaviorSubject<List<WorkOrderStatus>>();
   final BehaviorSubject<bool> _enableSubmit =
       BehaviorSubject<bool>.seeded(false);
   final BehaviorSubject<bool> _loading = BehaviorSubject<bool>.seeded(false);

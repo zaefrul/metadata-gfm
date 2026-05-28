@@ -162,7 +162,7 @@ class ComplaintSectionState extends State<ComplaintSection> {
                   Icon(Icons.cloud_off, size: 64, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
-                    'Loading sections...',
+                    'No sections available yet.',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[600],
@@ -170,7 +170,7 @@ class ComplaintSectionState extends State<ComplaintSection> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'If this persists, please check your connection.',
+                    'Pull down to refresh or reconnect to the network.',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.grey[500],

@@ -85,15 +85,33 @@ class ComplaintViewState extends State<ComplaintView> {
       );
       final tasks = result.items;
       debugPrint('WorkOrder: fetched ${tasks.length} items for ${_listType.name} (forceRefresh=$forceRefresh, source=${result.source})');
+
       if (!mounted) {
         _lastSource = result.source;
         return tasks;
       }
+
       setState(() {
         _listTask = tasks;
         _filterTask = _applyFilters(tasks);
         _lastSource = result.source;
       });
+
+      if (result.source == WorkOrderDataSource.cacheWarm && !forceRefresh) {
+        unawaited(_repository.refreshWorkOrders(_listType).then((fresh) {
+          if (!mounted) return;
+          debugPrint('WorkOrder: remote refresh completed with ${fresh.items.length} items for ${_listType.name}');
+          setState(() {
+            _listTask = fresh.items;
+            _filterTask = _applyFilters(fresh.items);
+            _lastSource = fresh.source;
+          });
+        }).catchError((error, stack) {
+          debugPrint('WorkOrder: background refresh failed: $error');
+          debugPrint('$stack');
+        }));
+      }
+
       return _filterTask;
     } catch (error, stack) {
       debugPrint('WorkOrder: failed to load ${_listType.name}: $error');

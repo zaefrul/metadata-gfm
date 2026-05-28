@@ -6,6 +6,7 @@ import 'package:GEMS/model/meter.dart';
 import 'package:GEMS/model/responseValue.dart';
 import 'package:GEMS/model/serializers.dart';
 import 'package:GEMS/view/dialog.dart';
+import 'package:GEMS/data/local/offline_database.dart';
 
 import '../model/user.dart';
 import 'package:http/http.dart' as http;
@@ -24,6 +25,7 @@ String get netDomain => NetworkEnvironment.currentDomain;
 // final String netDomain = "http://localhost/gems2";
 final String netLogin = "/api/m_login.php";
 final String netLogout = "";
+const String _sessionContextPrefsKey = "SESSION_CONTEXT";
 
 enum NetworkSource { gemsPlus, gems20 }
 
@@ -109,8 +111,19 @@ Future<User> login(String username, String password,
     var result = json.decode(response.body);
 
     if (result["success"] == true) {
+      final prefs = await SharedPreferences.getInstance();
+      final user = User.fromMap(response.body);
+      final currentSessionContext =
+          '${NetworkEnvironment.valueFor(selectedSource)}:${user.userID}';
+      final previousSessionContext = prefs.getString(_sessionContextPrefsKey);
+
+      if (previousSessionContext != null &&
+          previousSessionContext != currentSessionContext) {
+        await OfflineDatabase.instance.clearAll();
+      }
+
+      await prefs.setString(_sessionContextPrefsKey, currentSessionContext);
       await NetworkEnvironment.save(selectedSource);
-      var user = User.fromMap(response.body);
       user.responseJSON = response.body;
       return user;
     }

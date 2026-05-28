@@ -7,6 +7,7 @@ import 'package:GEMS/utils/image_compressor.dart';
 import 'package:GEMS/controller/PPM/Form/openImage.dart';
 import 'package:GEMS/data/repository/work_order_detail_repository.dart';
 import 'package:GEMS/model/workorder.dart';
+import 'package:GEMS/utils/biometric_lock_manager.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/utils/location_helper.dart';
@@ -459,7 +460,8 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
       return;
     }
 
-    final picked = await ImagePicker().pickImage(source: ImageSource.camera);
+    final picked =
+        await BiometricLockManager.pickImage(source: ImageSource.camera);
     if (picked == null) {
       if (mounted) {
         setState(() => _loading = false);

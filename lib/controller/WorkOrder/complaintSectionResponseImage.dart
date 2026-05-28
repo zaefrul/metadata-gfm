@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:GEMS/controller/PPM/Form/openImage.dart';
 import 'package:GEMS/data/repository/work_order_detail_repository.dart';
 import 'package:GEMS/model/response_image.dart';
+import 'package:GEMS/utils/biometric_lock_manager.dart';
 import 'package:GEMS/utils/image_compressor.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/utils/location_helper.dart';
@@ -604,7 +605,8 @@ class _ComplaintSectionResponseImageState
   }
 
   Future<void> _pickLocalImage() async {
-    final picked = await ImagePicker().pickImage(source: ImageSource.camera);
+    final picked =
+        await BiometricLockManager.pickImage(source: ImageSource.camera);
     if (picked == null) return;
 
     setState(() => _loading = true);
