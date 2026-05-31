@@ -106,7 +106,8 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
                       specifiedType: const FullType(FormAItem)) as FormAItem);
             } else if (tryWODetail(serializers, value)) {
               debugPrint('Deserializing Work Order Detail');
-              result.woDetail.replace(serializers.deserialize(value,
+              final sanitized = _normalizeWorkOrderDetailEntry(value);
+              result.woDetail.replace(serializers.deserialize(sanitized,
                       specifiedType: const FullType(WorkOrderDetail)) as WorkOrderDetail);
             } else if (tryMonitorDetail(serializers, value)) {
               result.monitorDetail.replace(serializers.deserialize(value,
@@ -305,13 +306,75 @@ class ResponseSerializer implements StructuredSerializer<ResponseValue> {
   }
 
   bool tryWODetail(Serializers serializers, Map<String, dynamic> value) {
+    // Guard with complaint-detail specific keys so other detail payloads
+    // (e.g. monitor/section detail) are not misclassified as a WorkOrderDetail.
+    final hasComplaintKeys = value.containsKey('woTaskComplaint') ||
+        value.containsKey('woTaskRequestNo') ||
+        value.containsKey('complaintImages');
+    if (!hasComplaintKeys) {
+      return false;
+    }
     try {
-      var _ = serializers.deserialize(value,
+      final sanitized = _normalizeWorkOrderDetailEntry(value);
+      var _ = serializers.deserialize(sanitized,
           specifiedType: const FullType(WorkOrderDetail)) as WorkOrderDetail;
       return true;
     } catch (_) {
       return false;
     }
+  }
+
+  /// Fills in any missing required fields so a complaint detail payload can
+  /// always be deserialized even when the API omits some optional fields.
+  /// built_value treats every non-nullable String as required, so a single
+  /// missing field would otherwise abort the whole deserialization.
+  Map<String, dynamic> _normalizeWorkOrderDetailEntry(dynamic raw) {
+    Map<String, dynamic> map;
+    if (raw is Map<String, dynamic>) {
+      map = Map<String, dynamic>.from(raw);
+    } else if (raw is Map) {
+      map = raw.map((key, value) => MapEntry(key.toString(), value));
+    } else {
+      map = <String, dynamic>{};
+    }
+
+    String stringValue(String key) {
+      final value = map[key];
+      if (value == null) return '';
+      if (value is String) return value;
+      return value.toString();
+    }
+
+    const requiredKeys = [
+      'woTaskId',
+      'woTaskNo',
+      'woTaskRequestNo',
+      'woTaskReportedBy',
+      'woTaskTimeResponded',
+      'woTaskCategory',
+      'woTaskClient',
+      'woTaskLocation',
+      'woTaskComplaint',
+      'woTaskStatus',
+      'woTaskPhoneNo',
+      'woTaskEmail',
+      'zoneName',
+    ];
+
+    for (final key in requiredKeys) {
+      map[key] = stringValue(key);
+    }
+
+    final images = map['complaintImages'];
+    if (images is List) {
+      map['complaintImages'] = images
+          .map((entry) => _normalizeTechnicianImageEntry(entry))
+          .toList(growable: false);
+    } else {
+      map['complaintImages'] = const <dynamic>[];
+    }
+
+    return map;
   }
 
   bool tryMonitorDetail(Serializers serializers, Map<String, dynamic> value) {

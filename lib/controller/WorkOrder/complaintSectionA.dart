@@ -58,14 +58,18 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
   }
 
   Future<WorkOrderDetail?> _loadDetail({bool forceRefresh = false}) async {
-    final detail = await _repository.getComplaintDetail(
-      workOrderId: widget.id,
-      forceRefresh: forceRefresh,
-    );
-    if (detail == null && forceRefresh) {
-      throw Exception('Unable to load complaint details.');
+    try {
+      final detail = await _repository.getComplaintDetail(
+        workOrderId: widget.id,
+        forceRefresh: forceRefresh,
+      );
+      return detail;
+    } catch (e) {
+      // If refresh fails, gracefully return null instead of throwing
+      // The UI will fall back to cached snapshot data or show a retry prompt
+      debugPrint('Error loading complaint details: $e');
+      return null;
     }
-    return detail;
   }
 
   Future<void> _refreshDetail() async {
@@ -207,7 +211,8 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
   }
 
   /// shared builder for a row
-  Widget _buildRow(IconData icon, String label, String value) {
+  Widget _buildRow(IconData icon, String label, String? value) {
+    final displayValue = (value == null || value.trim().isEmpty) ? '-' : value;
     return InkWell(
       onTap: () {}, // ripple feedback even if no action
       borderRadius: BorderRadius.circular(8),
@@ -240,10 +245,13 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    value,
-                    style: const TextStyle(
+                    displayValue,
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
+                      color: (value == null || value.trim().isEmpty)
+                        ? Colors.grey[500]
+                        : Colors.black,
                     ),
                   ),
                 ],
@@ -427,6 +435,6 @@ Future<void> _openMap(double lat, double lng) async {
 class _FieldRow {
   final IconData icon;
   final String label;
-  final String value;
+  final String? value;
   _FieldRow(this.icon, this.label, this.value);
 }

@@ -1,11 +1,8 @@
 import 'dart:io';
-import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:GEMS/utils/biometric_lock_manager.dart';
 
 import 'package:GEMS/utils/network.dart';
@@ -35,12 +32,11 @@ class ComplaintPDF extends StatefulWidget {
   });
 
   @override
-  _ComplaintPDFState createState() => _ComplaintPDFState();
+  State<ComplaintPDF> createState() => _ComplaintPDFState();
 }
 
 class _ComplaintPDFState extends State<ComplaintPDF> {
   String assetPDFPath = "";
-  bool pdfReady = false;
   late CustomDialog dialog; // Initialize with a default value
   late String src;
 
@@ -59,7 +55,7 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
     }).then((file) {
       setState(() => assetPDFPath = file.path);
     }).catchError((err) {
-      print(err);
+      debugPrint(err.toString());
     });
 
     // Initialize dialog with a default value to avoid LateInitializationError
@@ -172,42 +168,34 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
                 ),
               ],
       ),
-      body: Container(
-        child: assetPDFPath.isEmpty
-            ? Center(child: CircularProgressIndicator())
-            : PDFView(
-                filePath: assetPDFPath,
-                autoSpacing: true,
-                enableSwipe: true,
-                pageSnap: true,
-                swipeHorizontal: true,
-                nightMode: false,
-                onError: (error) {
-                  print("PDFView error: $error");
-                },
-                onRender: (pages) {
-                  setState(() {
-                    pdfReady = true;
-                  });
-                },
-                onPageChanged: (int? page, int? total) {
-                  // Handle page change if needed.
-                },
-                onPageError: (page, error) {
-                  print("Error on page $page: $error");
-                },
+      body: assetPDFPath.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.picture_as_pdf, size: 72, color: Colors.black54),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'PDF ready. Open it with your device viewer.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16, color: Colors.black87),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.open_in_new),
+                      label: const Text('Open PDF'),
+                      onPressed: openPdfFile,
+                    ),
+                  ],
+                ),
               ),
-      ),
+            ),
       floatingActionButton: FloatingActionButton.extended(
-        label: Text("Open File"),
-        onPressed: () async {
-          if (await canLaunch(src)) {
-            // Use BiometricLockManager to prevent biometric prompt when returning
-            await BiometricLockManager.launchExternalUrlString(src);
-          } else {
-            print("Could not launch file url");
-          }
-        },
+        label: const Text("Open File"),
+        onPressed: openPdfFile,
       ),
     );
   }
@@ -230,6 +218,18 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
         .post(url: "/api/m_wo.php", body: body.body)
         .then((value) => alert(value))
         .catchError((err) => alert(err.toString()));
+  }
+
+  Future<void> openPdfFile() async {
+    if (assetPDFPath.isEmpty) {
+      return;
+    }
+
+    final uri = Uri.file(assetPDFPath);
+    final launched = await BiometricLockManager.launchExternalUrl(uri);
+    if (!launched && src.isNotEmpty) {
+      await BiometricLockManager.launchExternalUrlString(src);
+    }
   }
 
   void alert(String txt) {

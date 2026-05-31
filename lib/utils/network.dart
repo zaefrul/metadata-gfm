@@ -20,6 +20,7 @@ import '../main.dart';
 // final String netDomain = "https://gems.metadatasystem.my";
 // final String netDomain = "https://gfmgems.globalfm.com.my";
 const String jkrDomain = "https://gems.jkr.gov.my";
+// const String jkrDomain = "http://gems.local";
 const String globalDomain = "https://gfmgems.globalfm.com.my";
 String get netDomain => NetworkEnvironment.currentDomain;
 // final String netDomain = "http://localhost/gems2";

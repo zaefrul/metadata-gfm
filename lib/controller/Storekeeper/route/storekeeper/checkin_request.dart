@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -17,60 +18,74 @@ class CheckinRequest extends StatefulWidget {
 
 class _CheckinRequestState extends State<CheckinRequest> {
   final BlocCheckin _controller = BlocCheckin();
-  List<ComplaintDStore> stores = [];
+  final List<ComplaintDStore> stores = [];
+  StreamSubscription<bool>? _loadingSubscription;
+  StreamSubscription<String>? _errorSubscription;
+  bool _storeLoaded = false;
+  bool _isDialogOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _loadingSubscription = _controller.loadingState$.listen((event) {
+      if (!mounted) return;
+      if (event == true && !_isDialogOpen) {
+        _isDialogOpen = true;
+        final currentContext = navigatorKey.currentContext;
+        if (currentContext != null) {
+          showDialog(
+            context: currentContext,
+            barrierDismissible: false,
+            builder: (_) => WillPopScope(
+              onWillPop: () async => false,
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          );
+        }
+      } else if (event == false && _isDialogOpen) {
+        if (!mounted) return;
+        _isDialogOpen = false;
+        final currentContext = navigatorKey.currentContext;
+        if (currentContext != null && Navigator.canPop(currentContext)) {
+          Navigator.pop(currentContext);
+        }
+      }
+    });
+
+    _errorSubscription = _controller.err$.listen((event) {
+      if (!mounted) return;
+      Toast.show(event, duration: 4);
+    });
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    if (_storeLoaded) return;
+    _storeLoaded = true;
+
     print("CheckinRequest: didChangeDependencies called");
-    _controller
-        .fetchStore(context)
-        .then((value) {
-          print("CheckinRequest: fetchStore completed, got ${value.length} stores");
-          if (mounted) {
-            setState(() => stores = value);
-          }
-        })
-        .catchError((error) {
-          print("CheckinRequest: fetchStore error: $error");
-          if (mounted) {
-            Toast.show("Failed to load stores: $error", duration: 4);
-          }
-        });
-    
-    // Track dialog state to prevent double pops
-    bool isDialogOpen = false;
-    
-    _controller.loadingState$.listen((event) {
-      print("CheckinRequest: loadingState changed to: $event, dialog open: $isDialogOpen");
-      if (event == true && !isDialogOpen) {
-        isDialogOpen = true;
-        showDialog(
-          context: navigatorKey.currentContext!,
-          barrierDismissible: false,
-          builder: (_) => WillPopScope(
-            onWillPop: () async => false,
-            child: Center(child: CircularProgressIndicator()),
-          ),
-        );
-      } else if (event == false && isDialogOpen) {
-        print("CheckinRequest: Closing loading dialog");
-        isDialogOpen = false;
-        if (Navigator.canPop(navigatorKey.currentContext!)) {
-          Navigator.pop(navigatorKey.currentContext!);
-        }
-      }
-    });
-    _controller.err$.listen((event) {
-      print("CheckinRequest: Error received: $event");
+    _controller.fetchStore(context).then((value) {
+      print("CheckinRequest: fetchStore completed, got ${value.length} stores");
       if (mounted) {
-        Toast.show(event, duration: 4);
+        setState(() {
+          stores.clear();
+          stores.addAll(value);
+        });
+      }
+    }).catchError((error) {
+      print("CheckinRequest: fetchStore error: $error");
+      if (mounted) {
+        Toast.show("Failed to load stores: $error", duration: 4);
       }
     });
   }
 
   @override
   void dispose() {
+    _loadingSubscription?.cancel();
+    _errorSubscription?.cancel();
     _controller.dispose();
     super.dispose();
   }

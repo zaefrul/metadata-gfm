@@ -1411,9 +1411,13 @@ class WorkOrderDetailRepository {
   Future<List<ResponseImage>> _fetchResponseImagesRemote(
     String workOrderId,
   ) async {
-    final url = '/api/m_wo.php?type=wo_response_images&woTaskId=$workOrderId';
-    final provider = _buildProvider(url, taskId: workOrderId);
-    final raw = await provider.getJson(url: url);
+    final provider = _buildProvider(
+      '/api/m_wo.php?type=wo_response_images&woTaskId=',
+      taskId: workOrderId,
+    );
+    final raw = await provider.getJson(
+      url: '/api/m_wo.php?type=wo_response_images&woTaskId=$workOrderId',
+    );
     final list = _normalizeResponseImagePayload(raw);
     return list.map(ResponseImage.fromJson).toList();
   }
@@ -2591,13 +2595,20 @@ class WorkOrderDetailRepository {
     required String workOrderId,
     required String uploadId,
   }) {
-    return _sendOrQueue(
+    // The backend only handles `delete_wo_repair_image` on an HTTP DELETE with
+    // params in the query string (see api/m_wo.php DELETE branch). Sending it as
+    // a POST body hits the POST branch's fall-through and fails, so route it as a
+    // DELETE through the offline-aware REST queue.
+    final payload = <String, dynamic>{
+      'type': 'response_image_delete',
+      'method': 'DELETE',
+      'fetchURL': '/api/m_wo.php',
+      'url':
+          '/api/m_wo.php?action=delete_wo_repair_image&woTaskId=$workOrderId&woTaskUploadId=$uploadId',
+    };
+    return _sendRestOrQueue(
       workOrderId: workOrderId,
-      body: {
-        'action': 'delete_wo_repair_image',
-        'woTaskId': workOrderId,
-        'woTaskUploadId': uploadId,
-      },
+      payload: payload,
     );
   }
 

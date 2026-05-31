@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 // Removed flutter_image_compress and replaced with flutter_native_image:
 import 'package:GEMS/model/complaint.dart';
@@ -147,9 +148,14 @@ class BlocCheckin extends Bloc {
   Future<void> getStore() async {
     final pref = await SharedPreferences.getInstance();
     final value = pref.getString(_kStore);
-    final translate = json.decode(value ?? '{}');
+    if (value == null || value.isEmpty) return;
+    final translate = json.decode(value);
     final item = deserialize<ComplaintDStore>(translate);
-    store = item;
+    // Only restore a genuinely selected store. An empty store (null itemId)
+    // would leave the dropdown looking selected while submitting storeId=null.
+    if ((item.itemId ?? '').isNotEmpty) {
+      store = item;
+    }
     return;
   }
 
@@ -177,7 +183,7 @@ class BlocCheckin extends Bloc {
     print("BlocCheckin: DO Number: '$fieldDoNo'");
     print("BlocCheckin: Supplier: '$fieldSupplier'");
 
-    if (fieldStore == null) {
+    if (fieldStore == null || (fieldStore.itemId ?? '').isEmpty) {
       print("BlocCheckin: ERROR - No store selected");
       throw "Please select a store";
     }
@@ -223,8 +229,8 @@ class BlocCheckin extends Bloc {
       throw "Store not selected";
     }
     
-    final value = {
-      "storeId": store.itemId,
+    final value = <String, String>{
+      "storeId": store.itemId ?? '',
       "doNo": _doNo.text,
       "doDate": DateFormat('yyyy-MM-dd').format(DateTime.now()),
       "supplierName": _supplierName.text,
@@ -266,8 +272,10 @@ class BlocCheckin extends Bloc {
   }
 
   void createUploadItem(BuildContext context) async {
+    // Camera is unavailable on the iOS Simulator, so fall back to the gallery
+    // in debug builds to allow testing. Release builds still require the camera.
     final value = await BiometricLockManager.pickImage(
-      source: ImageSource.camera,
+      source: kDebugMode ? ImageSource.gallery : ImageSource.camera,
     );
     if (value != null) {
       file = File(value.path);

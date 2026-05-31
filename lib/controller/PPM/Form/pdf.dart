@@ -1,8 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:GEMS/utils/biometric_lock_manager.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/view/dialog.dart';
@@ -28,12 +26,11 @@ class PDF extends StatefulWidget {
   });
 
   @override
-  _PDFState createState() => _PDFState();
+  State<PDF> createState() => _PDFState();
 }
 
 class _PDFState extends State<PDF> {
   String assetPDFPath = "";
-  bool pdfReady = false;
   CustomDialog? dialog;
   String src = "";
 
@@ -147,30 +144,33 @@ class _PDFState extends State<PDF> {
               ],
       ),
       body: assetPDFPath.isEmpty
-          ? Center(child: CircularProgressIndicator())
-          : PDFView(
-              filePath: assetPDFPath,
-              autoSpacing: true,
-              enableSwipe: true,
-              pageSnap: true,
-              swipeHorizontal: true,
-              nightMode: false,
-              onError: (e) => debugPrint("PDF Error: $e"),
-              onRender: (_) => setState(() => pdfReady = true),
-              onPageChanged: (_, __) {},
-              onPageError: (_, e) => debugPrint("Page Error: $e"),
+          ? const Center(child: CircularProgressIndicator())
+          : Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.picture_as_pdf, size: 72, color: Colors.black54),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'PDF ready. Open it with your device viewer.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16, color: Colors.black87),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.open_in_new),
+                      label: const Text('Open PDF'),
+                      onPressed: openPdfFile,
+                    ),
+                  ],
+                ),
+              ),
             ),
       floatingActionButton: FloatingActionButton.extended(
-        label: Text("Open File"),
-        onPressed: () async {
-          final uri = Uri.parse(src);
-          if (await canLaunchUrl(uri)) {
-            // Use BiometricLockManager to prevent biometric prompt when returning
-            await BiometricLockManager.launchExternalUrl(uri);
-          } else {
-            debugPrint('Could not launch $src');
-          }
-        },
+        label: const Text("Open File"),
+        onPressed: openPdfFile,
       ),
     );
   }
@@ -197,6 +197,18 @@ class _PDFState extends State<PDF> {
         .post(url: "/api/m_ppm.php", body: body.body)
         .then((value) => alert(value))
         .catchError((err) => alert(err.toString()));
+  }
+
+  Future<void> openPdfFile() async {
+    if (assetPDFPath.isEmpty) {
+      return;
+    }
+
+    final uri = Uri.file(assetPDFPath);
+    final launched = await BiometricLockManager.launchExternalUrl(uri);
+    if (!launched && src.isNotEmpty) {
+      await BiometricLockManager.launchExternalUrlString(src);
+    }
   }
 
   void alert(String txt) {
