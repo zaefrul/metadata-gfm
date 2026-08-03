@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:pdfx/pdfx.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:GEMS/utils/biometric_lock_manager.dart';
 import 'package:GEMS/utils/network.dart';
@@ -31,6 +32,7 @@ class PDF extends StatefulWidget {
 
 class _PDFState extends State<PDF> {
   String assetPDFPath = "";
+  PdfControllerPinch? _pdfController;
   CustomDialog? dialog;
   String src = "";
 
@@ -50,10 +52,22 @@ class _PDFState extends State<PDF> {
       src = "http:${value.result}";
       return createFileOfPdfUrl(src);
     }).then((file) {
-      setState(() => assetPDFPath = file.path);
+      if (!mounted) return;
+      setState(() {
+        assetPDFPath = file.path;
+        _pdfController = PdfControllerPinch(
+          document: PdfDocument.openFile(file.path),
+        );
+      });
     }).catchError((err) {
       debugPrint("Error in fetch or file creation: $err");
     });
+  }
+
+  @override
+  void dispose() {
+    _pdfController?.dispose();
+    super.dispose();
   }
 
   Future<File> createFileOfPdfUrl(String url) async {
@@ -143,31 +157,9 @@ class _PDFState extends State<PDF> {
                 ),
               ],
       ),
-      body: assetPDFPath.isEmpty
+      body: _pdfController == null
           ? const Center(child: CircularProgressIndicator())
-          : Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.picture_as_pdf, size: 72, color: Colors.black54),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'PDF ready. Open it with your device viewer.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16, color: Colors.black87),
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.open_in_new),
-                      label: const Text('Open PDF'),
-                      onPressed: openPdfFile,
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          : PdfViewPinch(controller: _pdfController!),
       floatingActionButton: FloatingActionButton.extended(
         label: const Text("Open File"),
         onPressed: openPdfFile,
@@ -200,15 +192,12 @@ class _PDFState extends State<PDF> {
   }
 
   Future<void> openPdfFile() async {
-    if (assetPDFPath.isEmpty) {
+    if (src.isEmpty) {
       return;
     }
-
-    final uri = Uri.file(assetPDFPath);
-    final launched = await BiometricLockManager.launchExternalUrl(uri);
-    if (!launched && src.isNotEmpty) {
-      await BiometricLockManager.launchExternalUrlString(src);
-    }
+    // Open the remote PDF in the device's external viewer/browser.
+    // A file:// uri can't be handed to other apps on Android, so use the URL.
+    await BiometricLockManager.launchExternalUrlString(src);
   }
 
   void alert(String txt) {

@@ -409,6 +409,8 @@ class Provider {
     }
     if (includedHeader) await init();
 
+    debugPrint('POST $netDomain$url action=$action body=$body');
+
     final response = await http.post(Uri.parse(netDomain + url),
         headers: includedHeader
             ? {
@@ -423,8 +425,8 @@ class Provider {
               },
         body: body);
 
-    print(response);
-    print(response.body);
+    debugPrint(
+        'POST $netDomain$url status=${response.statusCode} body=${response.body}');
 
     if (response.statusCode == 200) {
       var decode = json.decode(response.body);
@@ -444,7 +446,8 @@ class Provider {
           return responseValue.errmsg;
         }
       } else {
-        return Future.error(responseValue.errmsg);
+        return Future.error(
+            responseValue.errmsg.isNotEmpty ? responseValue.errmsg : 'Submit failed');
       }
     }
     return Future.error("Please try again.");

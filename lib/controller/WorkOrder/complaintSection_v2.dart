@@ -1250,15 +1250,22 @@ class _BuildStandardButton extends StatelessWidget {
                           "woTaskId": bloc.id,
                         };
 
+                        debugPrint(
+                            'submit_wr_check: posting body=$body');
                         final provider = Provider(fetchURL: "/api/m_wo.php");
 
                         try {
-                          await provider.post(url: "/api/m_wo.php", body: body);
+                          final result = await provider.post(
+                              url: "/api/m_wo.php", body: body);
+                          debugPrint(
+                              'submit_wr_check: success response=$result');
+                          await bloc.refresh();
                           alert("Request submitted successfully");
                         } catch (err) {
+                          debugPrint('submit_wr_check: failed err=$err');
                           Toast.show(
                             err.toString(),
-                            duration: Toast.lengthShort,
+                            duration: Toast.lengthLong,
                             gravity: Toast.bottom,
                             backgroundColor: AppColors.danger,
                           );

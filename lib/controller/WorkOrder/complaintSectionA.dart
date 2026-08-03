@@ -300,6 +300,7 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
 
   /// shared builder for an image row
   Widget _buildImageRow(ComplaintImage img) {
+    final imageUrl = _imageUrl(img.documentSrc);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -308,12 +309,25 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
           // the thumbnail
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              "https:${img.documentSrc}",
-              width: 80,
-              height: 80,
-              fit: BoxFit.cover,
-            ),
+            child: imageUrl == null
+                ? _imagePlaceholder()
+                : Image.network(
+                    imageUrl,
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => _imagePlaceholder(),
+                    loadingBuilder: (context, child, progress) {
+                      if (progress == null) return child;
+                      return _imagePlaceholder(child: const Center(
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ));
+                    },
+                  ),
           ),
           const SizedBox(width: 12),
           // timestamp & coords
@@ -322,7 +336,7 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  img.woTaskUploadTimestamp,
+                  _orDash(img.woTaskUploadTimestamp),
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -330,7 +344,10 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "${img.woTaskUploadLatitude}, ${img.woTaskUploadLongitude}",
+                  _formatLatLng(
+                    img.woTaskUploadLatitude,
+                    img.woTaskUploadLongitude,
+                  ),
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.black54,
@@ -338,7 +355,7 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  img.woTaskUploadDesc,
+                  _orDash(img.woTaskUploadDesc),
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.black54,
@@ -357,14 +374,24 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
     );
   }
 
+  /// Fallback box shown when an image is missing or fails to load.
+  Widget _imagePlaceholder({Widget? child}) {
+    return Container(
+      width: 80,
+      height: 80,
+      color: Colors.grey[200],
+      child: child ??
+          Icon(Icons.broken_image_outlined, color: Colors.grey[400]),
+    );
+  }
+
   void _showImageOptions(ComplaintImage img) {
-    final src = img.documentSrc.startsWith('//')
-        ? 'https:${img.documentSrc}'
-        : img.documentSrc;
-  final latitude = double.tryParse(img.woTaskUploadLatitude.toString());
-  final longitude = double.tryParse(img.woTaskUploadLongitude.toString());
+    final src = _imageUrl(img.documentSrc);
+    final latitude = double.tryParse(img.woTaskUploadLatitude.trim());
+    final longitude = double.tryParse(img.woTaskUploadLongitude.trim());
 
     void openViewer() {
+      if (src == null) return;
       Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => ImageViewer(url: src)),
@@ -376,28 +403,60 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
       builder: (_) => SafeArea(
         child: Wrap(
           children: [
-            ListTile(
-              leading: Icon(Icons.image),
-              title: Text('View Image'),
-              onTap: () {
-                Navigator.pop(context);
-                openViewer();
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.map),
-              title: Text('Open Map'),
-              onTap: () {
-                Navigator.pop(context);
-                if (latitude != null && longitude != null) {
+            if (src != null)
+              ListTile(
+                leading: Icon(Icons.image),
+                title: Text('View Image'),
+                onTap: () {
+                  Navigator.pop(context);
+                  openViewer();
+                },
+              ),
+            if (latitude != null && longitude != null)
+              ListTile(
+                leading: Icon(Icons.map),
+                title: Text('Open Map'),
+                onTap: () {
+                  Navigator.pop(context);
                   _openMap(latitude, longitude);
-                }
-              },
-            ),
+                },
+              ),
+            if (src == null && (latitude == null || longitude == null))
+              ListTile(
+                leading: Icon(Icons.info_outline, color: Colors.black54),
+                title: Text('No image or location available'),
+                onTap: () => Navigator.pop(context),
+              ),
           ],
         ),
       ),
     );
+  }
+
+  /// Returns the trimmed value, or "-" when it is null/blank.
+  String _orDash(String? value) =>
+      (value == null || value.trim().isEmpty) ? '-' : value.trim();
+
+  /// Builds a "lat, lng" string, substituting "-" for any missing coordinate.
+  String _formatLatLng(String? lat, String? lng) {
+    final hasLat = lat != null && lat.trim().isNotEmpty;
+    final hasLng = lng != null && lng.trim().isNotEmpty;
+    if (!hasLat && !hasLng) return '-';
+    return '${hasLat ? lat.trim() : '-'}, ${hasLng ? lng.trim() : '-'}';
+  }
+
+  /// Normalizes a document source into a loadable URL, or null when missing.
+  String? _imageUrl(String? src) {
+    if (src == null) return null;
+    final trimmed = src.trim();
+    if (trimmed.isEmpty) return null;
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+    if (trimmed.startsWith('//')) {
+      return 'https:$trimmed';
+    }
+    return 'https://$trimmed';
   }
 
   List<_FieldRow> _makeFields(WorkOrderDetail d) => [
