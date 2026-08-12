@@ -7,8 +7,9 @@ import 'package:flutter/services.dart';
 
 class SearchArguments {
   final int index;
+  final String? initialTaskNo;
 
-  SearchArguments({this.index = 0});
+  SearchArguments({this.index = 0, this.initialTaskNo});
 }
 
 class Search extends StatefulWidget {
@@ -29,6 +30,26 @@ class _SearchState extends State<Search> {
   int index = 0;
 
   _SearchState() : controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args =
+          ModalRoute.of(context)?.settings.arguments as SearchArguments?;
+      if (args == null) return;
+      index = args.index;
+      final initialTaskNo = args.initialTaskNo;
+      if (initialTaskNo != null && initialTaskNo.isNotEmpty) {
+        controller.text = initialTaskNo;
+        if (index == 0) {
+          allTaskView.updateAll(initialTaskNo);
+        } else if (index == 1) {
+          taskView.update(initialTaskNo);
+        }
+      }
+    });
+  }
 
   Future scan() async {
     try {
@@ -65,8 +86,11 @@ class _SearchState extends State<Search> {
   @override
   Widget build(BuildContext context) {
     ToastContext().init(context);
-    final SearchArguments args = ModalRoute.of(context)?.settings.arguments as SearchArguments;
-    index = args.index;
+    final args =
+        ModalRoute.of(context)?.settings.arguments as SearchArguments?;
+    if (args != null) {
+      index = args.index;
+    }
 
     var body = allTaskView;
     if (index == 1) body = taskView;

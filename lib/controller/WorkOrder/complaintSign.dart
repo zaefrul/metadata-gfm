@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:GEMS/utils/network.dart';
+import 'package:GEMS/data/repository/work_order_detail_repository.dart';
+import 'package:GEMS/data/repository/work_order_repository.dart';
 import 'package:rating_dialog/rating_dialog.dart';
 import 'package:signature/signature.dart';
 
@@ -35,6 +36,8 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
 
   final SignatureController _controller;
   late final Signature _signatureCanvas;
+  final WorkOrderDetailRepository _repository = WorkOrderDetailRepository();
+  final WorkOrderRepository _listRepository = WorkOrderRepository();
 
   ComplaintSignatureState() : _controller = SignatureController() {
     _signatureCanvas = Signature(
@@ -59,7 +62,6 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
         backgroundColor: Colors.white,
         iconTheme: const IconThemeData(color: AppColors.primary),
         actions: [
-          // Reset
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: GestureDetector(
@@ -74,7 +76,6 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
               ),
             ),
           ),
-          // Submit
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: GestureDetector(
@@ -105,13 +106,11 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
     );
   }
 
-  /// Step 1: Simple confirmation or second-step dialog
   void _showInitialSubmitDialog(BuildContext ctx) {
     showDialog<void>(
       context: ctx,
       builder: (dialogCtx) {
         if (withVerifier) {
-          // 2nd-step: after verifier has signed
           return CustomDialog(
             title: "Remark",
             description: "Please select the action?",
@@ -122,18 +121,15 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
             image: Image.asset("assets/icon_trans.png", height: 40),
             remarkTapped: (_) {
               Navigator.of(dialogCtx).pop();
-              // Pass the ComplaintSignature's context (this.context)
-              _post(context); // MODIFIED
+              _post(context);
             },
             secondTapped: () {
               Navigator.of(dialogCtx).pop();
               withVerifierBody["isVerified"] = "2";
-              // Pass the ComplaintSignature's context (this.context)
-              _post(context); // MODIFIED
+              _post(context);
             },
           );
         } else {
-          // 1st-step confirm
           return CustomDialog(
             cancel: true,
             description: "Do you confirm want to submit?",
@@ -141,8 +137,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
             image: Image.asset("assets/icon_trans.png", height: 40),
             okayTapped: () {
               Navigator.of(dialogCtx).pop();
-              // Pass the ComplaintSignature's context (this.context)
-              _post(context); // MODIFIED
+              _post(context);
             },
           );
         }
@@ -150,12 +145,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
     );
   }
 
-  /// Step 2: Capture signature, encode, decide action, then _ratingDialog
   Future<void> _post(BuildContext ctx) async {
-    // IMPORTANT: 'ctx' here is now consistently the ComplaintSignature's context,
-    // passed from _showInitialSubmitDialog or _ratingDialog.
-    // Use it for displaying snackbars or final navigation.
-
     if (_controller.isEmpty) {
       ScaffoldMessenger.of(ctx).showSnackBar(
         const SnackBar(content: Text("Please sign first before submit")),
@@ -174,28 +164,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
     final size = png.length.toString();
     final data = base64Encode(png);
 
-    late String action;
-    switch (widget.checkpoint) {
-      case 1:
-        action = "submit_verify";
-        break;
-      case 4:
-        action = "submit_wr_check";
-        break;
-      case 5:
-        action = "submit_wr_verified";
-        break;
-      case 6:
-        action = "submit_check";
-        break;
-      default:
-        action = "submit_repair";
-    }
-
-    debugPrint('Action: $action');
-
     final body = {
-      "action": action,
       "woTaskId": widget.id,
       "signature[name]": "Complaint signature",
       "signature[filename]": "signature.png",
@@ -204,23 +173,71 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
       "signature[data]": data,
     };
 
-    debugPrint('taskType: ${widget.taskCategory}');
+    debugPrint('taskType: ${widget.taskCategory}, checkpoint: ${widget.checkpoint}');
 
-    if(widget.checkpoint != 6 && (widget.taskCategory != "Self Finding" && widget.taskCategory != "Public Complaint")) {
-      // Pass the ComplaintSignature's context (this.context)
-      _ratingDialog(context, body); // MODIFIED
-    }
-    else {
-      // For checkpoint 6, directly upload without rating dialog
-      // Pass the ComplaintSignature's context (this.context)
-      _upload(context, body); // MODIFIED
+    if (widget.checkpoint != 6 &&
+        widget.taskCategory != "Self Finding" &&
+        widget.taskCategory != "Public Complaint") {
+      _ratingDialog(context, body);
+    } else {
+      await _upload(body);
     }
   }
 
-  /// Simple OK-dialog after network call
+  Future<WorkOrderActionResult> _submitBody(Map<String, dynamic> body) {
+    switch (widget.checkpoint) {
+      case 1:
+        return _repository.submitVerify(widget.id, body);
+      case 4:
+        return _repository.submitSignatureAction(widget.id, {
+          'action': 'submit_wr_check',
+          ...body,
+        });
+      case 5:
+        return _repository.submitWrVerifiedFromSignature(widget.id, body);
+      case 6:
+        return _repository.submitCheck(widget.id, body);
+      default:
+        return _repository.submitRepair(widget.id, body);
+    }
+  }
+
+  Future<void> _upload(Map<String, dynamic> body) async {
+    if (!mounted) return;
+    setState(() => loading = true);
+    debugPrint('Submitting signature for woTaskId=${widget.id}');
+
+    try {
+      final result = await _submitBody(body);
+      if (!mounted) return;
+      setState(() => loading = false);
+
+      if (result == WorkOrderActionResult.success) {
+        try {
+          await _listRepository.refreshWorkOrders(
+            WorkOrderListType.pendingTask,
+          );
+        } catch (err) {
+          debugPrint('Failed to refresh My Task list after submit: $err');
+        }
+        _alert(
+          context,
+          'Request submitted successfully.',
+        );
+      } else {
+        _alert(
+          context,
+          'Saved. Will sync when you are back online.',
+        );
+      }
+    } catch (err) {
+      if (!mounted) return;
+      setState(() => loading = false);
+      _alert(context, err.toString());
+    }
+  }
+
   void _alert(BuildContext scaffoldCtx, String msg) {
-    // This 'scaffoldCtx' is now the ComplaintSignature's context,
-    // which is stable for showing this final dialog and for navigation.
     showDialog<void>(
       context: scaffoldCtx,
       barrierDismissible: false,
@@ -233,40 +250,13 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
     );
   }
 
-  /// Performs HTTP POST and toggles loading spinner
-  void _upload(BuildContext ctxForNetwork, Map<String, dynamic> body) {
-    // 'ctxForNetwork' is the context of the dialog that *triggered* the upload,
-    // which is needed for the Provider setup.
-    // However, for the final _alert and navigation, we'll use the ComplaintSignature's context.
-
-    if (!mounted) return;
-    setState(() => loading = true);
-    debugPrint("==============Uploading with body: $body");
-
-    // Use ctxForNetwork for the Provider if it needs the context where it was initiated
-    final provider = Provider(fetchURL: "/api/m_wo.php")..context = ctxForNetwork;
-    provider.post(url: "/api/m_wo.php", body: body).then((resp) {
-      if (mounted) {
-        setState(() => loading = false);
-        // Use the ComplaintSignatureState's context for the final alert and navigation
-        _alert(context, resp); // MODIFIED
-      }
-    }).catchError((err) {
-      if (mounted) setState(() => loading = false);
-      // Use the ComplaintSignatureState's context for the final alert and navigation
-      _alert(context, err.toString()); // MODIFIED
-    });
-  }
-
-  /// Step 3: Rating dialog or two-step verifier flow
   void _ratingDialog(
-    BuildContext dialogHostCtx, // This 'dialogHostCtx' is the context from where this dialog is launched (e.g., ComplaintSignature's context)
+    BuildContext dialogHostCtx,
     Map<String, dynamic> body,
   ) {
-    // helper for “No Verifier” → second remark dialog
     void dialogConfirmation() {
       showDialog<void>(
-        context: dialogHostCtx, // Use the provided context to show this dialog
+        context: dialogHostCtx,
         barrierDismissible: false,
         builder: (dialogCtx) => CustomDialog(
           title: "Remark",
@@ -279,14 +269,12 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
           image: Image.asset("assets/icon_trans.png", height: 40),
           remarkTapped: (_) {
             Navigator.of(dialogCtx).pop();
-            // Pass the ComplaintSignature's context (this.context)
-            _upload(context, body); // MODIFIED
+            _upload(body);
           },
           secondTapped: () {
             Navigator.of(dialogCtx).pop();
             body["isVerified"] = "3";
-            // Pass the ComplaintSignature's context (this.context)
-            _upload(context, body); // MODIFIED
+            _upload(body);
           },
         ),
       );
@@ -294,9 +282,8 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
 
     if (widget.checkpoint == 4) {
       if (!withVerifier) {
-        // FIRST step for checkpoint 4
         showDialog<void>(
-          context: dialogHostCtx, // Use the provided context to show this dialog
+          context: dialogHostCtx,
           barrierDismissible: false,
           builder: (dialogCtx) => CustomDialog(
             title: "Remark",
@@ -306,40 +293,35 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
             buttonText2: "No Verifier",
             image: Image.asset("assets/icon_trans.png", height: 40),
             remarkTapped: (remark) {
-              // 1) stash original body with remark and isVerified flag
               withVerifierBody
                 ..addAll(body)
                 ..['remark'] = remark
                 ..['isVerified'] = "1";
-              // 2) clear canvas to allow new signature
               _controller.clear();
-              // 3) flip the flag & reset loading
               setState(() {
                 withVerifier = true;
                 loading = false;
               });
-              // 4) close this dialog
               Navigator.of(dialogCtx).pop();
-              // 5) prompt for re-sign
-              ScaffoldMessenger.of(context).showSnackBar( // Use this.context for SnackBar
-                const SnackBar(content: Text("Please refill signature field for verifier")),
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Please refill signature field for verifier"),
+                ),
               );
-              // 6) reopen the initial submit dialog using current ComplaintSignature's context
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (!mounted) return;
-                _showInitialSubmitDialog(context); // MODIFIED
+                _showInitialSubmitDialog(context);
               });
             },
             secondTapped: (remark) {
               Navigator.of(dialogCtx).pop();
               body["remark"] = remark;
               body["isVerified"] = "0";
-              dialogConfirmation(); // This calls _upload with `context` already
+              dialogConfirmation();
             },
           ),
         );
       } else {
-        // SECOND step: merge verifier signature & upload
         withVerifierBody["signatureVerifier[name]"] =
             "${body["signature[name]"]} verifier";
         withVerifierBody["signatureVerifier[filename]"] =
@@ -350,17 +332,13 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
             body["signature[type]"];
         withVerifierBody["signatureVerifier[data]"] =
             body["signature[data]"];
-        // Pass the ComplaintSignature's context (this.context)
-        _upload(context, withVerifierBody); // MODIFIED
+        _upload(withVerifierBody);
       }
     } else if (widget.checkpoint != 1) {
-      // non-rating, non-verifier
-      // Pass the ComplaintSignature's context (this.context)
-      _upload(context, body); // MODIFIED
+      _upload(body);
     } else {
-      // checkpoint 1: show RatingDialog
       showDialog<void>(
-        context: dialogHostCtx, // Use the provided context to show this dialog
+        context: dialogHostCtx,
         barrierDismissible: false,
         builder: (dialogCtx) => RatingDialog(
           image: Material(
@@ -378,8 +356,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
           onSubmitted: (resp) {
             Navigator.of(dialogCtx).pop();
             body["rating"] = resp.rating.toString();
-            // Pass the ComplaintSignature's context (this.context)
-            _upload(context, body); // MODIFIED
+            _upload(body);
           },
         ),
       );

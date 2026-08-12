@@ -8,8 +8,13 @@ import 'package:flutter/services.dart';
 class SearchComplaintArguments {
   final String url;
   final int index;
+  final String? initialTaskNo;
 
-  SearchComplaintArguments({this.url = "", this.index = 0});
+  SearchComplaintArguments({
+    this.url = "",
+    this.index = 0,
+    this.initialTaskNo,
+  });
 }
 
 class SearchComplaint extends StatefulWidget {
@@ -32,11 +37,19 @@ class _SearchState extends State<SearchComplaint> {
   @override
   void initState() {
     super.initState();
-    // Initialize default values.
     _url = "";
     index = 1;
-    // Optionally, initialize body. For example, an empty view:
     body = ComplaintView(_url, Container(), index);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args =
+          ModalRoute.of(context)?.settings.arguments as SearchComplaintArguments?;
+      final initialTaskNo = args?.initialTaskNo;
+      if (initialTaskNo != null && initialTaskNo.isNotEmpty) {
+        controller.text = initialTaskNo;
+        _fetchQuery(initialTaskNo, index);
+      }
+    });
   }
 
   Future<void> scan() async {

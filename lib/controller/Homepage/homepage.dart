@@ -1,7 +1,9 @@
 import 'dart:async';
 
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
+import 'package:GEMS/service/notification_service.dart';
+import 'package:GEMS/service/notification_router.dart';
+import 'package:GEMS/data/repository/notification_repository.dart';
+import 'package:GEMS/main.dart' show navigatorKey;
 import 'package:flutter/material.dart';
 import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 import 'package:GEMS/model/user.dart';
@@ -35,15 +37,16 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  final NotificationRepository _notificationRepository = NotificationRepository();
 
   User? _currentUser;
   bool _isStorekeeperFeatureEnabled = false;
   bool _isUtilitiesFeatureEnabled = false;
   bool _isLoading = true;
   bool _profileImageLoadFailed = false;
-  String _appVersion = ''; // New state variable for app version
-  int _versionTapCount = 0; // Secret debug menu tap counter
+  String _appVersion = '';
+  int _versionTapCount = 0;
+  int _unreadNotificationCount = 0;
 
   @override
   void initState() {
@@ -125,6 +128,10 @@ class _HomepageState extends State<Homepage> {
       if (_currentUser != null) {
         await _handleInitialUserFlow(_currentUser!);
       }
+      // Deep-link after backend switch + login (or cold start with pending).
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        NotificationRouter.consumePendingAndNavigate(navigatorKey);
+      });
     } catch (e) {
       debugPrint("Error during homepage initialization: $e");
       if (mounted) {
@@ -143,38 +150,24 @@ class _HomepageState extends State<Homepage> {
 
   Future<void> _setupFirebaseMessaging() async {
     try {
-      final token = await _getFirebaseMessagingToken();
-      if (token != null && mounted) {
-        final provider = Provider(fetchURL: "/api/m_ppm.php")..context = context;
-        await provider.post(url: "/api/m_ppm.php", body: {
-          "action": "save_token",
-          "token": token,
-        });
-        debugPrint("FCM Token saved: $token");
+      if (mounted) {
+        await NotificationService.registerToken(context: context);
+        await _refreshUnreadCount();
       }
     } catch (e) {
       debugPrint("Error setting up Firebase Messaging: $e");
     }
   }
 
-  Future<String?> _getFirebaseMessagingToken() async {
-    if (defaultTargetPlatform == TargetPlatform.iOS) {
-      String? apnsToken;
-      for (int attempt = 0; attempt < 5; attempt++) {
-        apnsToken = await _firebaseMessaging.getAPNSToken();
-        if (apnsToken != null) {
-          break;
-        }
-        await Future.delayed(const Duration(milliseconds: 300));
+  Future<void> _refreshUnreadCount() async {
+    try {
+      final count = await _notificationRepository.fetchUnreadCount(context);
+      if (mounted) {
+        setState(() => _unreadNotificationCount = count);
       }
-
-      if (apnsToken == null) {
-        debugPrint("Skipping FCM token setup: APNS token is not ready yet");
-        return null;
-      }
+    } catch (e) {
+      debugPrint('Failed to load unread notification count: $e');
     }
-
-    return _firebaseMessaging.getToken();
   }
 
   Future<void> _loadUserDataAndPermissions() async {
@@ -279,9 +272,43 @@ class _HomepageState extends State<Homepage> {
         ),
       ),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.notifications, color: Colors.black87),
-          onPressed: () => Navigator.pushNamed(context, "/notifications"),
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.notifications, color: Colors.black87),
+              onPressed: () async {
+                await Navigator.pushNamed(context, "/notifications");
+                if (mounted) {
+                  await _refreshUnreadCount();
+                }
+              },
+            ),
+            if (_unreadNotificationCount > 0)
+              Positioned(
+                right: 8,
+                top: 8,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                  child: Text(
+                    _unreadNotificationCount > 99
+                        ? '99+'
+                        : '$_unreadNotificationCount',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+          ],
         ),
       ],
     );

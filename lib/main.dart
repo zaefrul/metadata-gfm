@@ -48,10 +48,11 @@ import 'view/secret_debug_menu.dart';
 import 'controller/login.dart';
 import 'controller/Profile/profile.dart';
 import 'controller/Homepage/resetPassword.dart';
+import 'controller/Notifications/notifications.dart';
+import 'service/notification_service.dart';
+import 'utils/network.dart';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:GEMS/model/complaint.dart';
 import 'package:GEMS/model/return_ticket_models.dart';
 import 'package:GEMS/config/app_config.dart';
@@ -62,15 +63,8 @@ import 'utils/auth_secure_storage.dart';
 import 'utils/debug_log_service.dart';
 import 'view/debug_log_screen.dart';
 
-late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-late AndroidNotificationChannel channel;
-bool isFlutterLocalNotificationsInitialized = false;
-int alertCount = 0;
-
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
-
-late FirebaseMessaging? _messaging;
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -103,149 +97,12 @@ Future<void> main() async {
   try {
     await Firebase.initializeApp();
     debugPrint("Firebase initialized successfully");
+    await NotificationService.initialize(navigatorKey: navigatorKey);
   } catch (e) {
     debugPrint("Firebase initialization failed: ${e.toString()}");
-    // Continue without Firebase if it fails
-  }
-
-  // Instantiate Firebase Messaging.
-  try {
-    _messaging = FirebaseMessaging.instance;
-    debugPrint("Firebase Messaging initialized successfully");
-  } catch (e) {
-    debugPrint("Firebase Messaging initialization failed: ${e.toString()}");
-    // Continue without Firebase messaging if it fails
-  }
-
-  // Request permission on iOS.
-  if (_messaging != null) {
-    try {
-      NotificationSettings settings = await _messaging!.requestPermission(
-        alert: true,
-        badge: true,
-        provisional: false,
-        sound: true,
-      );
-
-      // **Make sure to grab APNS token immediately on iOS:**
-      if (Platform.isIOS) {
-        try {
-          String? apnsToken = await _messaging!.getAPNSToken();
-          debugPrint('🪶 APNS token: $apnsToken');
-        } catch (e) {
-          debugPrint('⚠️ getAPNSToken failed: $e');
-        }
-      }
-
-      await _messaging!.setForegroundNotificationPresentationOptions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-
-      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        debugPrint('User granted permission');
-      } else {
-        debugPrint('User declined or has not accepted permission');
-      }
-
-      FirebaseMessaging.onBackgroundMessage(
-          _firebaseMessagingBackgroundHandler);
-      FirebaseMessaging.onMessage.listen((RemoteMessage event) {
-        showNotification(event)
-            .catchError((err) => debugPrint('Notification error: $err'));
-      });
-    } catch (e) {
-      debugPrint("Firebase messaging setup failed: ${e.toString()}");
-    }
-  } else {
-    debugPrint(
-        "Firebase Messaging is not available - continuing without push notifications");
-  }
-
-  if (Platform.isIOS || Platform.isAndroid) {
-    await setupFlutterNotifications();
   }
 
   runApp(MyApp(navigatorKey: navigatorKey));
-}
-
-Future<void> showNotification(RemoteMessage payload) async {
-  var initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
-  var initialSetting = InitializationSettings(
-    android: initializationSettingsAndroid,
-  );
-  final FlutterLocalNotificationsPlugin plugin =
-      FlutterLocalNotificationsPlugin();
-  await plugin.initialize(initialSetting);
-
-  AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-    'default_notification_channel_id',
-    'Notification',
-    importance: Importance.max,
-    priority: Priority.high,
-    ticker: 'ticker',
-    icon: initializationSettingsAndroid.defaultIcon,
-  );
-  NotificationDetails platformChannelSpecifics =
-      NotificationDetails(android: androidDetails);
-
-  await plugin.show(alertCount, payload.notification?.title ?? '',
-      payload.notification?.body ?? '', platformChannelSpecifics);
-
-  alertCount++;
-}
-
-Future<void> setupFlutterNotifications() async {
-  if (isFlutterLocalNotificationsInitialized) {
-    return;
-  }
-  channel = const AndroidNotificationChannel(
-    'high_importance_channel', // id
-    'High Importance Notifications', // title
-    description:
-        'This channel is used for important notifications.', // description
-    importance: Importance.high,
-  );
-
-  flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
-  await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(channel);
-
-  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
-  isFlutterLocalNotificationsInitialized = true;
-}
-
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // Make sure to initialize Firebase before using it in the background.
-  debugPrint('Handling a background message ${message.messageId}');
-}
-
-void showFlutterNotification(RemoteMessage message) {
-  RemoteNotification? notification = message.notification;
-  if ((Platform.isIOS || Platform.isAndroid) && notification != null) {
-    flutterLocalNotificationsPlugin.show(
-      notification.hashCode,
-      notification.title,
-      notification.body,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          channel.id,
-          channel.name,
-          channelDescription: channel.description,
-          icon: 'launch_background',
-        ),
-      ),
-    );
-  }
 }
 
 class MyApp extends StatefulWidget {
@@ -334,11 +191,23 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Route<dynamic> _generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case "/":
+        NetworkSource? preselected;
+        final loginArgs = settings.arguments;
+        if (loginArgs is LoginArguments) {
+          preselected = loginArgs.preselectedSource;
+        } else if (loginArgs is NetworkSource) {
+          preselected = loginArgs;
+        }
         return MaterialPageRoute(
-            builder: (context) => Login(), settings: settings);
+            builder: (context) => Login(preselectedSource: preselected),
+            settings: settings);
       case "/homepage":
         return MaterialPageRoute(
             builder: (context) => main_home.Homepage(), settings: settings);
+      case NotificationsScreen.routeName:
+        return MaterialPageRoute(
+            builder: (context) => const NotificationsScreen(),
+            settings: settings);
       case "/ppm":
         return MaterialPageRoute(
             builder: (context) => PreventiveMaintenance(), settings: settings);

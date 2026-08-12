@@ -374,6 +374,25 @@ class MainBloc {
     }
   }
 
+  Future<WorkOrderActionResult> submitWrCheck() async {
+    loading = true;
+    try {
+      final result = await _repository.submitWrCheck(_id);
+      await _handleActionResult(
+        result: result,
+        successMessage: 'Request submitted successfully.',
+        queuedMessage:
+            'WR check queued offline. We will sync it once you are back online.',
+        refreshOnSuccess: true,
+      );
+      return result;
+    } catch (err) {
+      loading = false;
+      _handleActionError('submitWrCheck error: $err', err);
+      rethrow;
+    }
+  }
+
   Future<WorkOrderActionResult> attendanceApprove(String remarks) async {
     loading = true;
     try {

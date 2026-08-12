@@ -10,7 +10,6 @@ import 'package:GEMS/data/repository/work_order_detail_repository.dart';
 import 'package:GEMS/model/execution.dart';
 import 'package:GEMS/model/user.dart';
 import 'package:GEMS/model/workorder.dart';
-import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/view/dialog.dart';
 import 'package:toast/toast.dart';
@@ -1245,22 +1244,11 @@ class _BuildStandardButton extends StatelessWidget {
                         mainStatus == "WR Verified" ||
                         mainStatus == "WR Re-Open") {
                       if (mainStatus == "WR Check") {
-                        var body = {
-                          "action": "submit_wr_check",
-                          "woTaskId": bloc.id,
-                        };
-
-                        debugPrint(
-                            'submit_wr_check: posting body=$body');
-                        final provider = Provider(fetchURL: "/api/m_wo.php");
-
                         try {
-                          final result = await provider.post(
-                              url: "/api/m_wo.php", body: body);
-                          debugPrint(
-                              'submit_wr_check: success response=$result');
-                          await bloc.refresh();
-                          alert("Request submitted successfully");
+                          final result = await bloc.submitWrCheck();
+                          if (result == WorkOrderActionResult.success) {
+                            alert("Request submitted successfully");
+                          }
                         } catch (err) {
                           debugPrint('submit_wr_check: failed err=$err');
                           Toast.show(

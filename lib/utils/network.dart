@@ -30,6 +30,13 @@ const String _sessionContextPrefsKey = "SESSION_CONTEXT";
 
 enum NetworkSource { gemsPlus, gems20 }
 
+/// Route arguments for Login when switching backends from a notification tap.
+class LoginArguments {
+  final NetworkSource? preselectedSource;
+
+  const LoginArguments({this.preselectedSource});
+}
+
 class NetworkEnvironment {
   static const String prefsKey = "NETWORK_SOURCE";
   static const String gemsPlusValue = "gemsPlus";

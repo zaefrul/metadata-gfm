@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:GEMS/model/user.dart';
+import 'package:GEMS/main.dart' as app show navigatorKey;
+import 'package:GEMS/service/notification_router.dart';
+import 'package:GEMS/service/notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:local_auth/local_auth.dart';
@@ -12,7 +15,9 @@ import 'forgotPassword.dart';
 import '../utils/auth_secure_storage.dart';
 
 class Login extends StatefulWidget {
-  const Login({super.key});
+  final NetworkSource? preselectedSource;
+
+  const Login({super.key, this.preselectedSource});
 
   @override
   State<Login> createState() => _LoginState();
@@ -38,16 +43,23 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _loadNetworkSource();
-
-    User.getPrefUser.then((_) {
-      if (!mounted) return;
-      Navigator.of(context).pushReplacementNamed("/homepage");
-    }).catchError((_) {
-      if (!mounted) return;
-      setState(() => userExist = false);
+    if (widget.preselectedSource != null) {
+      _selectedNetworkSource = widget.preselectedSource!;
+      NetworkEnvironment.save(widget.preselectedSource!);
+      // Coming from notification backend-switch: force login UI.
+      userExist = false;
       _initBiometric();
-    });
+    } else {
+      _loadNetworkSource();
+      User.getPrefUser.then((_) {
+        if (!mounted) return;
+        Navigator.of(context).pushReplacementNamed("/homepage");
+      }).catchError((_) {
+        if (!mounted) return;
+        setState(() => userExist = false);
+        _initBiometric();
+      });
+    }
 
     _controller = AnimationController(
       vsync: this,
@@ -462,15 +474,30 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       user.saveUser();
       await _handlePostLoginBiometric();
       if (!mounted) return;
+      await _registerTokenAndOpenPending();
+      if (!mounted) return;
       Navigator.pushReplacementNamed(context, "/homepage");
       Toast.show("Welcome to GEMS, ${user.username}!",
           backgroundColor: AppColors.success);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        NotificationRouter.consumePendingAndNavigate(app.navigatorKey);
+      });
     } catch (e) {
       Toast.show(e.toString(), backgroundColor: AppColors.danger);
     } finally {
       if (mounted) {
         setState(() => userlogIn = false);
       }
+    }
+  }
+
+  Future<void> _registerTokenAndOpenPending() async {
+    try {
+      if (mounted) {
+        await NotificationService.registerToken(context: context);
+      }
+    } catch (e) {
+      debugPrint('FCM token registration after login failed: $e');
     }
   }
 
@@ -617,9 +644,14 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
         networkSource: NetworkEnvironment.valueFor(source),
       );
       if (!mounted) return;
+      await _registerTokenAndOpenPending();
+      if (!mounted) return;
       Navigator.pushReplacementNamed(context, "/homepage");
       Toast.show("Welcome back, ${user.username}!",
           backgroundColor: AppColors.success);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        NotificationRouter.consumePendingAndNavigate(app.navigatorKey);
+      });
     } catch (e) {
       Toast.show(e.toString(), backgroundColor: AppColors.danger);
     } finally {

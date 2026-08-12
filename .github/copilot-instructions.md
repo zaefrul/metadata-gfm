@@ -93,7 +93,7 @@
   // ❌ WRONG: Direct ImagePicker call triggers biometric prompt
   final picked = await ImagePicker().pickImage(source: ImageSource.camera);
   ```
-- **Why?** Opening native pickers causes app pause → resume, triggering biometric re-auth. Users find this confusing since they "never left the app". See `BIOMETRIC_UX_FIX.md` for full details.
+- **Why?** Opening native pickers causes app pause → resume, triggering biometric re-auth. Users find this confusing since they "never left the app". See `docs/BIOMETRIC_UX_FIX.md` for full details.
 
 ---
 
@@ -262,7 +262,7 @@ await provider.post(url: "/api/m_wo.php", body: {"action": "submit", "data": jso
 
 **Security & Data Management**
 - ❌ **No automatic cache clear on logout**: Offline data persists after logout (potential data leak)
-- ✅ **Biometric UX improved**: System pickers (camera/file) no longer trigger biometric prompt (see `BIOMETRIC_UX_FIX.md`)
+- ✅ **Biometric UX improved**: System pickers (camera/file) no longer trigger biometric prompt (see `docs/BIOMETRIC_UX_FIX.md`)
 - ⚠️ **Partial biometric wipe on failure**: Failed biometric auth doesn't trigger cache wipe (separate concern)
 - ❌ **No encryption at rest**: SQLite database stores sensitive WO data unencrypted
 
@@ -347,10 +347,10 @@ await provider.post(url: "/api/m_wo.php", body: {"action": "submit", "data": jso
 | `lib/model/*.dart` | Built_value models, serializers |
 | `build_variants.sh` | Build script for classic/client variants |
 | `README.md` | Build, deploy, maintenance guide |
-| `VARIANTS_GUIDE.md` | Detailed variant system documentation |
-| `OFFLINE_DEBUG_GUIDE.md` | Debugging offline features |
-| `BIOMETRIC_UX_FIX.md` | **NEW**: Biometric UX improvements, migration guide |
-| `OFFLINE_IMAGE_SYNC_BUG.md` | **NEW**: Image sync bug investigation & fix |
+| `docs/VARIANTS_GUIDE.md` | Detailed variant system documentation |
+| `docs/OFFLINE_DEBUG_GUIDE.md` | Debugging offline features |
+| `docs/BIOMETRIC_UX_FIX.md` | Biometric UX improvements, migration guide |
+| `docs/OFFLINE_IMAGE_SYNC_BUG.md` | Image sync bug investigation & fix |
 
 ---
 
@@ -368,7 +368,7 @@ await provider.post(url: "/api/m_wo.php", body: {"action": "submit", "data": jso
 
 > **Status**: ✅ Implementation Complete | Ready for QA Testing  
 > **Created**: 9 November 2025 | **Completed**: 10 November 2025  
-> **API Docs**: See `MATERIAL_ITEM_API.md` | **Testing Guide**: See `RETURN_ITEM_TESTING_GUIDE.md`
+> **API Docs**: See `docs/MATERIAL_ITEM_API.md` | **Testing Guide**: See `docs/RETURN_ITEM_TESTING_GUIDE.md`
 
 ### Business Requirements
 - **Technicians** can return items previously collected from storekeeper

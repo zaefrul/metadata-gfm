@@ -503,7 +503,9 @@ flutter run --dart-define=APP_VARIANT=classic
 ├── pubspec.yaml                        # Dependencies & version
 ├── assets/app_icon.jpg                 # App icon source
 ├── build_variants.sh                   # Build automation script
-└── VARIANTS_GUIDE.md                   # Variant documentation
+├── docs/                               # Project documentation
+│   └── VARIANTS_GUIDE.md               # Variant documentation
+└── miscellaneous/                      # Backups, logs, certs, one-off scripts
 ```
 
 ### 🔗 Useful Commands

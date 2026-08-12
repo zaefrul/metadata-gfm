@@ -1121,6 +1121,70 @@ class WorkOrderDetailRepository {
     );
   }
 
+  /// Routes signature/final workflow POSTs through the offline queue (same as
+  /// section saves). [body] must include `action` and signature fields.
+  Future<WorkOrderActionResult> submitSignatureAction(
+    String workOrderId,
+    Map<String, dynamic> body,
+  ) async {
+    final payload = Map<String, dynamic>.from(body)
+      ..['woTaskId'] = workOrderId;
+    return _sendOrQueue(
+      workOrderId: workOrderId,
+      body: payload,
+    );
+  }
+
+  Future<WorkOrderActionResult> submitRepair(
+    String workOrderId,
+    Map<String, dynamic> body,
+  ) {
+    return submitSignatureAction(workOrderId, {
+      'action': 'submit_repair',
+      ...body,
+    });
+  }
+
+  Future<WorkOrderActionResult> submitVerify(
+    String workOrderId,
+    Map<String, dynamic> body,
+  ) {
+    return submitSignatureAction(workOrderId, {
+      'action': 'submit_verify',
+      ...body,
+    });
+  }
+
+  Future<WorkOrderActionResult> submitCheck(
+    String workOrderId,
+    Map<String, dynamic> body,
+  ) {
+    return submitSignatureAction(workOrderId, {
+      'action': 'submit_check',
+      ...body,
+    });
+  }
+
+  Future<WorkOrderActionResult> submitWrCheck(String workOrderId) async {
+    return _sendOrQueue(
+      workOrderId: workOrderId,
+      body: {
+        'action': 'submit_wr_check',
+        'woTaskId': workOrderId,
+      },
+    );
+  }
+
+  Future<WorkOrderActionResult> submitWrVerifiedFromSignature(
+    String workOrderId,
+    Map<String, dynamic> body,
+  ) {
+    return submitSignatureAction(workOrderId, {
+      'action': 'submit_wr_verified',
+      ...body,
+    });
+  }
+
   Future<WorkOrderActionResult> reject(
     String status,
     String workOrderId,

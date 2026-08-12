@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pdfx/pdfx.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:GEMS/data/repository/work_order_detail_repository.dart';
 import 'package:GEMS/utils/biometric_lock_manager.dart';
 
 import 'package:GEMS/utils/network.dart';
@@ -41,6 +42,7 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
   PdfControllerPinch? _pdfController;
   late CustomDialog dialog; // Initialize with a default value
   String src = "";
+  final WorkOrderDetailRepository _repository = WorkOrderDetailRepository();
 
   @override
   void initState() {
@@ -155,17 +157,7 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ComplaintSignature(
-                                    id: widget.id,
-                                    result: "Check",
-                                    checkpoint: widget.checkpoint,
-                                    taskCategory: widget.taskCategory,
-                                  )));
-                    },
+                    onTap: _openSignatureFlow,
                     child: Container(
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(6.0)),
@@ -195,6 +187,56 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
           fontWeight: bold ? FontWeight.bold : FontWeight.normal,
         ),
       );
+
+  Future<bool> _hasConnectivity() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } on SocketException catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _openSignatureFlow() async {
+    final offlineMode = await _repository.isOfflineModeEnabled(widget.id);
+    final online = await _hasConnectivity();
+
+    if (offlineMode || !online) {
+      if (!mounted) return;
+      await showDialog<void>(
+        context: context,
+        builder: (dialogCtx) => CustomDialog(
+          description: offlineMode
+              ? 'Offline mode is on. Your signature will be saved locally and submitted automatically when you sync.'
+              : 'No internet connection. Your signature will be queued and submitted when you are back online.',
+          buttonText: 'Continue',
+          cancel: true,
+          image: Image.asset('assets/icon_trans.png', height: 40),
+          okayTapped: () {
+            Navigator.of(dialogCtx).pop();
+            _navigateToSignature();
+          },
+        ),
+      );
+      return;
+    }
+
+    _navigateToSignature();
+  }
+
+  void _navigateToSignature() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ComplaintSignature(
+          id: widget.id,
+          result: "Check",
+          checkpoint: widget.checkpoint,
+          taskCategory: widget.taskCategory,
+        ),
+      ),
+    );
+  }
 
   void post(String text) {
     var body = UploadItem(action: "return_verify", id: widget.id, remark: text);
