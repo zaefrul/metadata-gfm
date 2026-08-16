@@ -26,6 +26,10 @@ VoidCallback? _onUnreadCountChanged;
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // Notification+data messages are already displayed by the OS/FCM tray.
+  // Only show a local notification for data-only payloads.
+  if (message.notification != null) return;
+
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await NotificationService.ensureLocalNotificationsInitialized();
@@ -63,10 +67,12 @@ class NotificationService {
           ?.requestNotificationsPermission();
     }
 
+    // iOS foreground banners are shown via local notifications below.
+    // Keeping alert:true here would duplicate the banner.
     await messaging.setForegroundNotificationPresentationOptions(
-      alert: true,
+      alert: false,
       badge: true,
-      sound: true,
+      sound: false,
     );
 
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
@@ -95,7 +101,7 @@ class NotificationService {
     if (_localNotificationsInitialized) return;
 
     const androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('@mipmap/launcher_icon');
     const iosSettings = DarwinInitializationSettings();
     const settings = InitializationSettings(
       android: androidSettings,
@@ -154,7 +160,7 @@ class NotificationService {
           channelDescription: kHighImportanceChannel.description,
           importance: Importance.high,
           priority: Priority.high,
-          icon: '@mipmap/ic_launcher',
+          icon: '@mipmap/launcher_icon',
         ),
         iOS: const DarwinNotificationDetails(),
       ),
