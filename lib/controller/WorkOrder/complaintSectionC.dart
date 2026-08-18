@@ -446,14 +446,10 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
 
   Future<void> _createUpload(int idx) async {
     setState(() => _loading = true);
-    final location = await resolveDeviceLocation();
+    final location = await resolveDeviceLocationOrPrompt(context);
     final lat = location.latitude;
     final lng = location.longitude;
     if (!location.hasValidCoordinates) {
-      final message = describeLocationFailure(location.status);
-      if (message.isNotEmpty) {
-        Toast.show(message);
-      }
       if (mounted) {
         setState(() => _loading = false);
       }

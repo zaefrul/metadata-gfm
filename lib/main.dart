@@ -61,6 +61,7 @@ import 'package:local_auth/local_auth.dart';
 
 import 'utils/auth_secure_storage.dart';
 import 'utils/debug_log_service.dart';
+import 'utils/location_helper.dart';
 import 'view/debug_log_screen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -152,6 +153,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       if (_shouldLockOnResume) {
         _handleResume();
       }
+      _refreshLocationSession();
+    }
+  }
+
+  Future<void> _refreshLocationSession() async {
+    try {
+      await User.getPrefUser;
+      await resolveDeviceLocation(forceRefresh: true);
+    } catch (_) {
+      // Not logged in, or GPS unavailable — submit-time check is the gate.
     }
   }
 

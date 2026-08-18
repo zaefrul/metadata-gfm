@@ -9,11 +9,11 @@ import 'package:GEMS/utils/biometric_lock_manager.dart';
 import 'package:GEMS/controller/PPM/Form/openImage.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/utils/location_helper.dart';
 import 'package:GEMS/view/dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' show basename;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 
 class FormComplaint extends StatefulWidget {
@@ -480,20 +480,33 @@ class _FormComplaintState extends State<FormComplaint> {
   }
 
   Future<void> _createUploadItem() async {
+    setState(() => loading = true);
+    final location = await resolveDeviceLocationOrPrompt(
+      context,
+      forceRefresh: true,
+    );
+    if (!location.hasValidCoordinates) {
+      if (mounted) {
+        setState(() => loading = false);
+      }
+      return;
+    }
+
     final picked = await BiometricLockManager.pickImage(
       source: ImageSource.camera,
     );
-    if (picked == null) return;
-    setState(() => loading = true);
+    if (picked == null) {
+      if (mounted) {
+        setState(() => loading = false);
+      }
+      return;
+    }
     final file = File(picked.path);
     final bytes = await compressFile(file, settings: {
       'quality': Platform.isIOS ? 20 : 60,
       'minWidth': 480,
       'minHeight': 640,
     }) ?? Uint8List(0);
-    var pref = await SharedPreferences.getInstance();
-    var lat = pref.getString(prefsLATITUDE);
-    var lng = pref.getString(prefsLONGITUDE);
     if (bytes.length > 5 * 1024 * 1024) {
       Toast.show('File > 5 MB');
       setState(() => loading = false);
@@ -507,8 +520,8 @@ class _FormComplaintState extends State<FormComplaint> {
         filename: basename(picked.path),
         size: bytes.length.toString(),
         data: base64Encode(bytes),
-        latitude: lat ?? '0.0',
-        longitude: lng ?? '0.0',
+        latitude: location.latitude,
+        longitude: location.longitude,
       ));
       loading = false;
     });
@@ -524,14 +537,19 @@ class _FormComplaintState extends State<FormComplaint> {
       return;
     }
     setState(() => loading = true);
-    final prefs = await SharedPreferences.getInstance();
-    final lat = prefs.getString(prefsLATITUDE);
-    final lng = prefs.getString(prefsLONGITUDE);
-    if (lat == null || lng == null) {
-      Toast.show('Missing GPS coords');
-      setState(() => loading = false);
+    final location = await resolveDeviceLocationOrPrompt(
+      context,
+      forceRefresh: true,
+      requireFresh: true,
+    );
+    if (!location.isFreshFix) {
+      if (mounted) {
+        setState(() => loading = false);
+      }
       return;
     }
+    final lat = location.latitude;
+    final lng = location.longitude;
     final body = {
       'action': 'submit_complain',
       'woTaskLocation': _selectedLocation!.zoneName,

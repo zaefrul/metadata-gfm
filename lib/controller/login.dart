@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:GEMS/model/user.dart';
 import 'package:GEMS/main.dart' as app show navigatorKey;
 import 'package:GEMS/service/notification_router.dart';
 import 'package:GEMS/service/notification_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:GEMS/utils/biometric_lock_manager.dart';
 
+import '../utils/location_helper.dart';
 import '../utils/reference.dart';
 import '../utils/network.dart';
 import 'forgotPassword.dart';
@@ -53,6 +52,8 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       _loadNetworkSource();
       User.getPrefUser.then((_) {
         if (!mounted) return;
+        // Session restore skips the password GPS gate — refresh in the background.
+        resolveDeviceLocation(forceRefresh: true);
         Navigator.of(context).pushReplacementNamed("/homepage");
       }).catchError((_) {
         if (!mounted) return;
@@ -452,8 +453,6 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     setState(() => userlogIn = true);
 
     if (!(await _keepLocationSession())) {
-      Toast.show("Please login in an area with good GPS",
-          backgroundColor: AppColors.danger);
       setState(() => userlogIn = false);
       return;
     }
@@ -502,21 +501,12 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   }
 
   Future<bool> _keepLocationSession() async {
-    try {
-      var permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-      final ok = permission == LocationPermission.always ||
-          permission == LocationPermission.whileInUse;
-      final pos = await Geolocator.getCurrentPosition();
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setString(prefsLATITUDE, pos.latitude.toString());
-      prefs.setString(prefsLONGITUDE, pos.longitude.toString());
-      return ok;
-    } catch (_) {
-      return false;
-    }
+    final location = await resolveDeviceLocationOrPrompt(
+      context,
+      forceRefresh: true,
+      requireFresh: true,
+    );
+    return location.isFreshFix;
   }
 
   Future<void> _handlePostLoginBiometric() async {
@@ -634,6 +624,13 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
         userlogIn = true;
         _selectedNetworkSource = source;
       });
+
+      if (!(await _keepLocationSession())) {
+        if (mounted) {
+          setState(() => userlogIn = false);
+        }
+        return;
+      }
 
       final user = await login(creds.username, creds.password, source: source);
       user.saveUser();
