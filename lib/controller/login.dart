@@ -3,6 +3,7 @@ import 'package:GEMS/model/user.dart';
 import 'package:GEMS/main.dart' as app show navigatorKey;
 import 'package:GEMS/service/notification_router.dart';
 import 'package:GEMS/service/notification_service.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:toast/toast.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:GEMS/utils/biometric_lock_manager.dart';
@@ -29,6 +30,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
   String? _username;
   String? _password;
+  String _appVersion = '';
   bool userExist = true;
   bool userlogIn = false;
   bool secure = true;
@@ -83,6 +85,19 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     );
 
     _controller.forward();
+    _loadAppVersion();
+  }
+
+  Future<void> _loadAppVersion() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      if (!mounted) return;
+      setState(() {
+        _appVersion = '${packageInfo.version} (${packageInfo.buildNumber})';
+      });
+    } catch (e) {
+      debugPrint('Error getting app version: $e');
+    }
   }
 
   Future<void> _loadNetworkSource() async {
@@ -129,6 +144,25 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
               ),
             ),
           ),
+          if (_appVersion.isNotEmpty)
+            SafeArea(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Text(
+                    'Version $_appVersion',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(color: Colors.black54, blurRadius: 4),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );

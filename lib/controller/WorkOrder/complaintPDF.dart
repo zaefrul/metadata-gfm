@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -42,31 +43,14 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
   PdfControllerPinch? _pdfController;
   late CustomDialog dialog; // Initialize with a default value
   String src = "";
+  String? _loadError;
+  bool _loadingPdf = true;
+  int _loadGeneration = 0;
   final WorkOrderDetailRepository _repository = WorkOrderDetailRepository();
 
   @override
   void initState() {
     super.initState();
-
-    Provider provider = Provider(
-        fetchURL: "/api/m_wo.php?type=preview_pdf&woTaskId=${widget.id}");
-    provider.context = context;
-
-    provider.fetch().then((value) {
-      debugPrint(value.toString());
-      src = "http:${value.result ?? ""}";
-      return createFileOfPdfUrl(src);
-    }).then((file) {
-      if (!mounted) return;
-      setState(() {
-        assetPDFPath = file.path;
-        _pdfController = PdfControllerPinch(
-          document: PdfDocument.openFile(file.path),
-        );
-      });
-    }).catchError((err) {
-      debugPrint(err.toString());
-    });
 
     // Initialize dialog with a default value to avoid LateInitializationError
     dialog = CustomDialog(
@@ -79,17 +63,106 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
         height: 40,
       ),
     );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        unawaited(_loadPdf());
+      }
+    });
+  }
+
+  String _resolvePdfUrl(String? raw) {
+    final value = (raw ?? '').trim();
+    if (value.isEmpty) {
+      return '';
+    }
+    if (value.startsWith('https://') || value.startsWith('http://')) {
+      return value;
+    }
+    if (value.startsWith('//')) {
+      return 'https:$value';
+    }
+    return value;
+  }
+
+  Future<void> _loadPdf() async {
+    final generation = ++_loadGeneration;
+    if (!mounted) return;
+    setState(() {
+      _loadingPdf = true;
+      _loadError = null;
+      _pdfController?.dispose();
+      _pdfController = null;
+    });
+
+    try {
+      final provider = Provider(
+          fetchURL: "/api/m_wo.php?type=preview_pdf&woTaskId=${widget.id}");
+      provider.context = context;
+
+      final value = await provider.fetch().timeout(
+        const Duration(seconds: 45),
+        onTimeout: () => throw TimeoutException('PDF preview timed out'),
+      );
+      if (!mounted || generation != _loadGeneration) return;
+      debugPrint(value.toString());
+
+      src = _resolvePdfUrl(value.result?.toString());
+      if (src.isEmpty) {
+        throw Exception('PDF URL is empty');
+      }
+
+      final file = await createFileOfPdfUrl(src);
+      if (!mounted || generation != _loadGeneration) return;
+      setState(() {
+        assetPDFPath = file.path;
+        _pdfController?.dispose();
+        _pdfController = PdfControllerPinch(
+          document: PdfDocument.openFile(file.path),
+        );
+        _loadingPdf = false;
+        _loadError = null;
+      });
+    } catch (err) {
+      debugPrint(err.toString());
+      if (!mounted || generation != _loadGeneration) return;
+      setState(() {
+        _loadingPdf = false;
+        _loadError =
+            'Unable to load the work order PDF. You can still continue, or tap Retry.';
+      });
+    }
   }
 
   Future<File> createFileOfPdfUrl(String url) async {
-    final filename = url.substring(url.lastIndexOf("/") + 1);
-    var request = await HttpClient().getUrl(Uri.parse(url));
-    var response = await request.close();
-    var bytes = await consolidateHttpClientResponseBytes(response);
-    String dir = (await getApplicationDocumentsDirectory()).path;
-    File file = File('$dir/$filename');
-    await file.writeAsBytes(bytes);
-    return file;
+    final uri = Uri.parse(url);
+    var filename = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : 'wo.pdf';
+    filename = filename.replaceAll(RegExp(r'[^A-Za-z0-9._-]'), '_');
+    if (!filename.toLowerCase().endsWith('.pdf')) {
+      filename = '${widget.transactionNo}.pdf';
+    }
+
+    final client = HttpClient();
+    client.connectionTimeout = const Duration(seconds: 20);
+    try {
+      final request = await client.getUrl(uri);
+      final response = await request.close().timeout(const Duration(seconds: 45));
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw HttpException('PDF download failed (${response.statusCode})', uri: uri);
+      }
+      final bytes = await consolidateHttpClientResponseBytes(response)
+          .timeout(const Duration(seconds: 45));
+      if (bytes.length < 5 ||
+          String.fromCharCodes(bytes.take(5)) != '%PDF-') {
+        throw const FormatException('Downloaded file is not a PDF');
+      }
+      final dir = (await getApplicationDocumentsDirectory()).path;
+      final file = File('$dir/$filename');
+      await file.writeAsBytes(bytes);
+      return file;
+    } finally {
+      client.close(force: true);
+    }
   }
 
   @override
@@ -169,13 +242,37 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
                 ),
               ],
       ),
-      body: _pdfController == null
-          ? const Center(child: CircularProgressIndicator())
-          : PdfViewPinch(controller: _pdfController!),
-      floatingActionButton: FloatingActionButton.extended(
-        label: const Text("Open File"),
-        onPressed: openPdfFile,
-      ),
+      body: _pdfController != null
+          ? PdfViewPinch(controller: _pdfController!)
+          : Center(
+              child: _loadingPdf
+                  ? const CircularProgressIndicator()
+                  : Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _loadError ??
+                                'Unable to load the work order PDF.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: colorTheme3),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: _loadPdf,
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+            ),
+      floatingActionButton: src.isEmpty
+          ? null
+          : FloatingActionButton.extended(
+              label: const Text("Open File"),
+              onPressed: openPdfFile,
+            ),
     );
   }
 

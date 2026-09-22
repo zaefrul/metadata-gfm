@@ -61,8 +61,7 @@ class _HomepageState extends State<Homepage> {
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
       if (mounted) {
         setState(() {
-          _appVersion = packageInfo.version;
-          // If you also want build number: _appVersion = '${packageInfo.version}+${packageInfo.buildNumber}';
+          _appVersion = '${packageInfo.version} (${packageInfo.buildNumber})';
         });
       }
     } catch (e) {
