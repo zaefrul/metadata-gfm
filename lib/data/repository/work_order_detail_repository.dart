@@ -1070,7 +1070,19 @@ class WorkOrderDetailRepository {
     final pending = await _database.getPendingActions();
     if (pending.isEmpty) return;
 
+    // A failed step must not block other work orders, and it must not let a
+    // later submit for the same work order go out without that step.
+    final blockedWorkOrders = <String>{};
+
     for (final action in pending) {
+      if (blockedWorkOrders.contains(action.workOrderId) &&
+          _holdsForEarlierFailure(action.action)) {
+        debugPrint(
+          'Skipping ${action.action} for ${action.workOrderId}; an earlier queued action failed',
+        );
+        continue;
+      }
+
       try {
         if (action.action == 'rest') {
           final payload =
@@ -1090,9 +1102,13 @@ class WorkOrderDetailRepository {
         break;
       } catch (err) {
         debugPrint('Failed to replay action ${action.id}: $err');
-        break;
+        blockedWorkOrders.add(action.workOrderId);
       }
     }
+  }
+
+  bool _holdsForEarlierFailure(String action) {
+    return action.startsWith('submit_') || action.startsWith('reject_');
   }
 
   Future<WorkOrderActionResult> submitAssign(String workOrderId) async {

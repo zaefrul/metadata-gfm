@@ -1157,6 +1157,19 @@ ORDER BY h.scheduled_start DESC, h.work_order_number DESC
     );
   }
 
+  Future<int> getPPMUnsyncedOfflineActionCount({String? ppmTaskId}) async {
+    final db = await database;
+    final whereClause = ppmTaskId != null
+        ? ' WHERE synced = 0 AND ppm_task_id = ?'
+        : ' WHERE synced = 0';
+    final args = ppmTaskId != null ? <Object?>[ppmTaskId] : const <Object?>[];
+    final result = await db.rawQuery(
+      'SELECT COUNT(*) FROM ${_PPMOfflineActionsTable.tableName}$whereClause',
+      args,
+    );
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
+
   Future<int> getPPMPendingActionCount({String? ppmTaskId}) async {
     final db = await database;
     final whereClause = ppmTaskId != null ? ' WHERE ppm_task_id = ?' : '';

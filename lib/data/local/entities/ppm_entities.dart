@@ -43,7 +43,7 @@ class PPMPendingActionEntity {
 
 /// Represents a pending maintenance image waiting to be synced
 class PendingMaintenanceImage {
-  final String uploadType; // 'Before', 'During', 'After'
+  final String uploadType; // '0' Before, '1' During, '2' After
   final Uint8List bytes;
   final DateTime createdAt;
   final String? latitude;

@@ -87,6 +87,13 @@ class _$MonitorTaskSerializer implements StructuredSerializer<MonitorTask> {
         ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
+    value = object.woTaskNo;
+    if (value != null) {
+      result
+        ..add('woTaskNo')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(String)));
+    }
     return result;
   }
 
@@ -153,6 +160,10 @@ class _$MonitorTaskSerializer implements StructuredSerializer<MonitorTask> {
           result.assignedTo = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
           break;
+        case 'woTaskNo':
+          result.woTaskNo = serializers.deserialize(value,
+              specifiedType: const FullType(String)) as String?;
+          break;
       }
     }
 
@@ -213,6 +224,13 @@ class _$MonitorDetailSerializer implements StructuredSerializer<MonitorDetail> {
     if (value != null) {
       result
         ..add('woTaskId')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(String)));
+    }
+    value = object.woTaskNo;
+    if (value != null) {
+      result
+        ..add('woTaskNo')
         ..add(serializers.serialize(value,
             specifiedType: const FullType(String)));
     }
@@ -291,6 +309,10 @@ class _$MonitorDetailSerializer implements StructuredSerializer<MonitorDetail> {
           break;
         case 'woTaskId':
           result.woTaskId = serializers.deserialize(value,
+              specifiedType: const FullType(String)) as String?;
+          break;
+        case 'woTaskNo':
+          result.woTaskNo = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String?;
           break;
         case 'ppmTaskId':
@@ -432,6 +454,8 @@ class _$MonitorTask extends MonitorTask {
   final String? woTaskSeverity;
   @override
   final String? assignedTo;
+  @override
+  final String? woTaskNo;
 
   factory _$MonitorTask([void Function(MonitorTaskBuilder)? updates]) =>
       (MonitorTaskBuilder()..update(updates))._build();
@@ -449,7 +473,8 @@ class _$MonitorTask extends MonitorTask {
       this.currentTaskOwner,
       this.woTaskType,
       this.woTaskSeverity,
-      this.assignedTo})
+      this.assignedTo,
+      this.woTaskNo})
       : super._();
   @override
   MonitorTask rebuild(void Function(MonitorTaskBuilder) updates) =>
@@ -474,7 +499,8 @@ class _$MonitorTask extends MonitorTask {
         currentTaskOwner == other.currentTaskOwner &&
         woTaskType == other.woTaskType &&
         woTaskSeverity == other.woTaskSeverity &&
-        assignedTo == other.assignedTo;
+        assignedTo == other.assignedTo &&
+        woTaskNo == other.woTaskNo;
   }
 
   @override
@@ -493,6 +519,7 @@ class _$MonitorTask extends MonitorTask {
     _$hash = $jc(_$hash, woTaskType.hashCode);
     _$hash = $jc(_$hash, woTaskSeverity.hashCode);
     _$hash = $jc(_$hash, assignedTo.hashCode);
+    _$hash = $jc(_$hash, woTaskNo.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -512,7 +539,8 @@ class _$MonitorTask extends MonitorTask {
           ..add('currentTaskOwner', currentTaskOwner)
           ..add('woTaskType', woTaskType)
           ..add('woTaskSeverity', woTaskSeverity)
-          ..add('assignedTo', assignedTo))
+          ..add('assignedTo', assignedTo)
+          ..add('woTaskNo', woTaskNo))
         .toString();
   }
 }
@@ -579,6 +607,10 @@ class MonitorTaskBuilder implements Builder<MonitorTask, MonitorTaskBuilder> {
   String? get assignedTo => _$this._assignedTo;
   set assignedTo(String? assignedTo) => _$this._assignedTo = assignedTo;
 
+  String? _woTaskNo;
+  String? get woTaskNo => _$this._woTaskNo;
+  set woTaskNo(String? woTaskNo) => _$this._woTaskNo = woTaskNo;
+
   MonitorTaskBuilder();
 
   MonitorTaskBuilder get _$this {
@@ -597,6 +629,7 @@ class MonitorTaskBuilder implements Builder<MonitorTask, MonitorTaskBuilder> {
       _woTaskType = $v.woTaskType;
       _woTaskSeverity = $v.woTaskSeverity;
       _assignedTo = $v.assignedTo;
+      _woTaskNo = $v.woTaskNo;
       _$v = null;
     }
     return this;
@@ -638,6 +671,7 @@ class MonitorTaskBuilder implements Builder<MonitorTask, MonitorTaskBuilder> {
           woTaskType: woTaskType,
           woTaskSeverity: woTaskSeverity,
           assignedTo: assignedTo,
+          woTaskNo: woTaskNo,
         );
     replace(_$result);
     return _$result;
@@ -670,6 +704,8 @@ class _$MonitorDetail extends MonitorDetail {
   @override
   final String? woTaskId;
   @override
+  final String? woTaskNo;
+  @override
   final String? ppmTaskId;
   @override
   final String? siteName;
@@ -692,6 +728,7 @@ class _$MonitorDetail extends MonitorDetail {
       required this.flowDueDate,
       required this.checkpointId,
       this.woTaskId,
+      this.woTaskNo,
       this.ppmTaskId,
       this.siteName,
       required this.taskHistory})
@@ -719,6 +756,7 @@ class _$MonitorDetail extends MonitorDetail {
         flowDueDate == other.flowDueDate &&
         checkpointId == other.checkpointId &&
         woTaskId == other.woTaskId &&
+        woTaskNo == other.woTaskNo &&
         ppmTaskId == other.ppmTaskId &&
         siteName == other.siteName &&
         taskHistory == other.taskHistory;
@@ -739,6 +777,7 @@ class _$MonitorDetail extends MonitorDetail {
     _$hash = $jc(_$hash, flowDueDate.hashCode);
     _$hash = $jc(_$hash, checkpointId.hashCode);
     _$hash = $jc(_$hash, woTaskId.hashCode);
+    _$hash = $jc(_$hash, woTaskNo.hashCode);
     _$hash = $jc(_$hash, ppmTaskId.hashCode);
     _$hash = $jc(_$hash, siteName.hashCode);
     _$hash = $jc(_$hash, taskHistory.hashCode);
@@ -761,6 +800,7 @@ class _$MonitorDetail extends MonitorDetail {
           ..add('flowDueDate', flowDueDate)
           ..add('checkpointId', checkpointId)
           ..add('woTaskId', woTaskId)
+          ..add('woTaskNo', woTaskNo)
           ..add('ppmTaskId', ppmTaskId)
           ..add('siteName', siteName)
           ..add('taskHistory', taskHistory))
@@ -823,6 +863,10 @@ class MonitorDetailBuilder
   String? get woTaskId => _$this._woTaskId;
   set woTaskId(String? woTaskId) => _$this._woTaskId = woTaskId;
 
+  String? _woTaskNo;
+  String? get woTaskNo => _$this._woTaskNo;
+  set woTaskNo(String? woTaskNo) => _$this._woTaskNo = woTaskNo;
+
   String? _ppmTaskId;
   String? get ppmTaskId => _$this._ppmTaskId;
   set ppmTaskId(String? ppmTaskId) => _$this._ppmTaskId = ppmTaskId;
@@ -854,6 +898,7 @@ class MonitorDetailBuilder
       _flowDueDate = $v.flowDueDate;
       _checkpointId = $v.checkpointId;
       _woTaskId = $v.woTaskId;
+      _woTaskNo = $v.woTaskNo;
       _ppmTaskId = $v.ppmTaskId;
       _siteName = $v.siteName;
       _taskHistory = $v.taskHistory.toBuilder();
@@ -903,6 +948,7 @@ class MonitorDetailBuilder
             checkpointId: BuiltValueNullFieldError.checkNotNull(
                 checkpointId, r'MonitorDetail', 'checkpointId'),
             woTaskId: woTaskId,
+            woTaskNo: woTaskNo,
             ppmTaskId: ppmTaskId,
             siteName: siteName,
             taskHistory: taskHistory.build(),

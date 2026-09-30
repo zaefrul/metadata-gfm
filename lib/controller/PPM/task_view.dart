@@ -92,7 +92,7 @@ class _TaskViewState extends State<TaskView>
   /// Retry syncing pending actions
   Future<void> _retryPendingSync() async {
     debugPrint('TaskView: Retrying pending sync...');
-    await _repository.syncPendingActions();
+    await _repository.syncAllPPMActions();
     await _refreshPendingCount();
     await _refresh();
   }
@@ -245,7 +245,7 @@ class _TaskViewState extends State<TaskView>
 
     // When online, sync pending actions first
     try {
-      await _repository.syncPendingActions();
+      await _repository.syncAllPPMActions();
       await _refreshPendingCount();
     } catch (err) {
       debugPrint("Failed to sync pending actions: $err");

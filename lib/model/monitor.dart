@@ -23,7 +23,8 @@ abstract class MonitorTask implements Built<MonitorTask, MonitorTaskBuilder> {
   String? get userFullName;
   String? get assetNo;
 
-  // WO  
+  // WO
+  String? get woTaskNo;
   String? get currentTaskOwner;
   String? get woTaskType;
   String? get woTaskSeverity;
@@ -57,6 +58,7 @@ abstract class MonitorDetail implements Built<MonitorDetail, MonitorDetailBuilde
   String get flowDueDate;
   String get checkpointId;
   String? get woTaskId;
+  String? get woTaskNo;
   String? get ppmTaskId;
   String? get siteName;
   BuiltList<MonitorHistory> get taskHistory;

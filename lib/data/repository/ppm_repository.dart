@@ -181,7 +181,9 @@ class PPMRepository {
         debugPrint('    -> Adding to results (uploadType=${payload['uploadType']}, size=${bytes.length} bytes)');
         results.add(
           PendingMaintenanceImage(
-            uploadType: _getUploadTypeLabel(payload['uploadType']?.toString() ?? '2'),
+            uploadType: _maintenanceSectionKey(
+              payload['uploadType']?.toString() ?? '',
+            ),
             bytes: bytes,
             createdAt: action.createdAt,
             latitude: payload['latitude']?.toString(),
@@ -437,8 +439,8 @@ class PPMRepository {
     }
     
     try {
-      debugPrint('PPMRepository._sendOrQueue: Attempting to sync pending actions first...');
-      await syncPendingActions();
+      debugPrint('PPMRepository._sendOrQueue: Attempting ordered sync first...');
+      await syncAllPPMActions();
       debugPrint('PPMRepository._sendOrQueue: Attempting to post...');
       await _post(body);
       debugPrint('PPMRepository._sendOrQueue: POST successful, returning success');
@@ -671,13 +673,33 @@ class PPMRepository {
     }
   }
 
+  Future<void>? _orderedSyncInFlight;
+
   /// Syncs ALL PPM actions in the correct order:
   /// 1. Start times (from ppm_offline_actions)
   /// 2. All other actions (from ppm_pending_actions)
-  /// 
+  ///
   /// This ensures backend receives actions in proper sequence,
   /// preventing "task not started" errors when trying to complete tasks.
-  Future<void> syncAllPPMActions() async {
+  /// Overlapping callers share one run so the same row is not posted twice.
+  Future<void> syncAllPPMActions() {
+    final existing = _orderedSyncInFlight;
+    if (existing != null) {
+      debugPrint('PPMRepository.syncAllPPMActions: Joining in-flight sync');
+      return existing;
+    }
+
+    late final Future<void> tracked;
+    tracked = _runOrderedSync().whenComplete(() {
+      if (identical(_orderedSyncInFlight, tracked)) {
+        _orderedSyncInFlight = null;
+      }
+    });
+    _orderedSyncInFlight = tracked;
+    return tracked;
+  }
+
+  Future<void> _runOrderedSync() async {
     debugPrint('');
     debugPrint('═══════════════════════════════════════════════════════════════');
     debugPrint('🔄 PPMRepository.syncAllPPMActions: Starting ORDERED sync...');
@@ -690,21 +712,37 @@ class PPMRepository {
       debugPrint('│ STEP 1: Syncing start times (ppm_offline_actions)...');
       debugPrint('└─────────────────────────────────────────────────────────────');
       
+      final unsyncedBefore = await _database.getPPMUnsyncedActions();
       await syncOfflineActions();
-      
+
       debugPrint('✓ STEP 1 complete: Start times synced');
-      
-      // Small delay to ensure backend processes start times
-      await Future.delayed(Duration(milliseconds: 500));
-      
+
+      final stillUnsynced = await _database.getPPMUnsyncedActions();
+      final waitingOnStartTime = stillUnsynced
+          .map((action) => action['ppm_task_id']?.toString())
+          .whereType<String>()
+          .where((id) => id.isNotEmpty)
+          .toSet();
+      if (waitingOnStartTime.isNotEmpty) {
+        debugPrint(
+          'PPMRepository.syncAllPPMActions: Holding pending actions for ${waitingOnStartTime.join(", ")} until start time syncs',
+        );
+      }
+
+      // Give the backend a moment only when a start time was actually sent.
+      if (unsyncedBefore.isNotEmpty &&
+          stillUnsynced.length < unsyncedBefore.length) {
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
+
       // STEP 2: Sync all other actions (sections, complete, etc.)
       debugPrint('');
       debugPrint('┌─────────────────────────────────────────────────────────────');
       debugPrint('│ STEP 2: Syncing pending actions (ppm_pending_actions)...');
       debugPrint('└─────────────────────────────────────────────────────────────');
-      
-      await syncPendingActions();
-      
+
+      await syncPendingActions(skipPpmTaskIds: waitingOnStartTime);
+
       debugPrint('✓ STEP 2 complete: Pending actions synced');
       
       debugPrint('');
@@ -728,7 +766,9 @@ class PPMRepository {
     }
   }
 
-  Future<void> syncPendingActions() async {
+  Future<void> syncPendingActions({
+    Set<String> skipPpmTaskIds = const <String>{},
+  }) async {
     debugPrint('');
     debugPrint('═══════════════════════════════════════════════════════════════');
     debugPrint('🔄 PPMRepository.syncPendingActions: Starting sequential sync...');
@@ -752,8 +792,18 @@ class PPMRepository {
     debugPrint('   🏁 Completion actions (submit_ppm): ${completionActions.length}');
     debugPrint('   🔄 Sync order: Regular actions first, then completions');
     
-    // Combine in correct order: regular actions first, completions last
-    final pending = [...regularActions, ...completionActions];
+    // Combine in correct order: regular actions first, completions last.
+    // Hold a task whose start time is still unsynced so completion cannot
+    // reach the server first.
+    final pending = [...regularActions, ...completionActions]
+        .where((action) => !skipPpmTaskIds.contains(action.ppmTaskId))
+        .toList();
+    if (pending.isEmpty) {
+      debugPrint(
+        'PPMRepository.syncPendingActions: Nothing to send; remaining actions are waiting on start time',
+      );
+      return;
+    }
     
     var successCount = 0;
     var failedCount = 0;
@@ -848,6 +898,14 @@ class PPMRepository {
             debugPrint('   ⚠️ Warning: Action has no ID, cannot remove from queue');
           }
           
+        } on SocketException catch (err) {
+          failedCount++;
+          debugPrint('   Network lost during sync: $err');
+          break;
+        } on TimeoutException catch (err) {
+          failedCount++;
+          debugPrint('   Sync timed out: $err');
+          break;
         } catch (err, stackTrace) {
           failedCount++;
           debugPrint('');
@@ -930,7 +988,12 @@ class PPMRepository {
 
   /// Get the count of pending actions for a specific task or all tasks
   Future<int> getPendingActionCount({String? ppmTaskId}) async {
-    return await _database.getPPMPendingActionCount(ppmTaskId: ppmTaskId);
+    final pending =
+        await _database.getPPMPendingActionCount(ppmTaskId: ppmTaskId);
+    final startTimes = await _database.getPPMUnsyncedOfflineActionCount(
+      ppmTaskId: ppmTaskId,
+    );
+    return pending + startTimes;
   }
 
   /// Get list of pending actions for a specific task or all tasks
@@ -1085,16 +1148,17 @@ class PPMRepository {
     );
   }
 
-  String _getUploadTypeLabel(String uploadType) {
-    switch (uploadType) {
-      case '2':
-        return 'Before';
-      case '3':
-        return 'During';
-      case '4':
-        return 'After';
+  /// Form H slots are 0 = Before, 1 = During, 2 = After.
+  String _maintenanceSectionKey(String rawType) {
+    switch (_normalizeMaintenanceUploadType(rawType)) {
+      case 'Before':
+        return '0';
+      case 'During':
+        return '1';
+      case 'After':
+        return '2';
       default:
-        return 'Unknown';
+        return rawType.trim();
     }
   }
 
@@ -1144,25 +1208,15 @@ class PPMRepository {
         rethrow;
       }
     } else {
-      // Disable offline mode: sync pending actions first, then cleanup
-      debugPrint('PPMRepository.setOfflineMode: Disabling offline mode, checking for pending actions...');
-      
-      // Check if there are pending actions to sync
-      final pendingActions = await _database.getPPMPendingActions(ppmTaskId: ppmTaskId);
-      
-      if (pendingActions.isNotEmpty) {
-        debugPrint('PPMRepository.setOfflineMode: Found ${pendingActions.length} pending actions, syncing before cleanup...');
-        try {
-          // Attempt to sync pending actions
-          await syncPendingActions();
-          debugPrint('PPMRepository.setOfflineMode: Sync completed successfully');
-        } catch (err, st) {
-          debugPrint('PPMRepository.setOfflineMode: Sync failed, keeping pending actions: $err\n$st');
-          // Don't rethrow - allow user to disable offline mode even if sync fails
-          // Pending actions will remain in queue for later retry
-        }
-      } else {
-        debugPrint('PPMRepository.setOfflineMode: No pending actions to sync');
+      // Disable offline mode: send start time, then the rest, then cleanup.
+      debugPrint('PPMRepository.setOfflineMode: Disabling offline mode, syncing queued work first...');
+      try {
+        await syncAllPPMActions();
+        debugPrint('PPMRepository.setOfflineMode: Sync completed successfully');
+      } catch (err, st) {
+        debugPrint('PPMRepository.setOfflineMode: Sync failed, keeping queued actions: $err\n$st');
+        // Don't rethrow - allow user to disable offline mode even if sync fails.
+        // Queued actions stay for a later retry.
       }
       
       // Disable offline mode and cleanup
@@ -1678,6 +1732,10 @@ class PPMRepository {
           await _database.markPPMActionSynced(action['id']);
           debugPrint('✅ PPMRepository.syncOfflineActions: Successfully synced action ${action['id']}');
         }
+      } on SocketException {
+        rethrow;
+      } on TimeoutException {
+        rethrow;
       } catch (err) {
         debugPrint('PPMRepository.syncOfflineActions: Failed to sync action ${action['id']}: $err');
         await _database.markPPMActionFailed(action['id'], err.toString());

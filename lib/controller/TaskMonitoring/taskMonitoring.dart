@@ -194,6 +194,13 @@ class _TaskMonitoringScreenState extends State<TaskMonitoringScreen> {
                     Text(task.transactionNo,
                         style: GoogleFonts.poppins(
                             fontSize: 16, fontWeight: FontWeight.w600)),
+                    if ((task.woTaskNo ?? '').isNotEmpty &&
+                        task.woTaskNo != task.transactionNo) ...[
+                      const SizedBox(height: 2),
+                      Text(task.woTaskNo!,
+                          style: GoogleFonts.poppins(
+                              fontSize: 13, color: AppColors.gray700)),
+                    ],
                     const SizedBox(height: 4),
                     Text(task.flowName,
                         style: GoogleFonts.poppins(color: AppColors.gray700, fontWeight: FontWeight.w400)),

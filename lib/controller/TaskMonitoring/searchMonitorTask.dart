@@ -124,6 +124,9 @@ class _SearchTaskMonitoringState extends State<SearchTaskMonitoring> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 getTitle(task.transactionNo, bold: true),
+                if ((task.woTaskNo ?? '').isNotEmpty &&
+                    task.woTaskNo != task.transactionNo)
+                  getTitle(task.woTaskNo!),
                 getTitle(task.flowName),
                 getTitle(task.checkpointName),
                 getTitle(task.userFullName ?? "-"),

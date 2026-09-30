@@ -180,6 +180,8 @@ class TaskInformation extends StatelessWidget {
             spacing: 20,
             children: [
               _metaItem("Task No", d.transactionNo),
+              if ((d.woTaskNo ?? '').isNotEmpty)
+                _metaItem("Work Order", d.woTaskNo!),
               _metaItem("Checkpoint", d.currentStatus),
               _metaItem("Initiated By", d.initiateBy),
               _metaItem("By Group", d.initiateByGroup),
@@ -227,7 +229,9 @@ class TaskInformation extends StatelessWidget {
                     builder: (_) => ComplaintSection(
                       id: d.woTaskId!,
                       siteName: d.flowName,
-                      taskNo: d.transactionNo,
+                      taskNo: (d.woTaskNo ?? '').isNotEmpty
+                          ? d.woTaskNo!
+                          : d.transactionNo,
                       taskStatus: d.taskStatus,
                       viewer: true,
                       woTaskType: "",
