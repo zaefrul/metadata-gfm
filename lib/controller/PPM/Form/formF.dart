@@ -174,9 +174,13 @@ class _FormFState extends State<FormF> {
           ? null
           : FloatingActionButton.extended(
               label: const Text("Upload Image"),
-              onPressed: () async {
+              onPressed: loading
+                  ? null
+                  : () async {
+                if (loading) return;
                 if (widget.verified) {
                   if (enableButton == true) {
+                    setState(() => loading = true);
                     try {
                       var result = await uploadFile;
                       alert(result.toString());

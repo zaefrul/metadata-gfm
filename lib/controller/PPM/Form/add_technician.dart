@@ -30,6 +30,7 @@ class PPMAddTechnicianState extends State<PPMAddTechnician> {
   final List<_Model> listTechnicianSelected = [];
   final _Controller _provider;
   bool _isLoading = false; // Start as false to prevent initial spinner
+  bool _saving = false;
   bool _hasConnection = true;
   String? _errorMessage;
 
@@ -262,9 +263,18 @@ class PPMAddTechnicianState extends State<PPMAddTechnician> {
             ? null
             : FloatingActionButton.extended(
                 label: const Text("Done"),
-                onPressed: () async {
-                  await _provider.submit();
-                  Navigator.of(context).pop(listTechnicianSelected);
+                onPressed: _saving
+                    ? null
+                    : () async {
+                  if (_saving) return;
+                  setState(() => _saving = true);
+                  try {
+                    await _provider.submit();
+                    if (!mounted) return;
+                    Navigator.of(context).pop(listTechnicianSelected);
+                  } finally {
+                    if (mounted) setState(() => _saving = false);
+                  }
                 },
               ),
       ),

@@ -237,7 +237,10 @@ class _FormHState extends State<FormH> {
       label: Text("Save"),
       backgroundColor: colorTheme2,
       icon: Icon(Icons.save), // Added icon
-      onPressed: () {
+      onPressed: _loading
+          ? null
+          : () {
+        if (_loading) return;
         if (!widget.verified) {
           Toast.show("Please verify this task first.", duration: Toast.lengthLong, gravity: Toast.bottom);
           return;
@@ -499,7 +502,7 @@ class _FormHState extends State<FormH> {
   }
 
   void _postNotes() async {
-    if (!mounted) return;
+    if (!mounted || _loading) return;
     
     if (_notes.isEmpty) {
       Toast.show(

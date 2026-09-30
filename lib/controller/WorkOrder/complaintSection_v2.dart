@@ -1202,6 +1202,7 @@ class _BuildStandardButton extends StatelessWidget {
                     ? colorTheme2
                     : AppColors.primaryDark,
                 onPressed: () async {
+                  if (bloc.isLoading) return;
                   if (viewOnly) {
                     // just view
                     bloc.openComplaint(context, viewOnly: viewOnly);

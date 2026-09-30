@@ -110,6 +110,7 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
   }
 
   void _save() {
+    if (_loading) return;
     if (_remark.trim().length < 2) {
       Toast.show("Please enter at least 2 characters", duration: Toast.lengthShort);
       return;
@@ -246,7 +247,7 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
                     ),
                     backgroundColor: colorTheme2,
                   ),
-                  onPressed: _save,
+                  onPressed: _loading ? null : _save,
                   child: Text(
                     "Save",
                     style: GoogleFonts.poppins(

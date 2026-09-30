@@ -223,7 +223,7 @@ class _FormComplaintState extends State<FormComplaint> {
                   child: SizedBox(
                     width: double.infinity,
                     child: FloatingActionButton.extended(
-                      onPressed: _submitComplaint,
+                      onPressed: loading ? null : _submitComplaint,
                       backgroundColor: AppColors.primary,
                       elevation: 2,
                       shape: RoundedRectangleBorder(
@@ -528,6 +528,7 @@ class _FormComplaintState extends State<FormComplaint> {
   }
 
   Future<void> _submitComplaint() async {
+    if (loading) return;
     if (_selectedLocation == null) {
       Toast.show('Please pick a Location');
       return;

@@ -36,6 +36,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
   final BehaviorSubject<Meter> dropdownValue = BehaviorSubject<Meter>();
   List<File> listItem = [];
   List<Meter> list = [];
+  bool _submitting = false;
 
   _WaterBillScreenState({bool isDaily = false, bool isMontly = false}) {
     _controllers.addAll(List.generate(2, (index) => TextEditingController()));
@@ -97,12 +98,15 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
               ),
             ),
       floatingActionButton: FloatingActionButton.extended(
-          onPressed: confirmation, label: Text("Submit")),
+          onPressed: _submitting ? null : confirmation,
+          label: Text(_submitting ? "Submitting..." : "Submit")),
     );
   }
 
   void confirmation() {
+    if (_submitting) return;
     FocusScope.of(context).unfocus();
+    var started = false;
     showDialog(
       context: navigatorKey.currentContext!,
       builder: (_) => AlertDialog(
@@ -117,6 +121,8 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
           ),
           TextButton(
             onPressed: () {
+              if (started) return;
+              started = true;
               Navigator.pop(context);
               submit();
             },
@@ -128,6 +134,8 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
   }
 
   Future<void> submit() async {
+    if (_submitting) return;
+    setState(() => _submitting = true);
     bool checkEmpty = false;
     List<TextEditingController> tempCtrl = [];
 
@@ -139,6 +147,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
     }
     if (checkEmpty) {
       Toast.show("Please check all fields");
+      if (mounted) setState(() => _submitting = false);
       return;
     }
 
@@ -155,6 +164,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
         final _ = double.parse(ctrl.text);
       } catch (err) {
         Toast.show("Please check all fields must be numerical");
+        if (mounted) setState(() => _submitting = false);
         return;
       }
     }
@@ -163,6 +173,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
 
     if (checkEmpty) {
       Toast.show("Please insert image");
+      if (mounted) setState(() => _submitting = false);
       return;
     }
 
@@ -225,6 +236,7 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
       }).catchError((err) {
         Toast.show(err);
       }).whenComplete(() {
+        if (mounted) setState(() => _submitting = false);
         Navigator.pop(context);
       });
     }));

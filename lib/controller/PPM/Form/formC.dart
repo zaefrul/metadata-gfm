@@ -215,7 +215,10 @@ class _FormCState extends State<FormC> {
           : FloatingActionButton.extended(
               label: Text("Save"),
               backgroundColor: colorTheme2,
-              onPressed: () async {
+              onPressed: loading
+                  ? null
+                  : () async {
+                if (loading) return;
                 if (widget.verified) {
                   print('[FormC] Save button pressed with ${items.length} tasks');
                   setState(() => loading = true);

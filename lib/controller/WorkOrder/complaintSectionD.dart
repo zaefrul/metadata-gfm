@@ -184,7 +184,7 @@ class _ComplaintSectionDState extends State<ComplaintSectionD> {
                       borderRadius: BorderRadius.circular(8)),
                   backgroundColor: colorTheme2,
                 ),
-                onPressed: _saveAssetNo,
+                onPressed: _loading ? null : _saveAssetNo,
                 child: Text("Save", style: TextStyle(color: Colors.white)),
               ),
             ),
@@ -224,6 +224,7 @@ class _ComplaintSectionDState extends State<ComplaintSectionD> {
   }
 
   Future<void> _saveAssetNo() async {
+    if (_loading) return;
     // Commented out the asset number check as per the original code
     // if (_assetNo.isEmpty) {
     //   Toast.show("Please enter or scan an asset number");

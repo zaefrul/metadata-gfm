@@ -229,7 +229,7 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
                 'Save Descriptions',
                 style: TextStyle(color: Colors.white),
               ),
-              onPressed: _notes.isEmpty ? null : _postNotes,
+              onPressed: _notes.isEmpty || _loading ? null : _postNotes,
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

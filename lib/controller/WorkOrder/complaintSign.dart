@@ -79,7 +79,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: GestureDetector(
-              onTap: () => _showInitialSubmitDialog(context),
+              onTap: loading ? null : () => _showInitialSubmitDialog(context),
               child: Container(
                 width: 80,
                 decoration: BoxDecoration(
@@ -107,6 +107,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
   }
 
   void _showInitialSubmitDialog(BuildContext ctx) {
+    if (loading) return;
     showDialog<void>(
       context: ctx,
       builder: (dialogCtx) {

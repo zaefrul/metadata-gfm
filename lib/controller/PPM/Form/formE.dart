@@ -156,7 +156,10 @@ class _FormEState extends State<FormE> {
       floatingActionButton: widget.disable
           ? null
           : FloatingActionButton(
-              onPressed: () {
+              onPressed: loading
+                  ? null
+                  : () {
+                if (loading) return;
                 setState(() {
                   if (widget.verified) {
                     if (enableButton == true) {

@@ -35,6 +35,7 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
   final BehaviorSubject<Meter> dropdownValue = BehaviorSubject<Meter>();
   List<File> listItem = [];
   List<Meter> list = [];
+  bool _submitting = false;
 
   _ElectricBillScreenState({bool isDaily = false, bool isMontly = false}) {
     if (isDaily) {
@@ -94,12 +95,15 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
               ],
             ),
       floatingActionButton: FloatingActionButton.extended(
-          onPressed: confirmation, label: Text("Submit")),
+          onPressed: _submitting ? null : confirmation,
+          label: Text(_submitting ? "Submitting..." : "Submit")),
     );
   }
 
   void confirmation() {
+    if (_submitting) return;
     FocusScope.of(context).unfocus();
+    var started = false;
     showDialog(
       context: navigatorKey.currentContext!,
       builder: (_) => AlertDialog(
@@ -114,6 +118,8 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
           ),
           TextButton(
             onPressed: () {
+              if (started) return;
+              started = true;
               Navigator.pop(context);
               submit();
             },
@@ -125,10 +131,13 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
   }
 
   Future<void> submit() async {
+    if (_submitting) return;
+    setState(() => _submitting = true);
     FocusScope.of(context).unfocus();
     // Check if any controller text is empty.
     if (_controllers.any((element) => element.text.isEmpty)) {
       Toast.show("Please check all fields");
+      if (mounted) setState(() => _submitting = false);
       return;
     }
 
@@ -149,12 +158,14 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
         double.parse(ctrl.text);
       } catch (err) {
         Toast.show("Please check all fields must be numerical");
+        if (mounted) setState(() => _submitting = false);
         return;
       }
     }
 
     if (listItem.isEmpty) {
       Toast.show("Please insert image");
+      if (mounted) setState(() => _submitting = false);
       return;
     }
 
@@ -220,6 +231,7 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
       }).catchError((err) {
         Toast.show(err.toString());
       }).whenComplete(() {
+        if (mounted) setState(() => _submitting = false);
         Navigator.pop(context);
       });
     }));

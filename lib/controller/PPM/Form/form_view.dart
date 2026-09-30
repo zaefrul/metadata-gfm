@@ -82,6 +82,7 @@ class _FormViewState extends State<FormView> {
   DateTime? _taskEndTime;
   Duration? _taskDuration;
   bool _taskIsCompleted = false;
+  bool _endingTask = false;
 
   _FormViewState({required this.id});
 
@@ -595,6 +596,7 @@ class _FormViewState extends State<FormView> {
     }
 
     // Confirm with user before ending task
+    var endConfirmed = false;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (BuildContext ctx) => AlertDialog(
@@ -604,11 +606,19 @@ class _FormViewState extends State<FormView> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
+            onPressed: () {
+              if (endConfirmed) return;
+              endConfirmed = true;
+              Navigator.of(ctx).pop(false);
+            },
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
+            onPressed: () {
+              if (endConfirmed) return;
+              endConfirmed = true;
+              Navigator.of(ctx).pop(true);
+            },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
             child: const Text('End Task'),
           ),
@@ -1154,8 +1164,18 @@ class _FormViewState extends State<FormView> {
                           ),
                           elevation: 2,
                         ),
-                        onPressed: () async {
-                          await _endPPMTask();
+                        onPressed: _endingTask
+                            ? null
+                            : () async {
+                          if (_endingTask) return;
+                          setState(() => _endingTask = true);
+                          try {
+                            await _endPPMTask();
+                          } finally {
+                            if (mounted) {
+                              setState(() => _endingTask = false);
+                            }
+                          }
                         },
                       ),
                     );

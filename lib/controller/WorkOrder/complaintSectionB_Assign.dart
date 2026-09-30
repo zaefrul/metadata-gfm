@@ -803,7 +803,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: _onSavePressed,
+        onPressed: loading ? null : _onSavePressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           shape: RoundedRectangleBorder(
@@ -827,6 +827,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
   }
 
   void _onSavePressed() async {
+    if (loading) return;
     // Validate required fields
     if (dropdownId1 == null || dropdownId2 == null || dropdownId3 == null || dropdownId4 == null) {
       Toast.show('Please complete all required fields');

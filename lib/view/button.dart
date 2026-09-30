@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Button extends StatelessWidget {
-  final GestureTapCallback onPressed;
+  final GestureTapCallback? onPressed;
   final String text;
   final Color? color;
 

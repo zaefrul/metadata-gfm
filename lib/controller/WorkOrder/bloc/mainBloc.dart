@@ -87,6 +87,7 @@ class MainBloc {
   Stream<List<WorkOrderStatus>> get sections$ => _sections.stream;
   Stream<bool> get enable$ => _enableSubmit.stream;
   Stream<bool> get loading$ => _loading.stream;
+  bool get isLoading => _loading.value;
   Stream<ExecutionModel> get execution$ => _execution.stream;
   Stream<int> get pendingActions$ => _pendingActions.stream;
   Stream<bool> get offlineMode$ => _offlineMode.stream;
@@ -287,7 +288,7 @@ class MainBloc {
     required String queuedMessage,
     bool refreshOnSuccess = false,
   }) async {
-    loading = false;
+    try {
     if (result == WorkOrderActionResult.queued) {
       _feedback.add(
         MutationFeedback(
@@ -309,6 +310,9 @@ class MainBloc {
       }
     }
     await _refreshPendingCount();
+    } finally {
+      loading = false;
+    }
   }
 
   void _handleActionError(String message, Object err) {

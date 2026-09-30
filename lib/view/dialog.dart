@@ -1,5 +1,7 @@
 // lib/view/dialog.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'button.dart';
 import 'package:toast/toast.dart';
@@ -11,7 +13,7 @@ class Consts {
   static const double avatarRadius = 40.0;
 }
 
-typedef CustomVoidCallback = void Function(String text);
+typedef CustomVoidCallback = FutureOr<void> Function(String text);
 
 class CustomDialog extends StatelessWidget {
   final CustomVoidCallback? remarkTapped;
@@ -126,11 +128,16 @@ class CustomDialog extends StatelessWidget {
                         ),
                       ),
                     ),
-                  Button(
+                  _SingleFireButton(
                     text: buttonText,
-                    onPressed: () {
+                    color: colorTheme2,
+                    onPressed: () async {
                       if (okayTapped != null) {
-                        okayTapped!();
+                        final result = okayTapped!.call();
+                        if (result is Future) {
+                          await result;
+                          if (!context.mounted) return;
+                        }
                       }
                       // only pop here if we didn't already pop via okayTapped
                       else if (rootPage == null && goBackOnDismiss != true) {
@@ -150,7 +157,6 @@ class CustomDialog extends StatelessWidget {
                         Navigator.of(context).pop();
                       }
                     },
-                    color: colorTheme2,
                   ),
                 ],
               ),
@@ -243,49 +249,48 @@ class CustomDialog extends StatelessWidget {
                       ),
                     ),
                   if (secondButton)
-                    TextButton(
-                      onPressed: () {
+                    _SingleFireButton(
+                      text: buttonText2 ?? "",
+                      textButton: true,
+                      onPressed: () async {
                         if (useDescription) {
-                          secondTapped?.call();
+                          final result = secondTapped?.call();
+                          if (result is Future) await result;
                         } else if (controller.text.isEmpty) {
                           Toast.show(
                               "Please enter remark before submit.",
                               duration: Toast.lengthShort,
                               gravity: Toast.bottom);
                         } else if (controller.text.length <= 60) {
-                          secondTapped?.call(controller.text);
+                          final result = secondTapped?.call(controller.text);
+                          if (result is Future) await result;
                         } else {
                           Toast.show("Maximum 60 character",
                               duration: Toast.lengthShort,
                               gravity: Toast.bottom);
                         }
                       },
-                      child: Text(
-                        buttonText2 ?? "",
-                        style: const TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
                     ),
-                  Button(
+                  _SingleFireButton(
                     text: buttonText,
-                    onPressed: () {
+                    color: colorTheme2,
+                    onPressed: () async {
                       if (useDescription) {
-                        remarkTapped?.call("");
+                        final result = remarkTapped?.call("");
+                        if (result is Future) await result;
                       } else if (controller.text.isEmpty) {
                         Toast.show("Please enter remark before submit.",
                             duration: Toast.lengthShort,
                             gravity: Toast.bottom);
                       } else if (controller.text.length <= 60) {
-                        remarkTapped?.call(controller.text);
+                        final result = remarkTapped?.call(controller.text);
+                        if (result is Future) await result;
                       } else {
                         Toast.show("Maximum 60 character",
                             duration: Toast.lengthShort,
                             gravity: Toast.bottom);
                       }
                     },
-                    color: colorTheme2,
                   ),
                 ],
               )
@@ -306,6 +311,63 @@ class CustomDialog extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Ignores further taps until [onPressed] finishes, including async API calls.
+class _SingleFireButton extends StatefulWidget {
+  final String text;
+  final Color? color;
+  final bool textButton;
+  final Future<void> Function() onPressed;
+
+  const _SingleFireButton({
+    required this.text,
+    required this.onPressed,
+    this.color,
+    this.textButton = false,
+  });
+
+  @override
+  State<_SingleFireButton> createState() => _SingleFireButtonState();
+}
+
+class _SingleFireButtonState extends State<_SingleFireButton> {
+  bool _busy = false;
+
+  Future<void> _handle() async {
+    if (_busy) return;
+    _busy = true;
+    if (mounted) setState(() {});
+    try {
+      await widget.onPressed();
+    } finally {
+      if (mounted) {
+        _busy = false;
+        setState(() {});
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.textButton) {
+      return TextButton(
+        onPressed: _busy ? null : _handle,
+        child: Text(
+          widget.text,
+          style: const TextStyle(
+            color: Colors.red,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+    }
+    return Button(
+      text: widget.text,
+      color: widget.color,
+      onPressed: _busy ? null : _handle,
     );
   }
 }

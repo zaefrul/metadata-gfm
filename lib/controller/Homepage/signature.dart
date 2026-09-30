@@ -66,7 +66,7 @@ class SignatureViewState extends State<SignatureView> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: GestureDetector(
-              onTap: submitDialog,
+              onTap: loading ? null : submitDialog,
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(6.0)),
@@ -119,6 +119,7 @@ class SignatureViewState extends State<SignatureView> {
   }
 
   Future<void> post(BuildContext context) async {
+    if (loading) return;
     if (_controller.isEmpty) {
       Toast.show("Please sign first before submit");
       setState(() => loading = false);
@@ -139,9 +140,12 @@ class SignatureViewState extends State<SignatureView> {
     provider
         .post(url: "/user_signature/${widget.id}", body: body.body)
         .then((value) {
-      setState(() => loading = false);
+      if (mounted) setState(() => loading = false);
       alert(value);
-    }).catchError((err) => alert(err));
+    }).catchError((err) {
+      if (mounted) setState(() => loading = false);
+      alert(err);
+    });
   }
 
   void alert(String txt) {
@@ -157,6 +161,7 @@ class SignatureViewState extends State<SignatureView> {
   }
 
   void submitDialog() {
+    if (loading) return;
     showDialog(
       context: navigatorKey.currentContext!,
       builder: (context) => CustomDialog(

@@ -23,6 +23,7 @@ class _CheckinRequestState extends State<CheckinRequest> {
   StreamSubscription<String>? _errorSubscription;
   bool _storeLoaded = false;
   bool _isDialogOpen = false;
+  bool _submitting = false;
 
   @override
   void initState() {
@@ -157,8 +158,12 @@ class _CheckinRequestState extends State<CheckinRequest> {
   Widget _submitButton(BuildContext context) => FloatingActionButton.extended(
       heroTag: "submit_checkin_fab",
       backgroundColor: colorTheme2,
-      label: Text("Submit"),
-      onPressed: () {
+      label: Text(_submitting ? "Submitting..." : "Submit"),
+      onPressed: _submitting
+          ? null
+          : () {
+        if (_submitting) return;
+        setState(() => _submitting = true);
         print("CheckinRequest: Submit button pressed");
         _controller.submit(context).then((value) {
           print("CheckinRequest: Submit successful, navigating back");
@@ -175,6 +180,7 @@ class _CheckinRequestState extends State<CheckinRequest> {
         }).catchError((err) {
           print("CheckinRequest: Submit error: $err");
           if (mounted) {
+            setState(() => _submitting = false);
             Toast.show(err.toString(), duration: 4);
           }
           return null;

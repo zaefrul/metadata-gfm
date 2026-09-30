@@ -85,7 +85,10 @@ class _FormHState extends State<FormH> {
           : FloatingActionButton.extended(
               label: Text("Save"),
               backgroundColor: colorTheme2,
-              onPressed: () {
+              onPressed: _loading
+                  ? null
+                  : () {
+                if (_loading) return;
                 if (widget.verified) {
                   if (_notes.isNotEmpty) _postNotes();
                   _postImage();

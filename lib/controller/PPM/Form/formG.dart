@@ -238,7 +238,10 @@ class _FormGState extends State<FormG> {
           ? null
           : FloatingActionButton.extended(
               label: Text("Save"),
-              onPressed: () async {
+              onPressed: loading
+                  ? null
+                  : () async {
+                if (loading) return;
                 if (widget.verified) {
                   setState(() {
                     loading = true;
