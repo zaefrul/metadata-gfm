@@ -1,13 +1,11 @@
-import 'package:GEMS/utils/reference.dart';
 import 'package:flutter/material.dart';
-import 'package:GEMS/model/form.dart'; // Assuming FormHItem is here
-import 'package:GEMS/main.dart'; // For colorTheme3, colorTheme2
+import 'package:GEMS/model/form.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 
-// For UI elegance, we centralize some stylistic constants
-const double _kImagePreviewSize = 100.0; // Larger image preview
+const double _kImagePreviewSize = 100.0;
 const double _kCardPadding = 16.0;
-const double _kCardElevation = 2.0; // Subtle shadow
-const BorderRadius _kCardBorderRadius = BorderRadius.all(Radius.circular(12.0)); // Rounded corners
+const double _kCardElevation = 0;
+final BorderRadius _kCardBorderRadius = BorderRadius.circular(GemsChrome.radius);
 
 class ImageSectionCard extends StatelessWidget {
   final String sectionTitle; // e.g., "Image Before", "Image During", "Image After"
@@ -34,13 +32,17 @@ class ImageSectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Ensure colors are accessible or map to Theme.of(context) if possible
-    final Color primaryColor = AppColors.primary; // Or Theme.of(context).colorScheme.primary
-    final Color accentColor = AppColors.accent; // Or Theme.of(context).colorScheme.secondary
+    const Color primaryColor = GemsChrome.primary;
+    const Color accentColor = GemsChrome.teal;
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       elevation: _kCardElevation,
-      shape: RoundedRectangleBorder(borderRadius: _kCardBorderRadius),
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: _kCardBorderRadius,
+        side: const BorderSide(color: GemsChrome.border),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(_kCardPadding),
         child: Column(

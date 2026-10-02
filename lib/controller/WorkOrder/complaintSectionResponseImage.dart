@@ -12,6 +12,7 @@ import 'package:GEMS/model/response_image.dart';
 import 'package:GEMS/utils/biometric_lock_manager.dart';
 import 'package:GEMS/utils/image_compressor.dart';
 import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/utils/location_helper.dart';
 import 'package:GEMS/view/dialog.dart';
 import 'package:image_picker/image_picker.dart';
@@ -170,19 +171,10 @@ class _ComplaintSectionResponseImageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgDefault,
-      appBar: AppBar(
-        title: Text(
-          'Response Images',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        backgroundColor: AppColors.bgAppBar,
-        elevation: 1,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         centerTitle: true,
-        iconTheme: IconThemeData(color: AppColors.textPrimary),
+        title: Text('Response Images', style: GemsChrome.heading(size: 18)),
       ),
       body: Column(
         children: [
@@ -219,9 +211,11 @@ class _ComplaintSectionResponseImageState
         width: double.infinity,
         child: FloatingActionButton.extended(
           onPressed: _toUpload.isEmpty || _loading ? null : _confirmAndSubmit,
-          backgroundColor:
-              _toUpload.isEmpty ? AppColors.secondary : AppColors.primary,
-          elevation: 2,
+          backgroundColor: _toUpload.isEmpty
+              ? GemsChrome.primary.withValues(alpha: 0.45)
+              : GemsChrome.primary,
+          foregroundColor: Colors.white,
+          elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
@@ -263,7 +257,7 @@ class _ComplaintSectionResponseImageState
               'Document your work with photos (max 3)',
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: Colors.grey[600],
+                color: GemsChrome.textSoft,
               ),
             ),
             SizedBox(height: 24),
@@ -310,20 +304,20 @@ class _ComplaintSectionResponseImageState
                       Container(
                         padding: EdgeInsets.all(24),
                         decoration: BoxDecoration(
-                          color: Colors.grey[50],
-                          borderRadius: BorderRadius.circular(12),
+                          color: GemsChrome.page,
+                          borderRadius: BorderRadius.circular(GemsChrome.radius),
                           border:
-                              Border.all(color: Colors.grey[200]!, width: 1.5),
+                              Border.all(color: GemsChrome.border, width: 1.5),
                         ),
                         child: Column(
                           children: [
                             Icon(Icons.photo_library_outlined,
-                                size: 40, color: Colors.grey[400]),
+                                size: 40, color: GemsChrome.muted),
                             SizedBox(height: 8),
                             Text(
                               'No photos added yet',
                               style: GoogleFonts.poppins(
-                                color: Colors.grey[600],
+                                color: GemsChrome.textSoft,
                                 fontSize: 14,
                               ),
                             ),
@@ -331,7 +325,7 @@ class _ComplaintSectionResponseImageState
                             Text(
                               'Photos help us better understand the issue',
                               style: GoogleFonts.poppins(
-                                color: Colors.grey[400],
+                                color: GemsChrome.muted,
                                 fontSize: 12,
                               ),
                             ),
@@ -341,12 +335,12 @@ class _ComplaintSectionResponseImageState
                     SizedBox(height: 12),
                     InkWell(
                       onTap: widget.disable ? null : _pickLocalImage,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(GemsChrome.radius),
                       child: Container(
                         padding: EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(12),
+                          color: GemsChrome.primary,
+                          borderRadius: BorderRadius.circular(GemsChrome.radius),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -392,7 +386,7 @@ class _ComplaintSectionResponseImageState
   Widget _buildPendingCard(PendingResponseImage item) {
     return Card(
       margin: EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(GemsChrome.radius)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -441,7 +435,7 @@ class _ComplaintSectionResponseImageState
                             item.displayName!,
                             style: GoogleFonts.poppins(
                               fontSize: 11,
-                              color: Colors.grey[600],
+                              color: GemsChrome.textSoft,
                             ),
                           ),
                         ),
@@ -457,24 +451,9 @@ class _ComplaintSectionResponseImageState
   }
 
   Widget _buildSectionCard({required String title, required Widget child}) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: GoogleFonts.poppins(
-                  fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            SizedBox(height: 12),
-            child,
-          ],
-        ),
-      ),
+    return GemsFormSection(
+      title: title,
+      child: child,
     );
   }
 
@@ -510,7 +489,7 @@ class _ComplaintSectionResponseImageState
                         return Center(
                           child: CircularProgressIndicator(
                             valueColor:
-                                AlwaysStoppedAnimation(AppColors.primary),
+                                AlwaysStoppedAnimation(GemsChrome.primary),
                           ),
                         );
                       },
@@ -527,7 +506,7 @@ class _ComplaintSectionResponseImageState
                         Text(
                           img.documentDesc,
                           style: GoogleFonts.poppins(
-                              fontSize: 12, color: Colors.grey[600]),
+                              fontSize: 12, color: GemsChrome.textSoft),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),

@@ -8,9 +8,9 @@ import 'package:GEMS/utils/image_compressor.dart';
 import 'package:GEMS/utils/biometric_lock_manager.dart';
 import 'package:GEMS/controller/PPM/Form/openImage.dart';
 import 'package:GEMS/utils/network.dart';
-import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/utils/location_helper.dart';
 import 'package:GEMS/view/dialog.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' show basename;
@@ -68,22 +68,13 @@ class _FormComplaintState extends State<FormComplaint> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        title: Text(
-          'New Complaint',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.black87),
+        title: Text('New Complaint', style: GemsChrome.heading(size: 18)),
         actions: [
           IconButton(
-            icon: Icon(Icons.help_outline, size: 22),
+            icon: const Icon(Icons.help_outline, size: 22),
             onPressed: () {},
           ),
         ],
@@ -96,20 +87,13 @@ class _FormComplaintState extends State<FormComplaint> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Report an Issue',
-                  style: GoogleFonts.poppins(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black87,
-                  ),
+                  'Report an issue',
+                  style: GemsChrome.heading(size: 22),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   'Please provide details about the problem you encountered',
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
                 ),
                 SizedBox(height: 24),
                 
@@ -154,24 +138,11 @@ class _FormComplaintState extends State<FormComplaint> {
                   child: Column(
                     children: [
                       TextField(
-                        decoration: InputDecoration(
-                          labelText: 'Describe the issue',
+                        decoration: gemsFieldDecoration(label: 'Describe the issue').copyWith(
                           hintText: 'Provide detailed information about the problem',
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey[300]!),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey[300]!),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 18),
                         ),
                         maxLines: 5,
-                        style: GoogleFonts.poppins(fontSize: 14),
+                        style: GemsChrome.body(size: 14),
                         onChanged: (v) => desc = v,
                       ),
                       SizedBox(height: 8),
@@ -181,7 +152,7 @@ class _FormComplaintState extends State<FormComplaint> {
                           'Minimum 8 characters required',
                           style: GoogleFonts.poppins(
                             fontSize: 12,
-                            color: Colors.grey,
+                            color: GemsChrome.muted,
                           ),
                         ),
                       ),
@@ -202,7 +173,7 @@ class _FormComplaintState extends State<FormComplaint> {
                         'Add visual evidence (max 3)',
                         style: GoogleFonts.poppins(
                           fontSize: 13,
-                          color: Colors.grey[600],
+                          color: GemsChrome.textSoft,
                         ),
                       ),
                       SizedBox(height: 12),
@@ -224,10 +195,11 @@ class _FormComplaintState extends State<FormComplaint> {
                     width: double.infinity,
                     child: FloatingActionButton.extended(
                       onPressed: loading ? null : _submitComplaint,
-                      backgroundColor: AppColors.primary,
-                      elevation: 2,
+                      backgroundColor: GemsChrome.primary,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(GemsChrome.radius),
                       ),
                       label: Padding(
                         padding: EdgeInsets.symmetric(vertical: 16),
@@ -259,7 +231,7 @@ class _FormComplaintState extends State<FormComplaint> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                      valueColor: AlwaysStoppedAnimation<Color>(GemsChrome.primary),
                     ),
                     SizedBox(height: 16),
                     Text(
@@ -283,40 +255,7 @@ class _FormComplaintState extends State<FormComplaint> {
     required Widget child,
     required IconData icon,
   }) {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 20, color: AppColors.primary),
-              SizedBox(width: 8),
-              Text(
-                title,
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
-          child,
-        ],
-      ),
-    );
+    return GemsFormSection(title: title, icon: icon, child: child);
   }
 
   Widget _buildDropdown<T>({
@@ -336,12 +275,12 @@ class _FormComplaintState extends State<FormComplaint> {
         searchFieldProps: TextFieldProps(
           decoration: InputDecoration(
             hintText: hint,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(GemsChrome.radius)),
             contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           ),
         ),
         modalBottomSheetProps: ModalBottomSheetProps(
-          backgroundColor: Colors.grey[50],
+          backgroundColor: GemsChrome.page,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
@@ -354,12 +293,12 @@ class _FormComplaintState extends State<FormComplaint> {
           labelText: label,
           floatingLabelBehavior: FloatingLabelBehavior.always,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey[300]!),
+            borderRadius: BorderRadius.circular(GemsChrome.radius),
+            borderSide: BorderSide(color: GemsChrome.border),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.grey[300]!),
+            borderRadius: BorderRadius.circular(GemsChrome.radius),
+            borderSide: BorderSide(color: GemsChrome.border),
           ),
           filled: true,
           fillColor: Colors.white,
@@ -375,18 +314,18 @@ class _FormComplaintState extends State<FormComplaint> {
       child: Container(
         padding: EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.grey[50],
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey[200]!, width: 1.5),
+          color: GemsChrome.page,
+          borderRadius: BorderRadius.circular(GemsChrome.radius),
+          border: Border.all(color: GemsChrome.border),
         ),
         child: Column(
           children: [
-            Icon(Icons.photo_library_outlined, size: 40, color: Colors.grey[400]),
+            Icon(Icons.photo_library_outlined, size: 40, color: GemsChrome.muted),
             SizedBox(height: 8),
             Text(
               'No photos added yet',
               style: GoogleFonts.poppins(
-                color: Colors.grey[600],
+                color: GemsChrome.textSoft,
                 fontSize: 14,
               ),
             ),
@@ -394,7 +333,7 @@ class _FormComplaintState extends State<FormComplaint> {
             Text(
               'Photos help us better understand the issue',
               style: GoogleFonts.poppins(
-                color: Colors.grey[400],
+                color: GemsChrome.muted,
                 fontSize: 12,
               ),
             ),
@@ -407,26 +346,26 @@ class _FormComplaintState extends State<FormComplaint> {
   Widget _buildAddPhotoButton() {
     return InkWell(
       onTap: listItem.length >= 3 ? null : _createUploadItem,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(GemsChrome.radius),
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(GemsChrome.radius),
           border: Border.all(
-            color: AppColors.primary.withOpacity(0.3),
+            color: GemsChrome.primary.withOpacity(0.3),
             width: 1.5,
           ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add, color: AppColors.primary, size: 20),
+            Icon(Icons.add, color: GemsChrome.primary, size: 20),
             SizedBox(width: 8),
             Text(
               'Add Photo',
               style: GoogleFonts.poppins(
-                color: AppColors.primary,
+                color: GemsChrome.primary,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -441,8 +380,8 @@ class _FormComplaintState extends State<FormComplaint> {
       margin: EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        border: Border.all(color: GemsChrome.border),
       ),
       child: Padding(
         padding: EdgeInsets.all(12),

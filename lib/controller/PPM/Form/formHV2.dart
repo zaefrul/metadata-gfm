@@ -7,6 +7,7 @@ import 'package:GEMS/controller/PPM/Form/openImage.dart';
 import 'package:GEMS/model/form.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/utils/biometric_lock_manager.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
@@ -64,10 +65,9 @@ class _FormHState extends State<FormH> {
     ToastContext().init(context);
     _provider.context = context;
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: colorTheme3),
-        title: _getTitle("H. Maintance Image", bold: true),
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('H. Maintenance Image'),
       ),
       body: _loading
           ? Stack(
@@ -84,7 +84,7 @@ class _FormHState extends State<FormH> {
           ? null
           : FloatingActionButton.extended(
               label: Text("Save"),
-              backgroundColor: colorTheme2,
+              backgroundColor: GemsChrome.primary,
               onPressed: _loading
                   ? null
                   : () {

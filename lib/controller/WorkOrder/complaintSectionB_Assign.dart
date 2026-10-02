@@ -5,8 +5,7 @@ import 'package:toast/toast.dart';
 import 'package:GEMS/model/workorder.dart';
 import 'package:GEMS/model/responseValue.dart';
 import 'package:GEMS/utils/network.dart';
-import 'package:GEMS/utils/reference.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/WorkOrder/pending_sync.dart';
 import 'package:GEMS/controller/WorkOrder/widgets/pending_sync_banner.dart';
 import 'package:GEMS/data/repository/work_order_detail_repository.dart';
@@ -43,7 +42,11 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
   final List<WorkOrderStatus> _externalCategory = [];
   final List<WorkOrderStatus> _publicCategory = [];
 
-  String? dropdownValue1, dropdownValue2, dropdownValue3, dropdownValue4, dropdownAssist;
+  String? dropdownValue1,
+      dropdownValue2,
+      dropdownValue3,
+      dropdownValue4,
+      dropdownAssist;
   String? dropdownId1, dropdownId2, dropdownId3, dropdownId4;
 
   TechnicianDetails? technicianDetails;
@@ -77,18 +80,17 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
       "Request": "3"
     };
 
-    final m3 = {
-      "Breakdown": "4",
-      "Complaint": "1",
-      "Defect": "5"
-    };
+    final m3 = {"Breakdown": "4", "Complaint": "1", "Defect": "5"};
 
-    m1.forEach((k,v) => _internalCategory.add(WorkOrderStatus((b) => b
-      ..groupName = k..groupId = v)));
-    m2.forEach((k,v) => _externalCategory.add(WorkOrderStatus((b) => b
-      ..groupName = k..groupId = v)));
-    m3.forEach((k,v) => _publicCategory.add(WorkOrderStatus((b) => b
-      ..groupName = k..groupId = v)));
+    m1.forEach((k, v) => _internalCategory.add(WorkOrderStatus((b) => b
+      ..groupName = k
+      ..groupId = v)));
+    m2.forEach((k, v) => _externalCategory.add(WorkOrderStatus((b) => b
+      ..groupName = k
+      ..groupId = v)));
+    m3.forEach((k, v) => _publicCategory.add(WorkOrderStatus((b) => b
+      ..groupName = k
+      ..groupId = v)));
   }
 
   bool get isInternal => typeCategory == "Internal";
@@ -205,10 +207,9 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
     }
   }
 
-
   Future<void> _loadInitial() async {
     setState(() => loading = true);
-    
+
     try {
       // 1) Load Severity
       final severityResp = await Provider(
@@ -229,18 +230,18 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
         fetchURL: "/wo_v2/assign_and_severity/",
         taskID: widget.id,
       ).fetch();
-      
+
       if (assignResp.technicianAssign != null) {
         final a = assignResp.technicianAssign!;
-  typeCategory = a.userCategory;
+        typeCategory = a.userCategory;
         assistUserId = a.assistUserId.toList();
         dropdownAssist = a.woTaskMaxAssistant;
         dropdownId1 = a.groupId;
-        
+
         if (dropdownId1 != null) {
           dropdownValue1 = _safeFetchStatus(groupList, dropdownId1!)?.groupName;
           await _loadExecutorsForGroup(dropdownId1!);
-          
+
           dropdownId2 = a.userId;
           if (dropdownId2 != null) {
             final sel = _safeFetchStatus(executorList, dropdownId2!);
@@ -251,18 +252,21 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
             }
           }
         }
-        
+
         dropdownId3 = a.severity;
         if (dropdownId3 != null) {
-          dropdownValue3 = _safeFetchSeverity(severityList, dropdownId3!)?.severityName;
+          dropdownValue3 =
+              _safeFetchSeverity(severityList, dropdownId3!)?.severityName;
         }
-        
+
         dropdownId4 = a.woTaskCategory;
         if (dropdownId4 != null) {
           dropdownValue4 = _safeFetchStatus(
-            typeCategory == "Internal" ? _internalCategory : _externalCategory, 
-            dropdownId4!
-          )?.groupName;
+                  typeCategory == "Internal"
+                      ? _internalCategory
+                      : _externalCategory,
+                  dropdownId4!)
+              ?.groupName;
         }
       }
     } catch (e, st) {
@@ -301,16 +305,18 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
   }
 
   Future<ResponseValue> get _fetchTechnician => Provider(
-    fetchURL: "/api/m_wo.php?type=technician_details&groupId=$dropdownId1&userId=",
-    taskID: dropdownId2 ?? ''
-  ).fetch();
+          fetchURL:
+              "/api/m_wo.php?type=technician_details&groupId=$dropdownId1&userId=",
+          taskID: dropdownId2 ?? '')
+      .fetch();
 
-  WorkOrderStatus? _safeFetchStatus(List<WorkOrderStatus> list, String idOrName) {
+  WorkOrderStatus? _safeFetchStatus(
+      List<WorkOrderStatus> list, String idOrName) {
     debugPrint("Fetching status with id/name: $idOrName");
     debugPrint("List: ${list.map((e) => e.toString()).toList()}");
     try {
-      return list.firstWhere((w) => 
-          (w.groupId != null && w.groupId == idOrName) || 
+      return list.firstWhere((w) =>
+          (w.groupId != null && w.groupId == idOrName) ||
           (w.groupName != null && w.groupName == idOrName) ||
           (w.userId != null && w.userId == idOrName) ||
           (w.userName != null && w.userName == idOrName));
@@ -335,7 +341,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
         : const SizedBox.shrink();
     if (loading) {
       return Scaffold(
-        backgroundColor: Colors.grey[50],
+        backgroundColor: GemsChrome.page,
         appBar: _buildAppBar(),
         body: Column(
           children: [
@@ -345,14 +351,11 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CircularProgressIndicator(
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(AppColors.primary),
-                    ),
-                    SizedBox(height: 16),
+                    const CircularProgressIndicator(color: GemsChrome.primary),
+                    const SizedBox(height: 16),
                     Text(
                       'Loading assignment data...',
-                      style: GoogleFonts.poppins(color: Colors.grey[600]),
+                      style: GemsChrome.body(color: GemsChrome.textSoft),
                     ),
                   ],
                 ),
@@ -364,35 +367,23 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: GemsChrome.page,
       appBar: _buildAppBar(),
       body: Column(
         children: [
           banner,
           Expanded(
             child: SingleChildScrollView(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Assign Executor',
-                    style: GoogleFonts.poppins(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black87,
-                    ),
+                    'Select the team and person for this task',
+                    style:
+                        GemsChrome.body(size: 13, color: GemsChrome.textSoft),
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Select the appropriate team and personnel for this task',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  SizedBox(height: 24),
-                  
+                  const SizedBox(height: 16),
                   _buildSection(
                     title: 'Assignment Details',
                     icon: Icons.assignment_ind_outlined,
@@ -402,21 +393,28 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
                           icon: Icons.group,
                           label: "Executor Group",
                           value: dropdownValue1,
-                          items: groupList.map((g) => g.groupName ?? '').whereType<String>().toList(),
-                          onChanged: widget.viewer ? null : (v) async {
-                            if (v == null) return;
-                            _markUserEdited();
-                            setState(() {
-                              dropdownValue1 = v;
-                              dropdownId1 = groupList.firstWhere((g) => g.groupName == v).groupId;
-                              loading = true;
-                              dropdownValue2 = null;
-                              dropdownId2 = null;
-                              _controller.clear();
-                              technicianDetails = null;
-                            });
-                            await _loadExecutorsForGroup(dropdownId1!);
-                          },
+                          items: groupList
+                              .map((g) => g.groupName ?? '')
+                              .whereType<String>()
+                              .toList(),
+                          onChanged: widget.viewer
+                              ? null
+                              : (v) async {
+                                  if (v == null) return;
+                                  _markUserEdited();
+                                  setState(() {
+                                    dropdownValue1 = v;
+                                    dropdownId1 = groupList
+                                        .firstWhere((g) => g.groupName == v)
+                                        .groupId;
+                                    loading = true;
+                                    dropdownValue2 = null;
+                                    dropdownId2 = null;
+                                    _controller.clear();
+                                    technicianDetails = null;
+                                  });
+                                  await _loadExecutorsForGroup(dropdownId1!);
+                                },
                         ),
                         SizedBox(height: 16),
                         _buildExecutorRow(),
@@ -425,15 +423,22 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
                           icon: Icons.report_problem,
                           label: "Severity Level",
                           value: dropdownValue3,
-                          items: severityList.map((s) => s.severityName ?? '').whereType<String>().toList(),
-                          onChanged: widget.viewer ? null : (v) {
-                            if (v == null) return;
-                            _markUserEdited();
-                            setState(() {
-                              dropdownValue3 = v;
-                              dropdownId3 = severityList.firstWhere((s) => s.severityName == v).severityId;
-                            });
-                          },
+                          items: severityList
+                              .map((s) => s.severityName ?? '')
+                              .whereType<String>()
+                              .toList(),
+                          onChanged: widget.viewer
+                              ? null
+                              : (v) {
+                                  if (v == null) return;
+                                  _markUserEdited();
+                                  setState(() {
+                                    dropdownValue3 = v;
+                                    dropdownId3 = severityList
+                                        .firstWhere((s) => s.severityName == v)
+                                        .severityId;
+                                  });
+                                },
                         ),
                         SizedBox(height: 16),
                         _buildDropdownRow(
@@ -444,33 +449,36 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
                               .map((c) => c.groupName ?? '')
                               .whereType<String>()
                               .toList(),
-                          onChanged: widget.viewer ? null : (v) {
-                            if (v == null) return;
-                            _markUserEdited();
-                            setState(() {
-                              dropdownValue4 = v;
-                              dropdownId4 = getDropdown4()
-                                  .firstWhere((c) => c.groupName == v)
-                                  .groupId;
-                            });
-                          },
+                          onChanged: widget.viewer
+                              ? null
+                              : (v) {
+                                  if (v == null) return;
+                                  _markUserEdited();
+                                  setState(() {
+                                    dropdownValue4 = v;
+                                    dropdownId4 = getDropdown4()
+                                        .firstWhere((c) => c.groupName == v)
+                                        .groupId;
+                                  });
+                                },
                         ),
                         SizedBox(height: 16),
                         _buildDropdownRow(
                           icon: Icons.people,
                           label: "Max Assistants",
                           value: dropdownAssist,
-                          items: ["0","1","2","3","4","5"],
-                          onChanged: widget.viewer ? null : (v) {
-                            if (v == null) return;
-                            _markUserEdited();
-                            setState(() => dropdownAssist = v);
-                          },
+                          items: ["0", "1", "2", "3", "4", "5"],
+                          onChanged: widget.viewer
+                              ? null
+                              : (v) {
+                                  if (v == null) return;
+                                  _markUserEdited();
+                                  setState(() => dropdownAssist = v);
+                                },
                         ),
                       ],
                     ),
                   ),
-                  
                   if (!widget.viewer) ...[
                     SizedBox(height: 20),
                     _buildSaveButton(),
@@ -492,24 +500,8 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
   }
 
   PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      title: Text(
-        'Assign Executor',
-        style: GoogleFonts.poppins(
-          fontWeight: FontWeight.w600,
-          fontSize: 18,
-        ),
-      ),
-      backgroundColor: Colors.white,
-      elevation: 0,
-      centerTitle: true,
-      iconTheme: IconThemeData(color: Colors.black87),
-      actions: [
-        IconButton(
-          icon: Icon(Icons.help_outline, size: 22),
-          onPressed: () {},
-        ),
-      ],
+    return gemsAppBar(
+      title: Text('Assign Executor', style: GemsChrome.heading(size: 18)),
     );
   }
 
@@ -518,40 +510,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
     required Widget child,
     required IconData icon,
   }) {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 20, color: AppColors.primary),
-              SizedBox(width: 8),
-              Text(
-                title,
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
-          child,
-        ],
-      ),
-    );
+    return GemsFormSection(title: title, icon: icon, child: child);
   }
 
   Widget _buildDropdownRow({
@@ -561,114 +520,83 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
     required void Function(String?)? onChanged,
     required IconData icon,
   }) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: AppColors.primary, size: 20),
-        SizedBox(width: 12),
-        Expanded(
-          child: DropdownButtonFormField<String>(
-            value: items.contains(value) ? value : null,
-            decoration: InputDecoration(
-              labelText: label,
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey[300]!),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey[300]!),
-              ),
-              filled: true,
-              fillColor: onChanged == null ? Colors.grey[100] : Colors.white,
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            ),
-            items: items.map((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-            onChanged: onChanged,
-            style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
-            isExpanded: true,
-            icon: Icon(Icons.arrow_drop_down),
-            borderRadius: BorderRadius.circular(12),
-          ),
+        Text(label, style: GemsChrome.body(size: 13, weight: FontWeight.w500)),
+        const SizedBox(height: 4),
+        DropdownButtonFormField<String>(
+          value: items.contains(value) ? value : null,
+          decoration: gemsFieldDecoration(enabled: onChanged != null),
+          items: items.map((String item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(item, overflow: TextOverflow.ellipsis),
+            );
+          }).toList(),
+          onChanged: onChanged,
+          style: GemsChrome.body(size: 14),
+          isExpanded: true,
+          icon:
+              const Icon(Icons.keyboard_arrow_down, color: GemsChrome.textSoft),
+          borderRadius: BorderRadius.circular(GemsChrome.radius),
         ),
       ],
     );
   }
 
   Widget _buildExecutorRow() {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(Icons.person, color: AppColors.primary, size: 20),
-        SizedBox(width: 12),
-        Expanded(
-          child: widget.viewer
-              ? TextFormField(
-                  controller: _controller,
-                  readOnly: true,
-                  style: GoogleFonts.poppins(fontSize: 14),
-                  decoration: InputDecoration(
-                    labelText: "Executor",
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  ),
-                )
-              : DropdownButtonFormField<String>(
-                  value: dropdownValue2,
-                  decoration: InputDecoration(
-                    labelText: "Executor",
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey[300]!),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  ),
-                  items: executorList.map((WorkOrderStatus status) {
-                    return DropdownMenuItem<String>(
-                      value: status.userName,
-                      child: Text(status.userName ?? ''),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) async {
-                    if (newValue == null) return;
-                    _markUserEdited();
-                    final selected = _safeFetchStatus(executorList, newValue);
-                    final resolvedUserId = selected?.userId;
-                    if (resolvedUserId == null || resolvedUserId.isEmpty) {
-                      setState(() => dropdownValue2 = newValue);
-                      _controller.text = newValue;
-                      return;
-                    }
-                    setState(() {
-                      dropdownValue2 = newValue;
-                      dropdownId2 = resolvedUserId;
-                      loading = true;
-                      technicianDetails = null;
-                      _controller.text = newValue;
-                    });
-                    final resp = await _fetchTechnician;
-                    setState(() {
-                      technicianDetails = resp.technicianDetails;
-                      loading = false;
-                    });
-                  },
-                ),
-        ),
+        Text('Executor',
+            style: GemsChrome.body(size: 13, weight: FontWeight.w500)),
+        const SizedBox(height: 4),
+        widget.viewer
+            ? TextFormField(
+                controller: _controller,
+                readOnly: true,
+                style: GemsChrome.body(size: 14),
+                decoration: gemsFieldDecoration(enabled: false),
+              )
+            : DropdownButtonFormField<String>(
+                value: dropdownValue2,
+                decoration: gemsFieldDecoration(),
+                items: executorList.map((WorkOrderStatus status) {
+                  return DropdownMenuItem<String>(
+                    value: status.userName,
+                    child: Text(status.userName ?? ''),
+                  );
+                }).toList(),
+                style: GemsChrome.body(size: 14),
+                isExpanded: true,
+                icon: const Icon(Icons.keyboard_arrow_down,
+                    color: GemsChrome.textSoft),
+                borderRadius: BorderRadius.circular(GemsChrome.radius),
+                onChanged: (String? newValue) async {
+                  if (newValue == null) return;
+                  _markUserEdited();
+                  final selected = _safeFetchStatus(executorList, newValue);
+                  final resolvedUserId = selected?.userId;
+                  if (resolvedUserId == null || resolvedUserId.isEmpty) {
+                    setState(() => dropdownValue2 = newValue);
+                    _controller.text = newValue;
+                    return;
+                  }
+                  setState(() {
+                    dropdownValue2 = newValue;
+                    dropdownId2 = resolvedUserId;
+                    loading = true;
+                    technicianDetails = null;
+                    _controller.text = newValue;
+                  });
+                  final resp = await _fetchTechnician;
+                  setState(() {
+                    technicianDetails = resp.technicianDetails;
+                    loading = false;
+                  });
+                },
+              ),
       ],
     );
   }
@@ -684,7 +612,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
           _buildDetailTile(Icons.phone_outlined, "Phone No.", d.phoneNo),
           _buildDetailTile(Icons.email_outlined, "Email", d.email),
           _buildDetailTile(Icons.group_outlined, "Group", d.group),
-          _buildDetailTile(Icons.task_outlined, "Current Tasks", 
+          _buildDetailTile(Icons.task_outlined, "Current Tasks",
               d.totalCurrentTask.toString()),
         ],
       ),
@@ -696,24 +624,23 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: Colors.grey[600]),
-          SizedBox(width: 12),
+          Icon(icon, size: 18, color: GemsChrome.muted),
+          const SizedBox(width: 12),
           Expanded(
             flex: 2,
             child: Text(
               label,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[700],
-              ),
+              style: GemsChrome.body(
+                  size: 13,
+                  weight: FontWeight.w500,
+                  color: GemsChrome.textSoft),
             ),
           ),
           Expanded(
             flex: 3,
             child: Text(
               value,
-              style: GoogleFonts.poppins(fontSize: 14),
+              style: GemsChrome.body(size: 14),
               textAlign: TextAlign.end,
             ),
           ),
@@ -734,7 +661,7 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
               padding: const EdgeInsets.all(16),
               child: Text(
                 'No current tasks assigned',
-                style: GoogleFonts.poppins(color: Colors.grey[600]),
+                style: GemsChrome.body(color: GemsChrome.textSoft),
               ),
             )
           else
@@ -746,43 +673,38 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
 
   Widget _buildTaskItem(TechnicianTask task) {
     return Container(
-      margin: EdgeInsets.only(bottom: 8),
-      padding: EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
+        color: GemsChrome.page,
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        border: Border.all(color: GemsChrome.border),
       ),
       child: Row(
         children: [
           Container(
             width: 36,
             height: 36,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+            decoration: const BoxDecoration(
+              color: GemsChrome.primarySoft,
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.task_outlined, 
-                size: 18, color: AppColors.primary),
+            child: const Icon(Icons.task_outlined,
+                size: 18, color: GemsChrome.primary),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   task.woTaskNo,
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: GemsChrome.body(weight: FontWeight.w500),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   'Received: ${task.dateReceived}',
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: GemsChrome.body(size: 12, color: GemsChrome.textSoft),
                 ),
               ],
             ),
@@ -804,22 +726,13 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
       width: double.infinity,
       child: ElevatedButton(
         onPressed: loading ? null : _onSavePressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-          child: Text(
-            'SAVE ASSIGNMENT',
-            style: GoogleFonts.poppins(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
-              color: Colors.white,
-            ),
+        style: gemsPrimaryButton(),
+        child: Text(
+          'Save assignment',
+          style: GemsChrome.body(
+            size: 15,
+            weight: FontWeight.w600,
+            color: Colors.white,
           ),
         ),
       ),
@@ -829,7 +742,10 @@ class _ComplaintAssignState extends State<ComplaintAssign> {
   void _onSavePressed() async {
     if (loading) return;
     // Validate required fields
-    if (dropdownId1 == null || dropdownId2 == null || dropdownId3 == null || dropdownId4 == null) {
+    if (dropdownId1 == null ||
+        dropdownId2 == null ||
+        dropdownId3 == null ||
+        dropdownId4 == null) {
       Toast.show('Please complete all required fields');
       return;
     }

@@ -7,6 +7,7 @@ import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/view/dialog.dart';
 import 'package:GEMS/view/signature.dart';
 import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'dart:io';
 import '../../../main.dart';
 
@@ -88,10 +89,9 @@ class _PDFState extends State<PDF> {
     if (widget.checkpoint == 3) submitText = "Verify";
 
     return Scaffold(
-      appBar: AppBar(
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         title: title(widget.transactionNo),
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: colorTheme3),
         actions: widget.viewer
             ? null
             : [
@@ -123,7 +123,7 @@ class _PDFState extends State<PDF> {
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(6.0),
-                          color: Colors.redAccent,
+                          color: GemsChrome.warning,
                         ),
                         width: 80,
                         child: Center(child: title("Re-Open", bold: false)),
@@ -148,7 +148,7 @@ class _PDFState extends State<PDF> {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(6.0),
-                        color: colorTheme2,
+                        color: GemsChrome.primary,
                       ),
                       width: 80,
                       child: Center(child: title(submitText, bold: false)),
@@ -161,6 +161,8 @@ class _PDFState extends State<PDF> {
           ? const Center(child: CircularProgressIndicator())
           : PdfViewPinch(controller: _pdfController!),
       floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: GemsChrome.primary,
+        foregroundColor: Colors.white,
         label: const Text("Open File"),
         onPressed: openPdfFile,
       ),
@@ -171,7 +173,7 @@ class _PDFState extends State<PDF> {
         text,
         textAlign: TextAlign.center,
         style: TextStyle(
-          color: bold ? colorTheme3 : Colors.white,
+          color: bold ? GemsChrome.text : Colors.white,
           fontWeight: bold ? FontWeight.bold : FontWeight.normal,
         ),
       );

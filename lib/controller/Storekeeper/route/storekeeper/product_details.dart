@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc_material.dart';
@@ -67,10 +68,9 @@ class _MaterialDetailsState extends State<MaterialDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Material Details"),
-        centerTitle: true,
-        backgroundColor: Colors.white,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('Material Details'),
       ),
       body: _bloc == null
           ? const Center(child: CircularProgressIndicator())
@@ -261,7 +261,8 @@ class ViewImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      backgroundColor: Colors.black,
+      appBar: gemsAppBar(title: const Text('Photo')),
       body: PhotoView(
         imageProvider: NetworkImage(url),
       ),

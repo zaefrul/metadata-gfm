@@ -3,9 +3,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:toast/toast.dart';
-import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc_task.dart';
 import 'package:GEMS/controller/Storekeeper/utils/constant.dart'
   as storekeeper_constants;
@@ -64,18 +63,30 @@ class _MaterialRequestScreenState extends State<MaterialRequestScreen> {
     super.dispose();
   }
 
-  Widget _row(IconData icon, String label, String value) {
+  Widget _infoRow(IconData icon, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: colorTheme2),
+          Icon(icon, size: 18, color: GemsChrome.primary),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(label,
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: GemsChrome.body(size: 12, color: GemsChrome.textSoft),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: GemsChrome.body(size: 14, weight: FontWeight.w500),
+                ),
+              ],
+            ),
           ),
-          Text(value, style: GoogleFonts.poppins()),
         ],
       ),
     );
@@ -147,44 +158,43 @@ class _MaterialRequestScreenState extends State<MaterialRequestScreen> {
   Widget _buildEmptyState({required bool canAdd, VoidCallback? onAdd}) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 32),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
       decoration: BoxDecoration(
-        color: AppColors.gray50,
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        border: Border.all(color: GemsChrome.border),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.inventory_2_outlined,
-              size: 48, color: AppColors.gray400),
+          const Icon(Icons.inventory_2_outlined, size: 40, color: GemsChrome.muted),
           const SizedBox(height: 12),
           Text(
             'No materials yet',
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
+            style: GemsChrome.heading(size: 16),
           ),
           const SizedBox(height: 4),
           Text(
             'Add the parts you plan to use so we can keep track.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              fontSize: 13,
-              color: AppColors.textSecondary,
-            ),
+            style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
           ),
           if (canAdd && onAdd != null) ...[
             const SizedBox(height: 16),
             OutlinedButton.icon(
               onPressed: onAdd,
               icon: const Icon(Icons.add),
-              label: Text('Add material',
-                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+              label: Text(
+                'Add material',
+                style: GemsChrome.body(weight: FontWeight.w600, color: GemsChrome.primary),
+              ),
               style: OutlinedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                foregroundColor: GemsChrome.primary,
+                side: const BorderSide(color: GemsChrome.primary),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(GemsChrome.radius),
+                ),
               ),
             ),
           ],
@@ -197,8 +207,8 @@ class _MaterialRequestScreenState extends State<MaterialRequestScreen> {
     return FloatingActionButton(
       heroTag: 'mr_add_material',
       onPressed: onPressed,
-      backgroundColor: AppColors.primary,
-      child: const Icon(Icons.add, color: AppColors.white),
+      backgroundColor: GemsChrome.primary,
+      child: const Icon(Icons.add, color: Colors.white),
     );
   }
 
@@ -224,11 +234,12 @@ class _MaterialRequestScreenState extends State<MaterialRequestScreen> {
     children.add(
       FloatingActionButton.extended(
         heroTag: "approve_submit_button",
+        foregroundColor: Colors.white,
         label: Text(
           _bloc.titleButton(statusId, isApproval: widget.isApproval),
-          style: GoogleFonts.poppins(color: Colors.white),
+          style: GemsChrome.body(weight: FontWeight.w600, color: Colors.white),
         ),
-        backgroundColor: _bloc.colorButton(statusId),
+        backgroundColor: GemsChrome.primary,
         onPressed: () => _bloc
             .onclick(widget.isApproval)
             .then((_) => Navigator.pop(context))
@@ -245,13 +256,9 @@ class _MaterialRequestScreenState extends State<MaterialRequestScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Material Requisition",
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600, color: colorTheme3)),
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        iconTheme: IconThemeData(color: colorTheme3),
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('Material Requisition'),
       ),
       body: Stack(
         children: [
@@ -261,38 +268,50 @@ class _MaterialRequestScreenState extends State<MaterialRequestScreen> {
               stream: _bloc.detail$.cast<RequestTask>(),
               builder: (ctx, snap) {
                 final data = snap.data;
+                final status = GemsStatusStyle.forInventory(data?.statusDesc);
                 return ListView(
                   padding: const EdgeInsets.only(bottom: 100),
                   children: [
-                    _row(Icons.request_page, "MR No",
-                        data?.woTaskRequestNo ?? "-"),
-                    Divider(height: 1, color: colorTheme1Light),
-                    _row(Icons.calendar_today, "Request Date",
-                        data?.requestTime ?? "-"),
-                    Divider(height: 1, color: colorTheme1Light),
-                    _row(Icons.person, "Requested By",
-                        data?.requestBy ?? "-"),
-                    Divider(height: 1, color: colorTheme1Light),
-                    _row(Icons.receipt, "WO No", data?.woTaskNo ?? "-"),
-                    Divider(height: 1, color: colorTheme1Light),
-                    _row(Icons.priority_high, "Priority",
-                        data?.woSeverityDesc ?? "-"),
-                    Divider(height: 1, color: colorTheme1Light),
-                    _row(Icons.location_on, "Location",
-                        data?.siteName ?? "-"),
-                    if ((data?.collectTime ?? "").isNotEmpty) ...[
-                          Divider(height: 1, color: colorTheme1Light),
-                      _row(Icons.check_circle, "Checkout Date",
-                          data!.collectTime!),
-                    ],
-
-                    // Section title
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 24),
-                      child: Text("Materials",
-                          style: GoogleFonts.poppins(
-                              fontSize: 16, fontWeight: FontWeight.w600)),
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                      child: GemsFormSection(
+                        title: 'Request',
+                        icon: Icons.assignment_outlined,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if ((data?.statusDesc ?? '').isNotEmpty)
+                              Container(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: status.background,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  data!.statusDesc!,
+                                  style: GemsChrome.body(
+                                    size: 12,
+                                    weight: FontWeight.w600,
+                                    color: status.foreground,
+                                  ),
+                                ),
+                              ),
+                            _infoRow(Icons.tag_outlined, 'MR No', data?.woTaskRequestNo ?? '-'),
+                            _infoRow(Icons.calendar_today_outlined, 'Request date', data?.requestTime ?? '-'),
+                            _infoRow(Icons.person_outline, 'Requested by', data?.requestBy ?? '-'),
+                            _infoRow(Icons.receipt_long_outlined, 'WO No', data?.woTaskNo ?? '-'),
+                            _infoRow(Icons.priority_high, 'Priority', data?.woSeverityDesc ?? '-'),
+                            _infoRow(Icons.location_on_outlined, 'Location', data?.siteName ?? '-'),
+                            if ((data?.collectTime ?? '').isNotEmpty)
+                              _infoRow(Icons.check_circle_outline, 'Checkout date', data!.collectTime!),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+                      child: Text('Materials', style: GemsChrome.heading(size: 16)),
                     ),
 
                     // Materials list
@@ -345,7 +364,9 @@ class _MaterialRequestScreenState extends State<MaterialRequestScreen> {
           if (_loading)
             Container(
               color: Colors.black.withOpacity(0.5),
-              child: const Center(child: CircularProgressIndicator()),
+              child: const Center(
+                child: CircularProgressIndicator(color: GemsChrome.primary),
+              ),
             ),
         ],
       ),
@@ -415,87 +436,92 @@ class _MaterialCard extends StatelessWidget {
     final bool isWarning = available == threshold;
     final bool isSuccess = available > qty;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      child: SizedBox(
-        width: double.infinity,
-        child: Card(
-          margin: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+    final Color accent = isError
+        ? GemsChrome.danger
+        : isWarning
+            ? GemsChrome.warning
+            : isSuccess
+                ? GemsChrome.success
+                : GemsChrome.primary;
+
+    final body = Padding(
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            mat.itemDescription ?? '',
+            style: GemsChrome.body(size: 14, weight: FontWeight.w600),
           ),
-          elevation: 2,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    mat.itemDescription ?? "",
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "${mat.assetGroupName}  |  ${mat.itemTypeDesc}",
-                    style: GoogleFonts.poppins(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _infoChip("Qty", "$qty"),
-                      _infoChip("Threshold", "$threshold"),
-                      _infoChip(
-                        "Available",
-                        "$available",
-                        isError: isError,
-                        isWarning: isWarning,
-                        isSuccess: isSuccess,
-                      ),
-                    ],
-                  ),
-                  if (onTap != null) ...[
-                    const SizedBox(height: 12),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton.icon(
-                        onPressed: onTap,
-                        icon: const Icon(Icons.edit_outlined),
-                        label: const Text('Edit quantity'),
-                        style: TextButton.styleFrom(
-                          foregroundColor: AppColors.primary,
-                        ),
-                      ),
-                    ),
-                  ],
-                  if (isApproval) ...[
-                    const SizedBox(height: 12),
-                    Divider(color: AppColors.divider),
-                    const SizedBox(height: 8),
-                    Text(
-                      "Remark",
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      mat.woTaskPartsRemark ?? "-",
-                      style: GoogleFonts.poppins(fontSize: 14),
-                    ),
-                  ],
-                ],
+          const SizedBox(height: 4),
+          Text(
+            '${mat.assetGroupName}  |  ${mat.itemTypeDesc}',
+            style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _infoChip('Qty', '$qty'),
+              _infoChip('Threshold', '$threshold'),
+              _infoChip(
+                'Available',
+                '$available',
+                isError: isError,
+                isWarning: isWarning,
+                isSuccess: isSuccess,
               ),
+            ],
+          ),
+          if (onTap != null) ...[
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: onTap,
+                icon: const Icon(Icons.edit_outlined, size: 18),
+                label: Text(
+                  'Edit quantity',
+                  style: GemsChrome.body(weight: FontWeight.w600, color: GemsChrome.primary),
+                ),
+                style: TextButton.styleFrom(foregroundColor: GemsChrome.primary),
+              ),
+            ),
+          ],
+          if (isApproval) ...[
+            const SizedBox(height: 8),
+            const Divider(height: 1, color: GemsChrome.border),
+            const SizedBox(height: 8),
+            Text('Remark', style: GemsChrome.body(weight: FontWeight.w600)),
+            const SizedBox(height: 4),
+            Text(
+              mat.woTaskPartsRemark ?? '-',
+              style: GemsChrome.body(size: 14),
+            ),
+          ],
+        ],
+      ),
+    );
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+      child: Material(
+        color: Colors.white,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(GemsChrome.radius),
+          side: const BorderSide(color: GemsChrome.border),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ColoredBox(color: accent, child: const SizedBox(width: 5)),
+                Expanded(child: body),
+              ],
             ),
           ),
         ),
@@ -514,17 +540,17 @@ class _MaterialCard extends StatelessWidget {
     late final Color fg;
 
     if (isError) {
-      bg = AppColors.dangerLight;
-      fg = AppColors.danger;
+      bg = GemsChrome.dangerSoft;
+      fg = GemsChrome.dangerFg;
     } else if (isWarning) {
-      bg = AppColors.warningLight;
-      fg = AppColors.warningDark;
+      bg = GemsChrome.warningSoft;
+      fg = GemsChrome.warning;
     } else if (isSuccess) {
-      bg = AppColors.successLight;
-      fg = AppColors.successDark;
+      bg = GemsChrome.successSoft;
+      fg = GemsChrome.success;
     } else {
-      bg = AppColors.primaryLight;
-      fg = AppColors.primaryDark;
+      bg = GemsChrome.primarySoft;
+      fg = GemsChrome.primary;
     }
 
     return Container(
@@ -536,11 +562,11 @@ class _MaterialCard extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(label,
-              style: GoogleFonts.poppins(fontSize: 12, color: fg)),
-          Text(value,
-              style: GoogleFonts.poppins(
-                  fontSize: 14, fontWeight: FontWeight.w600, color: fg)),
+          Text(label, style: GemsChrome.body(size: 12, color: fg)),
+          Text(
+            value,
+            style: GemsChrome.body(size: 14, weight: FontWeight.w600, color: fg),
+          ),
         ],
       ),
     );
@@ -557,8 +583,12 @@ class _BuildRejectButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton.extended(
       heroTag: "reject_button",
-      label: const Text("Reject", style: TextStyle(color: AppColors.white)),
-      backgroundColor: colorTheme4,
+      foregroundColor: Colors.white,
+      label: Text(
+        'Reject',
+        style: GemsChrome.body(weight: FontWeight.w600, color: Colors.white),
+      ),
+      backgroundColor: GemsChrome.danger,
       onPressed: () => showDialog(
         context: context,
         builder: (_) => CustomDialog(

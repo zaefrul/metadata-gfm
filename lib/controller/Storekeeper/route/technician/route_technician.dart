@@ -1,5 +1,6 @@
 import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc_technician.dart';
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 
 class RouteTechnician extends StatefulWidget {
@@ -22,10 +23,9 @@ class _RouteTechnicianState extends State<RouteTechnician> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Material Requisition Form"),
-        backgroundColor: Colors.white,
-        centerTitle: true,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('Material Requisition Form'),
       ),
       body: SingleChildScrollView(
         child: Column(children: <Widget>[

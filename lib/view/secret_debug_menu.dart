@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/view/debug_log_screen.dart';
 import 'package:GEMS/controller/ReturnItem/api_test_screen.dart';
 
@@ -13,15 +14,12 @@ class SecretDebugMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgDefault,
-      appBar: AppBar(
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         title: Text(
-          '🔧 Developer Menu',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          'Developer Menu',
+          style: GemsChrome.heading(size: 18),
         ),
-        backgroundColor: Colors.deepOrange,
-        foregroundColor: Colors.white,
-        elevation: 0,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

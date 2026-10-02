@@ -9,7 +9,8 @@ import 'package:GEMS/model/form.dart'; // Assuming FormHItem is defined here
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:GEMS/view/dialog.dart'; // Assuming CustomDialog is defined here
+import 'package:GEMS/view/dialog.dart';
+import 'package:GEMS/view/gems_chrome.dart'; // Assuming CustomDialog is defined here
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:GEMS/utils/image_compressor.dart';
@@ -185,10 +186,9 @@ class _FormHState extends State<FormH> {
     ToastContext().init(context); // Initialize ToastContext
     _provider.context = context;
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: colorTheme3),
-        title: _getTitle("H. Maintenance Image", bold: true),
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('H. Maintenance Image'),
       ),
       body: Column(
         children: [
@@ -222,10 +222,9 @@ class _FormHState extends State<FormH> {
         padding: const EdgeInsets.symmetric(vertical: 8.0), // Added padding for better spacing
         child: Text(
           text,
-          style: TextStyle(
-              fontWeight: bold ? FontWeight.bold : FontWeight.normal,
-              color: colorTheme3,
-              fontSize: bold ? 16 : 14, // Adjusted font size
+          style: GemsChrome.body(
+              weight: bold ? FontWeight.w600 : FontWeight.w400,
+              size: bold ? 16 : 14,
             ),
         ),
       );
@@ -234,9 +233,10 @@ class _FormHState extends State<FormH> {
     if (widget.disable) return null;
 
     return FloatingActionButton.extended(
-      label: Text("Save"),
-      backgroundColor: colorTheme2,
-      icon: Icon(Icons.save), // Added icon
+      label: const Text('Save'),
+      backgroundColor: GemsChrome.primary,
+      foregroundColor: Colors.white,
+      icon: const Icon(Icons.save),
       onPressed: _loading
           ? null
           : () {
@@ -272,8 +272,14 @@ class _FormHState extends State<FormH> {
     // For "During", the index passed to _createUploadItem should always be 1.
     int uploadItemTypeIndex = index;
 
-    return Card( // Wrap in a card for better visual separation
+    return Card(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        side: const BorderSide(color: GemsChrome.border),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -281,18 +287,20 @@ class _FormHState extends State<FormH> {
           children: <Widget>[
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.camera_alt, color: colorTheme3),
-              title: Text("Tap to upload image", style: TextStyle(color: widget.disable ? Colors.grey : colorTheme3)),
+              leading: Icon(Icons.photo_camera_outlined, color: widget.disable ? GemsChrome.muted : GemsChrome.primary),
+              title: Text(
+                'Tap to upload image',
+                style: GemsChrome.body(color: widget.disable ? GemsChrome.muted : GemsChrome.text),
+              ),
               onTap: widget.disable ? null : () => _createUploadItem(uploadItemTypeIndex),
             ),
             SizedBox(height: 8),
             TextField(
-              enabled: false, // This field is always disabled as per original logic
-              decoration: InputDecoration(
-                labelText: "Image Description",
-                border: OutlineInputBorder(),
-                filled: true,
-                fillColor: Colors.grey[200],
+              enabled: false,
+              style: GemsChrome.body(size: 14),
+              decoration: gemsFieldDecoration(
+                label: 'Image description',
+                enabled: false,
               ),
             )
           ],
@@ -308,8 +316,14 @@ class _FormHState extends State<FormH> {
         ? (item.documentSrc.startsWith("http") ? item.documentSrc : "http:${item.documentSrc}")
         : null; // Handle null or empty src and ensure it has a scheme
 
-    return Card( // Wrap in a card
+    return Card(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        side: const BorderSide(color: GemsChrome.border),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -341,15 +355,21 @@ class _FormHState extends State<FormH> {
               trailing: widget.disable
                   ? null
                   : IconButton(
-                      icon: Icon(Icons.delete_outline, color: Colors.redAccent),
+                      icon: const Icon(Icons.delete_outline, color: GemsChrome.danger),
                       onPressed: () => _confirmDelete(item.ppmTaskUploadId),
                     ),
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(item.ppmTaskUploadTimestamp ?? "No timestamp", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                  SizedBox(height: 2),
-                  Text("Lat: $latitude, Lon: $longitude", style: TextStyle(fontSize: 12, color: Colors.grey[700])),
+                  Text(
+                    item.ppmTaskUploadTimestamp ?? 'No timestamp',
+                    style: GemsChrome.body(size: 13, weight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Lat: $latitude, Lon: $longitude',
+                    style: GemsChrome.body(size: 12, color: GemsChrome.textSoft),
+                  ),
                 ],
               ),
               onTap: (latitude != "N/A" && longitude != "N/A" && src != null)
@@ -358,12 +378,12 @@ class _FormHState extends State<FormH> {
             ),
             SizedBox(height: 8),
             TextField(
-              controller: TextEditingController(text: item.ppmTaskUploadDesc ?? ""), // Handle null
+              controller: TextEditingController(text: item.ppmTaskUploadDesc ?? ""),
               enabled: !widget.disable,
-              decoration: InputDecoration(
-                labelText: "Image Description",
-                border: OutlineInputBorder(),
-                hintText: "Enter description...",
+              style: GemsChrome.body(size: 14),
+              decoration: gemsFieldDecoration(
+                label: 'Image description',
+                enabled: !widget.disable,
               ),
               onChanged: (text) {
                 _notes[item.ppmTaskUploadId] = text;
@@ -385,6 +405,12 @@ class _FormHState extends State<FormH> {
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        side: const BorderSide(color: GemsChrome.border),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -409,28 +435,28 @@ class _FormHState extends State<FormH> {
                     children: [
                       Text(
                         timestamp,
-                        style: const TextStyle(fontWeight: FontWeight.w500),
+                        style: GemsChrome.body(size: 13, weight: FontWeight.w600),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         coordinates.isEmpty ? 'Location unavailable' : 'Lat/Lon: $coordinates',
-                        style: const TextStyle(color: Colors.black54, fontSize: 12),
+                        style: GemsChrome.body(size: 12, color: GemsChrome.textSoft),
                       ),
                     ],
                   ),
                 ),
                 Container(
                   decoration: BoxDecoration(
-                    color: colorTheme2.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    color: GemsChrome.warningSoft,
+                    borderRadius: BorderRadius.circular(6),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                  padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 8),
                   child: Text(
                     'Pending sync',
-                    style: TextStyle(
-                      color: colorTheme2,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
+                    style: GemsChrome.body(
+                      size: 11,
+                      weight: FontWeight.w600,
+                      color: GemsChrome.warning,
                     ),
                   ),
                 ),
@@ -439,7 +465,7 @@ class _FormHState extends State<FormH> {
             const SizedBox(height: 8),
             Text(
               item.displayName ?? 'Maintenance Image',
-              style: const TextStyle(color: Colors.black54),
+              style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
             ),
           ],
         ),

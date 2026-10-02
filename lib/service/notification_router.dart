@@ -1,5 +1,9 @@
+import 'package:GEMS/controller/PPM/Form/form_view.dart';
 import 'package:GEMS/controller/PPM/search.dart';
+import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 import 'package:GEMS/controller/WorkOrder/complaintSearch.dart';
+import 'package:GEMS/controller/WorkOrder/complaintSection_v2.dart';
+import 'package:GEMS/model/complaint.dart';
 import 'package:GEMS/model/user.dart';
 import 'package:GEMS/service/pending_notification_store.dart';
 import 'package:GEMS/utils/network.dart';
@@ -132,7 +136,20 @@ class NotificationRouter {
 
     switch (module) {
       case 'ppm':
-        if (taskNo.isNotEmpty) {
+        final ppmTaskId = data['ppm_task_id'] ?? '';
+        if (ppmTaskId.isNotEmpty) {
+          navigator.push(
+            MaterialPageRoute(
+              builder: (_) => FormView(
+                id: ppmTaskId,
+                siteName: data['site_name'] ?? '',
+                taskNo: taskNo,
+                taskStatus: data['task_status'] ?? '',
+                refresh: () {},
+              ),
+            ),
+          );
+        } else if (taskNo.isNotEmpty) {
           navigator.pushNamed(
             Search.routeName,
             arguments: SearchArguments(index: 1, initialTaskNo: taskNo),
@@ -142,7 +159,30 @@ class NotificationRouter {
         }
         break;
       case 'wo':
-        if (taskNo.isNotEmpty) {
+        final woTaskId = data['wo_task_id'] ?? '';
+        if (woTaskId.isNotEmpty) {
+          final status = data['task_status'] ?? '';
+          final type = data['wo_task_type'] ?? '';
+          final typeInit = data['wo_task_type_init'] ?? type;
+          navigator.push(
+            MaterialPageRoute(
+              builder: (_) => ComplaintSection(
+                id: woTaskId,
+                siteName: data['site_name'] ?? '',
+                taskNo: taskNo,
+                taskStatus: status,
+                viewer: false,
+                isAssign: status == 'Assign' ||
+                    status == 'Revisit' ||
+                    status == 'WR Reassign',
+                isComplaintProgress:
+                    type == 'Client Complaint' && status == 'In Progress',
+                woTaskType: typeInit,
+                woTaskCategory: '',
+              ),
+            ),
+          );
+        } else if (taskNo.isNotEmpty) {
           navigator.pushNamed(
             SearchComplaint.routeName,
             arguments: SearchComplaintArguments(initialTaskNo: taskNo),
@@ -152,7 +192,21 @@ class NotificationRouter {
         }
         break;
       case 'mr':
-        navigator.pushNamed('/workorder');
+        final requestId = data['wo_task_request_id'] ?? '';
+        final woTaskId = data['wo_task_id'] ?? '';
+        if (requestId.isNotEmpty && woTaskId.isNotEmpty) {
+          navigator.pushNamed(
+            routeMateralRequest,
+            arguments: RequestTask.fromJson({
+              'woTaskRequestId': requestId,
+              'woTaskId': woTaskId,
+              'woTaskRequestNo': taskNo,
+              'woTaskNo': data['wo_no'] ?? '',
+            }),
+          );
+        } else {
+          navigator.pushNamed('/workorder');
+        }
         break;
       case 'fca':
       default:

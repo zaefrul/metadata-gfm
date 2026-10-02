@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:toast/toast.dart';
 import '../../utils/network.dart';
 import '../../utils/reference.dart';
@@ -110,11 +111,9 @@ class _ResetPasswordState extends State<ResetPassword> {
 
     return Scaffold(
         resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-            title: title("New Password"),
-            backgroundColor: Colors.white,
-            centerTitle: true,
-            iconTheme: IconThemeData(color: colorTheme3)),
+        backgroundColor: GemsChrome.page,
+        appBar: gemsAppBar(
+            title: title("New Password")),
         body: loading
             ? Stack(
                 children: <Widget>[

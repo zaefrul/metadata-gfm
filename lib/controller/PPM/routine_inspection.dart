@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:GEMS/controller/PPM/ri_search.dart';
 
-import '../../view/bar.dart';
 import '../../view/drawer.dart';
+import '../../view/gems_chrome.dart';
 import 'ri_task_view.dart';
 
 class RoutineInspection extends StatefulWidget {
@@ -22,17 +22,14 @@ class _RoutineInspectionState extends State<RoutineInspection>
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
+      backgroundColor: GemsChrome.page,
       body: RITaskView(index: 1),
       drawer: BuildDrawer(() => Navigator.pop(context)),
-      appBar: AppBar(
-        title: Text("Routine Inspection"),
-        leading: IconButton(
-          icon: Icon(Icons.menu),
-          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-        ),
+      appBar: gemsAppBar(
+        title: const Text('Routine Inspection'),
         actions: [
           IconButton(
-            icon: Icon(Icons.search),
+            icon: const Icon(Icons.search),
             onPressed: () => Navigator.pushNamed(
               context,
               SearchRI.routeName,

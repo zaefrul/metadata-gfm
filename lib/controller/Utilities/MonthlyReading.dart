@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/Utilities/Bloc/bloc.dart';
 import 'package:GEMS/model/meter.dart';
 import 'package:photo_view/photo_view.dart';
@@ -41,9 +41,9 @@ class ListReading extends StatelessWidget {
     return DefaultTabController(
       length: 1,
       child: Scaffold(
-        appBar: AppBar(
+        backgroundColor: GemsChrome.page,
+        appBar: gemsAppBar(
           title: Text("${reading.meterLocation} : Daily Reading"),
-          backgroundColor: Colors.white,
           // Uncomment below to enable a tab bar if needed.
           // bottom: TabBar(
           //   indicatorColor: colorTheme2,
@@ -60,7 +60,7 @@ class ListReading extends StatelessWidget {
           stream: streamDaily,
           builder: (context, s) {
             if (!s.hasData) {
-              return Center(child: CircularProgressIndicator());
+              return const Center(child: CircularProgressIndicator(color: GemsChrome.primary));
             }
             final List<Reading> data = s.data!;
             return RefreshIndicator(
@@ -71,12 +71,12 @@ class ListReading extends StatelessWidget {
                   bloc.fetch(api.ReadingDE);
                 }
               },
+              color: GemsChrome.primary,
               child: ListView.separated(
-                padding: EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
                 itemCount: data.length,
                 itemBuilder: (context, i) => TileDaily(data[i], isWater: isWater),
-                separatorBuilder: (context, index) =>
-                    Divider(color: colorTheme3.withOpacity(0.7)),
+                separatorBuilder: (context, index) => const SizedBox(height: 10),
               ),
             );
           },
@@ -101,36 +101,40 @@ class TileMonthly extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(
-        "Amount : RM ${value.utilityTotalRm ?? "0.00"}",
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      subtitle: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Total(kWh) : ${value.utilityReading ?? "N/A"}"),
-            SizedBox(height: 6),
-            Text("Max Demand : ${value.utilityMaxDemand ?? "N/A"}"),
-          ],
-        ),
-      ),
-      trailing: Container(
-        height: 40,
-        width: 100,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5), color: colorTheme2),
-        child: Text(
-          "${value.month} ${value.year}",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-      ),
+    return GemsAccentCard(
+      accent: GemsChrome.primary,
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => ViewImage(url: value.utilityImage ?? ''),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Amount: RM ${value.utilityTotalRm ?? "0.00"}',
+                    style: GemsChrome.body(size: 15, weight: FontWeight.w600),
+                  ),
+                ),
+                _dateChip('${value.month} ${value.year}'),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Total (kWh): ${value.utilityReading ?? "N/A"}',
+              style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Max demand: ${value.utilityMaxDemand ?? "N/A"}',
+              style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+            ),
+          ],
         ),
       ),
     );
@@ -144,42 +148,65 @@ class TileDaily extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(
-        "Consumption : ${value.utilityReading ?? "N/A"}",
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      subtitle: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Timestamp : ${value.time}"),
-            SizedBox(height: 6),
-            Text("By : ${value.utilityRecordedBy ?? "Unknown"}"),
-            if (isWater) SizedBox(height: 6),
-            if (isWater) Text("Submission Shift : ${value.utilityShift ?? ""}"),
-          ],
-        ),
-      ),
-      trailing: Container(
-        height: 40,
-        width: 100,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5), color: colorTheme2),
-        child: Text(
-          "${value.day} ${value.month} ${value.year}",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-      ),
+    return GemsAccentCard(
+      accent: GemsChrome.primary,
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => ViewImage(url: value.utilityImage ?? ''),
         ),
       ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Consumption: ${value.utilityReading ?? "N/A"}',
+                    style: GemsChrome.body(size: 15, weight: FontWeight.w600),
+                  ),
+                ),
+                _dateChip('${value.day} ${value.month} ${value.year}'),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Timestamp: ${value.time}',
+              style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'By: ${value.utilityRecordedBy ?? "Unknown"}',
+              style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+            ),
+            if (isWater) ...[
+              const SizedBox(height: 4),
+              Text(
+                'Submission shift: ${value.utilityShift ?? ""}',
+                style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
+}
+
+Widget _dateChip(String label) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+    decoration: BoxDecoration(
+      color: GemsChrome.primarySoft,
+      borderRadius: BorderRadius.circular(20),
+    ),
+    child: Text(
+      label,
+      style: GemsChrome.body(size: 12, weight: FontWeight.w600, color: GemsChrome.primary),
+    ),
+  );
 }
 
 class ViewImage extends StatelessWidget {
@@ -190,7 +217,8 @@ class ViewImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("View Image")),
+      backgroundColor: Colors.black,
+      appBar: gemsAppBar(title: const Text('View Image')),
       body: Container(child: PhotoView(imageProvider: NetworkImage(url))),
     );
   }

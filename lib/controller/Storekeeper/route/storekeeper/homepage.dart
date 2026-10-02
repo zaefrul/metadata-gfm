@@ -8,6 +8,7 @@ import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 import 'package:GEMS/controller/Storekeeper/utils/widget/FAB.dart';
 import 'package:GEMS/controller/ReturnItem/bloc/bloc_return.dart';
 import 'package:GEMS/view/drawer.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 
 import 'dashboard.dart';
 import 'list_checkout.dart';
@@ -40,16 +41,13 @@ class _HomepageState extends State<Homepage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return bloc == null
-        ? Scaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.white,
-              title: const Text("Inventory"),
-              centerTitle: true,
-            ),
-            body: Container(child: const Center(child: CircularProgressIndicator())),
+        ? const Scaffold(
+            backgroundColor: GemsChrome.page,
+            body: Center(child: CircularProgressIndicator(color: GemsChrome.primary)),
           )
         : Scaffold(
             key: _scaffoldKey,
+            backgroundColor: GemsChrome.page,
             appBar: PreferredSize(
               preferredSize: const Size.fromHeight(60),
               child: _AppBar(bloc, _scaffoldKey),
@@ -70,13 +68,18 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      iconTheme: const IconThemeData(color: GemsChrome.text),
+      titleTextStyle: GemsChrome.heading(size: 18),
+      shape: const Border(bottom: BorderSide(color: GemsChrome.border)),
       title: StreamBuilder<String>(
         stream: _bloc.view$.cast<String>(),
         builder: (ctx, snapshot) =>
-            Tab(text: "Inventory - ${snapshot.data?.toString() ?? ""}"),
+            Text('Inventory - ${snapshot.data?.toString() ?? ''}'),
       ),
-      backgroundColor: Colors.white,
-      centerTitle: true,
       leading: leading(_key),
       actions: [
         _ReturnsBadge(),
@@ -87,7 +90,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
 
   Widget leading(GlobalKey<ScaffoldState> key) {
     return IconButton(
-      icon: Image.asset("assets/icon_trans.png", height: 30, width: 30),
+      icon: const Icon(Icons.menu, color: GemsChrome.text),
       padding: const EdgeInsets.all(14),
       onPressed: () => key.currentState?.openDrawer(),
     );
@@ -114,8 +117,8 @@ class _Body extends StatelessWidget {
           _Header(_bloc),
           Container(
             width: double.infinity,
-            color: colorTheme3,
-            height: 0.5,
+            color: GemsChrome.border,
+            height: 1,
           ),
           TaskList(_bloc),
         ],
@@ -206,14 +209,15 @@ class _FloatingButton extends StatelessWidget {
           if (snapshot.data == "My Check In")
             FloatingActionButton(
               heroTag: "Submit",
-              child: const Icon(Icons.add),
+              backgroundColor: GemsChrome.primary,
+              child: const Icon(Icons.add, color: Colors.white),
               onPressed: () =>
                   Navigator.pushNamed(context, routeMaterialCheckinRequest),
             ),
           if (snapshot.data == "My Check In") const SizedBox(width: 12),
           FloatingActionButton(
             heroTag: "FAB",
-            backgroundColor: colorTheme1,
+            backgroundColor: GemsChrome.primary,
             onPressed: () {
               Navigator.push(
                 context,
@@ -232,7 +236,7 @@ class _FloatingButton extends StatelessWidget {
                 }
               });
             },
-            child: const Icon(Icons.menu),
+            child: const Icon(Icons.menu, color: Colors.white),
           ),
         ],
       ),
@@ -274,7 +278,7 @@ class _ReturnsBadgeState extends State<_ReturnsBadge> {
             children: [
               const Icon(
                 Icons.assignment_return,
-                color: colorTheme1,
+                color: GemsChrome.primary,
                 size: 28,
               ),
               if (count > 0)
@@ -284,7 +288,7 @@ class _ReturnsBadgeState extends State<_ReturnsBadge> {
                   child: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: Colors.red,
+                      color: GemsChrome.danger,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     constraints: const BoxConstraints(

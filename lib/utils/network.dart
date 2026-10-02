@@ -409,6 +409,7 @@ class Provider {
     required String url,
     dynamic body,
     bool includedHeader = true,
+    bool returnRaw = false,
   }) async {
     var action = "";
     if (body != null && body is Map && body["action"] != null) {
@@ -441,6 +442,15 @@ class Provider {
           decode["error"] == "Device ID invalid with this login" ||
           decode["error"] == "Expired token") {
         alert("Your session already expired, please relogin.");
+      }
+
+      if (returnRaw) {
+        if (decode['success'] == true) {
+          return decode;
+        }
+        final message = decode['errmsg'];
+        return Future.error(
+            message is String && message.isNotEmpty ? message : 'Submit failed');
       }
 
       ResponseValue responseValue = serializers.deserializeWith(

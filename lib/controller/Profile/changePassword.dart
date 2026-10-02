@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:toast/toast.dart';
 
-import '../../utils/reference.dart';
-import '../../view/button.dart';
-import '../../view/field.dart';
 import '../../view/dialog.dart';
 import '../../main.dart';
 
@@ -59,87 +57,95 @@ class _ChangeState extends State<Change> {
       else
         action;
 
-      Toast.show(text, backgroundColor: colorTheme3);
+      Toast.show(text, backgroundColor: GemsChrome.text);
     }
 
-    var body = Column(
-      children: <Widget>[
-        SizedBox(height: 40),
-        Image.asset(
-          "assets/changepassword.png",
-          height: 100,
+    Widget passwordField({
+      required String label,
+      required bool hidden,
+      required ValueChanged<String> onChanged,
+      required VoidCallback onToggle,
+    }) {
+      return TextField(
+        obscureText: hidden,
+        style: GemsChrome.body(size: 14),
+        onChanged: onChanged,
+        decoration: gemsFieldDecoration(label: label).copyWith(
+          suffixIcon: IconButton(
+            onPressed: onToggle,
+            icon: Icon(
+              hidden ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+              color: GemsChrome.textSoft,
+            ),
+          ),
         ),
-        SizedBox(height: 30),
-        title("Enter your new password below, we're just being extra safe",
-            size: 16),
-        SizedBox(height: 30),
-        field("Old Password", (text) {
-          oldPassword = text;
-        },
-            secure: viewOld,
-            rightIcon: GestureDetector(
-              child:
-                  viewOld ? Icon(Icons.visibility) : Icon(Icons.visibility_off),
-              onTap: () {
-                setState(() {
-                  viewOld = !viewOld;
-                });
-              },
-            )),
-        field("New Password", (text) {
-          newPassword = text;
-        },
-            secure: viewNew,
-            rightIcon: GestureDetector(
-              child:
-                  viewNew ? Icon(Icons.visibility) : Icon(Icons.visibility_off),
-              onTap: () {
-                setState(() {
-                  viewNew = !viewNew;
-                });
-              },
-            )),
-        field("Confirm New Password", (text) {
-          confirmPassword = text;
-        },
-            secure: viewConfirm,
-            rightIcon: GestureDetector(
-              child: viewConfirm
-                  ? Icon(Icons.visibility)
-                  : Icon(Icons.visibility_off),
-              onTap: () {
-                setState(() {
-                  viewConfirm = !viewConfirm;
-                });
-              },
-            )),
-        SizedBox(height: 80),
-        SizedBox(
-            width: 200,
-            height: 50,
-            child: Button(
-              text: "Done",
-              onPressed: pressed,
-              color: colorTheme2,
-            ))
-      ],
+      );
+    }
+
+    var body = SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: <Widget>[
+          GemsFormSection(
+            title: 'New password',
+            icon: Icons.lock_outline,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Enter your new password below, we're just being extra safe",
+                  style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+                ),
+                const SizedBox(height: 14),
+                passwordField(
+                  label: 'Old password',
+                  hidden: viewOld,
+                  onChanged: (text) => oldPassword = text,
+                  onToggle: () => setState(() => viewOld = !viewOld),
+                ),
+                const SizedBox(height: 12),
+                passwordField(
+                  label: 'New password',
+                  hidden: viewNew,
+                  onChanged: (text) => newPassword = text,
+                  onToggle: () => setState(() => viewNew = !viewNew),
+                ),
+                const SizedBox(height: 12),
+                passwordField(
+                  label: 'Confirm new password',
+                  hidden: viewConfirm,
+                  onChanged: (text) => confirmPassword = text,
+                  onToggle: () => setState(() => viewConfirm = !viewConfirm),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          FilledButton(
+            style: gemsPrimaryButton(),
+            onPressed: loading ? null : pressed,
+            child: Text(
+              'Save',
+              style: GemsChrome.body(weight: FontWeight.w600, color: Colors.white),
+            ),
+          ),
+        ],
+      ),
     );
 
     return Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-            title: title("Change Password"),
-            backgroundColor: Colors.white,
-            centerTitle: true,
-            iconTheme: IconThemeData(color: colorTheme3)),
+        resizeToAvoidBottomInset: true,
+        backgroundColor: GemsChrome.page,
+        appBar: gemsAppBar(
+            title: const Text('Change Password')),
         body: loading
             ? Stack(
                 children: <Widget>[
                   body,
                   Container(
                     color: Colors.black.withOpacity(0.5),
-                    child: Center(
-                      child: CircularProgressIndicator(),
+                    child: const Center(
+                      child: CircularProgressIndicator(color: GemsChrome.primary),
                     ),
                   )
                 ],
@@ -149,10 +155,7 @@ class _ChangeState extends State<Change> {
 
   Widget title(text, {double size = 30.0}) => Text(text,
       textAlign: TextAlign.center,
-      style: TextStyle(
-        color: colorTheme3,
-        fontWeight: FontWeight.bold,
-      ));
+      style: GemsChrome.heading(size: size > 20 ? 18 : 14));
 
   Widget info() => Container(
           child: Column(children: <Widget>[

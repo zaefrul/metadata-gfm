@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:GEMS/utils/network.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:rxdart/rxdart.dart';
 import '../../../../main.dart';
 
@@ -34,48 +35,21 @@ class MyDashboard extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
             children: <Widget>[
-              Card(
-                elevation: 6,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                  child: Table(
-                    columnWidths: const {0: FractionColumnWidth(0.5)},
-                    children: <TableRow>[
-                      row("TOTAL ITEM : ", totalItem.toString()),
-                      row("TOTAL QUANTITY : ", totalPartQuantity.toString()),
-                      row("TOTAL STORE : ", totalStore.toString()),
-                    ],
-                  ),
-                ),
-              ),
+              _card(<TableRow>[
+                row("TOTAL ITEM : ", totalItem.toString()),
+                row("TOTAL QUANTITY : ", totalPartQuantity.toString()),
+                row("TOTAL STORE : ", totalStore.toString()),
+              ]),
               const SizedBox(height: 12),
-              Card(
-                elevation: 6,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                  child: Table(
-                    columnWidths: const {0: FractionColumnWidth(0.5)},
-                    children: <TableRow>[
-                      row("TOTAL VALUE : ", "RM $totalValue"),
-                    ],
-                  ),
-                ),
-              ),
+              _card(<TableRow>[
+                row("TOTAL VALUE : ", "RM $totalValue"),
+              ]),
               const SizedBox(height: 12),
-              Card(
-                elevation: 6,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                  child: Table(
-                    columnWidths: const {0: FractionColumnWidth(0.5)},
-                    children: <TableRow>[
-                      row("LOW STOCK : ", "$totalLow Item(s)"),
-                      row("LOCKED STOCK : ", "$totalPartLocked Item(s)"),
-                      row("AVAILABLE : ", "$totalPartAvailable Item(s)"),
-                    ],
-                  ),
-                ),
-              ),
+              _card(<TableRow>[
+                row("LOW STOCK : ", "$totalLow Item(s)"),
+                row("LOCKED STOCK : ", "$totalPartLocked Item(s)"),
+                row("AVAILABLE : ", "$totalPartAvailable Item(s)"),
+              ]),
             ],
           ),
         );
@@ -105,6 +79,34 @@ class MyDashboard extends StatelessWidget {
     });
   }
 
+  Widget _card(List<TableRow> rows) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(GemsChrome.radius),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(GemsChrome.radius),
+          border: Border.all(color: GemsChrome.border),
+        ),
+        child: Column(
+          children: [
+            const ColoredBox(
+              color: GemsChrome.teal,
+              child: SizedBox(height: 3, width: double.infinity),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Table(
+                columnWidths: const {0: FractionColumnWidth(0.5)},
+                children: rows,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   TableRow row(String title, String value) {
     return TableRow(
       children: [
@@ -113,14 +115,14 @@ class MyDashboard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Text(
               title,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: GemsChrome.body(weight: FontWeight.w600, color: GemsChrome.textSoft),
             ),
           ),
         ),
         TableCell(
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Text(value),
+            child: Text(value, style: GemsChrome.body(weight: FontWeight.w600)),
           ),
         ),
       ],

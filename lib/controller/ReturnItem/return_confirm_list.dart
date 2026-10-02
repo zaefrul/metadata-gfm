@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/ReturnItem/bloc/bloc_return.dart';
 import 'package:GEMS/model/return_ticket_models.dart';
-import 'package:GEMS/utils/reference.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:toast/toast.dart';
 import 'package:intl/intl.dart';
 
@@ -33,11 +32,11 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgDefault,
-      appBar: AppBar(
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         title: Row(
           children: [
-            Text('Pending Returns', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+            Text('Pending Returns', style: GemsChrome.heading(size: 18)),
             SizedBox(width: 8),
             StreamBuilder<int>(
               stream: _bloc.pendingCount$,
@@ -48,15 +47,15 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
                 return Container(
                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.danger,
+                    color: GemsChrome.danger,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     count.toString(),
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.white,
+                    style: GemsChrome.body(
+                      size: 12,
+                      weight: FontWeight.w700,
+                      color: Colors.white,
                     ),
                   ),
                 );
@@ -64,9 +63,6 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
             ),
           ],
         ),
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        foregroundColor: AppColors.onPrimary,
       ),
       body: StreamBuilder<String>(
         stream: _bloc.err$,
@@ -86,7 +82,7 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
                 stream: _bloc.pendingReturns$,
                 builder: (context, snapshot) {
                   if (isLoading && (!snapshot.hasData || snapshot.data!.isEmpty)) {
-                    return Center(child: CircularProgressIndicator(color: AppColors.primary));
+                    return const Center(child: CircularProgressIndicator(color: GemsChrome.primary));
                   }
                   
                   List<ReturnTicketSummary> returns = snapshot.data ?? [];
@@ -97,7 +93,7 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
                   
                   return RefreshIndicator(
                     onRefresh: _refresh,
-                    color: AppColors.primary,
+                    color: GemsChrome.primary,
                     child: ListView.builder(
                       padding: EdgeInsets.all(16),
                       itemCount: returns.length,
@@ -120,16 +116,16 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.check_circle_outline, size: 80, color: AppColors.success),
-          SizedBox(height: 16),
+          const Icon(Icons.check_circle_outline, size: 64, color: GemsChrome.success),
+          const SizedBox(height: 16),
           Text(
-            'All Caught Up!',
-            style: GoogleFonts.poppins(fontSize: 18, color: AppColors.gray600, fontWeight: FontWeight.w500),
+            'All caught up',
+            style: GemsChrome.heading(size: 18),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'No pending returns to confirm',
-            style: GoogleFonts.poppins(fontSize: 14, color: AppColors.gray500),
+            style: GemsChrome.body(color: GemsChrome.textSoft),
           ),
         ],
       ),
@@ -147,52 +143,34 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
     final String workOrderLabel =
       ticket.woTaskNo.isNotEmpty ? ticket.woTaskNo : 'Work Order Pending';
     final DateTime? submitted = ticket.submittedAt;
-    return Card(
-      margin: EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => _navigateToDetail(ticket.returnTicketId),
-        child: Padding(
-          padding: EdgeInsets.all(16),
+    return GemsAccentCard(
+      margin: const EdgeInsets.only(bottom: 10),
+      accent: _getPriorityColor(submitted),
+      onTap: () => _navigateToDetail(ticket.returnTicketId),
+      child: Padding(
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header with priority indicator
               Row(
                 children: [
-                  Container(
-                    width: 4,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: _getPriorityColor(submitted),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           workOrderLabel,
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
-                          ),
+                          style: GemsChrome.body(size: 15, weight: FontWeight.w600),
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
                           subtitle,
-                          style: GoogleFonts.poppins(
-                              fontSize: 12, color: AppColors.textSecondary),
+                          style: GemsChrome.body(size: 12, color: GemsChrome.textSoft),
                         ),
                       ],
                     ),
                   ),
-                  Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.gray400),
+                  const Icon(Icons.chevron_right, size: 20, color: GemsChrome.muted),
                 ],
               ),
               SizedBox(height: 12),
@@ -201,12 +179,12 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
               Container(
                 padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColors.primary50,
+                  color: GemsChrome.primarySoft,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.person, size: 16, color: AppColors.primary),
+                    const Icon(Icons.person_outline, size: 16, color: GemsChrome.primary),
                     SizedBox(width: 8),
                     Expanded(
                       child: Column(
@@ -214,19 +192,11 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
                         children: [
                           Text(
                             ticket.siteName,
-                            style: GoogleFonts.poppins(
-                              fontSize: 10,
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: GemsChrome.body(size: 11, weight: FontWeight.w500, color: GemsChrome.primary),
                           ),
                           Text(
                             ticket.technicianName,
-                            style: GoogleFonts.poppins(
-                              fontSize: 13,
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: GemsChrome.body(size: 13, weight: FontWeight.w600),
                           ),
                         ],
                       ),
@@ -264,26 +234,26 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.schedule, size: 14, color: AppColors.gray500),
-                      SizedBox(width: 4),
+                      const Icon(Icons.schedule, size: 14, color: GemsChrome.muted),
+                      const SizedBox(width: 4),
                       Text(
                         'Submitted: ${_formatDate(submitted)}',
-                        style: GoogleFonts.poppins(fontSize: 11, color: AppColors.gray600),
+                        style: GemsChrome.body(size: 11, color: GemsChrome.textSoft),
                       ),
                     ],
                   ),
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppColors.warningLight,
+                      color: GemsChrome.warningSoft,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       _getTimeAgo(submitted),
-                      style: GoogleFonts.poppins(
-                        fontSize: 10,
-                        color: AppColors.warningDark,
-                        fontWeight: FontWeight.w600,
+                      style: GemsChrome.body(
+                        size: 11,
+                        weight: FontWeight.w600,
+                        color: GemsChrome.warning,
                       ),
                     ),
                   ),
@@ -292,7 +262,6 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
             ],
           ),
         ),
-      ),
     );
   }
   
@@ -304,45 +273,37 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
       children: [
         Text(
           'Work Order',
-          style: GoogleFonts.poppins(fontSize: 11, color: AppColors.gray600),
+          style: GemsChrome.body(size: 11, color: GemsChrome.textSoft),
         ),
         SizedBox(height: 4),
         Container(
           width: double.infinity,
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
-            color: AppColors.primary50,
+            color: GemsChrome.primarySoft,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
             wo,
-            style: GoogleFonts.poppins(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppColors.primary,
-            ),
+            style: GemsChrome.body(size: 13, weight: FontWeight.w600, color: GemsChrome.primary),
           ),
         ),
         SizedBox(height: 10),
         Text(
           'Material Request',
-          style: GoogleFonts.poppins(fontSize: 11, color: AppColors.gray600),
+          style: GemsChrome.body(size: 11, color: GemsChrome.textSoft),
         ),
         SizedBox(height: 4),
         Container(
           width: double.infinity,
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
-            color: AppColors.primary50,
+            color: GemsChrome.primarySoft,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
             mr,
-            style: GoogleFonts.poppins(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppColors.primary,
-            ),
+            style: GemsChrome.body(size: 13, weight: FontWeight.w600, color: GemsChrome.primary),
           ),
         ),
       ],
@@ -354,8 +315,8 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
     required String value,
     required IconData icon,
   }) {
-    final Color bgColor = AppColors.primary50;
-    final Color iconColor = AppColors.primary;
+    const Color bgColor = GemsChrome.primarySoft;
+    const Color iconColor = GemsChrome.primary;
     return Container(
       padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -372,18 +333,11 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.poppins(
-                    fontSize: 10,
-                    color: iconColor.withOpacity(0.8),
-                  ),
+                  style: GemsChrome.body(size: 11, color: GemsChrome.textSoft),
                 ),
                 Text(
                   value,
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: iconColor,
-                  ),
+                  style: GemsChrome.body(size: 12, weight: FontWeight.w700, color: iconColor),
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -395,11 +349,11 @@ class _ReturnConfirmListState extends State<ReturnConfirmList> {
   }
   
   Color _getPriorityColor(DateTime? date) {
-    if (date == null) return AppColors.gray400;
+    if (date == null) return GemsChrome.muted;
     final diff = DateTime.now().difference(date);
-    if (diff.inHours < 24) return AppColors.success;
-    if (diff.inDays < 3) return AppColors.warning;
-    return AppColors.danger;
+    if (diff.inHours < 24) return GemsChrome.success;
+    if (diff.inDays < 3) return GemsChrome.warning;
+    return GemsChrome.danger;
   }
 
   String _formatDate(DateTime? date) {

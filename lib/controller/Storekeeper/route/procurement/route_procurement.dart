@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/Storekeeper/route/procurement/route_purchase_ordering.dart';
 import 'package:GEMS/controller/Storekeeper/route/procurement/route_purchase_orders.dart';
 import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc_procurement.dart';
@@ -30,6 +31,7 @@ class _ProcumentHomepageState extends State<ProcumentHomepage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: GemsChrome.page,
       appBar: _AppBar(_controller),
       body: _Body(_controller),
     );
@@ -43,25 +45,29 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: Text("Purchase Ordering"),
       backgroundColor: Colors.white,
-      centerTitle: true,
-      leading: leading,
+      surfaceTintColor: Colors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      iconTheme: const IconThemeData(color: GemsChrome.text),
+      titleTextStyle: GemsChrome.heading(size: 18),
+      title: const Text('Purchase Ordering'),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => Navigator.maybePop(context),
+      ),
       actions: <Widget>[_SearchButton(), SizedBox(width: 6)],
       bottom: bottom,
     );
   }
 
-  Widget get leading {
-    return Container(
-      padding: EdgeInsets.all(14),
-      child: Image.asset("assets/icon_trans.png", height: 30, width: 30),
-    );
-  }
-
   PreferredSizeWidget get bottom {
     return TabBar(
-      labelColor: colorTheme3,
+      labelColor: GemsChrome.primary,
+      unselectedLabelColor: GemsChrome.textSoft,
+      indicatorColor: GemsChrome.teal,
+      indicatorWeight: 3,
+      dividerColor: GemsChrome.border,
       controller: _controller,
       tabs: <Widget>[
         Tab(text: "My Purchase Orders"),

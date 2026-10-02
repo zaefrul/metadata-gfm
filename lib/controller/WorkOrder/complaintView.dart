@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:GEMS/data/repository/work_order_repository.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 
 import 'complaintList.dart';
 
@@ -28,30 +29,31 @@ class _OfflineNotice extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange.shade200),
+        color: GemsChrome.warningSoft,
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        border: Border.all(color: GemsChrome.border),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Row(
         children: [
-          const Icon(Icons.wifi_off, color: Colors.orange, size: 20),
-          const SizedBox(width: 12),
-          const Expanded(
+          const Icon(Icons.wifi_off, color: GemsChrome.warning, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
             child: Text(
               "You're viewing offline data. Reconnect and pull to refresh to get the latest updates.",
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.black87,
-                height: 1.3,
-              ),
+              style: GemsChrome.body(size: 12, color: GemsChrome.text),
             ),
           ),
           TextButton(
-            onPressed: () {
-              onRetry();
-            },
-            child: const Text('Retry'),
+            onPressed: onRetry,
+            child: Text(
+              'Retry',
+              style: GemsChrome.body(
+                size: 13,
+                weight: FontWeight.w600,
+                color: GemsChrome.primary,
+              ),
+            ),
           ),
         ],
       ),
@@ -152,7 +154,9 @@ class ComplaintViewState extends State<ComplaintView> {
   }
 
   Widget get _filter => DropdownButton<String>(
-        underline: Container(),
+        isExpanded: true,
+        underline: const SizedBox.shrink(),
+        style: GemsChrome.body(size: 13),
         value: dropdownValue,
         onChanged: (String? newValue) {
           setState(() {
@@ -173,13 +177,15 @@ class ComplaintViewState extends State<ComplaintView> {
         ].map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
             value: value,
-            child: Text(value),
+            child: Text(value, overflow: TextOverflow.ellipsis),
           );
         }).toList(),
       );
 
   Widget get _filterType => DropdownButton<String>(
-        underline: Container(),
+        isExpanded: true,
+        underline: const SizedBox.shrink(),
+        style: GemsChrome.body(size: 13),
         value: dropdownType,
         onChanged: (String? newValue) {
           setState(() {
@@ -194,31 +200,43 @@ class ComplaintViewState extends State<ComplaintView> {
         ].map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
             value: value,
-            child: Text(value),
+            child: Text(value, overflow: TextOverflow.ellipsis),
           );
         }).toList(),
       );
 
+  Widget _filterBox(Widget child) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        border: Border.all(color: GemsChrome.border),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: child,
+      ),
+    );
+  }
+
   Widget get _header => Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: widget.headers == null
-            ? <Widget>[
-                _filter,
-                _filterType,
-              ]
-            : <Widget>[
-                _filter,
-                _filterType,
-                widget.headers!,
-              ],
+        children: [
+          Expanded(child: _filterBox(_filter)),
+          const SizedBox(width: 8),
+          Expanded(child: _filterBox(_filterType)),
+          if (widget.headers != null) ...[
+            const SizedBox(width: 8),
+            widget.headers!,
+          ],
+        ],
       );
 
   @override
   Widget build(BuildContext context) {
-    Widget loadingWidget = Container(
-      color: Colors.black.withValues(alpha: 0.3),
-      child: const Center(
-        child: CircularProgressIndicator(),
+    const Widget loadingWidget = ColoredBox(
+      color: GemsChrome.page,
+      child: Center(
+        child: CircularProgressIndicator(color: GemsChrome.primary),
       ),
     );
 
@@ -235,10 +253,10 @@ class ComplaintViewState extends State<ComplaintView> {
           else
             const SizedBox(height: 12),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: _header,
           ),
-          const Divider(),
+          const SizedBox(height: 8),
           Expanded(
             child: ComplaintList(
               list: value,

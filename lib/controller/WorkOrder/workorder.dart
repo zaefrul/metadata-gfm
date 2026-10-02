@@ -3,9 +3,8 @@ import 'package:GEMS/controller/WorkOrder/complaintSearch.dart';
 import 'package:GEMS/controller/WorkOrder/complaintView.dart';
 import 'package:GEMS/main.dart';
 import 'package:GEMS/model/user.dart';
-import 'package:GEMS/utils/reference.dart';
-import 'package:GEMS/view/bar.dart';
 import 'package:GEMS/view/drawer.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 
 import 'complaintForm.dart';
 import 'mrRequest.dart';
@@ -78,8 +77,12 @@ class _WorkOrderState extends State<WorkOrderView> with TickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     if (_tabController == null) {
-      return Scaffold(
-          body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        backgroundColor: GemsChrome.page,
+        body: Center(
+          child: CircularProgressIndicator(color: GemsChrome.primary),
+        ),
+      );
     }
 
     TabBarView barview = TabBarView(
@@ -93,50 +96,73 @@ class _WorkOrderState extends State<WorkOrderView> with TickerProviderStateMixin
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar: bar(
-        _scaffoldKey,
-        isSupervisor: isSupervisor,
-        text: "Work Order",
-        search: true,
-        tabtitle: "My Complaint",
-        controller: _tabController!,
-        onTap: () {
-          var url = _tabController!.index == 0 ? selfFindingURL : myTaskURL;
-          Navigator.pushNamed(
-            context,
-            "/search_complaint",
-            arguments: SearchComplaintArguments(
-              url: url,
-              index: _tabController!.index,
-            ),
-          );
-        },
-      ) as PreferredSizeWidget?,
+      backgroundColor: GemsChrome.page,
       drawer: BuildDrawer(() => Navigator.pop(context)),
-      body: LayoutBuilder(
-          builder: (context, constraints) => barview),
+      appBar: _workOrderBar(),
+      body: barview,
+    );
+  }
+
+  PreferredSizeWidget _workOrderBar() {
+    return AppBar(
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      leading: IconButton(
+        icon: const Icon(Icons.menu, color: GemsChrome.text),
+        onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+      ),
+      title: Text('Work Order', style: GemsChrome.heading(size: 20)),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.search, color: GemsChrome.text),
+          onPressed: () {
+            final index = _tabController!.index;
+            final url = index == 0 ? selfFindingURL : myTaskURL;
+            Navigator.pushNamed(
+              context,
+              "/search_complaint",
+              arguments: SearchComplaintArguments(url: url, index: index),
+            );
+          },
+        ),
+      ],
+      bottom: TabBar(
+        controller: _tabController,
+        labelColor: GemsChrome.primary,
+        unselectedLabelColor: GemsChrome.textSoft,
+        indicatorColor: GemsChrome.teal,
+        indicatorWeight: 3,
+        dividerColor: GemsChrome.border,
+        labelStyle: GemsChrome.body(size: 13, weight: FontWeight.w600),
+        unselectedLabelStyle: GemsChrome.body(size: 13, weight: FontWeight.w500),
+        tabs: [
+          const Tab(text: 'My Complaint'),
+          const Tab(text: 'My Task'),
+          if (isSupervisor) const Tab(text: 'MR Approval'),
+        ],
+      ),
     );
   }
 
   Widget get _addComplaint {
-    Text text(String word) => Text(
-          word,
-          style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 24),
-        );
-
-    return GestureDetector(
-      child: Container(
-          padding: EdgeInsets.all(6),
-          decoration: BoxDecoration(
-              shape: BoxShape.circle, color: colorTheme2),
-          child: text("+")),
-      onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => FormComplaint()));
-      },
+    return Material(
+      color: GemsChrome.primary,
+      borderRadius: BorderRadius.circular(GemsChrome.radius),
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => FormComplaint()),
+          );
+        },
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        child: const SizedBox(
+          width: 40,
+          height: 40,
+          child: Icon(Icons.add, color: Colors.white, size: 22),
+        ),
+      ),
     );
   }
 }

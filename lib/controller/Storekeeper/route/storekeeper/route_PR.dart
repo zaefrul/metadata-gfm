@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 import 'package:toast/toast.dart';
 
@@ -13,10 +14,9 @@ class _PurchaseRequestState extends State<PurchaseRequest> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Purchase Requisition Form"),
-        backgroundColor: Colors.white,
-        centerTitle: true,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('Purchase Requisition Form'),
       ),
       body: SingleChildScrollView(
         child: Column(

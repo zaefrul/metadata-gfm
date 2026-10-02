@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 import 'package:GEMS/controller/Utilities/Bloc/bloc.dart';
 import 'package:GEMS/model/meter.dart';
 import 'package:GEMS/view/drawer.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:toast/toast.dart';
 import 'util.dart';
 import 'MonthlyReading.dart' as page;
@@ -42,31 +42,24 @@ class _UtilitiesHomeState extends State<UtilitiesHome> {
       length: 2,
       child: Scaffold(
         key: _scaffoldKey,
-        appBar: AppBar(
-          title: Text(
-            "Utilities",
-            style: TextStyle(color: colorTheme3),
-          ),
-          backgroundColor: Colors.white,
-          centerTitle: true,
+        backgroundColor: GemsChrome.page,
+        appBar: gemsAppBar(
+          title: const Text('Utilities'),
           actions: [
             _BuildAddButton(onRefresh: () {
               bloc.fetch(api.ReadingE);
               bloc.fetch(api.ReadingW);
             })
           ],
-          leading: IconButton(
-            icon: Image.asset("assets/icon_trans.png", width: 30.0),
-            color: Colors.black,
-            onPressed: () {
-              _scaffoldKey.currentState!.openDrawer();
-            },
-          ),
           bottom: TabBar(
-            indicatorColor: colorTheme2,
-            tabs: [
-              Tab(icon: Image.asset("assets/drop.png", width: 24.0)),
-              Tab(icon: Image.asset("assets/flash.png", width: 24.0)),
+            indicatorColor: GemsChrome.teal,
+            indicatorWeight: 3,
+            labelColor: GemsChrome.primary,
+            unselectedLabelColor: GemsChrome.textSoft,
+            dividerColor: GemsChrome.border,
+            tabs: const [
+              Tab(icon: Icon(Icons.water_drop_outlined)),
+              Tab(icon: Icon(Icons.bolt_outlined)),
             ],
           ),
         ),
@@ -119,14 +112,15 @@ class ListReading extends StatelessWidget {
       stream: stream,
       builder: (_, snapshot) {
         if (!snapshot.hasData) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator(color: GemsChrome.primary));
         }
         final meters = snapshot.data!;
         return RefreshIndicator(
           onRefresh: () async =>
               isWater ? bloc.fetch(api.MetersW) : bloc.fetch(api.MetersE),
+          color: GemsChrome.primary,
           child: ListView.separated(
-            padding: EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
             itemBuilder: (_, i) => TileMeter(
               bloc,
               meters[i],
@@ -134,8 +128,7 @@ class ListReading extends StatelessWidget {
               isElectric: isElectric,
             ),
             itemCount: meters.length,
-            separatorBuilder: (_, __) =>
-                Divider(color: colorTheme3.withOpacity(0.7)),
+            separatorBuilder: (_, __) => const SizedBox(height: 10),
           ),
         );
       },
@@ -165,38 +158,8 @@ class TileMeter extends StatelessWidget {
     } else if (isElectric) {
       readingType = "kWh";
     }
-    return ListTile(
-      title: Text(
-        value.meterName,
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      subtitle: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Monthly Total(RM) : ${value.monthlyTotalRm ?? "N/A"}"),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 4),
-              child: Text("Daily Total($readingType) : ${value.dailyLatestReading ?? "N/A"}"),
-            ),
-            Text("Reading($readingType) : ${value.dailyLatestReading ?? "N/A"}"),
-          ],
-        ),
-      ),
-      trailing: Container(
-        height: 40,
-        width: 120,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-          color: colorTheme2,
-        ),
-        child: Text(
-          value.meterLocation,
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-      ),
+    return GemsAccentCard(
+      accent: GemsChrome.primary,
       onTap: () {
         bloc.sMeter = value;
         Navigator.push(
@@ -211,6 +174,58 @@ class TileMeter extends StatelessWidget {
           ),
         );
       },
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    value.meterName,
+                    style: GemsChrome.body(size: 15, weight: FontWeight.w600),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: GemsChrome.primarySoft,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      value.meterLocation,
+                      overflow: TextOverflow.ellipsis,
+                      style: GemsChrome.body(
+                        size: 12,
+                        weight: FontWeight.w600,
+                        color: GemsChrome.primary,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Monthly total (RM): ${value.monthlyTotalRm ?? "N/A"}',
+              style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Daily total ($readingType): ${value.dailyLatestReading ?? "N/A"}',
+              style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Reading ($readingType): ${value.dailyLatestReading ?? "N/A"}',
+              style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

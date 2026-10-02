@@ -9,6 +9,7 @@ import 'package:GEMS/data/repository/ppm_repository.dart';
 import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/services.dart';
 import 'package:GEMS/view/dialog.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:toast/toast.dart';
 import 'package:GEMS/controller/PPM/pending_sync.dart';
 import 'package:GEMS/controller/PPM/widgets/pending_sync_banner.dart';
@@ -125,24 +126,16 @@ class _FormAState extends State<FormA> {
     ToastContext().init(context);
     provider.context = context;
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(
-          color: colorTheme3,
-        ),
-        title: getTitle("A. Asset Details", bold: true),
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('A. Asset Details'),
         actions: widget.viewer || verified
             ? null
-            : <Widget>[
-                GestureDetector(
-                  onTap: scan,
-                  child: Icon(
-                    Icons.camera,
-                    color: colorTheme3,
-                    size: 30,
-                  ),
+            : [
+                IconButton(
+                  onPressed: scan,
+                  icon: const Icon(Icons.photo_camera_outlined),
                 ),
-                SizedBox(width: 20),
               ],
       ),
       body: FutureBuilder<ResponseValue>(
@@ -207,11 +200,11 @@ class _FormAState extends State<FormA> {
         return AlertDialog(
           title: Row(
             children: [
-              Icon(Icons.cloud_off, color: Colors.orange),
+              const Icon(Icons.cloud_off, color: GemsChrome.warning),
               SizedBox(width: 8),
               Text("Start Task"),
               SizedBox(width: 8),
-              Icon(Icons.offline_bolt, size: 20, color: Colors.orange[700]),
+              const Icon(Icons.offline_bolt, size: 20, color: GemsChrome.warning),
             ],
           ),
           content: Column(
@@ -223,14 +216,14 @@ class _FormAState extends State<FormA> {
               Container(
                 padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue[50],
+                  color: GemsChrome.primarySoft,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Asset No:", style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text(assetNo),
+                    Text('Asset No:', style: GemsChrome.body(weight: FontWeight.w600)),
+                    Text(assetNo, style: GemsChrome.body()),
                   ],
                 ),
               ),
@@ -245,7 +238,7 @@ class _FormAState extends State<FormA> {
             dialogButton(
               "Cancel",
               () => Navigator.of(context).pop(),
-              AppColors.secondary,
+              GemsChrome.muted,
             ),
             dialogButton(
               "Start Task",
@@ -253,7 +246,7 @@ class _FormAState extends State<FormA> {
                 Navigator.of(context).pop();
                 _startTaskOffline();
               },
-              AppColors.primaryDark,
+              GemsChrome.primary,
             ),
           ],
         );
@@ -310,7 +303,7 @@ class _FormAState extends State<FormA> {
             children: [
               Text(
                 "Asset Details",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: GemsChrome.heading(size: 18),
               ),
               FutureBuilder<bool>(
                 future: _repository.isOfflineModeEnabled(widget.id),
@@ -319,21 +312,21 @@ class _FormAState extends State<FormA> {
                     return Container(
                       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.orange[100],
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.orange),
+                        color: GemsChrome.warningSoft,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: GemsChrome.border),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.offline_bolt, size: 16, color: Colors.orange[800]),
-                          SizedBox(width: 4),
+                          const Icon(Icons.offline_bolt, size: 14, color: GemsChrome.warning),
+                          const SizedBox(width: 4),
                           Text(
-                            "Offline Mode",
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.orange[800],
+                            'Offline mode',
+                            style: GemsChrome.body(
+                              size: 11,
+                              weight: FontWeight.w600,
+                              color: GemsChrome.warning,
                             ),
                           ),
                         ],
@@ -354,24 +347,14 @@ class _FormAState extends State<FormA> {
                 isOffline 
                   ? "Offline mode enabled. You can start the task without QR scanning. Tap the camera icon to begin."
                   : "Check the asset details before proceeding. To execute the PPM, scan the asset QR code.",
-                style: TextStyle(fontSize: 14, color: Colors.grey[800]),
+                style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
               );
             },
           ),
           SizedBox(height: 16),
-          Container(
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: Offset(0, 4),
-                ),
-              ],
-            ),
+          GemsFormSection(
+            title: 'Asset details',
+            icon: Icons.confirmation_number_outlined,
             child: Column(
               children: [
                 infoRow(Icons.business, "Asset Group", object.assetGroupName),
@@ -397,15 +380,15 @@ class _FormAState extends State<FormA> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icon, size: 20, color: AppColors.primary),
-          SizedBox(width: 12),
+          Icon(icon, size: 18, color: GemsChrome.primary),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-                SizedBox(height: 2),
-                Text(value == "" ? "-" : value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                Text(label, style: GemsChrome.body(size: 12, color: GemsChrome.textSoft)),
+                const SizedBox(height: 2),
+                Text(value == "" ? "-" : value, style: GemsChrome.body(size: 14, weight: FontWeight.w500)),
               ],
             ),
           ),
@@ -467,7 +450,7 @@ class _FormAState extends State<FormA> {
                 Navigator.of(context).pop();
                 sendPPMExecutionRequest();
               },
-              AppColors.dangerDark,
+              GemsChrome.danger,
             ),
             dialogButton(
               "Yes, Execute All Assets",
@@ -475,14 +458,14 @@ class _FormAState extends State<FormA> {
                 Navigator.of(context).pop();
                 sendPPMExecutionRequest(groupExecution: true);
               },
-              AppColors.primaryDark,
+              GemsChrome.primary,
             ),
             dialogButton(
               "Cancel", 
               () {
                 Navigator.of(context).pop();
               }, 
-                AppColors.secondaryDark
+                GemsChrome.muted,
             ),
           ],
         );
@@ -503,7 +486,7 @@ class _FormAState extends State<FormA> {
               () {
                 Navigator.of(context).pop();
               },
-              AppColors.dangerDark,
+              GemsChrome.danger,
             ),
             dialogButton(
               "Yes",
@@ -511,7 +494,7 @@ class _FormAState extends State<FormA> {
                 Navigator.of(context).pop();
                 sendPPMExecutionRequest();
               },
-              AppColors.primaryDark,
+              GemsChrome.primary,
             ),
           ],
         );

@@ -12,19 +12,12 @@ import 'package:GEMS/model/user.dart';
 import 'package:GEMS/model/workorder.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/view/dialog.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:toast/toast.dart';
 import 'package:intl/intl.dart';
 import '../../main.dart';
 
-final ButtonStyle actionButtonStyle = ElevatedButton.styleFrom(
-  minimumSize: Size(double.infinity, 52), // full‐width, 52 px tall
-  padding:
-      EdgeInsets.symmetric(vertical: 0), // we control height via minimumSize
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(12), // 12 px rounded corners
-  ),
-  elevation: 2,
-);
+final ButtonStyle actionButtonStyle = gemsPrimaryButton(height: 44);
 
 class ComplaintSection extends StatefulWidget {
   final String taskNo;
@@ -136,10 +129,9 @@ class ComplaintSectionState extends State<ComplaintSection> {
         "widget parameters are ${widget.taskNo}, ${widget.taskStatus}, ${widget.viewer}, ${widget.isAssign}, ${widget.woTaskType}");
     debugPrint("bloc parameters are ${_bloc.id}, ${_bloc.checkpoint}");
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.taskNo,
-            style:
-                TextStyle(color: AppColors.dark, fontWeight: FontWeight.w600)),
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: Text(widget.taskNo),
       ),
       body: StreamBuilder<List<WorkOrderStatus>>(
         stream: _bloc.sections$,
@@ -147,7 +139,9 @@ class ComplaintSectionState extends State<ComplaintSection> {
           debugPrint(
               'ComplaintSection UI: snapshot.hasData=${snapshot.hasData}, data=${snapshot.data?.length ?? "null"}');
           if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: GemsChrome.primary),
+            );
           }
           final sections = snapshot.data!;
           debugPrint(
@@ -158,22 +152,16 @@ class ComplaintSectionState extends State<ComplaintSection> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.cloud_off, size: 64, color: Colors.grey[400]),
+                  const Icon(Icons.cloud_off, size: 48, color: GemsChrome.muted),
                   const SizedBox(height: 16),
                   Text(
                     'No sections available yet.',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
+                    style: GemsChrome.body(size: 16, weight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Pull down to refresh or reconnect to the network.',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[500],
-                    ),
+                    style: GemsChrome.body(size: 12, color: GemsChrome.textSoft),
                   ),
                 ],
               ),
@@ -187,9 +175,10 @@ class ComplaintSectionState extends State<ComplaintSection> {
               // 1) The scrolling list
               Expanded(
                 child: RefreshIndicator(
+                  color: GemsChrome.primary,
                   onRefresh: _bloc.refresh,
                   child: ListView.builder(
-                    padding: EdgeInsets.only(top: 12),
+                    padding: const EdgeInsets.fromLTRB(8, 12, 8, 12),
                     itemCount: sections.length + (showtime ? 1 : 0),
                     itemBuilder: (c, i) {
                       if (i == 0 && showtime) {
@@ -309,11 +298,7 @@ class ComplaintSectionState extends State<ComplaintSection> {
                                                   'Failed to approve attendance: $err');
                                             }
                                           }, // existing submit flow
-                                          style: actionButtonStyle.copyWith(
-                                            backgroundColor:
-                                                WidgetStatePropertyAll(
-                                                    AppColors.primary),
-                                          ),
+                                          style: actionButtonStyle,
                                           child: const Text("Accept & Proceed",
                                               style: TextStyle(
                                                   color: AppColors.white)),
@@ -390,10 +375,9 @@ class ComplaintSectionState extends State<ComplaintSection> {
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: Container(
             decoration: BoxDecoration(
-              color: AppColors.primaryLight.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(12),
-              border:
-                  Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
+              color: GemsChrome.primarySoft,
+              borderRadius: BorderRadius.circular(GemsChrome.radius),
+              border: Border.all(color: GemsChrome.border),
             ),
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -403,7 +387,7 @@ class ComplaintSectionState extends State<ComplaintSection> {
                   children: [
                     Icon(
                       isOffline ? Icons.offline_pin : Icons.cloud_queue,
-                      color: AppColors.primary,
+                      color: GemsChrome.primary,
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -699,29 +683,16 @@ class BuildTile extends StatelessWidget {
     required this.onTap,
   });
 
-  Color _getStatusColor(String? status) {
+  GemsStatusStyle _sectionStatus(String? status) {
     switch (status) {
-      case "Info":
-        return AppColors.info;
-      case "Pending":
-        return AppColors.danger;
-      case "In Progress":
-        return AppColors.primary;
+      case 'Info':
+        return GemsStatusStyle.info;
+      case 'Pending':
+        return GemsStatusStyle.warning;
+      case 'In Progress':
+        return GemsStatusStyle.primary;
       default:
-        return AppColors.success;
-    }
-  }
-
-  Color _getCardBgColorByStatus(String? status) {
-    switch (status) {
-      case "Info":
-        return AppColors.infoLight;
-      case "Pending":
-        return AppColors.dangerLight;
-      case "In Progress":
-        return AppColors.primaryLight;
-      default:
-        return AppColors.successLight;
+        return GemsStatusStyle.success;
     }
   }
 
@@ -740,7 +711,7 @@ class BuildTile extends StatelessWidget {
       workOrderStatus.sectionStatus,
       workOrderStatus.sectionStatusMaterial,
     );
-    final Color accent = _getStatusColor(workOrderStatus.sectionStatus);
+    final status = _sectionStatus(workOrderStatus.sectionStatus);
 
     final String title = [
       if (workOrderStatus.sectionName != null)
@@ -748,67 +719,37 @@ class BuildTile extends StatelessWidget {
       if (workOrderStatus.sectionDesc != null) workOrderStatus.sectionDesc
     ].join(' ');
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      decoration: BoxDecoration(
-        color: _getCardBgColorByStatus(workOrderStatus.sectionStatus),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))
-        ],
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+    return GemsAccentCard(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      accent: status.foreground,
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
         child: Row(
           children: [
-            // 1) Left accent stripe
-            Container(
-              width: 6,
-              height: 72,
-              decoration: BoxDecoration(
-                color: accent,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(12),
-                  bottomLeft: Radius.circular(12),
-                ),
-              ),
-            ),
+            Icon(Icons.assignment_outlined, color: status.foreground, size: 22),
             const SizedBox(width: 12),
-
-            // 2) Icon
-            Icon(Icons.assignment, color: accent),
-            const SizedBox(width: 12),
-
-            // 3) Title & status
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.dark,
-                    ),
+                    style: GemsChrome.body(size: 15, weight: FontWeight.w600),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     statusText,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: accent,
+                    style: GemsChrome.body(
+                      size: 12,
+                      weight: FontWeight.w500,
+                      color: status.foreground,
                     ),
                   ),
                 ],
               ),
             ),
-
-            Icon(Icons.chevron_right, color: Colors.black38),
-
-            const SizedBox(width: 8),
+            const Icon(Icons.chevron_right, color: GemsChrome.muted),
           ],
         ),
       ),
@@ -832,48 +773,38 @@ class _BuildTempTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color statusColor = colorTheme4;
-    return Card(
-      elevation: 2.0,
-      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12.0),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Row(
-            children: [
-              Text(
-                "F. ",
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  color: colorTheme3,
+    return GemsAccentCard(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      accent: GemsStatusStyle.danger.foreground,
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                'F. $title',
+                style: GemsChrome.body(size: 15, weight: FontWeight.w600),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: GemsStatusStyle.danger.background,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                status,
+                style: GemsChrome.body(
+                  size: 11,
+                  weight: FontWeight.w600,
+                  color: GemsStatusStyle.danger.foreground,
                 ),
               ),
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontWeight: FontWeight.normal,
-                    color: colorTheme3,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              Chip(
-                label: Text(
-                  status,
-                  style: TextStyle(color: Colors.white, fontFamily: 'Avenir'),
-                ),
-                backgroundColor: statusColor,
-              ),
-              const Icon(
-                Icons.arrow_right,
-                color: Colors.black54,
-              ),
-            ],
-          ),
+            ),
+            const Icon(Icons.chevron_right, color: GemsChrome.muted),
+          ],
         ),
       ),
     );
@@ -1198,9 +1129,8 @@ class _BuildStandardButton extends StatelessWidget {
                               AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                 ),
-                backgroundColor: (viewOnly || (snapshot.data ?? false))
-                    ? colorTheme2
-                    : AppColors.primaryDark,
+                backgroundColor: GemsChrome.primary,
+                foregroundColor: Colors.white,
                 onPressed: () async {
                   if (bloc.isLoading) return;
                   if (viewOnly) {
@@ -1307,18 +1237,24 @@ class _TimeDuration extends StatelessWidget {
         stream: stream,
         builder: (context, snap) {
           if (!snap.hasData) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: GemsChrome.primary),
+            );
           }
           final e = snap.data!;
 
           // pick colors
-          final respColor = AppColors.info;
-          final compColor = AppColors.success;
+          final respColor = GemsChrome.info;
+          final compColor = GemsChrome.success;
 
           return Card(
-            elevation: 4,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            elevation: 0,
+            color: Colors.white,
+            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(GemsChrome.radius),
+              side: const BorderSide(color: GemsChrome.border),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(

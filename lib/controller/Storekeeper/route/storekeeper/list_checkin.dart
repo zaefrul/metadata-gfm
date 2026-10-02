@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 import 'package:GEMS/utils/network.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:rxdart/rxdart.dart';
 import '../../../../main.dart';
 
@@ -33,10 +34,10 @@ class CheckInList extends StatelessWidget {
           child: ListView.separated(
             shrinkWrap: true,
             primary: true,
-            padding: const EdgeInsets.only(top: 12, bottom: 50),
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 80),
             itemBuilder: (ctx, index) => _Tile(data[index]),
             itemCount: data.length,
-            separatorBuilder: (ctx, index) => const Divider(),
+            separatorBuilder: (ctx, index) => const SizedBox(height: 10),
           ),
         );
       },
@@ -117,46 +118,56 @@ class _Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(
-        doNo,
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
+    return GemsAccentCard(
+      accent: GemsChrome.primary,
       onTap: () => Navigator.pushNamed(context, routeCheckInInfo, arguments: doId),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          text(value: userFirstName, top: 8.0),
-          text(value: doDate),
-          text(value: supplierName),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    doNo,
+                    style: GemsChrome.body(size: 15, weight: FontWeight.w600),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                state(totalCost),
+              ],
+            ),
+            const SizedBox(height: 6),
+            text(userFirstName),
+            text(doDate),
+            text(supplierName),
+          ],
+        ),
       ),
-      trailing: state(totalCost),
     );
   }
 
-  Widget text({required String value, double top = 3.0}) {
+  Widget text(String value) {
     return Padding(
-      padding: EdgeInsets.only(top: top),
-      child: Text(
-        value,
-        style: TextStyle(color: colorTheme3),
-      ),
+      padding: const EdgeInsets.only(top: 2),
+      child: Text(value, style: GemsChrome.body(size: 13, color: GemsChrome.textSoft)),
     );
   }
 
   Widget state(String price) {
     return Container(
-      height: 40,
-      width: 130,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: colorTheme3,
+        color: GemsChrome.primarySoft,
       ),
-      child: Center(
-        child: Text(
-          "RM $price",
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+      child: Text(
+        'RM $price',
+        style: GemsChrome.body(
+          size: 12,
+          weight: FontWeight.w600,
+          color: GemsChrome.primary,
         ),
       ),
     );

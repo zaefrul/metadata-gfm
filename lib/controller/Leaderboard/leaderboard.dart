@@ -3,6 +3,7 @@ import 'package:GEMS/model/gamification.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/view/drawer.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 import '../../../main.dart';
 
@@ -92,24 +93,19 @@ class _LeaderboardViewState extends State<LeaderboardView>
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text("Leaderboard", style: TextStyle(color: colorTheme3)),
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        leading: IconButton(
-          icon: Image.asset("assets/icon_trans.png", width: 30.0),
-          color: Colors.black,
-          onPressed: () {
-            _scaffoldKey.currentState!.openDrawer();
-          },
-        ),
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('Leaderboard'),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: colorTheme2,
-          labelColor: colorTheme3,
-          tabs: [
-            Tab(text: "Individual"),
-            Tab(text: "Projects"),
+          indicatorColor: GemsChrome.teal,
+          indicatorWeight: 3,
+          labelColor: GemsChrome.primary,
+          unselectedLabelColor: GemsChrome.textSoft,
+          dividerColor: GemsChrome.border,
+          tabs: const [
+            Tab(text: 'Individual'),
+            Tab(text: 'Projects'),
           ],
         ),
       ),
@@ -126,8 +122,10 @@ class _LeaderboardViewState extends State<LeaderboardView>
       floatingActionButton: FloatingActionButton.extended(
         onPressed: null,
         label: Text(
-            "Current Scoring Point : ${_score?.gmiPointTotal ?? 0}"),
-        backgroundColor: colorTheme1,
+          'Current scoring point: ${_score?.gmiPointTotal ?? 0}',
+          style: GemsChrome.body(weight: FontWeight.w600, color: Colors.white),
+        ),
+        backgroundColor: GemsChrome.primary,
       ),
     );
   }
@@ -159,10 +157,13 @@ class _LeaderboardViewState extends State<LeaderboardView>
       trailing: Container(
         padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: colorTheme1,
+          borderRadius: BorderRadius.circular(6),
+          color: GemsChrome.primarySoft,
         ),
-        child: Text(score, style: TextStyle(color: Colors.white)),
+        child: Text(
+          score,
+          style: GemsChrome.body(weight: FontWeight.w600, color: GemsChrome.primary),
+        ),
       ),
     );
   }
@@ -173,10 +174,13 @@ class _LeaderboardViewState extends State<LeaderboardView>
       trailing: Container(
         padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: colorTheme1,
+          borderRadius: BorderRadius.circular(6),
+          color: GemsChrome.primarySoft,
         ),
-        child: Text(score, style: TextStyle(color: Colors.white)),
+        child: Text(
+          score,
+          style: GemsChrome.body(weight: FontWeight.w600, color: GemsChrome.primary),
+        ),
       ),
     );
   }

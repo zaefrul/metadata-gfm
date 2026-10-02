@@ -9,6 +9,7 @@ import 'package:GEMS/model/execution.dart';
 import 'package:GEMS/model/responseValue.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:toast/toast.dart';
 import 'package:GEMS/model/form.dart' as formModel;
 import 'package:GEMS/controller/PPM/pending_sync.dart';
@@ -690,15 +691,11 @@ class _FormViewState extends State<FormView> {
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: Colors.green[700]),
+        Icon(icon, size: 18, color: GemsChrome.primary),
         const SizedBox(width: 8),
         Text(
           '$label: ',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.green[800],
-          ),
+          style: GemsChrome.body(size: 13, weight: FontWeight.w600),
         ),
         Expanded(
           child: Text(
@@ -734,18 +731,16 @@ class _FormViewState extends State<FormView> {
     ToastContext().init(context);
     provider.context = context;
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: colorTheme3),
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         title: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            getTitle(widget.siteName, bold: true),
+            Text(widget.siteName, style: GemsChrome.heading(size: 16)),
             Text(
               widget.taskNo,
-              style: TextStyle(fontSize: 16, color: colorTheme3),
-              textAlign: TextAlign.left,
+              style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
             ),
           ],
         ),
@@ -773,15 +768,11 @@ class _FormViewState extends State<FormView> {
                     final hasPendingActions = pendingCount > 0;
                     
                     return Card(
-                      elevation: 2,
-                      color: hasPendingActions 
-                          ? Colors.amber[50] 
-                          : Colors.white,
+                      elevation: 0,
+                      color: hasPendingActions ? GemsChrome.warningSoft : Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: hasPendingActions
-                            ? BorderSide(color: Colors.amber.shade300, width: 1.5)
-                            : BorderSide.none,
+                        borderRadius: BorderRadius.circular(GemsChrome.radius),
+                        side: const BorderSide(color: GemsChrome.border),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(16),
@@ -796,38 +787,23 @@ class _FormViewState extends State<FormView> {
                                     children: [
                                       Text(
                                         'Offline mode',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.dark,
-                                        ),
+                                        style: GemsChrome.body(size: 15, weight: FontWeight.w600),
                                       ),
                                       if (hasPendingActions) ...[
                                         SizedBox(width: 8),
                                         Container(
                                           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                           decoration: BoxDecoration(
-                                            color: Colors.amber,
-                                            borderRadius: BorderRadius.circular(12),
+                                            color: GemsChrome.warningSoft,
+                                            borderRadius: BorderRadius.circular(6),
                                           ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(
-                                                Icons.pending_actions,
-                                                size: 12,
-                                                color: Colors.white,
-                                              ),
-                                              SizedBox(width: 4),
-                                              Text(
-                                                'Pending Sync',
-                                                style: TextStyle(
-                                                  fontSize: 10,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ],
+                                          child: Text(
+                                            'Pending sync',
+                                            style: GemsChrome.body(
+                                              size: 11,
+                                              weight: FontWeight.w600,
+                                              color: GemsChrome.warning,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -849,7 +825,7 @@ class _FormViewState extends State<FormView> {
                               _isOfflineMode
                                   ? 'We\'ll save all updates on this device. All actions will be queued and synced automatically when online.'
                                   : 'Enable offline mode when you expect to lose connectivity. We\'ll cache the task and you can sync later.',
-                              style: const TextStyle(fontSize: 14, height: 1.4),
+                              style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
                             ),
                             if (_offlineToggleInFlight) ...[
                               const SizedBox(height: 12),
@@ -1031,17 +1007,16 @@ class _FormViewState extends State<FormView> {
                           ? _taskDuration! <= maxDuration 
                           : true;
                       
-                      final cardColor = isWithinSLA ? Colors.green[50] : Colors.orange[50];
-                      final borderColor = isWithinSLA ? Colors.green : Colors.orange;
-                      final iconColor = isWithinSLA ? Colors.green : Colors.orange;
-                      final textColor = isWithinSLA ? Colors.green[800] : Colors.orange[800];
+                      final cardColor = isWithinSLA ? GemsChrome.successSoft : GemsChrome.warningSoft;
+                      final iconColor = isWithinSLA ? GemsChrome.success : GemsChrome.warning;
+                      final textColor = iconColor;
                       
                       return Card(
                         color: cardColor,
-                        elevation: 2,
+                        elevation: 0,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(color: borderColor, width: 2),
+                          borderRadius: BorderRadius.circular(GemsChrome.radius),
+                          side: const BorderSide(color: GemsChrome.border),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
@@ -1073,7 +1048,7 @@ class _FormViewState extends State<FormView> {
                                             'Exceeded SLA',
                                             style: TextStyle(
                                               fontSize: 14,
-                                              color: Colors.orange[600],
+                                              color: GemsChrome.warning,
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
@@ -1084,15 +1059,15 @@ class _FormViewState extends State<FormView> {
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                       decoration: BoxDecoration(
-                                        color: Colors.orange,
-                                        borderRadius: BorderRadius.circular(20),
+                                        color: GemsChrome.warningSoft,
+                                        borderRadius: BorderRadius.circular(6),
                                       ),
-                                      child: const Text(
-                                        'OVER SLA',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
+                                      child: Text(
+                                        'Over SLA',
+                                        style: GemsChrome.body(
+                                          size: 11,
+                                          weight: FontWeight.w600,
+                                          color: GemsChrome.warning,
                                         ),
                                       ),
                                     ),
@@ -1157,12 +1132,13 @@ class _FormViewState extends State<FormView> {
                         label: const Text('End PPM Task', 
                             style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: GemsChrome.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(GemsChrome.radius),
                           ),
-                          elevation: 2,
+                          elevation: 0,
                         ),
                         onPressed: _endingTask
                             ? null
@@ -1188,21 +1164,26 @@ class _FormViewState extends State<FormView> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
                 child: ElevatedButton.icon(
-                  icon: Icon(widget.viewer ? Icons.visibility : Icons.send, 
-                      color: (widget.viewer || enableSubmit)
-                        ? AppColors.white
-                        : AppColors.dark),
-                  label: Text(widget.viewer ? "View Form" : "Submit", 
-                      style: TextStyle(color: (widget.viewer || enableSubmit)
-                        ? AppColors.white
-                        : AppColors.dark)),
+                  icon: Icon(
+                    widget.viewer ? Icons.visibility : Icons.send,
+                    color: Colors.white,
+                  ),
+                  label: Text(
+                    widget.viewer ? 'View Form' : 'Submit',
+                    style: GemsChrome.body(
+                      size: 15,
+                      weight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: (widget.viewer || enableSubmit)
-                        ? AppColors.primary
-                        : AppColors.secondaryLight,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: GemsChrome.primary,
+                    disabledBackgroundColor: GemsChrome.primary.withValues(alpha: 0.45),
+                    foregroundColor: Colors.white,
+                    disabledForegroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(GemsChrome.radius),
                     ),
                   ),
                   onPressed: (widget.viewer || enableSubmit)
@@ -1296,38 +1277,18 @@ class _FormViewState extends State<FormView> {
         // If offline mode and has pending changes, treat as completed (use secondary color)
         final effectiveStatus = (_isOfflineMode && hasPendingChanges) ? 'Completed' : statusDesc;
         
-        final Color accent = _getStatusColor(effectiveStatus);
-        final Color bgColor = _getStatusCardColor(effectiveStatus);
+        final status = GemsStatusStyle.forPpm(effectiveStatus);
         final String title = titles[item] ?? 'Section';
 
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
-          ),
-          child: InkWell(
-            onTap: () => _openFormSection(item, parts, report),
-            borderRadius: BorderRadius.circular(12),
+        return GemsAccentCard(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          accent: status.foreground,
+          onTap: () => _openFormSection(item, parts, report),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
             child: Row(
               children: [
-                // Accent stripe
-                Container(
-                  width: 6,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    color: accent,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      bottomLeft: Radius.circular(12),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-
-                // Section icon
-                Icon(Icons.assignment, color: accent),
+                Icon(Icons.assignment_outlined, color: status.foreground, size: 22),
                 const SizedBox(width: 12),
 
                 // Title and Status
@@ -1348,10 +1309,10 @@ class _FormViewState extends State<FormView> {
                         children: [
                           Text(
                             effectiveStatus,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: accent,
+                            style: GemsChrome.body(
+                              size: 12,
+                              weight: FontWeight.w500,
+                              color: status.foreground,
                             ),
                           ),
                           if (_isOfflineMode && hasPendingChanges) ...[
@@ -1359,15 +1320,15 @@ class _FormViewState extends State<FormView> {
                             Container(
                               padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: Colors.amber,
-                                borderRadius: BorderRadius.circular(8),
+                                color: GemsChrome.warningSoft,
+                                borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
                                 'Pending Sync',
-                                style: TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                style: GemsChrome.body(
+                                  size: 10,
+                                  weight: FontWeight.w600,
+                                  color: GemsChrome.warning,
                                 ),
                               ),
                             ),
@@ -1378,7 +1339,7 @@ class _FormViewState extends State<FormView> {
                   ),
                 ),
 
-                Icon(Icons.chevron_right, color: Colors.black38),
+                const Icon(Icons.chevron_right, color: GemsChrome.muted),
                 const SizedBox(width: 8),
               ],
             ),

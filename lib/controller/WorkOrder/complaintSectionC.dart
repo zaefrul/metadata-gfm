@@ -9,7 +9,7 @@ import 'package:GEMS/data/repository/work_order_detail_repository.dart';
 import 'package:GEMS/model/workorder.dart';
 import 'package:GEMS/utils/biometric_lock_manager.dart';
 import 'package:GEMS/utils/network.dart';
-import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/utils/location_helper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' show basename;
@@ -176,16 +176,9 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
   Widget build(BuildContext context) {
     ToastContext().init(context);
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: colorTheme3),
-        title: Text(
-          'D. Image',
-          style: TextStyle(
-            color: colorTheme3,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('D. Image'),
       ),
       body: Column(
         children: [
@@ -202,7 +195,7 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
                   children: [
                     Text(
                       'Requires at least one photo for each of the following sections:',
-                      style: TextStyle(color: colorTheme3),
+                      style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
                     ),
                     const SizedBox(height: 16),
                     _imageBlock(0, _before),
@@ -224,7 +217,7 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
       floatingActionButton: widget.disable
           ? null
           : FloatingActionButton.extended(
-              backgroundColor: colorTheme2,
+              backgroundColor: GemsChrome.primary,
               label: const Text(
                 'Save Descriptions',
                 style: TextStyle(color: Colors.white),
@@ -277,11 +270,15 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
 
   Widget _emptyCard(int idx) {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
+      color: Colors.white,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        side: const BorderSide(color: GemsChrome.border),
+      ),
       child: ListTile(
-        leading: Icon(Icons.camera_alt, color: colorTheme2),
-        title: Text('Tap to upload', style: TextStyle(color: colorTheme3)),
+        leading: const Icon(Icons.photo_camera_outlined, color: GemsChrome.primary),
+        title: Text('Tap to upload', style: GemsChrome.body(weight: FontWeight.w500)),
         onTap: widget.disable ? null : () => _createUpload(idx),
       ),
     );
@@ -291,8 +288,12 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
     final src = 'https:${item.documentSrc}';
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
+      color: Colors.white,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        side: const BorderSide(color: GemsChrome.border),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -353,10 +354,10 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
                 contentPadding:
                     const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                 enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: colorTheme2.withOpacity(0.5)),
+                  borderSide: BorderSide(color: GemsChrome.primary.withOpacity(0.5)),
                 ),
                 focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: colorTheme2),
+                  borderSide: BorderSide(color: GemsChrome.primary),
                 ),
               ),
               onChanged: (value) => _notes[item.woTaskUploadId] = value,
@@ -377,8 +378,12 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
+      color: Colors.white,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        side: const BorderSide(color: GemsChrome.border),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -417,7 +422,7 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
                 ),
                 Container(
                   decoration: BoxDecoration(
-                    color: colorTheme2.withOpacity(0.1),
+                    color: GemsChrome.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   padding:
@@ -425,7 +430,7 @@ class _ComplaintSectionCState extends State<ComplaintSectionC> {
                   child: Text(
                     'Pending sync',
                     style: TextStyle(
-                      color: colorTheme2,
+                      color: GemsChrome.primary,
                       fontWeight: FontWeight.w600,
                       fontSize: 12,
                     ),

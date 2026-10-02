@@ -7,7 +7,7 @@ import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/utils/pending_sync_controller.dart';
 import 'package:GEMS/data/repository/ppm_repository.dart';
 import 'package:GEMS/widgets/common/pending_sync_banner.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:rxdart/rxdart.dart';
 import '../../model/task.dart';
 import 'Form/form_view.dart';
@@ -141,21 +141,18 @@ class _TaskViewState extends State<TaskView>
       padding: EdgeInsets.all(16),
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.orange[100],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.orange),
+        color: GemsChrome.warningSoft,
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        border: Border.all(color: GemsChrome.border),
       ),
       child: Row(
         children: [
-          Icon(Icons.offline_bolt, color: Colors.orange[800]),
-          SizedBox(width: 12),
+          const Icon(Icons.offline_bolt, color: GemsChrome.warning),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               'Offline Mode - Showing $taskCount task${taskCount > 1 ? 's' : ''} available offline',
-              style: TextStyle(
-                color: Colors.orange[800],
-                fontWeight: FontWeight.w600,
-              ),
+              style: GemsChrome.body(weight: FontWeight.w600, color: GemsChrome.warning),
             ),
           ),
         ],
@@ -197,28 +194,28 @@ class _TaskViewState extends State<TaskView>
 
   Future<void> fetch(String text) async {
     String url = "/api/m_ppm.php?type=pending_task";
-    url += "_search&assetNo=$text";
+    url += "_search&assetNo=$text&isRoutine=0";
 
     await _fetch(url);
   }
 
   Future<void> fetchQR(String text) async {
     String url = "/api/m_ppm.php?type=pending_task";
-    url += "_scan_asset&assetNo=$text";
+    url += "_scan_asset&assetNo=$text&isRoutine=0";
 
     await _fetch(url);
   }
 
   Future<void> fetchQRAll(String text) async {
     String url = "/api/m_ppm.php?type=all_task";
-    url += "_scan_asset&assetNo=$text";
+    url += "_scan_asset&assetNo=$text&isRoutine=0";
 
     await _fetch(url);
   }
 
   Future<void> fetchAll(String text) async {
     String url = "/api/m_ppm.php?type=all_task";
-    url += "_search&searchTxt=$text";
+    url += "_search&searchTxt=$text&isRoutine=0";
 
     await _fetch(url);
   }
@@ -513,142 +510,93 @@ class _TaskViewState extends State<TaskView>
     }
   }
 
-  ListTile tile(Task task) {
+  Widget tile(Task task) {
     final hasOfflineMode = _offlineTaskIds.contains(task.ppmTaskId);
-    
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      title: Card(
-        elevation: 2,
-        margin: const EdgeInsets.only(bottom: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        color: _statusCardColor(task.statusDesc),
-        child: InkWell(
-          onTap: () {
-            Widget page = FormView(
-              id: task.ppmTaskId,
-              siteName: task.siteName,
-              taskNo: task.transactionNo,
-              taskStatus: task.statusDesc,
-              refresh: () => fetch(""),
-              viewer: viewer,
-            );
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => page))
-                .then((_) {
-              if (index == 1) fetch("");
-            }).whenComplete(_refresh);
-          },
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                // Left column
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+    final status = GemsStatusStyle.forPpm(task.statusDesc);
+    return GemsAccentCard(
+      margin: const EdgeInsets.only(bottom: 10),
+      accent: status.foreground,
+      onTap: () {
+        final page = FormView(
+          id: task.ppmTaskId,
+          siteName: task.siteName,
+          taskNo: task.transactionNo,
+          taskStatus: task.statusDesc,
+          refresh: () => fetch(""),
+          viewer: viewer,
+        );
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => page))
+            .then((_) {
+          if (index == 1) fetch("");
+        }).whenComplete(_refresh);
+      },
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              task.transactionNo,
-                              style: GoogleFonts.poppins(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
-                              ),
+                      Expanded(
+                        child: Text(
+                          task.transactionNo,
+                          style: GemsChrome.body(size: 15, weight: FontWeight.w600),
+                        ),
+                      ),
+                      if (hasOfflineMode)
+                        Container(
+                          margin: const EdgeInsets.only(left: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: GemsChrome.neutralSoft,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            'Offline',
+                            style: GemsChrome.body(
+                              size: 11,
+                              weight: FontWeight.w600,
+                              color: GemsChrome.textSoft,
                             ),
                           ),
-                          if (hasOfflineMode) ...[
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.offline_bolt, size: 12, color: Colors.white),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Offline',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        task.assetTypeName,
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          color: Colors.black54,
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        task.assetNo,
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          color: Colors.black54,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        task.technician,
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          color: Colors.black54,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Icon(Icons.access_time, size: 14, color: Colors.black38),
-                          const SizedBox(width: 4),
-                          Text(
-                            task.taskDateDue,
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              color: Colors.black54,
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
-                ),
-
-                // Right: status chip
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: _statusColor(task.statusDesc),
-                    borderRadius: BorderRadius.circular(20),
+                  const SizedBox(height: 4),
+                  Text(task.assetTypeName, style: GemsChrome.body(size: 13, color: GemsChrome.textSoft)),
+                  Text(task.assetNo, style: GemsChrome.body(size: 12, color: GemsChrome.textSoft)),
+                  Text(task.technician, style: GemsChrome.body(size: 12, color: GemsChrome.textSoft)),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.access_time, size: 14, color: GemsChrome.muted),
+                      const SizedBox(width: 4),
+                      Text(task.taskDateDue, style: GemsChrome.body(size: 12, color: GemsChrome.textSoft)),
+                    ],
                   ),
-                  child: Text(
-                    task.statusDesc,
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: status.background,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                task.statusDesc,
+                style: GemsChrome.body(
+                  size: 11,
+                  weight: FontWeight.w600,
+                  color: status.foreground,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

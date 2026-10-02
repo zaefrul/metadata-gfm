@@ -6,6 +6,7 @@ import 'package:GEMS/controller/WorkOrder/material_arguments.dart';
 import 'package:GEMS/data/repository/work_order_detail_repository.dart';
 import 'package:GEMS/model/complaint.dart';
 import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 
 class ComplaintAdd extends StatefulWidget {
   const ComplaintAdd(this.args, {super.key});
@@ -339,19 +340,10 @@ class _ComplaintAddState extends State<ComplaintAdd> {
     final double bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return Scaffold(
-      backgroundColor: AppColors.gray100,
-      appBar: AppBar(
-        title: Text(
-          'Add Material / Item',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        elevation: 0,
-        backgroundColor: AppColors.bgAppBar,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         centerTitle: true,
-        iconTheme: const IconThemeData(color: AppColors.primary),
+        title: Text('Add Material / Item', style: GemsChrome.heading(size: 18)),
       ),
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -370,10 +362,7 @@ class _ComplaintAddState extends State<ComplaintAdd> {
                 children: [
                   Text(
                     'Plan spare parts usage for this work order.',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
-                    ),
+                    style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
                   ),
                   const SizedBox(height: 16),
                   if (_error != null)
@@ -506,11 +495,13 @@ class _ComplaintAddState extends State<ComplaintAdd> {
             width: double.infinity,
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.onPrimary,
+                backgroundColor: GemsChrome.primary,
+                disabledBackgroundColor: GemsChrome.primary.withValues(alpha: 0.45),
+                foregroundColor: Colors.white,
+                disabledForegroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(GemsChrome.radius),
                 ),
               ),
               onPressed: _hasValidSelection && !_submitting ? _submit : null,
@@ -529,25 +520,7 @@ class _ComplaintAddState extends State<ComplaintAdd> {
   }
 
   InputDecoration _inputDecoration(String label) {
-    return InputDecoration(
-      labelText: label,
-      labelStyle: GoogleFonts.poppins(color: AppColors.textSecondary),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.gray300),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.primary),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.gray300),
-      ),
-      filled: true,
-      fillColor: AppColors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-    );
+    return gemsFieldDecoration(label: label);
   }
 
   Widget _buildSection({
@@ -555,40 +528,7 @@ class _ComplaintAddState extends State<ComplaintAdd> {
     required IconData icon,
     required Widget child,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: AppColors.primary),
-              const SizedBox(width: 12),
-              Text(
-                title,
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          child,
-        ],
-      ),
-    );
+    return GemsFormSection(title: title, icon: icon, child: child);
   }
 
   Widget _buildDropdownField<T>({
@@ -626,9 +566,9 @@ class _ErrorBanner extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.dangerLight,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.danger),
+        color: GemsChrome.dangerSoft,
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        border: Border.all(color: GemsChrome.border),
       ),
       child: Row(
         children: [
@@ -661,9 +601,9 @@ class _HighlightCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.infoLight,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.info),
+        color: GemsChrome.infoSoft,
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        border: Border.all(color: GemsChrome.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

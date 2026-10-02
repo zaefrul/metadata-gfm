@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc_technician.dart';
 import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 import 'package:toast/toast.dart';
@@ -47,10 +48,9 @@ class _RouteTechnicianDetailState extends State<RouteTechnicianDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Material Information"),
-        backgroundColor: Colors.white,
-        centerTitle: true,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('Material Information'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -187,7 +187,7 @@ class _FloatingButton extends StatelessWidget {
         builder: (context, snapshot) => FloatingActionButton.extended(
               heroTag: "submit",
               label: Text("Submit"),
-              backgroundColor: colorTheme3,
+              backgroundColor: GemsChrome.primary,
               onPressed: () => snapshot.data == null
                   ? Toast.show("Please fill all dropdown", duration: 3)
                   : snapshot.data == false

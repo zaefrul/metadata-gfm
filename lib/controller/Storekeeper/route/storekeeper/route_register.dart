@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc_technician.dart';
 // import 'package:searchable_dropdown/searchable_dropdown.dart';
 
@@ -10,10 +11,9 @@ class RegisterItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Register Item"),
-        centerTitle: true,
-        backgroundColor: Colors.white,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('Register Item'),
       ),
       body: Container(
           padding: EdgeInsets.all(16),

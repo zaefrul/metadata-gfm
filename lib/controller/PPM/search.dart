@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:toast/toast.dart';
-import '../../utils/reference.dart';
+import '../../view/gems_chrome.dart';
 import 'task_view.dart';
 import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/services.dart';
@@ -96,17 +96,17 @@ class _SearchState extends State<Search> {
     if (index == 1) body = taskView;
 
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: IconThemeData(color: colorTheme3),
-        backgroundColor: Colors.white,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         title: TextField(
           controller: controller,
-          style: TextStyle(fontFamily: 'Avenir', color: colorTheme3),
+          style: GemsChrome.body(size: 16),
           autofocus: true,
           decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: "Search",
-              hintStyle: TextStyle(color: Color(0xcc022c41))),
+            border: InputBorder.none,
+            hintText: 'Search',
+            hintStyle: GemsChrome.body(color: GemsChrome.muted),
+          ),
           onChanged: (text) => setState(() => keyword = text),
           textInputAction: TextInputAction.search,
           onSubmitted: (value) {
@@ -114,19 +114,17 @@ class _SearchState extends State<Search> {
               searchText = controller.text;
               if (index == 0) {
                 allTaskView.updateAll(controller.text);
-              } else if (index == 1) taskView.update(controller.text);
+              } else if (index == 1) {
+                taskView.update(controller.text);
+              }
             }
           },
         ),
-        actions: <Widget>[
-          GestureDetector(
-              onTap: scan,
-              child: Icon(
-                Icons.camera,
-                color: colorTheme3,
-                size: 30,
-              )),
-          SizedBox(width: 20),
+        actions: [
+          IconButton(
+            onPressed: scan,
+            icon: const Icon(Icons.photo_camera_outlined),
+          ),
         ],
       ),
       body: body,

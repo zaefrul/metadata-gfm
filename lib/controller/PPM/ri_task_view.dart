@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 
 import '../../model/task.dart';
 import 'Form/form_view.dart';
@@ -70,7 +71,7 @@ class _TaskViewStateRI extends State<RITaskView>
     if (text == null) {
       url += "&isRoutine=true";
     } else {
-      url += "_scan_asse&isRoutine=truet&assetNo=$text";
+      url += "_scan_asset&isRoutine=true&assetNo=$text";
     }
     _fetch(url);
   }
@@ -160,26 +161,15 @@ class _TaskViewStateRI extends State<RITaskView>
         child: Text(text, style: const TextStyle(color: Colors.white)));
   }
 
-  ListTile tile(Task task) => ListTile(
-        contentPadding: const EdgeInsets.all(12),
-        title: Row(
-          children: <Widget>[
-            Expanded(
-                child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                getTitle(task.transactionNo, bold: true),
-                getTitle(task.assetTypeName),
-                getTitle(task.assetNo),
-                getTitle(task.technician),
-                getTitle(task.taskDateDue),
-              ],
-            )),
-            status(task.statusDesc)
-          ],
-        ),
+  ListTile tile(Task task) {
+    final statusStyle = GemsStatusStyle.forPpm(task.statusDesc);
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: GemsAccentCard(
+        margin: const EdgeInsets.only(bottom: 10),
+        accent: statusStyle.foreground,
         onTap: () {
-          Object page = FormView(
+          final page = FormView(
             id: task.ppmTaskId,
             siteName: task.siteName,
             taskNo: task.transactionNo,
@@ -188,14 +178,43 @@ class _TaskViewStateRI extends State<RITaskView>
             viewer: viewer,
           );
           Navigator.of(context)
-              .push(MaterialPageRoute(
-                builder: (BuildContext context) => page as Widget,
-              ))
+              .push(MaterialPageRoute(builder: (context) => page))
               .then((_) {
             if (index == 1) fetch(null);
           }).whenComplete(_refresh);
         },
-      );
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(task.transactionNo, style: GemsChrome.body(size: 15, weight: FontWeight.w600)),
+                    Text(task.assetTypeName, style: GemsChrome.body(size: 13, color: GemsChrome.textSoft)),
+                    Text(task.assetNo, style: GemsChrome.body(size: 12, color: GemsChrome.textSoft)),
+                    Text(task.taskDateDue, style: GemsChrome.body(size: 12, color: GemsChrome.textSoft)),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: statusStyle.background,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  task.statusDesc,
+                  style: GemsChrome.body(size: 11, weight: FontWeight.w600, color: statusStyle.foreground),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   DropdownButton<String> get filter => DropdownButton<String>(
         underline: Container(),

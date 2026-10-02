@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:toast/toast.dart';
 import '../utils/reference.dart';
@@ -49,13 +50,9 @@ class SignatureViewState extends State<SignatureView> {
   Widget build(BuildContext context) {
     ToastContext().init(context);
     return Scaffold(
-      backgroundColor: colorTheme3,
-      appBar: AppBar(
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         title: title("Signature"),
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(
-          color: colorTheme3,
-        ),
         actions: <Widget>[
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -66,7 +63,7 @@ class SignatureViewState extends State<SignatureView> {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(6.0)),
-                  color: Colors.redAccent,
+                  color: GemsChrome.danger,
                 ),
                 width: 80,
                 child: Center(child: title("Reset", bold: false)),
@@ -96,7 +93,7 @@ class SignatureViewState extends State<SignatureView> {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(6.0)),
-                  color: colorTheme2,
+                  color: GemsChrome.primary,
                 ),
                 width: 80,
                 child: Center(child: title("Submit", bold: false)),

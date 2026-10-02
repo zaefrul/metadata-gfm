@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:flutter/services.dart';
 import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc.dart';
 import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc_checkin.dart';
@@ -75,10 +76,9 @@ class _CheckinAddState extends State<CheckinAdd> {
   Widget build(BuildContext context) {
     ToastContext().init(context);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Add Material / Item"),
-        centerTitle: true,
-        backgroundColor: Colors.white,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('Add Material / Item'),
       ),
       body: Container(
         padding: const EdgeInsets.all(12),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:photo_view/photo_view.dart';
@@ -16,10 +17,9 @@ class CheckinDetails extends StatelessWidget {
     provider.context = context;
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text("Check In Information"),
-        centerTitle: true,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('Check In Information'),
       ),
       body: FutureBuilder<dynamic>(
           future: provider.getJson(url: "/do/check_in_mobile_details/"),

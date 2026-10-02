@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 
 class ImageViewer extends StatelessWidget {
   final File? file;
@@ -44,8 +45,9 @@ class ImageViewer extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Photo Viewer"),
+      backgroundColor: Colors.black,
+      appBar: gemsAppBar(
+        title: const Text('Photo Viewer'),
       ),
       body: Container(
         alignment: Alignment.center,

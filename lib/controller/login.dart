@@ -11,6 +11,7 @@ import 'package:GEMS/utils/biometric_lock_manager.dart';
 import '../utils/location_helper.dart';
 import '../utils/reference.dart';
 import '../utils/network.dart';
+import '../view/gems_chrome.dart';
 import 'forgotPassword.dart';
 import '../utils/auth_secure_storage.dart';
 
@@ -25,7 +26,6 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<Alignment> _cardAlignment;
   late Animation<double> _contentOpacity;
 
   String? _username;
@@ -66,22 +66,11 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2),
-    );
-
-    _cardAlignment = AlignmentTween(
-      begin: Alignment.center,
-      end: const Alignment(0, -0.1),
-    ).animate(
-      CurvedAnimation(
-          parent: _controller,
-          curve: const Interval(0.0, 0.5, curve: Curves.easeOut)),
+      duration: const Duration(milliseconds: 350),
     );
 
     _contentOpacity = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-          parent: _controller,
-          curve: const Interval(0.5, 1.0, curve: Curves.easeIn)),
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
 
     _controller.forward();
@@ -121,159 +110,188 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        fit: StackFit.expand,
+      backgroundColor: GemsChrome.page,
+      body: Column(
         children: [
-          Image.asset(
-            'assets/login-bg.jpg',
-            fit: BoxFit.cover,
-          ),
-          SafeArea(
-            child: AnimatedBuilder(
-              animation: _controller,
-              builder: (context, _) => Align(
-                alignment: _cardAlignment.value,
-                child: FadeTransition(
-                  opacity: _contentOpacity,
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.zero,
-                    child: _buildLoginCard(),
-                  ),
-                ),
+          _brandBand(),
+          Expanded(
+            child: FadeTransition(
+              opacity: _contentOpacity,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+                child: _buildLoginCard(),
               ),
             ),
           ),
-          if (_appVersion.isNotEmpty)
-            SafeArea(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Text(
-                    'Version $_appVersion',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(color: Colors.black54, blurRadius: 4),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
         ],
       ),
     );
   }
 
   Widget _initialBackground() {
+    return const Scaffold(
+      backgroundColor: GemsChrome.page,
+      body: Center(
+        child: Image(
+          image: AssetImage('assets/logo-cropped.png'),
+          height: 96,
+          fit: BoxFit.contain,
+        ),
+      ),
+    );
+  }
+
+  Widget _brandBand() {
+    final topInset = MediaQuery.paddingOf(context).top;
     return SizedBox(
-      height: double.infinity,
+      height: 176 + topInset,
       width: double.infinity,
-      child: Image.asset(
-        'assets/login-bg.jpg',
-        fit: BoxFit.cover,
-        alignment: Alignment.center,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset('assets/login-bg.jpg', fit: BoxFit.cover),
+          const ColoredBox(color: Color(0xC7CEEFF0)),
+          Padding(
+            padding: EdgeInsets.only(top: topInset),
+            child: const Center(
+              child: Image(
+                image: AssetImage('assets/logo-cropped.png'),
+                height: 96,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+          const Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 3,
+            child: ColoredBox(color: GemsChrome.teal),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildLoginCard() {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 30,
-            offset: const Offset(0, 18),
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 400),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(20, 22, 20, 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(GemsChrome.radius),
+            border: Border.all(color: GemsChrome.border),
           ),
-        ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 3,
+                  margin: const EdgeInsets.only(bottom: 14),
+                  color: GemsChrome.teal,
+                ),
+              ),
+              Text(
+                'Welcome back',
+                textAlign: TextAlign.center,
+                style: GemsChrome.heading(size: 22),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Sign in to continue to GEMS.',
+                textAlign: TextAlign.center,
+                style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+              ),
+              const SizedBox(height: 20),
+              _inputField(
+                label: 'Login ID',
+                onChanged: (v) => _username = v,
+              ),
+              const SizedBox(height: 14),
+              _passwordField(),
+              const SizedBox(height: 14),
+              _networkSelector(),
+              const SizedBox(height: 4),
+              _rememberRow(),
+              const SizedBox(height: 16),
+              _primaryButton(),
+              if (_biometricEnabled) ...[
+                const SizedBox(height: 10),
+                _biometricButton(),
+              ],
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const Forgot()),
+                ),
+                child: Text(
+                  'Forgot password?',
+                  style: GemsChrome.body(
+                    size: 13,
+                    weight: FontWeight.w500,
+                    color: GemsChrome.primary,
+                  ),
+                ),
+              ),
+              Text(
+                '© 2019 – 2026 GEMS',
+                textAlign: TextAlign.center,
+                style: GemsChrome.body(size: 11, color: GemsChrome.textSoft),
+              ),
+              if (_appVersion.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  'Version $_appVersion',
+                  textAlign: TextAlign.center,
+                  style: GemsChrome.body(size: 11, color: GemsChrome.muted),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-            child: Container(
-              height: 200,
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  // Approx. CSS: linear-gradient(135deg, #ceeef0 0%, #e7eaec 100%)
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFFCEEFF0),
-                    Color(0xFFE7EAEC),
-                  ],
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'assets/logo-cropped.png',
-                    height: 200, // adjust as you like
-                    fit: BoxFit.contain,
-                  )
-                  // const SizedBox(height: 12)
-                  // ,
-                  // Text(
-                  //   'Log in to your account',
-                  //   style: TextStyle(
-                  //     color: Colors.black.withOpacity(0.8),
-                  //     fontSize: 18,
-                  //     fontWeight: FontWeight.w600,
-                  //   ),
-                  // ),
-                ],
-              ),
+    );
+  }
+
+  Widget _fieldLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Text.rich(
+        TextSpan(
+          text: label,
+          style: GemsChrome.body(size: 13, weight: FontWeight.w500),
+          children: const [
+            TextSpan(
+              text: ' *',
+              style: TextStyle(color: GemsChrome.danger),
             ),
-          ),
-          Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
-            ),
-            child: FadeTransition(
-              opacity: _contentOpacity,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _inputField(
-                      label: 'User ID',
-                      hintText: '',
-                      onChanged: (v) => _username = v,
-                    ),
-                    const SizedBox(height: 20),
-                    _passwordField(),
-                    const SizedBox(height: 18),
-                    _networkSelector(),
-                    const SizedBox(height: 12),
-                    _rememberRow(),
-                    const SizedBox(height: 24),
-                    _primaryButton(),
-                    if (_biometricEnabled) ...[
-                      const SizedBox(height: 16),
-                      _biometricButton(),
-                    ],
-                    const SizedBox(height: 24),
-                    // _signupPrompt(),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  InputDecoration _fieldDecoration({Widget? suffixIcon}) {
+    final border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(GemsChrome.radius),
+      borderSide: const BorderSide(color: GemsChrome.border),
+    );
+    return InputDecoration(
+      filled: true,
+      fillColor: Colors.white,
+      isDense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      suffixIcon: suffixIcon,
+      border: border,
+      enabledBorder: border,
+      focusedBorder: border.copyWith(
+        borderSide: const BorderSide(color: GemsChrome.primary, width: 1.4),
       ),
     );
   }
@@ -282,34 +300,46 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'System',
-          style: TextStyle(
-            color: AppColors.dark,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
+        Text('System', style: GemsChrome.body(size: 13, weight: FontWeight.w500)),
+        const SizedBox(height: 4),
         SizedBox(
           width: double.infinity,
-          child: SegmentedButton<NetworkSource>(
-            showSelectedIcon: false,
-            segments: const [
-              ButtonSegment<NetworkSource>(
-                value: NetworkSource.gemsPlus,
-                label: Text('GEMS+'),
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: Theme.of(context).colorScheme.copyWith(
+                    primary: GemsChrome.primary,
+                  ),
+            ),
+            child: SegmentedButton<NetworkSource>(
+              showSelectedIcon: false,
+              style: ButtonStyle(
+                visualDensity: VisualDensity.compact,
+                shape: WidgetStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(GemsChrome.radius),
+                  ),
+                ),
+                side: WidgetStateProperty.all(
+                  const BorderSide(color: GemsChrome.border),
+                ),
               ),
-              ButtonSegment<NetworkSource>(
-                value: NetworkSource.gems20,
-                label: Text('GEMS 2.0'),
-              ),
-            ],
-            selected: {_selectedNetworkSource},
-            onSelectionChanged: userlogIn
-                ? null
-                : (selection) {
-                    setState(() => _selectedNetworkSource = selection.first);
-                  },
+              segments: const [
+                ButtonSegment<NetworkSource>(
+                  value: NetworkSource.gemsPlus,
+                  label: Text('GEMS+'),
+                ),
+                ButtonSegment<NetworkSource>(
+                  value: NetworkSource.gems20,
+                  label: Text('GEMS 2.0'),
+                ),
+              ],
+              selected: {_selectedNetworkSource},
+              onSelectionChanged: userlogIn
+                  ? null
+                  : (selection) {
+                      setState(() => _selectedNetworkSource = selection.first);
+                    },
+            ),
           ),
         ),
       ],
@@ -319,36 +349,15 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   Widget _inputField({
     required String label,
     required ValueChanged<String> onChanged,
-    String? hintText,
   }) {
-    final baseBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(18),
-      borderSide: BorderSide(color: AppColors.secondary.withValues(alpha: 0.2)),
-    );
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: AppColors.dark,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
+        _fieldLabel(label),
         TextField(
           onChanged: onChanged,
-          decoration: InputDecoration(
-            hintText: hintText,
-            filled: true,
-            fillColor: const Color(0xFFF8F9FB),
-            border: baseBorder,
-            enabledBorder: baseBorder,
-            focusedBorder: baseBorder.copyWith(
-              borderSide: BorderSide(color: AppColors.primary, width: 1.4),
-            ),
-          ),
+          style: GemsChrome.body(size: 14),
+          decoration: _fieldDecoration(),
         ),
       ],
     );
@@ -358,49 +367,17 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Password',
-              style: TextStyle(
-                color: AppColors.dark,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            TextButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const Forgot()),
-              ),
-              child: Text(
-                'Forgot Password?',
-                style: TextStyle(color: AppColors.primary),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
+        _fieldLabel('Password'),
         TextField(
           obscureText: secure,
           onChanged: (v) => _password = v,
-          decoration: InputDecoration(
-            hintText: '',
-            filled: true,
-            fillColor: const Color(0xFFF8F9FB),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(18),
-              borderSide:
-                  BorderSide(color: AppColors.secondary.withValues(alpha: 0.2)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(18),
-              borderSide: BorderSide(color: AppColors.primary, width: 1.4),
-            ),
+          style: GemsChrome.body(size: 14),
+          decoration: _fieldDecoration(
             suffixIcon: IconButton(
               icon: Icon(
-                secure ? Icons.visibility_off : Icons.visibility,
-                color: AppColors.secondaryDark,
+                secure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                color: GemsChrome.textSoft,
+                size: 20,
               ),
               onPressed: () => setState(() => secure = !secure),
             ),
@@ -412,17 +389,18 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
   Widget _rememberRow() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          'Remember me next time',
-          style: TextStyle(color: AppColors.secondaryDark),
-        ),
         Checkbox(
           value: _rememberMe,
           onChanged: (value) => setState(() => _rememberMe = value ?? false),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-          activeColor: AppColors.primary,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+          activeColor: GemsChrome.primary,
+          side: const BorderSide(color: GemsChrome.muted),
+          visualDensity: VisualDensity.compact,
+        ),
+        Text(
+          'Remember me',
+          style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
         ),
       ],
     );
@@ -431,20 +409,35 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   Widget _primaryButton() {
     return SizedBox(
       width: double.infinity,
-      height: 52,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color.fromRGBO(0, 173, 168, 1),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+      height: 44,
+      child: FilledButton(
+        style: FilledButton.styleFrom(
+          backgroundColor: GemsChrome.primary,
+          disabledBackgroundColor: GemsChrome.primary.withValues(alpha: 0.6),
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(GemsChrome.radius),
+          ),
           elevation: 0,
         ),
         onPressed: userlogIn ? null : () async => await _onLoginPressed(),
-        child: Text(
-          userlogIn ? 'Loading…' : 'Log in',
-          style: const TextStyle(
-              fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-        ),
+        child: userlogIn
+            ? Text('Loading…', style: GemsChrome.body(size: 15, weight: FontWeight.w600, color: Colors.white))
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Log In',
+                    style: GemsChrome.body(
+                      size: 15,
+                      weight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.arrow_forward, size: 18),
+                ],
+              ),
       ),
     );
   }
@@ -452,33 +445,25 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   Widget _biometricButton() {
     return SizedBox(
       width: double.infinity,
-      height: 52,
+      height: 44,
       child: OutlinedButton.icon(
         style: OutlinedButton.styleFrom(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+          foregroundColor: GemsChrome.primary,
+          side: const BorderSide(color: GemsChrome.border),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(GemsChrome.radius),
+          ),
         ),
         icon: const Icon(Icons.fingerprint),
-        label: const Text('Sign in with biometrics'),
-        onPressed: userlogIn ? null : () => _handleBiometricLogin(auto: false),
-      ),
-    );
-  }
-
-  Widget _signupPrompt() {
-    return Center(
-      child: Text.rich(
-        TextSpan(
-          text: "Don't have an account? ",
-          style: TextStyle(color: Colors.grey.shade600),
-          children: [
-            TextSpan(
-              text: 'Sign up',
-              style: TextStyle(
-                  color: AppColors.primary, fontWeight: FontWeight.w600),
-            ),
-          ],
+        label: Text(
+          'Sign in with biometrics',
+          style: GemsChrome.body(
+            size: 14,
+            weight: FontWeight.w500,
+            color: GemsChrome.primary,
+          ),
         ),
+        onPressed: userlogIn ? null : () => _handleBiometricLogin(auto: false),
       ),
     );
   }

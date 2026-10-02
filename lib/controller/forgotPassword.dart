@@ -3,6 +3,7 @@ import 'dart:io'; // Not used in this file
 import 'dart:typed_data'; // Not used in this file
 
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // --- Mock Implementations for Dependencies ---
@@ -255,9 +256,9 @@ class _ForgotState extends State<Forgot> {
     // ToastContext().init(context);
 
     return Scaffold(
-      appBar: AppBar(
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         title: Text(titleTxt),
-        centerTitle: true,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

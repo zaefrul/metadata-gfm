@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 
 Widget field(
   String hint,
@@ -11,6 +12,7 @@ Widget field(
   String? value,
   bool enable = true,
   bool phoneType = false,
+  bool outlined = false,
 }) {
   TextEditingController? controller =
       value == null ? null : TextEditingController(text: value);
@@ -34,7 +36,10 @@ Widget field(
       enabled: enable,
       controller: controller,
       obscureText: secure,
-      decoration: InputDecoration(
+      style: outlined ? GemsChrome.body(size: 14) : null,
+      decoration: outlined
+          ? gemsFieldDecoration(label: hint, enabled: enable)
+          : InputDecoration(
         prefixIcon: leftIcon == null || child == null
             ? null
             : Padding(

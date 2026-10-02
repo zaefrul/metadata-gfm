@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:flutter/services.dart';
 import 'package:GEMS/controller/ReturnItem/bloc/bloc_return.dart';
 import 'package:GEMS/model/return_ticket_models.dart';
-import 'package:GEMS/utils/reference.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:toast/toast.dart';
 import 'package:intl/intl.dart';
 
@@ -51,12 +50,9 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgDefault,
-      appBar: AppBar(
-        title: Text('Return Request', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        foregroundColor: AppColors.onPrimary,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('Return Request'),
       ),
       body: StreamBuilder<String>(
         stream: _bloc.err$,
@@ -95,42 +91,23 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
   
   Widget _buildItemInfoCard() {
     final group = widget.group;
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
+    return GemsFormSection(
+      title: 'Item details',
+      icon: Icons.inventory_2_outlined,
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Item Details',
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.gray600,
-              ),
-            ),
-            SizedBox(height: 12),
-            Text(
               group.itemDescription,
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
+              style: GemsChrome.heading(size: 18),
             ),
             SizedBox(height: 8),
             _buildQuantitySummary(group),
             if (group.serializedInstances.isNotEmpty) ...[
               SizedBox(height: 20),
               Text(
-                'Serialized Items (${group.serializedInstances.length})',
-                style: GoogleFonts.poppins(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.gray600,
-                ),
+                'Serialized items (${group.serializedInstances.length})',
+                style: GemsChrome.body(size: 13, weight: FontWeight.w600, color: GemsChrome.textSoft),
               ),
               SizedBox(height: 8),
               ...group.serializedInstances.map(_buildSerializedCard),
@@ -138,19 +115,14 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
             if (group.bulkBuckets.isNotEmpty) ...[
               SizedBox(height: 20),
               Text(
-                'Material Requests (${group.bulkBuckets.length})',
-                style: GoogleFonts.poppins(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.gray600,
-                ),
+                'Material requests (${group.bulkBuckets.length})',
+                style: GemsChrome.body(size: 13, weight: FontWeight.w600, color: GemsChrome.textSoft),
               ),
               SizedBox(height: 8),
               ...group.bulkBuckets.map(_buildBulkBucketCard),
             ],
           ],
         ),
-      ),
     );
   }
   
@@ -168,20 +140,12 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
             children: [
               Text(
                 label,
-                style: GoogleFonts.poppins(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: color.withValues(alpha: 0.9),
-                ),
+                style: GemsChrome.body(size: 11, weight: FontWeight.w500, color: color),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
                 value,
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: color.withValues(alpha: 0.9),
-                ),
+                style: GemsChrome.body(size: 16, weight: FontWeight.w700, color: color),
               ),
             ],
           ),
@@ -191,9 +155,9 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
 
     return Row(
       children: [
-        chip('Collected', group.totalCollected.toString(), AppColors.primary),
-        chip('Returned', group.totalReturned.toString(), AppColors.warning),
-        chip('Available', group.totalAvailable.toString(), AppColors.success),
+        chip('Collected', group.totalCollected.toString(), GemsChrome.primary),
+        chip('Returned', group.totalReturned.toString(), GemsChrome.warning),
+        chip('Available', group.totalAvailable.toString(), GemsChrome.success),
       ],
     );
   }
@@ -202,82 +166,48 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Return Quantity *',
-          style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500),
-        ),
-        SizedBox(height: 8),
         TextField(
           controller: _quantityController,
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          decoration: InputDecoration(
-            hintText: 'Enter quantity (max $_maxQuantity)',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            contentPadding: EdgeInsets.all(12),
+          style: GemsChrome.body(size: 14),
+          decoration: gemsFieldDecoration(label: 'Return quantity').copyWith(
+            hintText: 'Max $_maxQuantity',
+            hintStyle: GemsChrome.body(color: GemsChrome.muted),
           ),
-          style: GoogleFonts.poppins(fontSize: 14),
         ),
-        SizedBox(height: 6),
+        const SizedBox(height: 6),
         Text(
           'Adjust the number if you plan to return less than the available quantity.',
-          style: GoogleFonts.poppins(fontSize: 12, color: AppColors.gray600),
+          style: GemsChrome.body(size: 12, color: GemsChrome.textSoft),
         ),
       ],
     );
   }
   
   Widget _buildFormCard(bool isLoading) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
+    return GemsFormSection(
+      title: 'Return information',
+      icon: Icons.assignment_return_outlined,
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Return Information',
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.gray600,
-              ),
-            ),
-            SizedBox(height: 16),
-
-            // Return Reason Dropdown
-            Text(
-              'Return Reason *',
-              style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500),
-            ),
-            SizedBox(height: 8),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.gray400),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _selectedReason,
-                  isExpanded: true,
-                  items: _reasonOptions.entries.map((entry) {
-                    return DropdownMenuItem(
-                      value: entry.key,
-                      child: Text(
-                        entry.value,
-                        style: GoogleFonts.poppins(fontSize: 14),
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedReason = value!;
-                    });
-                  },
-                ),
-              ),
+            DropdownButtonFormField<String>(
+              value: _selectedReason,
+              isExpanded: true,
+              decoration: gemsFieldDecoration(label: 'Return reason'),
+              style: GemsChrome.body(size: 14),
+              items: _reasonOptions.entries.map((entry) {
+                return DropdownMenuItem(
+                  value: entry.key,
+                  child: Text(entry.value, style: GemsChrome.body(size: 14)),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedReason = value!;
+                });
+              },
             ),
             SizedBox(height: 16),
 
@@ -288,27 +218,21 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
               SizedBox(height: 8),
               Text(
                 'This group has 1 item available to return. It will be submitted using FIFO order.',
-                style: GoogleFonts.poppins(fontSize: 12, color: AppColors.gray600),
+                style: GemsChrome.body(size: 12, color: GemsChrome.textSoft),
               ),
               SizedBox(height: 16),
             ],
             
             // Remarks (Optional)
-            Text(
-              'Remarks (Optional)',
-              style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w500),
-            ),
-            SizedBox(height: 8),
             TextField(
               controller: _remarksController,
               maxLines: 3,
               maxLength: 500,
-              decoration: InputDecoration(
+              style: GemsChrome.body(size: 14),
+              decoration: gemsFieldDecoration(label: 'Remarks').copyWith(
                 hintText: 'Add any additional notes...',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                contentPadding: EdgeInsets.all(12),
+                hintStyle: GemsChrome.body(color: GemsChrome.muted),
               ),
-              style: GoogleFonts.poppins(fontSize: 14),
             ),
             SizedBox(height: 16),
             
@@ -317,29 +241,21 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
             // Submit Button
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: FilledButton(
                 onPressed: isLoading ? null : _submitReturn,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.onPrimary,
-                  padding: EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  disabledBackgroundColor: AppColors.gray400,
-                ),
+                style: gemsPrimaryButton(),
                 child: isLoading
-                    ? SizedBox(
+                    ? const SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+                          color: Colors.white,
                         ),
                       )
                     : Text(
-                        'Submit Return Request',
-                        style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),
+                        'Submit return request',
+                        style: GemsChrome.body(size: 16, weight: FontWeight.w600, color: Colors.white),
                       ),
               ),
             ),
@@ -351,25 +267,21 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
               child: OutlinedButton(
                 onPressed: isLoading ? null : () => Navigator.pop(context),
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: AppColors.gray400),
-                  padding: EdgeInsets.symmetric(vertical: 14),
+                  foregroundColor: GemsChrome.text,
+                  side: const BorderSide(color: GemsChrome.border),
+                  minimumSize: const Size(double.infinity, 44),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(GemsChrome.radius),
                   ),
                 ),
                 child: Text(
                   'Cancel',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
+                  style: GemsChrome.body(size: 16, weight: FontWeight.w600, color: GemsChrome.text),
                 ),
               ),
             ),
           ],
         ),
-      ),
     );
   }
   
@@ -401,22 +313,22 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
     bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Confirm Return', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+        title: Text('Confirm return', style: GemsChrome.heading(size: 18)),
         content: Text(
           _isQuantityMode
               ? 'Return $quantity item(s) from ${widget.group.itemDescription}?'
               : 'Return ${widget.group.itemDescription}?',
-          style: GoogleFonts.poppins(),
+          style: GemsChrome.body(),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel', style: GoogleFonts.poppins(color: AppColors.gray600)),
+            child: Text('Cancel', style: GemsChrome.body(color: GemsChrome.textSoft)),
           ),
-          ElevatedButton(
+          FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-            child: Text('Confirm', style: GoogleFonts.poppins()),
+            style: FilledButton.styleFrom(backgroundColor: GemsChrome.primary),
+            child: Text('Confirm', style: GemsChrome.body(weight: FontWeight.w600, color: Colors.white)),
           ),
         ],
       ),
@@ -487,29 +399,22 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
       margin: EdgeInsets.only(bottom: 8),
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.gray100,
-        borderRadius: BorderRadius.circular(10),
+        color: GemsChrome.neutralSoft,
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            serial,
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          SizedBox(height: 4),
+          Text(serial, style: GemsChrome.body(size: 14, weight: FontWeight.w600)),
+          const SizedBox(height: 4),
           Text(
             'WO ${instance.woTaskNo} · MR ${instance.woTaskRequestNo}',
-            style: GoogleFonts.poppins(fontSize: 12, color: AppColors.gray600),
+            style: GemsChrome.body(size: 12, color: GemsChrome.textSoft),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             'Checkout: ${_formatDateTime(instance.checkOutTime)}',
-            style: GoogleFonts.poppins(fontSize: 12, color: AppColors.gray600),
+            style: GemsChrome.body(size: 12, color: GemsChrome.textSoft),
           ),
         ],
       ),
@@ -522,32 +427,24 @@ class _ReturnItemDetailState extends State<ReturnItemDetail> {
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.gray200),
+        border: Border.all(color: GemsChrome.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'MR ${instance.woTaskRequestNo}',
-            style: GoogleFonts.poppins(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
+            style: GemsChrome.body(size: 13, weight: FontWeight.w600),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             'WO ${instance.woTaskNo}',
-            style: GoogleFonts.poppins(fontSize: 12, color: AppColors.gray600),
+            style: GemsChrome.body(size: 12, color: GemsChrome.textSoft),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             'Available: ${instance.quantityAvailableToReturn}',
-            style: GoogleFonts.poppins(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppColors.success,
-            ),
+            style: GemsChrome.body(size: 12, weight: FontWeight.w600, color: GemsChrome.success),
           ),
         ],
       ),

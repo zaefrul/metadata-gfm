@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/ReturnItem/bloc/bloc_return.dart';
 import 'package:GEMS/model/return_ticket_models.dart';
-import 'package:GEMS/utils/reference.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:toast/toast.dart';
 import 'package:intl/intl.dart';
 
@@ -109,21 +108,20 @@ class _ReturnConfirmDetailState extends State<ReturnConfirmDetail> {
     final remark = await showDialog<String?>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Reject Selected Items', style: GoogleFonts.poppins()),
+        title: Text('Reject selected items', style: GemsChrome.heading(size: 18)),
         content: TextField(
           controller: _remarkController,
           maxLines: 3,
-          decoration: InputDecoration(
-            hintText: 'Enter rejection remark (required)',
-            border: OutlineInputBorder(),
-          ),
+          style: GemsChrome.body(size: 14),
+          decoration: gemsFieldDecoration(label: 'Rejection remark'),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, null),
-            child: Text('Cancel'),
+            child: Text('Cancel', style: GemsChrome.body(color: GemsChrome.textSoft)),
           ),
-          ElevatedButton(
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: GemsChrome.danger),
             onPressed: () {
               if (_remarkController.text.trim().isEmpty) {
                 Toast.show('Remark is required when rejecting',
@@ -132,7 +130,7 @@ class _ReturnConfirmDetailState extends State<ReturnConfirmDetail> {
               }
               Navigator.pop(context, _remarkController.text.trim());
             },
-            child: Text('Reject'),
+            child: Text('Reject', style: GemsChrome.body(weight: FontWeight.w600, color: Colors.white)),
           )
         ],
       ),
@@ -149,12 +147,9 @@ class _ReturnConfirmDetailState extends State<ReturnConfirmDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgDefault,
-      appBar: AppBar(
-        title: Text('Confirm Return', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        foregroundColor: AppColors.onPrimary,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('Confirm Return'),
       ),
       body: StreamBuilder<String>(
         stream: _bloc.err$,
@@ -171,7 +166,7 @@ class _ReturnConfirmDetailState extends State<ReturnConfirmDetail> {
               bool isLoading = loadingSnapshot.data ?? false;
               
               if (isLoading && _ticket == null) {
-                return Center(child: CircularProgressIndicator(color: AppColors.primary));
+                return const Center(child: CircularProgressIndicator(color: GemsChrome.primary));
               }
               if (_ticket == null) {
                 return _buildEmptyState();
@@ -179,7 +174,7 @@ class _ReturnConfirmDetailState extends State<ReturnConfirmDetail> {
 
               return RefreshIndicator(
                 onRefresh: _loadTicket,
-                color: AppColors.primary,
+                color: GemsChrome.primary,
                 child: ListView(
                   padding: EdgeInsets.all(16),
                   physics: const AlwaysScrollableScrollPhysics(),
@@ -202,50 +197,41 @@ class _ReturnConfirmDetailState extends State<ReturnConfirmDetail> {
   }
   
   Widget _buildStatusCard() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Container(
-        padding: EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColors.warningLight, AppColors.warningLight.withOpacity(0.5)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(12),
-        ),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: GemsChrome.warningSoft,
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        border: Border.all(color: GemsChrome.border),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             Container(
-              padding: EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(10),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(GemsChrome.radius),
               ),
-              child: Icon(Icons.pending_actions, color: AppColors.warning, size: 32),
+              child: const Icon(Icons.pending_actions, color: GemsChrome.warning, size: 28),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'RETURN TICKET ${_ticket?.returnTicketId ?? ''}',
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.warningDark,
-                      letterSpacing: 0.5,
+                    'Return ticket ${_ticket?.returnTicketId ?? ''}',
+                    style: GemsChrome.body(
+                      size: 13,
+                      weight: FontWeight.w600,
+                      color: GemsChrome.warning,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     'Awaiting storekeeper action',
-                    style: GoogleFonts.poppins(
-                      fontSize: 13,
-                      color: AppColors.textSecondary,
-                    ),
+                    style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
                   ),
                 ],
               ),
@@ -272,12 +258,10 @@ class _ReturnConfirmDetailState extends State<ReturnConfirmDetail> {
     final materialRequest =
         _fallback(ticket.woTaskRequestNo, firstItem?.woTaskRequestNo);
     final siteName = _fallback(ticket.siteName, null);
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+    return GemsFormSection(
+      title: 'Ticket',
+      icon: Icons.receipt_long_outlined,
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildDetailRow('Technician', technicianName, Icons.person),
@@ -289,46 +273,33 @@ class _ReturnConfirmDetailState extends State<ReturnConfirmDetail> {
               DateFormat('dd MMM yyyy, HH:mm').format(ticket.submittedAt ?? DateTime.now()),
               Icons.schedule,
             ),
-            Divider(height: 24),
+            const Divider(height: 24, color: GemsChrome.border),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Pending Items',
-                    style: GoogleFonts.poppins(
-                        fontSize: 14, fontWeight: FontWeight.w600)),
-                Text('${_pendingItems.length}',
-                    style: GoogleFonts.poppins(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary)),
+                Text('Pending items', style: GemsChrome.body(size: 14, weight: FontWeight.w600)),
+                Text(
+                  '${_pendingItems.length}',
+                  style: GemsChrome.heading(size: 22, color: GemsChrome.primary),
+                ),
               ],
             )
           ],
         ),
-      ),
     );
   }
 
   Widget _buildItemsCard() {
     final items = _ticket!.items;
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
+    return GemsFormSection(
+      title: 'Items',
+      icon: Icons.list_alt_outlined,
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: Text('Items',
-                  style: GoogleFonts.poppins(
-                      fontSize: 16, fontWeight: FontWeight.w600)),
-            ),
             ...items.map(_buildItemTile).toList(),
           ],
         ),
-      ),
     );
   }
 
@@ -341,58 +312,63 @@ class _ReturnConfirmDetailState extends State<ReturnConfirmDetail> {
             ? 'Approved'
             : 'Rejected';
     final statusColor = item.isApproved
-        ? AppColors.success
+        ? GemsChrome.success
         : item.isRejected
-            ? AppColors.danger
-            : AppColors.warning;
+            ? GemsChrome.danger
+            : GemsChrome.warning;
     final description = item.itemDescription.isNotEmpty
       ? item.itemDescription
       : 'Part ${item.partId}';
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        leading: isPending
-            ? Checkbox(
-                value: isSelected,
-                onChanged: (_) => _toggleSelection(item.partSubId),
-              )
-            : Icon(
-                item.isApproved ? Icons.check_circle : Icons.cancel,
-                color: statusColor,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(GemsChrome.radius),
+          border: Border.all(color: GemsChrome.border),
+        ),
+        child: ListTile(
+          leading: isPending
+              ? Checkbox(
+                  value: isSelected,
+                  activeColor: GemsChrome.primary,
+                  onChanged: (_) => _toggleSelection(item.partSubId),
+                )
+              : Icon(
+                  item.isApproved ? Icons.check_circle : Icons.cancel,
+                  color: statusColor,
+                ),
+          onTap: isPending ? () => _toggleSelection(item.partSubId) : null,
+          title: Text(description, style: GemsChrome.body(weight: FontWeight.w600)),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 4),
+              Text('Serial: ${item.partSubNo ?? item.partSubId}', style: GemsChrome.body(size: 12, color: GemsChrome.textSoft)),
+              Text('Quantity: ${item.quantityReturned}', style: GemsChrome.body(size: 12, color: GemsChrome.textSoft)),
+              Text('WO: ${item.woTaskNo}', style: GemsChrome.body(size: 12, color: GemsChrome.textSoft)),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  statusText,
+                  style: GemsChrome.body(size: 11, weight: FontWeight.w600, color: statusColor),
+                ),
               ),
-        onTap: isPending ? () => _toggleSelection(item.partSubId) : null,
-      title: Text(description,
-            style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 4),
-            Text('Serial: ${item.partSubNo ?? item.partSubId}',
-                style: GoogleFonts.poppins(fontSize: 12)),
-            Text('Quantity: ${item.quantityReturned}',
-                style: GoogleFonts.poppins(fontSize: 12)),
-            Text('WO: ${item.woTaskNo}',
-                style: GoogleFonts.poppins(fontSize: 12)),
-            SizedBox(height: 4),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: statusColor.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                statusText,
-                style: GoogleFonts.poppins(fontSize: 11, color: statusColor),
-              ),
-            ),
-            if (item.remark != null && item.remark!.isNotEmpty) ...[
-              SizedBox(height: 4),
-              Text('Remark: ${item.remark!}',
-                  style: GoogleFonts.poppins(fontSize: 12, fontStyle: FontStyle.italic)),
-            ]
-          ],
+              if (item.remark != null && item.remark!.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  'Remark: ${item.remark!}',
+                  style: GemsChrome.body(size: 12, color: GemsChrome.textSoft),
+                ),
+              ]
+            ],
+          ),
         ),
       ),
     );
@@ -411,9 +387,15 @@ class _ReturnConfirmDetailState extends State<ReturnConfirmDetail> {
                 icon: Icon(Icons.check),
                 label: Text('Approve Selected'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.success,
-                  foregroundColor: AppColors.white,
+                  backgroundColor: GemsChrome.success,
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: GemsChrome.success.withValues(alpha: 0.45),
+                  disabledForegroundColor: Colors.white,
+                  elevation: 0,
                   padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(GemsChrome.radius),
+                  ),
                 ),
               ),
             ),
@@ -424,9 +406,15 @@ class _ReturnConfirmDetailState extends State<ReturnConfirmDetail> {
                 icon: Icon(Icons.close),
                 label: Text('Reject Selected'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.danger,
-                  foregroundColor: AppColors.white,
+                  backgroundColor: GemsChrome.danger,
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: GemsChrome.danger.withValues(alpha: 0.45),
+                  disabledForegroundColor: Colors.white,
+                  elevation: 0,
                   padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(GemsChrome.radius),
+                  ),
                 ),
               ),
             ),
@@ -437,7 +425,7 @@ class _ReturnConfirmDetailState extends State<ReturnConfirmDetail> {
             padding: const EdgeInsets.only(top: 12),
             child: Text(
               'No pending items left in this ticket.',
-              style: GoogleFonts.poppins(color: AppColors.gray600),
+              style: GemsChrome.body(color: GemsChrome.textSoft),
             ),
           ),
       ],
@@ -449,13 +437,14 @@ class _ReturnConfirmDetailState extends State<ReturnConfirmDetail> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.inventory, size: 72, color: AppColors.gray400),
-          SizedBox(height: 16),
-          Text('Ticket not found',
-              style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600)),
-          SizedBox(height: 8),
-          Text('This return ticket may have been processed already.',
-              style: GoogleFonts.poppins(color: AppColors.gray600)),
+          const Icon(Icons.inventory_2_outlined, size: 64, color: GemsChrome.muted),
+          const SizedBox(height: 16),
+          Text('Ticket not found', style: GemsChrome.heading(size: 18)),
+          const SizedBox(height: 8),
+          Text(
+            'This return ticket may have been processed already.',
+            style: GemsChrome.body(color: GemsChrome.textSoft),
+          ),
         ],
       ),
     );
@@ -466,27 +455,14 @@ class _ReturnConfirmDetailState extends State<ReturnConfirmDetail> {
       padding: EdgeInsets.only(bottom: 12),
       child: Row(
         children: [
-          Icon(icon, size: 16, color: AppColors.gray600),
+          Icon(icon, size: 16, color: GemsChrome.primary),
           SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  label,
-                  style: GoogleFonts.poppins(
-                    fontSize: 11,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                Text(
-                  value,
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
+                Text(label, style: GemsChrome.body(size: 12, color: GemsChrome.textSoft)),
+                Text(value, style: GemsChrome.body(size: 14, weight: FontWeight.w600)),
               ],
             ),
           ),

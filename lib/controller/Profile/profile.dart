@@ -1,16 +1,14 @@
 // lib/controller/Profile/profile.dart
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:toast/toast.dart';
 
 import '../../model/user.dart';
 import '../../utils/auth_secure_storage.dart';
 import '../../utils/network.dart';
-import '../../utils/reference.dart';
-import '../../view/bar.dart';
 import '../../view/drawer.dart';
+import '../../view/gems_chrome.dart';
 import '../PPM/Form/openImage.dart';
 import 'changePassword.dart';
 import 'editProfile.dart';
@@ -102,14 +100,14 @@ class _ProfileState extends State<Profile> {
     if (!_biometricSupported) {
       Toast.show(
         "Biometric authentication isn't available on this device.",
-        backgroundColor: AppColors.warning,
+        backgroundColor: GemsChrome.warning,
       );
       return false;
     }
     if (!_profileLoaded) {
       Toast.show(
         "Profile data is still loading. Please try again in a moment.",
-        backgroundColor: AppColors.warning,
+        backgroundColor: GemsChrome.warning,
       );
       return false;
     }
@@ -127,13 +125,13 @@ class _ProfileState extends State<Profile> {
       _loadProfile();
       Toast.show(
         "Biometric login enabled.",
-        backgroundColor: AppColors.success,
+        backgroundColor: GemsChrome.success,
       );
       return true;
     } catch (e) {
       Toast.show(
         e.toString(),
-        backgroundColor: AppColors.danger,
+        backgroundColor: GemsChrome.danger,
       );
       return false;
     }
@@ -148,13 +146,13 @@ class _ProfileState extends State<Profile> {
       await AuthSecureStorage.disable();
       Toast.show(
         "Biometric login disabled.",
-        backgroundColor: AppColors.success,
+        backgroundColor: GemsChrome.success,
       );
       return true;
     } catch (e) {
       Toast.show(
         "Failed to disable biometric login.",
-        backgroundColor: AppColors.danger,
+        backgroundColor: GemsChrome.danger,
       );
       return false;
     }
@@ -177,21 +175,22 @@ class _ProfileState extends State<Profile> {
             TextField(
               controller: controller,
               obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
+              style: GemsChrome.body(size: 14),
+              decoration: gemsFieldDecoration(label: 'Password'),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: GemsChrome.body(color: GemsChrome.textSoft)),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(controller.text.trim()),
-            child: const Text('Enable'),
+            child: Text(
+              'Enable',
+              style: GemsChrome.body(weight: FontWeight.w600, color: GemsChrome.primary),
+            ),
           ),
         ],
       ),
@@ -209,11 +208,14 @@ class _ProfileState extends State<Profile> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: GemsChrome.body(color: GemsChrome.textSoft)),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Disable'),
+            child: Text(
+              'Disable',
+              style: GemsChrome.body(weight: FontWeight.w600, color: GemsChrome.danger),
+            ),
           ),
         ],
       ),
@@ -222,14 +224,27 @@ class _ProfileState extends State<Profile> {
   }
 
   Widget _buildRow(IconData icon, String title, String value) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
-      child: ListTile(
-        leading: Icon(icon, color: colorTheme2),
-        title: Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-        subtitle: Text(value, style: GoogleFonts.poppins()),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 18, color: GemsChrome.primary),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: GemsChrome.body(size: 12, color: GemsChrome.textSoft)),
+                const SizedBox(height: 2),
+                Text(
+                  value.isEmpty ? '-' : value,
+                  style: GemsChrome.body(size: 14, weight: FontWeight.w500),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -239,20 +254,14 @@ class _ProfileState extends State<Profile> {
     ToastContext().init(context);
     return Scaffold(
       key: _scaffoldKey,
-      appBar: bar(
-        _scaffoldKey,
-        text: "Profile",
-        search: false,
-      ) as PreferredSizeWidget?,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('Profile'),
+      ),
       drawer: BuildDrawer(() => Navigator.pop(context)),
-
-      body: Stack(
-        children: [
-          background,
-          ListView(
-            padding: const EdgeInsets.symmetric(vertical: 24),
+      body: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
             children: [
-              // — Avatar —
               Center(
                 child: GestureDetector(
                   onTap: _imageSrc.isEmpty ? null : () {
@@ -261,90 +270,115 @@ class _ProfileState extends State<Profile> {
                     ));
                   },
                   child: CircleAvatar(
-                    radius: 60,
+                    radius: 52,
+                    backgroundColor: GemsChrome.primarySoft,
                     backgroundImage: _imageSrc.isEmpty
-                      ? AssetImage('assets/profile_plain.png') as ImageProvider
+                      ? const AssetImage('assets/profile_plain.png') as ImageProvider
                       : NetworkImage("http:$_imageSrc"),
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-
-              // — Edit / Change buttons —
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 50),
+              const SizedBox(height: 12),
+              Text(
+                _name.isEmpty ? 'Profile' : _name,
+                textAlign: TextAlign.center,
+                style: GemsChrome.heading(size: 20),
+              ),
+              if (_role.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  _role.join(', '),
+                  textAlign: TextAlign.center,
+                  style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+                ),
+              ],
+              const SizedBox(height: 20),
+              FilledButton.icon(
+                icon: const Icon(Icons.edit_outlined, color: Colors.white),
+                label: Text(
+                  'Edit profile',
+                  style: GemsChrome.body(weight: FontWeight.w600, color: Colors.white),
+                ),
+                style: gemsPrimaryButton(),
+                onPressed: !_profileLoaded
+                    ? null
+                    : () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => Edit(user)),
+                        ).then((_) => _loadProfile()),
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                icon: const Icon(Icons.lock_outline),
+                label: Text(
+                  'Change password',
+                  style: GemsChrome.body(weight: FontWeight.w600, color: GemsChrome.primary),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: GemsChrome.primary,
+                  side: const BorderSide(color: GemsChrome.primary),
+                  minimumSize: const Size(double.infinity, 44),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(GemsChrome.radius),
+                  ),
+                ),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => Change()),
+                ),
+              ),
+              const SizedBox(height: 20),
+              GemsFormSection(
+                title: 'Details',
+                icon: Icons.badge_outlined,
                 child: Column(
                   children: [
-                    ElevatedButton.icon(
-                      icon: Icon(Icons.edit, color: Colors.white),
-                      label: Text("Edit Profile", style: GoogleFonts.poppins(color: Colors.white)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        minimumSize: Size(double.infinity, 44),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => Edit(user)),
-                      ).then((_) => _loadProfile()),
-                    ),
-                    const SizedBox(height: 8),
-                    ElevatedButton.icon(
-                      icon: Icon(Icons.lock, color: Colors.white),
-                      label: Text("Change Password", style: GoogleFonts.poppins(color: Colors.white)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        minimumSize: Size(double.infinity, 44),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => Change()),
-                      ),
-                    ),
+                    _buildRow(Icons.person_outline, 'Name', _name),
+                    _buildRow(Icons.work_outline, 'Roles', _role.join(', ')),
+                    _buildRow(Icons.phone_outlined, 'Contact No.', _contact),
+                    _buildRow(Icons.email_outlined, 'Email', _email),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
-
-              // — Profile fields —
-              _buildRow(Icons.person,       "Name",         _name),
-              _buildRow(Icons.work,         "Roles",        _role.join(", ")),
-              _buildRow(Icons.phone,        "Contact No.",  _contact),
-              _buildRow(Icons.email,        "Email",        _email),
               if (_biometricSupported) ...[
+                const SizedBox(height: 12),
                 _buildBiometricSettingsCard(),
               ],
             ],
-          ),
-        ],
-      )
+      ),
     );
   }
 
   Widget _buildBiometricSettingsCard() {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        border: Border.all(color: GemsChrome.border),
+      ),
       child: Column(
         children: [
           SwitchListTile.adaptive(
+            activeColor: GemsChrome.primary,
             title: Text(
-              'Biometric Login',
-              style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+              'Biometric login',
+              style: GemsChrome.body(weight: FontWeight.w600),
             ),
             subtitle: Text(
               _biometricEnabled
                   ? 'Disable if you prefer to enter your password every time.'
-                  : 'Enable to sign in faster using Face ID / Touch ID.',
-              style: GoogleFonts.poppins(fontSize: 13),
+                  : 'Enable to sign in faster using Face ID or Touch ID.',
+              style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
             ),
             value: _biometricEnabled,
             onChanged: _loadingBiometric ? null : _onBiometricChanged,
           ),
           if (_loadingBiometric)
-            const LinearProgressIndicator(minHeight: 2),
+            const LinearProgressIndicator(
+              minHeight: 2,
+              color: GemsChrome.primary,
+              backgroundColor: GemsChrome.border,
+            ),
         ],
       ),
     );

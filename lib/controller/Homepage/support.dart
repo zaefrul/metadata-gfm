@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:GEMS/utils/biometric_lock_manager.dart';
 import '../../utils/network.dart';
+import '../../view/gems_chrome.dart';
 
 class Support extends StatelessWidget {
   final String title = "Support";
@@ -20,10 +21,9 @@ class Support extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Support"),
-        centerTitle: true,
-        backgroundColor: Colors.white,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('Support'),
       ),
       body: SingleChildScrollView(
         child: Container(

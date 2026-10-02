@@ -5,6 +5,7 @@ import 'package:GEMS/main.dart';
 import 'package:GEMS/model/responseValue.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/data/repository/ppm_repository.dart';
 import 'package:toast/toast.dart';
 
@@ -165,9 +166,9 @@ class PPMAddTechnicianState extends State<PPMAddTechnician> {
         return true;
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text("Add Technician Assistant"),
-          backgroundColor: Colors.white,
+        backgroundColor: GemsChrome.page,
+        appBar: gemsAppBar(
+          title: const Text('I. Executor'),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
@@ -183,17 +184,22 @@ class PPMAddTechnicianState extends State<PPMAddTechnician> {
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Card(
-                        color: Colors.orange[50],
+                        elevation: 0,
+                        color: GemsChrome.warningSoft,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(GemsChrome.radius),
+                          side: const BorderSide(color: GemsChrome.border),
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.cloud_off, size: 48, color: Colors.orange),
+                              const Icon(Icons.cloud_off, size: 40, color: GemsChrome.warning),
                               const SizedBox(height: 16),
-                              const Text(
+                              Text(
                                 'Internet Connection Required',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                style: GemsChrome.body(size: 16, weight: FontWeight.w600),
                               ),
                               const SizedBox(height: 8),
                               Text(
@@ -207,7 +213,7 @@ class PPMAddTechnicianState extends State<PPMAddTechnician> {
                                 icon: const Icon(Icons.refresh),
                                 label: const Text('Retry'),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: colorTheme2,
+                                  backgroundColor: GemsChrome.primary,
                                 ),
                               ),
                             ],
@@ -222,26 +228,49 @@ class PPMAddTechnicianState extends State<PPMAddTechnician> {
                       children: <Widget>[
                         TextField(
                           controller: _controller,
-                          decoration: const InputDecoration(
-                            hintText: "Search",
-                            icon: Icon(Icons.search),
-                          ),
+                          style: GemsChrome.body(size: 14),
+                          decoration: gemsFieldDecoration(label: 'Search'),
                         ),
+                        const SizedBox(height: 12),
                         Expanded(
                           child: ListView(
                             children: listTechnicianSearch.map((f) {
-                              return CheckboxListTile(
-                                title: Text(f.userFullName),
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Material(
+                                  color: Colors.white,
+                                  clipBehavior: Clip.antiAlias,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(GemsChrome.radius),
+                                    side: const BorderSide(color: GemsChrome.border),
+                                  ),
+                                  child: CheckboxListTile(
+                                activeColor: GemsChrome.primary,
+                                title: Text(
+                                  f.userFullName,
+                                  style: GemsChrome.body(weight: FontWeight.w500),
+                                ),
                                 value: checkSelected(f),
                                 onChanged: widget.disable
                                     ? null
-                                    : (bool? value) {
+                                    : (bool? value) async {
                                         if (value == true) {
-                                          if (!listTechnicianSelected.contains(f)) {
+                                          if (listTechnicianSelected.any(
+                                              (technician) =>
+                                                  technician.userId == f.userId)) {
+                                            return;
+                                          }
+                                          setState(() {
+                                            listTechnicianSelected.add(f);
+                                          });
+                                          final saved = await _provider.add(f);
+                                          if (!saved && mounted) {
                                             setState(() {
-                                              listTechnicianSelected.add(f);
+                                              listTechnicianSelected.removeWhere(
+                                                  (technician) =>
+                                                      technician.userId ==
+                                                      f.userId);
                                             });
-                                            _provider.add(f);
                                           }
                                         } else {
                                           setState(() {
@@ -249,9 +278,16 @@ class PPMAddTechnicianState extends State<PPMAddTechnician> {
                                                 (technician) =>
                                                     technician.userId == f.userId);
                                           });
-                                          _provider.delete(f);
+                                          final removed = await _provider.delete(f);
+                                          if (!removed && mounted) {
+                                            setState(() {
+                                              listTechnicianSelected.add(f);
+                                            });
+                                          }
                                         }
                                       },
+                                  ),
+                                ),
                               );
                             }).toList(),
                           ),
@@ -262,6 +298,8 @@ class PPMAddTechnicianState extends State<PPMAddTechnician> {
         floatingActionButton: widget.disable
             ? null
             : FloatingActionButton.extended(
+                backgroundColor: GemsChrome.primary,
+                foregroundColor: Colors.white,
                 label: const Text("Done"),
                 onPressed: _saving
                     ? null
@@ -334,8 +372,8 @@ class PPMAddTechnicianState extends State<PPMAddTechnician> {
         ),
       ],
       decoration: BoxDecoration(
-        border: Border.all(width: 1, color: colorTheme3),
-        color: Colors.grey.withOpacity(0.3),
+        border: Border.all(width: 1, color: GemsChrome.border),
+        color: GemsChrome.neutralSoft,
       ),
     );
 
@@ -367,7 +405,7 @@ class PPMAddTechnicianState extends State<PPMAddTechnician> {
           ),
         ],
         decoration: BoxDecoration(
-          border: Border.all(width: 1, color: colorTheme3),
+          border: Border.all(width: 1, color: GemsChrome.border),
         ),
       );
     });
@@ -381,7 +419,7 @@ class PPMAddTechnicianState extends State<PPMAddTechnician> {
           0: FractionColumnWidth(0.15),
           2: FractionColumnWidth(0.35),
         },
-        border: TableBorder.all(width: 1, color: colorTheme3),
+        border: TableBorder.all(width: 1, color: GemsChrome.border),
         children: children,
       ),
     );
@@ -421,13 +459,16 @@ class _Controller {
     }
   }
 
-  Future<void> add(_Model model) async {
+  Future<bool> add(_Model model) async {
     final repository = PPMRepository();
     
     try {
       final result = await repository.addTechnicianAssistant(
         ppmTaskId: id,
         userId: model.userId,
+        onAssistId: (assistId) {
+          model.assistantId = assistId;
+        },
       );
 
       if (result == PPMActionResult.success) {
@@ -435,18 +476,21 @@ class _Controller {
       } else {
         Toast.show("Technician added. Will sync when online.");
       }
+      return true;
     } catch (e) {
       Toast.show("Failed to add technician: ${e.toString()}");
+      return false;
     }
   }
 
-  Future<void> delete(_Model model) async {
+  Future<bool> delete(_Model model) async {
     final repository = PPMRepository();
     
     try {
       final result = await repository.removeTechnicianAssistant(
         ppmTaskId: id,
         userId: model.userId,
+        ppmTaskAssistId: model.assistantId,
       );
 
       if (result == PPMActionResult.success) {
@@ -454,8 +498,10 @@ class _Controller {
       } else {
         Toast.show("Technician removed. Will sync when online.");
       }
+      return true;
     } catch (e) {
       Toast.show("Failed to remove technician: ${e.toString()}");
+      return false;
     }
   }
 
@@ -478,8 +524,8 @@ class _Controller {
   Future<ResponseValue> detail(_Model model) {
     final Provider provider = Provider(
       fetchURL:
-          "/api/m_wo.php?type=technician_details&groupId=${model.assistantId}&userId=",
-      taskID: id,
+          "/api/m_wo.php?type=technician_details&groupId=${model.groupId}&userId=",
+      taskID: model.userId,
     );
     return provider.fetch();
   }
@@ -494,12 +540,17 @@ class _Controller {
 }
 
 class _Model {
-  final String assistantId;
+  String assistantId;
   final String userId;
   final String userFullName;
+  final String groupId;
 
-  _Model(this.assistantId, this.userId, this.userFullName);
+  _Model(this.assistantId, this.userId, this.userFullName, {this.groupId = ''});
 
   factory _Model.fromJson(Map<String, dynamic> json) => _Model(
-      json["ppmTaskAssistId"], json["userId"], json["userFullName"]);
+        (json["ppmTaskAssistId"] ?? '').toString(),
+        (json["userId"] ?? '').toString(),
+        (json["userFullName"] ?? '').toString(),
+        groupId: (json["ppmGroupId"] ?? '').toString(),
+      );
 }

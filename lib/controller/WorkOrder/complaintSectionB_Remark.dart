@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:GEMS/data/repository/work_order_detail_repository.dart';
 import 'package:GEMS/utils/network.dart';
-import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/view/dialog.dart';
 import 'package:toast/toast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import '../../main.dart';
 import 'package:GEMS/controller/WorkOrder/pending_sync.dart';
 import 'package:GEMS/controller/WorkOrder/widgets/pending_sync_banner.dart';
@@ -149,18 +149,10 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: GemsChrome.page,
       resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: colorTheme3),
-        title: Text(
-          "B. Description of Repair Work",
-          style: GoogleFonts.poppins(
-            color: colorTheme3,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+      appBar: gemsAppBar(
+        title: const Text("B. Description of Repair Work"),
       ),
       body: Column(
         children: [
@@ -179,42 +171,24 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "Your Repair Notes",
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: colorTheme3,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 2,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 4,
-                            ),
-                            child: TextField(
+                        GemsFormSection(
+                          title: 'Your repair notes',
+                          icon: Icons.notes_outlined,
+                          child: TextField(
                               enabled: !widget.viewer,
                               controller: _controller,
-                              style: GoogleFonts.poppins(fontSize: 14),
-                              maxLines: null,
+                              style: GemsChrome.body(size: 14),
+                              maxLines: 8,
                               maxLength: 1000,
-                              decoration: InputDecoration(
-                                hintText: "Describe the repair work here…",
-                                border: InputBorder.none,
-                                counterText: "",
+                              decoration: gemsFieldDecoration().copyWith(
+                                hintText: 'Describe the repair work here…',
+                                counterText: '',
                               ),
                               onChanged: (val) {
                                 _userEdited = true;
                                 _remark = val;
                               },
                             ),
-                          ),
                         ),
                       ],
                     ),
@@ -245,7 +219,10 @@ class _ComplaintSectionBState extends State<ComplaintSectionB> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    backgroundColor: colorTheme2,
+                    backgroundColor: GemsChrome.primary,
+                    disabledBackgroundColor: GemsChrome.primary.withValues(alpha: 0.45),
+                    foregroundColor: Colors.white,
+                    disabledForegroundColor: Colors.white,
                   ),
                   onPressed: _loading ? null : _save,
                   child: Text(

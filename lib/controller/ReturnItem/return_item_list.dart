@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:GEMS/controller/ReturnItem/bloc/bloc_return.dart';
 import 'package:GEMS/model/return_ticket_models.dart';
-import 'package:GEMS/utils/reference.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:toast/toast.dart';
 
 class ReturnItemList extends StatefulWidget {
@@ -62,12 +61,9 @@ class _ReturnItemListState extends State<ReturnItemList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgDefault,
-      appBar: AppBar(
-        title: Text('Return Items', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        foregroundColor: AppColors.onPrimary,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('Return Items'),
       ),
       body: StreamBuilder<String>(
         stream: _bloc.err$,
@@ -87,7 +83,7 @@ class _ReturnItemListState extends State<ReturnItemList> {
                 stream: _bloc.collectedItems$,
                 builder: (context, snapshot) {
                   if (isLoading && (!snapshot.hasData || snapshot.data!.isEmpty)) {
-                    return Center(child: CircularProgressIndicator(color: AppColors.primary));
+                    return const Center(child: CircularProgressIndicator(color: GemsChrome.primary));
                   }
                   
                   List<ReturnPartGroup> items = snapshot.data ?? [];
@@ -101,7 +97,7 @@ class _ReturnItemListState extends State<ReturnItemList> {
                       Expanded(
                         child: RefreshIndicator(
                           onRefresh: _refresh,
-                          color: AppColors.primary,
+                          color: GemsChrome.primary,
                           child: hasResults
                               ? ListView.builder(
                                   padding: EdgeInsets.symmetric(
@@ -137,16 +133,16 @@ class _ReturnItemListState extends State<ReturnItemList> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.inventory_2_outlined, size: 80, color: AppColors.gray400),
-          SizedBox(height: 16),
+          const Icon(Icons.inventory_2_outlined, size: 64, color: GemsChrome.muted),
+          const SizedBox(height: 16),
           Text(
             title,
-            style: GoogleFonts.poppins(fontSize: 18, color: AppColors.gray600, fontWeight: FontWeight.w500),
+            style: GemsChrome.heading(size: 18),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             subtitle,
-            style: GoogleFonts.poppins(fontSize: 14, color: AppColors.gray500),
+            style: GemsChrome.body(color: GemsChrome.textSoft),
           ),
         ],
       ),
@@ -168,20 +164,20 @@ class _ReturnItemListState extends State<ReturnItemList> {
       padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
       child: TextField(
         controller: _searchController,
-        decoration: InputDecoration(
+        style: GemsChrome.body(size: 14),
+        decoration: gemsFieldDecoration().copyWith(
           hintText: 'Search by item, serial, WO, or MR...',
-          prefixIcon: Icon(Icons.search, color: AppColors.gray500),
+          hintStyle: GemsChrome.body(color: GemsChrome.muted),
+          prefixIcon: const Icon(Icons.search, color: GemsChrome.muted),
           suffixIcon: _searchQuery.isEmpty
               ? null
               : IconButton(
-                  icon: Icon(Icons.clear, color: AppColors.gray500),
+                  icon: const Icon(Icons.clear, color: GemsChrome.muted),
                   onPressed: () {
                     _searchController.clear();
                     _onSearchChanged();
                   },
                 ),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
       ),
     );
@@ -192,9 +188,13 @@ class _ReturnItemListState extends State<ReturnItemList> {
     final hasSerialized = group.hasSerialized;
     
     return Card(
-      margin: EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        side: const BorderSide(color: GemsChrome.border),
+      ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: canReturn ? () => _navigateToDetail(group) : null,
@@ -210,30 +210,21 @@ class _ReturnItemListState extends State<ReturnItemList> {
                   Expanded(
                     child: Text(
                       group.itemDescription,
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
+                      style: GemsChrome.body(size: 15, weight: FontWeight.w600),
                     ),
                   ),
                   Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: canReturn
-                          ? AppColors.successLight
-                          : AppColors.gray200,
-                      borderRadius: BorderRadius.circular(12),
+                      color: canReturn ? GemsChrome.successSoft : GemsChrome.neutralSoft,
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       canReturn ? 'Available' : 'Unavailable',
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: canReturn
-                            ? AppColors.successDark
-                            : AppColors.gray600,
-                        fontWeight: FontWeight.w600,
+                      style: GemsChrome.body(
+                        size: 12,
+                        weight: FontWeight.w600,
+                        color: canReturn ? GemsChrome.success : GemsChrome.textSoft,
                       ),
                     ),
                   ),
@@ -244,21 +235,18 @@ class _ReturnItemListState extends State<ReturnItemList> {
               // Part code
               Row(
                 children: [
-                  _buildStatChip('Available', group.totalAvailable.toString(),
-                      AppColors.success),
-                  SizedBox(width: 8),
-                  _buildStatChip(
-                      'Collected', group.totalCollected.toString(), AppColors.primary),
-                  SizedBox(width: 8),
-                  _buildStatChip('Returned', group.totalReturned.toString(),
-                      AppColors.warning),
+                  _buildStatChip('Available', group.totalAvailable.toString(), GemsChrome.success),
+                  const SizedBox(width: 8),
+                  _buildStatChip('Collected', group.totalCollected.toString(), GemsChrome.primary),
+                  const SizedBox(width: 8),
+                  _buildStatChip('Returned', group.totalReturned.toString(), GemsChrome.warning),
                 ],
               ),
               if (hasSerialized) ...[
                 SizedBox(height: 12),
                 Text(
                   '${group.serializedInstances.length} serial item(s) pending',
-                  style: GoogleFonts.poppins(fontSize: 12, color: AppColors.gray600),
+                  style: GemsChrome.body(size: 12, color: GemsChrome.textSoft),
                 ),
               ],
               
@@ -267,21 +255,14 @@ class _ReturnItemListState extends State<ReturnItemList> {
                 SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton.icon(
+                  child: FilledButton.icon(
                     onPressed: () => _navigateToDetail(group),
-                    icon: Icon(Icons.keyboard_return, size: 18),
+                    icon: const Icon(Icons.keyboard_return, size: 18),
                     label: Text(
-                      'Return Items',
-                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                      'Return items',
+                      style: GemsChrome.body(weight: FontWeight.w600, color: Colors.white),
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.onPrimary,
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
+                    style: gemsPrimaryButton(),
                   ),
                 ),
               ],
@@ -311,16 +292,11 @@ class _ReturnItemListState extends State<ReturnItemList> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label,
-                style: GoogleFonts.poppins(fontSize: 11, color: color)),
-            SizedBox(height: 4),
+            Text(label, style: GemsChrome.body(size: 11, color: color)),
+            const SizedBox(height: 4),
             Text(
               value,
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
+              style: GemsChrome.body(size: 16, weight: FontWeight.w600, color: color),
             ),
           ],
         ),

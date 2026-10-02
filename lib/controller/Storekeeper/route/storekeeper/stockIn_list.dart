@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 
 class StockInList extends StatelessWidget {
@@ -7,15 +8,14 @@ class StockInList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          backgroundColor: Colors.white,
-          title: Text("New Check In"),
-          centerTitle: true),
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+          title: const Text('New Check In')),
       body: ListView.separated(
-        padding: EdgeInsets.only(top: 12, bottom: 50),
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 50),
         itemBuilder: (ctx, index) => _Tile("RM10,000.00"),
         itemCount: 2,
-        separatorBuilder: (ctx, index) => Divider(),
+        separatorBuilder: (ctx, index) => const SizedBox(height: 10),
       ),
     );
   }
@@ -28,41 +28,55 @@ class _Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-        title: Text("RFQ00045", style: TextStyle(fontWeight: FontWeight.bold)),
-        onTap: () =>
-            Navigator.pushNamed(context, routeCheckInInfo, arguments: true),
-        subtitle:
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          text(value: "Mohd Syafiq", top: 8.0),
-          text(value: "2 / 5 / 2020"),
-          text(value: "PR000312"),
-        ]),
-        trailing: state);
+    return GemsAccentCard(
+      accent: GemsChrome.primary,
+      onTap: () => Navigator.pushNamed(context, routeCheckInInfo, arguments: true),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'RFQ00045',
+                    style: GemsChrome.body(size: 15, weight: FontWeight.w600),
+                  ),
+                ),
+                state,
+              ],
+            ),
+            const SizedBox(height: 6),
+            text('Mohd Syafiq'),
+            text('2 / 5 / 2020'),
+            text('PR000312'),
+          ],
+        ),
+      ),
+    );
   }
 
-  Widget text({required String value, double top = 3.0}) {
+  Widget text(String value) {
     return Padding(
-      padding: EdgeInsets.only(top: top),
-      child: Text(
-        value,
-        style: TextStyle(color: colorTheme3),
-      ),
+      padding: const EdgeInsets.only(top: 2),
+      child: Text(value, style: GemsChrome.body(size: 13, color: GemsChrome.textSoft)),
     );
   }
 
   Widget get state {
     return Container(
-      height: 40,
-      width: 130,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: colorTheme3,
+        color: GemsChrome.primarySoft,
       ),
-      child: Center(
-        child: Text(
-          price,
-          style: TextStyle(color: Colors.white, fontSize: 16),
+      child: Text(
+        price,
+        style: GemsChrome.body(
+          size: 12,
+          weight: FontWeight.w600,
+          color: GemsChrome.primary,
         ),
       ),
     );

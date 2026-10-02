@@ -604,21 +604,21 @@ class PPMRepository {
       debugPrint('   Result: ${body['result']}');
     } else if (action == 'save_assistant_list') {
       debugPrint('   👥 Section I completion (save_assistant_list)');
-      debugPrint('   Endpoint: /api/ppm_v2.php/save_assistant_list/$ppmTaskId');
+      debugPrint('   Endpoint: /ppm_v2/save_assistant_list/$ppmTaskId');
     } else if (action == 'add_assistant' || action == 'remove_assistant') {
-      debugPrint('   Assistant ID: ${body['assistant']}');
+      debugPrint('   Assistant user: ${body['assistant']}');
     }
     
     if (action == 'save_assistant_list') {
+      final taskId = ppmTaskId?.toString() ?? '';
       final provider = Provider(
-        fetchURL: '/api/ppm_v2.php/save_assistant_list/',
-        taskID: ppmTaskId?.toString(),
+        fetchURL: '/ppm_v2/save_assistant_list/$taskId',
       );
 
       final startTime = DateTime.now();
       try {
         await provider.post(
-          url: '/api/ppm_v2.php/save_assistant_list/$ppmTaskId',
+          url: '/ppm_v2/save_assistant_list/$taskId',
           body: const {},
         );
         final duration = DateTime.now().difference(startTime).inMilliseconds;
@@ -632,6 +632,41 @@ class PPMRepository {
         debugPrint('');
         rethrow;
       }
+    }
+
+    if (action == 'add_assistant') {
+      final provider = Provider(fetchURL: '/ppm_task_assist');
+      final raw = await provider.post(
+        url: '/ppm_task_assist',
+        returnRaw: true,
+        body: {
+          'ppmTaskId': ppmTaskId.toString(),
+          'assistant': body['assistant'].toString(),
+        },
+      );
+      final assistId = raw is Map ? raw['result']?.toString() ?? '' : '';
+      if (assistId.isNotEmpty) {
+        body['ppmTaskAssistId'] = assistId;
+      }
+      debugPrint('   ✅ add_assistant saved id=$assistId');
+      return;
+    }
+
+    if (action == 'remove_assistant') {
+      var assistId = body['ppmTaskAssistId']?.toString() ?? '';
+      if (assistId.isEmpty) {
+        assistId = await _lookupAssistId(
+          ppmTaskId.toString(),
+          body['assistant'].toString(),
+        );
+      }
+      if (assistId.isEmpty) {
+        throw Exception('Assistant record was not found');
+      }
+      final provider = Provider(fetchURL: '/ppm_task_assist/$assistId');
+      await provider.delete(url: '/ppm_task_assist/$assistId');
+      debugPrint('   ✅ remove_assistant deleted id=$assistId');
+      return;
     }
 
     // Convert all values to strings for HTTP compatibility
@@ -1812,10 +1847,12 @@ class PPMRepository {
     return await _database.hasCachedPPMTechnicians(ppmTaskId);
   }
 
-  /// Add technician assistant - with offline support
+  /// Add technician assistant - with offline support.
+  /// [onAssistId] receives the saved row id when the server accepts the add.
   Future<PPMActionResult> addTechnicianAssistant({
     required String ppmTaskId,
     required String userId,
+    void Function(String assistId)? onAssistId,
   }) async {
     debugPrint('PPMRepository.addTechnicianAssistant: Adding assistant $userId to task $ppmTaskId');
     
@@ -1830,10 +1867,19 @@ class PPMRepository {
       body: body,
     );
 
-    // If queued (offline mode), update the cache so user can see their changes
-    if (result == PPMActionResult.queued) {
-      debugPrint('PPMRepository.addTechnicianAssistant: Action queued, updating cache');
-      await _updateSelectedTechniciansCache(ppmTaskId: ppmTaskId, userId: userId, isAdd: true);
+    final assistId = body['ppmTaskAssistId'] ?? '';
+    if (assistId.isNotEmpty) {
+      onAssistId?.call(assistId);
+    }
+
+    if (result == PPMActionResult.queued || assistId.isNotEmpty) {
+      debugPrint('PPMRepository.addTechnicianAssistant: Updating cache');
+      await _updateSelectedTechniciansCache(
+        ppmTaskId: ppmTaskId,
+        userId: userId,
+        isAdd: true,
+        assistId: assistId,
+      );
     }
 
     return result;
@@ -1843,13 +1889,28 @@ class PPMRepository {
   Future<PPMActionResult> removeTechnicianAssistant({
     required String ppmTaskId,
     required String userId,
+    String? ppmTaskAssistId,
   }) async {
     debugPrint('PPMRepository.removeTechnicianAssistant: Removing assistant $userId from task $ppmTaskId');
+
+    if (ppmTaskAssistId == null || ppmTaskAssistId.isEmpty) {
+      final cancelled = await _cancelQueuedAssistantAdd(ppmTaskId, userId);
+      if (cancelled) {
+        await _updateSelectedTechniciansCache(
+          ppmTaskId: ppmTaskId,
+          userId: userId,
+          isAdd: false,
+        );
+        return PPMActionResult.success;
+      }
+    }
     
     final body = <String, String>{
       'action': 'remove_assistant',
       'ppmTaskId': ppmTaskId,
       'assistant': userId,
+      if (ppmTaskAssistId != null && ppmTaskAssistId.isNotEmpty)
+        'ppmTaskAssistId': ppmTaskAssistId,
     };
 
     final result = await _sendOrQueue(
@@ -1857,13 +1918,41 @@ class PPMRepository {
       body: body,
     );
 
-    // If queued (offline mode), update the cache so user can see their changes
-    if (result == PPMActionResult.queued) {
-      debugPrint('PPMRepository.removeTechnicianAssistant: Action queued, updating cache');
-      await _updateSelectedTechniciansCache(ppmTaskId: ppmTaskId, userId: userId, isAdd: false);
-    }
+    await _updateSelectedTechniciansCache(
+      ppmTaskId: ppmTaskId,
+      userId: userId,
+      isAdd: false,
+    );
 
     return result;
+  }
+
+  Future<String> _lookupAssistId(String ppmTaskId, String userId) async {
+    final provider = Provider(
+      fetchURL: '/ppm_task_assist/assistant_list/',
+      taskID: ppmTaskId,
+    );
+    final result = await provider.getJson(url: '/ppm_task_assist/assistant_list/');
+    if (result is! List) return '';
+    for (final row in result) {
+      if (row is Map && row['userId']?.toString() == userId) {
+        return row['ppmTaskAssistId']?.toString() ?? '';
+      }
+    }
+    return '';
+  }
+
+  Future<bool> _cancelQueuedAssistantAdd(String ppmTaskId, String userId) async {
+    final actions = await _database.getPPMPendingActions(ppmTaskId: ppmTaskId);
+    for (final action in actions) {
+      if (action.action != 'add_assistant' || action.id == null) continue;
+      final payload = json.decode(action.payloadJson);
+      if (payload is Map && payload['assistant']?.toString() == userId) {
+        await _database.removePPMPendingAction(action.id!);
+        return true;
+      }
+    }
+    return false;
   }
 
   /// Submit the assistant list (even when empty) to mark Section I as completed
@@ -1906,21 +1995,21 @@ class PPMRepository {
     required String ppmTaskId,
     required String userId,
     required bool isAdd,
+    String assistId = '',
   }) async {
     try {
       final db = await _database.database;
       
       if (isAdd) {
-        // Mark technician as selected
         await db.rawUpdate(
-          'UPDATE ${_getPPMTechnicianCacheTableName()} SET is_selected = 1 WHERE ppm_task_id = ? AND user_id = ?',
-          [ppmTaskId, userId],
+          'UPDATE ${_getPPMTechnicianCacheTableName()} SET is_selected = 1, assistant_id = COALESCE(NULLIF(?, \'\'), assistant_id) WHERE ppm_task_id = ? AND user_id = ?',
+          [assistId, ppmTaskId, userId],
         );
         debugPrint('PPMRepository._updateSelectedTechniciansCache: Marked $userId as selected');
       } else {
         // Mark technician as not selected
         await db.rawUpdate(
-          'UPDATE ${_getPPMTechnicianCacheTableName()} SET is_selected = 0 WHERE ppm_task_id = ? AND user_id = ?',
+          'UPDATE ${_getPPMTechnicianCacheTableName()} SET is_selected = 0, assistant_id = NULL WHERE ppm_task_id = ? AND user_id = ?',
           [ppmTaskId, userId],
         );
         debugPrint('PPMRepository._updateSelectedTechniciansCache: Unmarked $userId as selected');

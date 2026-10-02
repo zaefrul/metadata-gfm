@@ -8,9 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 import 'package:GEMS/model/user.dart';
 import 'package:GEMS/utils/network.dart';
-import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/view/drawer.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 import 'package:package_info_plus/package_info_plus.dart'; // Import package_info_plus
@@ -246,36 +245,31 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.white,
+      backgroundColor: GemsChrome.page,
       drawer: BuildDrawer(() => Navigator.pop(context), isHome: true),
       appBar: _buildAppBar(),
-      extendBodyBehindAppBar: true,
       body: _buildBody(),
     );
   }
 
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.white,
       elevation: 0,
+      scrolledUnderElevation: 0,
+      shape: const Border(bottom: BorderSide(color: GemsChrome.border)),
       leading: IconButton(
-        icon: const Icon(Icons.menu, color: Colors.black87),
+        icon: const Icon(Icons.menu, color: GemsChrome.text),
         onPressed: () => _scaffoldKey.currentState?.openDrawer(),
       ),
-      title: Text(
-        "GEMS",
-        style: GoogleFonts.poppins(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: Colors.black87,
-        ),
-      ),
+      title: Text('Home', style: GemsChrome.heading(size: 20)),
       actions: [
         Stack(
           clipBehavior: Clip.none,
           children: [
             IconButton(
-              icon: const Icon(Icons.notifications, color: Colors.black87),
+              icon: const Icon(Icons.notifications_outlined, color: GemsChrome.text),
               onPressed: () async {
                 await Navigator.pushNamed(context, "/notifications");
                 if (mounted) {
@@ -290,7 +284,7 @@ class _HomepageState extends State<Homepage> {
                 child: Container(
                   padding: const EdgeInsets.all(4),
                   decoration: const BoxDecoration(
-                    color: Colors.red,
+                    color: GemsChrome.danger,
                     shape: BoxShape.circle,
                   ),
                   constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
@@ -347,46 +341,30 @@ class _HomepageState extends State<Homepage> {
       );
     }
 
-    return Stack(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Positioned.fill(child: _backgroundImage),
-        SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(_currentUser!),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  "What would you like to do today?",
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
-                  ),
-                ),
+        _buildHeader(_currentUser!),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            "What would you like to do today?",
+            style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Expanded(child: _buildFeatureList(context)),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: GestureDetector(
+              onTap: _onVersionTap,
+              child: Text(
+                'Version $_appVersion',
+                style: GemsChrome.body(size: 12, color: GemsChrome.textSoft),
               ),
-              const SizedBox(height: 16),
-              Expanded(child: _buildFeatureList(context)),
-              // --- Version Text at the bottom ---
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0), // Adjust padding as needed
-                  child: GestureDetector(
-                    onTap: _onVersionTap,
-                    child: Text(
-                      'Version: $_appVersion',
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: Colors.black54, // Or a color that stands out against your background
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ],
@@ -400,29 +378,22 @@ class _HomepageState extends State<Homepage> {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 2),
       child: Row(
         children: [
           _buildProfileImage(user),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   "Welcome back,",
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: Colors.black54,
-                  ),
+                  style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
                 ),
                 Text(
                   displayName,
-                  style: GoogleFonts.poppins(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
+                  style: GemsChrome.heading(size: 20),
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -448,42 +419,21 @@ class _HomepageState extends State<Homepage> {
       }
     }
 
-    return Container(
-      width: 52,
-      height: 52,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          colors: [Colors.blue.shade400, Colors.blue.shade700],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          )
-        ]
-      ),
-      child: CircleAvatar(
-        radius: 26,
-        backgroundColor: Colors.transparent,
-        backgroundImage: hasValidUrl
-            ? NetworkImage(imageUrl!)
-            : const AssetImage('assets/profile_plain.png') as ImageProvider,
-        onBackgroundImageError: hasValidUrl ? (dynamic exception, StackTrace? stackTrace) {
-          debugPrint("Error loading profile image: $exception");
-          if (mounted && !_profileImageLoadFailed) {
-            setState(() {
-              _profileImageLoadFailed = true;
-            });
-          }
-        } : null,
-        child: (!hasValidUrl || (imageUrl == null) )
-            ? _buildInitialsAvatar(user)
-            : null,
-      ),
+    return CircleAvatar(
+      radius: 22,
+      backgroundColor: GemsChrome.primarySoft,
+      backgroundImage: hasValidUrl ? NetworkImage(imageUrl!) : null,
+      onBackgroundImageError: hasValidUrl
+          ? (dynamic exception, StackTrace? stackTrace) {
+              debugPrint("Error loading profile image: $exception");
+              if (mounted && !_profileImageLoadFailed) {
+                setState(() {
+                  _profileImageLoadFailed = true;
+                });
+              }
+            }
+          : null,
+      child: (!hasValidUrl || imageUrl == null) ? _buildInitialsAvatar(user) : null,
     );
   }
 
@@ -494,10 +444,10 @@ class _HomepageState extends State<Homepage> {
     return Center(
       child: Text(
         initials,
-        style: GoogleFonts.poppins(
-          color: Colors.white,
-          fontSize: 22,
-          fontWeight: FontWeight.w600,
+        style: GemsChrome.body(
+          size: 16,
+          weight: FontWeight.w600,
+          color: GemsChrome.primary,
         ),
       ),
     );
@@ -515,7 +465,7 @@ class _HomepageState extends State<Homepage> {
     ];
 
     return ListView.separated(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
       itemCount: features.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (ctx, i) {
@@ -557,11 +507,6 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
-  Widget get _backgroundImage => SizedBox(
-        height: double.infinity,
-        width: double.infinity,
-        child: Image.asset("assets/bg.jpg", fit: BoxFit.cover),
-      );
 }
 
 // --- UI Data Model for Features ---
@@ -594,43 +539,64 @@ class _FeatureListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isEnabled = feature.enabled && onTap != null;
-    final Color tileColor = isEnabled ? AppColors.primary : AppColors.secondary;
-    final Color contentColor = isEnabled ? Colors.white : Colors.white70;
+    final Color iconColor = isEnabled ? GemsChrome.primary : GemsChrome.muted;
+    final Color labelColor = isEnabled ? GemsChrome.text : GemsChrome.muted;
 
     return PressScaleWidget(
       onTap: isEnabled ? onTap : null,
-      child: Container(
-        height: 65,
-        decoration: BoxDecoration(
-          color: tileColor,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Row(
-          children: [
-            Icon(feature.icon, color: contentColor, size: 24),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                feature.title,
-                style: GoogleFonts.poppins(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: contentColor,
-                ),
-                overflow: TextOverflow.ellipsis,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: GemsChrome.border),
+            borderRadius: BorderRadius.circular(GemsChrome.radius),
+          ),
+          child: Column(
+            children: [
+              Container(
+                height: 3,
+                color: isEnabled ? GemsChrome.teal : GemsChrome.border,
               ),
-            ),
-            if (isEnabled)
-              Icon(Icons.chevron_right, color: contentColor),
-          ],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: isEnabled
+                            ? GemsChrome.primarySoft
+                            : GemsChrome.neutralSoft,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(feature.icon, color: iconColor, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        feature.title,
+                        style: GemsChrome.body(
+                          size: 14,
+                          weight: FontWeight.w500,
+                          color: labelColor,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (isEnabled)
+                      const Icon(
+                        Icons.chevron_right,
+                        color: GemsChrome.muted,
+                        size: 20,
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/Utilities/Bloc/bloc.dart';
 import 'package:GEMS/model/meter.dart';
 
@@ -26,9 +27,9 @@ class ListReading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("${reading.month} : Reading"),
-        backgroundColor: Colors.white,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: Text('${reading.month} : Reading'),
       ),
       // body:
     );

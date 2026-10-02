@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 
@@ -27,8 +28,9 @@ class _APILISTState extends State<APILIST> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("testing"),
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('Testing'),
       ),
       body: SizedBox(
         height: MediaQuery.of(context).size.height,
@@ -121,8 +123,8 @@ class SampleScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

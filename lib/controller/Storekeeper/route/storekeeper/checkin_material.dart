@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc_checkin.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,10 +17,9 @@ class _CheckinMaterialState extends State<CheckinMaterial> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Checkin Material"),
-        backgroundColor: Colors.white,
-        centerTitle: true,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('Check In Material'),
       ),
       body: ListView(
         padding: EdgeInsets.only(top: 12, left: 16, right: 16, bottom: 50),

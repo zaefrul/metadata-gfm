@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/model/user.dart';
 import 'package:GEMS/utils/network.dart';
 import 'dart:convert';
@@ -154,9 +155,9 @@ class _ApiTestScreenState extends State<ApiTestScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('API Authorization Test'),
-        backgroundColor: Colors.teal,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('API Authorization Test'),
       ),
       body: Column(
         children: [

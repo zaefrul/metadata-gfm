@@ -6,6 +6,7 @@ import 'package:GEMS/model/serializers.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/view/dialog.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:toast/toast.dart';
 import 'package:GEMS/data/repository/ppm_repository.dart';
 import '../../../main.dart';
@@ -129,10 +130,9 @@ class _FormGState extends State<FormG> {
     provider.context = context;
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: colorTheme3),
-        title: getTitle("G. Remark", bold: true),
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('G. Remark'),
       ),
       body: FutureBuilder<ResponseValue>(
         future: _sectionDataFuture,
@@ -143,17 +143,22 @@ class _FormGState extends State<FormG> {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Card(
-                  color: Colors.orange[50],
+                  elevation: 0,
+                  color: GemsChrome.warningSoft,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(GemsChrome.radius),
+                    side: const BorderSide(color: GemsChrome.border),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.cloud_off, size: 48, color: Colors.orange),
-                        SizedBox(height: 8),
+                        const Icon(Icons.cloud_off, size: 40, color: GemsChrome.warning),
+                        const SizedBox(height: 8),
                         Text(
                           'No Internet Connection',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: GemsChrome.body(size: 16, weight: FontWeight.w600),
                         ),
                         SizedBox(height: 4),
                         Text(
@@ -187,16 +192,22 @@ class _FormGState extends State<FormG> {
                               if (_pendingSync != null)
                                 PPMPendingSyncIndicator(controller: _pendingSync!),
                               Expanded(
-                                child: TextField(
+                                child: GemsFormSection(
+                                  title: 'Remark',
+                                  icon: Icons.notes_outlined,
+                                  child: TextField(
                                   enabled: !widget.disable,
                                   controller: TextEditingController(
                                       text: snapshot.data!.sectionGList?.ppmTaskRemark ?? ""),
+                                  style: GemsChrome.body(size: 14),
                                   keyboardType: TextInputType.multiline,
                                   maxLength: 500,
-                                  maxLines: null,
+                                  maxLines: 8,
+                                  decoration: gemsFieldDecoration(),
                                   onChanged: (value) {
                                     _uploadItem.ppmTaskRemark = value;
                                   },
+                                ),
                                 ),
                               ),
                             ],
@@ -217,16 +228,22 @@ class _FormGState extends State<FormG> {
                           if (_pendingSync != null)
                             PPMPendingSyncIndicator(controller: _pendingSync!),
                           Expanded(
-                            child: TextField(
+                            child: GemsFormSection(
+                              title: 'Remark',
+                              icon: Icons.notes_outlined,
+                              child: TextField(
                               enabled: !widget.disable,
                               controller: TextEditingController(
                                   text: snapshot.data!.sectionGList?.ppmTaskRemark ?? ""),
+                              style: GemsChrome.body(size: 14),
                               keyboardType: TextInputType.multiline,
                               maxLength: 500,
-                              maxLines: null,
+                              maxLines: 8,
+                              decoration: gemsFieldDecoration(),
                               onChanged: (value) {
                                 _uploadItem.ppmTaskRemark = value;
                               },
+                            ),
                             ),
                           ),
                         ],
@@ -237,7 +254,9 @@ class _FormGState extends State<FormG> {
       floatingActionButton: widget.disable
           ? null
           : FloatingActionButton.extended(
-              label: Text("Save"),
+              backgroundColor: GemsChrome.primary,
+              foregroundColor: Colors.white,
+              label: const Text('Save'),
               onPressed: loading
                   ? null
                   : () async {

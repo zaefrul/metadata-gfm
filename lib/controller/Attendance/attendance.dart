@@ -6,12 +6,12 @@ import 'dart:async';
 
 import 'bloc/bloc_attendance.dart';
 
-import 'package:GEMS/utils/reference.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:intl/intl.dart';
 
 import '../../main.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -72,18 +72,18 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          title: const Text(
-            "Attendance",
-            style: TextStyle(color: Colors.black),
-          ),
-          centerTitle: true,
+        backgroundColor: GemsChrome.page,
+        appBar: gemsAppBar(
+          title: const Text('Attendance'),
           bottom: TabBar(
             controller: _bloc.tab,
-            labelColor: Colors.black,
+            labelColor: GemsChrome.primary,
+            unselectedLabelColor: GemsChrome.textSoft,
+            indicatorColor: GemsChrome.teal,
+            indicatorWeight: 3,
+            dividerColor: GemsChrome.border,
             physics: const NeverScrollableScrollPhysics(),
-            tabs: const [Tab(text: "Calendar"), Tab(text: "Weekly Progress")],
+            tabs: const [Tab(text: 'Calendar'), Tab(text: 'Weekly Progress')],
           ),
         ),
         body: TabBarView(
@@ -105,7 +105,8 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               if (snapshot.data == null) return Container();
               final result = snapshot.data!;
               return FloatingActionButton.extended(
-                backgroundColor: result ? colorTheme3 : colorTheme4,
+                backgroundColor: result ? GemsChrome.primary : GemsChrome.danger,
+                foregroundColor: Colors.white,
                 onPressed: () {
                   if (!result) {
                     confirmationCheckOut();
@@ -113,7 +114,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                     confirmationCheckIn();
                   }
                 },
-                label: _TextCell(result ? "Check In" : "Check Out"),
+                label: Text(
+                  result ? 'Check In' : 'Check Out',
+                  style: GemsChrome.body(weight: FontWeight.w600, color: Colors.white),
+                ),
               );
             }));
   }
@@ -123,21 +127,24 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     showDialog(
       context: navigatorKey.currentContext!,
       builder: (_) => AlertDialog(
-        title: const Text("Confirmation"),
-        content: const Text("Please confirm your Check In?"),
+        title: Text('Confirmation', style: GemsChrome.heading(size: 18)),
+        content: Text('Please confirm your Check In?', style: GemsChrome.body()),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            child: const Text("Cancel"),
+            child: Text('Cancel', style: GemsChrome.body(color: GemsChrome.textSoft)),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _bloc.clockedIn(context);
             },
-            child: const Text("OK"),
+            child: Text(
+              'OK',
+              style: GemsChrome.body(weight: FontWeight.w600, color: GemsChrome.primary),
+            ),
           ),
         ],
       ),
@@ -149,21 +156,24 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     showDialog(
       context: navigatorKey.currentContext!,
       builder: (_) => AlertDialog(
-        title: const Text("Confirmation"),
-        content: const Text("Please confirm your Check Out?"),
+        title: Text('Confirmation', style: GemsChrome.heading(size: 18)),
+        content: Text('Please confirm your Check Out?', style: GemsChrome.body()),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            child: const Text("Cancel"),
+            child: Text('Cancel', style: GemsChrome.body(color: GemsChrome.textSoft)),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _bloc.clockedOut(context);
             },
-            child: const Text("OK"),
+            child: Text(
+              'OK',
+              style: GemsChrome.body(weight: FontWeight.w600, color: GemsChrome.danger),
+            ),
           ),
         ],
       ),
@@ -191,16 +201,77 @@ class _Calendar extends StatelessWidget {
             stream: _bloc.calendarDate$,
             builder: (context, snapshot) {
               final selectedDay = snapshot.data ?? DateTime.now();
-              return TableCalendar<EventAtt>(
-                firstDay: _kFirstDay,
-                lastDay: _kLastDay,
-                focusedDay: selectedDay,
-                selectedDayPredicate: (day) => isSameDay(selectedDay, day),
-                onDaySelected: (selectedDay, _) => _bloc.selected = selectedDay,
-                eventLoader: (day) {
-                  return _bloc.getEventsForDay(day);
-                },
-                onFormatChanged: (value) => value,
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(GemsChrome.radius),
+                    border: Border.all(color: GemsChrome.border),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 4, 8, 10),
+                    child: TableCalendar<EventAtt>(
+                      firstDay: _kFirstDay,
+                      lastDay: _kLastDay,
+                      focusedDay: selectedDay,
+                      startingDayOfWeek: StartingDayOfWeek.monday,
+                      headerStyle: HeaderStyle(
+                        formatButtonVisible: false,
+                        titleCentered: true,
+                        titleTextStyle: GemsChrome.heading(size: 16),
+                        leftChevronIcon: const Icon(Icons.chevron_left, color: GemsChrome.text),
+                        rightChevronIcon: const Icon(Icons.chevron_right, color: GemsChrome.text),
+                      ),
+                      daysOfWeekStyle: DaysOfWeekStyle(
+                        weekdayStyle: GemsChrome.body(
+                          size: 12,
+                          weight: FontWeight.w600,
+                          color: GemsChrome.textSoft,
+                        ),
+                        weekendStyle: GemsChrome.body(
+                          size: 12,
+                          weight: FontWeight.w600,
+                          color: GemsChrome.muted,
+                        ),
+                      ),
+                      calendarStyle: CalendarStyle(
+                        cellMargin: const EdgeInsets.all(4),
+                        defaultTextStyle: GemsChrome.body(size: 14),
+                        weekendTextStyle: GemsChrome.body(size: 14, color: GemsChrome.textSoft),
+                        outsideTextStyle: GemsChrome.body(size: 14, color: GemsChrome.muted),
+                        selectedTextStyle: GemsChrome.body(
+                          size: 14,
+                          weight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                        todayTextStyle: GemsChrome.body(
+                          size: 14,
+                          weight: FontWeight.w600,
+                          color: GemsChrome.primaryDark,
+                        ),
+                        selectedDecoration: const BoxDecoration(
+                          color: GemsChrome.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        todayDecoration: BoxDecoration(
+                          color: GemsChrome.primary.withValues(alpha: 0.18),
+                          shape: BoxShape.circle,
+                        ),
+                        markerDecoration: const BoxDecoration(
+                          color: GemsChrome.teal,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      selectedDayPredicate: (day) => isSameDay(selectedDay, day),
+                      onDaySelected: (selectedDay, _) => _bloc.selected = selectedDay,
+                      eventLoader: (day) {
+                        return _bloc.getEventsForDay(day);
+                      },
+                      onFormatChanged: (value) => value,
+                    ),
+                  ),
+                ),
               );
             },
           );
@@ -218,33 +289,17 @@ class _Details extends StatelessWidget {
         stream: stream,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return Column(children: const [
-              SizedBox(height: 20),
-              Padding(
-                padding: EdgeInsets.all(12),
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: GemsFormSection(
+                title: 'Attendance details',
+                icon: Icons.event_available_outlined,
                 child: Text(
-                  "Attendance Details",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  'No event',
+                  style: GemsChrome.body(color: GemsChrome.textSoft),
                 ),
               ),
-              Divider(
-                color: Colors.black87,
-                height: 2,
-                indent: 12,
-                endIndent: 12,
-              ),
-              SizedBox(height: 20),
-              Text(
-                "No Event",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ]);
+            );
           }
           return ItemDetail(snapshot.data!);
         });
@@ -257,105 +312,49 @@ class ItemDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const SizedBox(height: 20),
-        const Padding(
-          padding: EdgeInsets.all(12),
-          child: Text(
-            "Attendance Details",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: GemsFormSection(
+        title: 'Attendance details',
+        icon: Icons.event_available_outlined,
+        child: Column(
+          children: [
+            _infoRow('Status', event.status ?? '-'),
+            _infoRow('Date', event.date ?? '-'),
+            _infoRow('Start time', event.shiftStart ?? '-'),
+            _infoRow('End time', event.shiftEnd ?? '-'),
+            const Divider(height: 24, color: GemsChrome.border),
+            _infoRow('Clock in', event.timeClockIn ?? '-'),
+            _infoRow('Clock out', event.timeClockOut ?? '-'),
+            _infoRow('Duration', event.duration ?? '-'),
+          ],
         ),
-        const Divider(
-          color: Colors.black87,
-          height: 2,
-          indent: 12,
-          endIndent: 12,
-        ),
-        Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Table(
-            columnWidths: const {
-              0: FractionColumnWidth(0.40),
-              1: FractionColumnWidth(0.60),
-            },
-            children: [
-              TableRow(children: [
-                TableCell(child: _TextCell("Attendance Status : ", bold: true)),
-                TableCell(child: _TextCell(event.status ?? "")),
-              ]),
-              TableRow(children: [
-                const TableCell(child: _TextCell("Date Attendance : ", bold: true)),
-                TableCell(child: _TextCell(event.date)),
-              ]),
-              TableRow(children: [
-                TableCell(child: _TextCell("Start Time : ", bold: true)),
-                TableCell(child: _TextCell(event.shiftStart ?? "")),
-              ]),
-              TableRow(children: [
-                TableCell(child: _TextCell("End Time : ", bold: true)),
-                TableCell(child: _TextCell(event.shiftEnd ?? "")),
-              ]),
-              const TableRow(children: [
-                TableCell(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                    child: Divider(
-                      color: Colors.black87,
-                      height: 2,
-                    ),
-                  ),
-                ),
-                TableCell(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                    child: Divider(
-                      color: Colors.black87,
-                      height: 2,
-                    ),
-                  ),
-                ),
-              ]),
-              TableRow(children: [
-                TableCell(child: _TextCell("Clock In : ", bold: true)),
-                TableCell(child: _TextCell(event.timeClockIn ?? "")),
-              ]),
-              TableRow(children: [
-                TableCell(child: _TextCell("Clock Out : ", bold: true)),
-                TableCell(child: _TextCell(event.timeClockOut ?? "")),
-              ]),
-              TableRow(children: [
-                TableCell(child: _TextCell("Duration : ", bold: true)),
-                TableCell(child: _TextCell(event.duration ?? "")),
-              ]),
-            ],
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
 
-class _TextCell extends StatelessWidget {
-  final String? value;
-  final bool bold;
-  final double size;
-  const _TextCell(this.value, {this.bold = false, this.size = 14, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-      child: Text(
-        value ?? "0%",
-        style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal, fontSize: size),
-      ),
-    );
-  }
+Widget _infoRow(String label, String value) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 6),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 2,
+          child: Text(label, style: GemsChrome.body(size: 13, color: GemsChrome.textSoft)),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          flex: 3,
+          child: Text(
+            value.isEmpty ? '-' : value,
+            style: GemsChrome.body(size: 14, weight: FontWeight.w500),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class ProgressClock extends StatelessWidget {
@@ -375,74 +374,61 @@ class ProgressClock extends StatelessWidget {
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(color: GemsChrome.primary),
             );
           }
           final data = snapshot.data!;
-          return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: _TextCell("Clocking Session", bold: true, size: 24),
-                  ),
-                  Table(
-                    columnWidths: const {
-                      0: FractionColumnWidth(0.35),
-                      1: FractionColumnWidth(0.65),
-                    },
+          final progress = (double.tryParse((data.weeklyProgress ?? '0').replaceAll('%', '')) ?? 0) / 100;
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                GemsFormSection(
+                  title: 'Clocking session',
+                  icon: Icons.access_time,
+                  child: Column(
                     children: [
-                      TableRow(children: [
-                        const TableCell(child: _TextCell("Current Time : ", bold: true, size: 16)),
-                        TableCell(
-                            child: StreamBuilder<String>(
-                                stream: clock,
-                                builder: (context, snapshot) {
-                                  final time = snapshot.data ?? DateFormat("hh:mm:ss").format(DateTime.now());
-                                  return _TextCell(time, size: 16);
-                                })),
-                      ]),
-                      TableRow(children: [
-                        const TableCell(child: _TextCell("Clock In : ", bold: true, size: 16)),
-                        TableCell(child: _TextCell(data.timeClockIn ?? "", size: 16)),
-                      ]),
-                      TableRow(children: [
-                        const TableCell(child: _TextCell("Clock Out : ", bold: true, size: 16)),
-                        TableCell(child: _TextCell(data.timeClockOut ?? "", size: 16)),
-                      ]),
-                      TableRow(children: [
-                        const TableCell(child: _TextCell("Duration : ", bold: true, size: 16)),
-                        TableCell(child: _TextCell(data.duration ?? "", size: 16)),
-                      ]),
-                      TableRow(children: [
-                        const TableCell(child: _TextCell("Remark : ", bold: true, size: 16)),
-                        TableCell(child: _TextCell(data.remark ?? "", size: 16)),
-                      ]),
+                      StreamBuilder<String>(
+                        stream: clock,
+                        builder: (context, snapshot) {
+                          final time = snapshot.data ?? DateFormat('hh:mm:ss').format(DateTime.now());
+                          return _infoRow('Current time', time);
+                        },
+                      ),
+                      _infoRow('Clock in', data.timeClockIn ?? '-'),
+                      _infoRow('Clock out', data.timeClockOut ?? '-'),
+                      _infoRow('Duration', data.duration ?? '-'),
+                      _infoRow('Remark', data.remark ?? '-'),
                     ],
                   ),
-                  const SizedBox(height: 20),
-                  const Divider(
-                    color: Colors.black87,
-                    height: 2,
-                    indent: 12,
-                    endIndent: 12,
+                ),
+                const SizedBox(height: 16),
+                GemsFormSection(
+                  title: 'Weekly completion',
+                  icon: Icons.pie_chart_outline,
+                  child: Column(
+                    children: [
+                      CircularPercentIndicator(
+                        radius: 72,
+                        lineWidth: 10,
+                        percent: progress.clamp(0, 1),
+                        circularStrokeCap: CircularStrokeCap.round,
+                        backgroundColor: GemsChrome.border,
+                        progressColor: GemsChrome.primary,
+                        center: Text(
+                          data.weeklyProgress ?? '0%',
+                          style: GemsChrome.heading(size: 18, color: GemsChrome.primary),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Total work duration: ${data.weeklyRequiredHours ?? 0}',
+                        style: GemsChrome.body(color: GemsChrome.textSoft),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  CircularPercentIndicator(
-                    radius: MediaQuery.of(context).size.width / 3,
-                    lineWidth: 10.0,
-                    percent: double.tryParse(
-                              (data.weeklyProgress ?? "0").replaceAll("%", ""))! /
-                        100,
-                    footer: _TextCell("Total Work Duration : ${data.weeklyRequiredHours ?? 0}"),
-                    header: const _TextCell("Weekly Completion", bold: true, size: 24),
-                    center: _TextCell(data.weeklyProgress, size: 20),
-                    progressColor: Colors.green,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         });

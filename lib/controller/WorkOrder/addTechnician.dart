@@ -6,7 +6,7 @@ import 'package:toast/toast.dart';
 import 'package:GEMS/controller/WorkOrder/pending_sync.dart';
 import 'package:GEMS/controller/WorkOrder/widgets/pending_sync_banner.dart';
 import 'package:GEMS/data/repository/work_order_detail_repository.dart';
-import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 
 class AddTechnicianCheckList extends StatefulWidget {
   final String id;
@@ -321,19 +321,12 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
   Widget build(BuildContext context) {
     ToastContext().init(context);
     return Scaffold(
-      backgroundColor: AppColors.gray100,
-      appBar: AppBar(
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         title: Text(
           'Add Technician Assistant',
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
+          style: GemsChrome.heading(size: 18),
         ),
-        backgroundColor: AppColors.bgAppBar,
-        elevation: 0,
-        iconTheme: IconThemeData(color: AppColors.primary),
-        centerTitle: false,
       ),
       body: Column(
         children: [
@@ -363,30 +356,33 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
   }
 
   Widget _buildSearchCard() {
-    return Card(
-      margin: const EdgeInsets.all(12),
-      elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          children: [
-            Icon(Icons.search, color: AppColors.primary, size: 24),
-            const SizedBox(width: 12),
-            Expanded(
-              child: TextField(
-                controller: _searchCtr,
-                decoration: InputDecoration(
-                  hintText: 'Search technicians...',
-                  border: InputBorder.none,
-                  hintStyle: TextStyle(color: AppColors.textHint),
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(GemsChrome.radius),
+          border: Border.all(color: GemsChrome.border),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          child: Row(
+            children: [
+              const Icon(Icons.search, color: GemsChrome.primary, size: 22),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextField(
+                  controller: _searchCtr,
+                  decoration: InputDecoration(
+                    hintText: 'Search technicians...',
+                    border: InputBorder.none,
+                    hintStyle: GemsChrome.body(color: GemsChrome.muted),
+                  ),
+                  style: GemsChrome.body(),
                 ),
-                style: TextStyle(color: AppColors.textPrimary),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -399,12 +395,12 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          Icon(Icons.info_outline, color: AppColors.info, size: 18),
+          Icon(Icons.info_outline, color: GemsChrome.info, size: 18),
           const SizedBox(width: 8),
           Text(
             'Selected ${_selected.length}$limitLabel',
             style: TextStyle(
-              color: AppColors.textSecondary,
+              color: GemsChrome.textSoft,
               fontSize: 14,
             ),
           ),
@@ -419,12 +415,12 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.group_off, size: 48, color: AppColors.gray400),
+            Icon(Icons.group_off, size: 48, color: GemsChrome.muted),
             const SizedBox(height: 16),
             Text(
               'No technicians found',
               style: TextStyle(
-                color: AppColors.textSecondary,
+                color: GemsChrome.textSoft,
                 fontSize: 16,
               ),
             ),
@@ -436,7 +432,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
                 },
                 child: Text(
                   'Clear search',
-                  style: TextStyle(color: AppColors.primary),
+                  style: TextStyle(color: GemsChrome.primary),
                 ),
               ),
           ],
@@ -450,7 +446,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
       separatorBuilder: (_, __) => Divider(
         height: 1,
         indent: 72,
-        color: AppColors.gray200,
+        color: GemsChrome.border,
       ),
       itemBuilder: (_, index) {
         final assistant = _filtered[index];
@@ -468,14 +464,14 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
         side: BorderSide(
-          color: isSelected ? AppColors.primaryLight : AppColors.gray200,
-          width: 1,
+          color: isSelected ? GemsChrome.primary : GemsChrome.border,
+          width: isSelected ? 1.4 : 1,
         ),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
         onTap: widget.viewer ? null : () => _onToggle(assistant, !isSelected),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -485,12 +481,12 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.primary50,
+                  color: GemsChrome.primarySoft,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.person_outline,
-                  color: AppColors.primary,
+                  color: GemsChrome.primary,
                   size: 20,
                 ),
               ),
@@ -503,7 +499,7 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
                       assistant.userFullName,
                       style: TextStyle(
                         fontSize: 16,
-                        color: AppColors.textPrimary,
+                        color: GemsChrome.text,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -513,8 +509,8 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
                         style: TextStyle(
                           fontSize: 12,
                           color: assistant.isPending
-                              ? AppColors.warning
-                              : AppColors.success,
+                              ? GemsChrome.warning
+                              : GemsChrome.success,
                         ),
                       ),
                   ],
@@ -529,9 +525,9 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
                   ),
                   fillColor: WidgetStateProperty.resolveWith<Color>((states) {
                     if (states.contains(WidgetState.selected)) {
-                      return AppColors.primary;
+                      return GemsChrome.primary;
                     }
-                    return AppColors.gray300;
+                    return GemsChrome.border;
                   }),
                 ),
             ],
@@ -548,11 +544,13 @@ class _AddTechnicianCheckListState extends State<AddTechnicianCheckList> {
         padding: const EdgeInsets.all(16),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.onPrimary,
+            backgroundColor: GemsChrome.primary,
+            disabledBackgroundColor: GemsChrome.primary.withValues(alpha: 0.45),
+            foregroundColor: Colors.white,
+            disabledForegroundColor: Colors.white,
             minimumSize: const Size(double.infinity, 48),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(GemsChrome.radius),
             ),
             elevation: 0,
           ),

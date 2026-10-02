@@ -7,8 +7,8 @@ import 'package:GEMS/controller/TaskMonitoring/task_detail.dart';
 import 'package:GEMS/model/monitor.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
-import 'package:GEMS/view/bar.dart';
 import 'package:GEMS/view/drawer.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 
 class TaskMonitoringScreen extends StatefulWidget {
   const TaskMonitoringScreen({super.key});
@@ -100,15 +100,19 @@ class _TaskMonitoringScreenState extends State<TaskMonitoringScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: bar(
-        _scaffoldKey,
-        text: "Track Monitoring",
-        search: true,
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => SearchTaskMonitoring()),
-        ),
-      ) as PreferredSizeWidget,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('Track Monitoring'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => SearchTaskMonitoring()),
+            ),
+          ),
+        ],
+      ),
       drawer: BuildDrawer(() => Navigator.pop(context)),
       body: Stack(
         children: [
@@ -165,17 +169,12 @@ class _TaskMonitoringScreenState extends State<TaskMonitoringScreen> {
   }
 
   Widget _buildCard(BuildContext ctx, MonitorTask task) {
-    final pillBg = _pillColor(task.transactionStatus);
-    final pillFg = AppColors.white;
+    final status = GemsStatusStyle.forWorkOrder(task.transactionStatus);
 
-    return Card(
+    return GemsAccentCard(
       margin: const EdgeInsets.symmetric(vertical: 6),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: _cardBgColor(task.transactionStatus),
-      elevation: 2,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () {
+      accent: status.foreground,
+      onTap: () {
           Navigator.of(ctx).push(
             MaterialPageRoute(
               builder: (_) => TaskInformation(task: task),
@@ -229,22 +228,23 @@ class _TaskMonitoringScreenState extends State<TaskMonitoringScreen> {
 
               // status pill
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: pillBg,
-                  borderRadius: BorderRadius.circular(20),
+                  color: status.background,
+                  borderRadius: BorderRadius.circular(6),
                 ),
-                child: Text(task.transactionStatus,
-                    style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: pillFg)),
+                child: Text(
+                  task.transactionStatus,
+                  style: GemsChrome.body(
+                    size: 11,
+                    weight: FontWeight.w600,
+                    color: status.foreground,
+                  ),
+                ),
               ),
             ],
           ),
         ),
-      ),
     );
   }
 }

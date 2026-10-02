@@ -12,13 +12,15 @@ class Button extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        // backgroundColor: color == null ? colorTheme1 : color,
-        shape: StadiumBorder(),
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        shape: const StadiumBorder(),
       ),
       onPressed: onPressed,
       child: Text(
         text,
-        style: TextStyle(
+        style: const TextStyle(
           color: Colors.white,
         ),
       ),

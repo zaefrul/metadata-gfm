@@ -3,13 +3,13 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/PPM/Form/openImage.dart';
 import 'package:GEMS/model/meter.dart';
 import 'package:GEMS/model/serializers.dart';
 import 'package:GEMS/utils/image_compressor.dart';
 import 'package:GEMS/utils/biometric_lock_manager.dart';
 import 'package:GEMS/utils/network.dart';
-import 'package:GEMS/utils/reference.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
@@ -78,13 +78,12 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
   Widget build(BuildContext context) {
     ToastContext().init(context);
     return Scaffold(
-      appBar: AppBar(
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         title: Text("Electric Bill : ${widget.isDaily ? 'Daily' : 'Monthly'}"),
-        centerTitle: true,
-        backgroundColor: Colors.white,
       ),
       body: list.isEmpty
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: GemsChrome.primary))
           : ListView(
               padding: EdgeInsets.all(12),
               children: [
@@ -95,6 +94,8 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
               ],
             ),
       floatingActionButton: FloatingActionButton.extended(
+          backgroundColor: GemsChrome.primary,
+          foregroundColor: Colors.white,
           onPressed: _submitting ? null : confirmation,
           label: Text(_submitting ? "Submitting..." : "Submit")),
     );
@@ -107,14 +108,17 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
     showDialog(
       context: navigatorKey.currentContext!,
       builder: (_) => AlertDialog(
-        title: Text("Confirmation"),
-        content: Text("Are you confirm to submit the bill?"),
+        title: Text('Confirmation', style: GemsChrome.heading(size: 18)),
+        content: Text(
+          'Are you confirm to submit the bill?',
+          style: GemsChrome.body(),
+        ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            child: Text("Cancel"),
+            child: Text('Cancel', style: GemsChrome.body(color: GemsChrome.textSoft)),
           ),
           TextButton(
             onPressed: () {
@@ -123,7 +127,10 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
               Navigator.pop(context);
               submit();
             },
-            child: Text("OK"),
+            child: Text(
+              'OK',
+              style: GemsChrome.body(weight: FontWeight.w600, color: GemsChrome.primary),
+            ),
           ),
         ],
       ),
@@ -171,7 +178,7 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
 
     showDialog(
         context: navigatorKey.currentContext!,
-        builder: (_) => Center(child: CircularProgressIndicator()));
+        builder: (_) => const Center(child: CircularProgressIndicator(color: GemsChrome.primary)));
 
     final Provider provider = Provider(fetchURL: "/utility/Electricity/");
     provider.context = context;
@@ -240,48 +247,56 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
   Widget _filter(List<Meter> values) => StreamBuilder<Meter>(
       stream: dropdownValue.stream,
       builder: (context, snapshot) {
-        return DropdownButton<Meter>(
-          underline: Container(),
+        return DropdownButtonFormField<Meter>(
+          decoration: gemsFieldDecoration(label: 'Location'),
+          isExpanded: true,
           value: snapshot.data,
-          hint: Text("Select Location"),
+          hint: Text('Select location', style: GemsChrome.body(color: GemsChrome.muted)),
+          style: GemsChrome.body(size: 14),
           onChanged: (Meter? newValue) {
             if (newValue != null) dropdownValue.sink.add(newValue);
           },
           items: values.map<DropdownMenuItem<Meter>>((Meter value) {
             return DropdownMenuItem<Meter>(
               value: value,
-              child: Text(value.meterLocation),
+              child: Text(value.meterLocation, style: GemsChrome.body(size: 14)),
             );
           }).toList(),
         );
       });
 
   Widget get _addPhoto {
-    var title = Padding(
-        padding: EdgeInsets.symmetric(vertical: 6),
-        child: Text(
-          "Photo",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ));
-    var subtitle = Text(
-        "(Maximum of 1 Image only, Individual file should not larger than 5mb)");
-    var plustext = Text(
-      "+",
-      style: TextStyle(
-          color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24),
-    );
-    var plus = MaterialButton(
-      shape: CircleBorder(),
-      height: 25,
-      color: colorTheme2.withOpacity(0.5),
-      onPressed: _createUploadItem,
-      child: plustext,
-    );
-
-    return ListTile(
-      title: title,
-      subtitle: subtitle,
-      trailing: plus,
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: GemsFormSection(
+        title: 'Photo',
+        icon: Icons.photo_camera_outlined,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'One image, up to 5 MB.',
+              style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: _createUploadItem,
+              icon: const Icon(Icons.add_a_photo_outlined),
+              label: Text(
+                'Add photo',
+                style: GemsChrome.body(weight: FontWeight.w600, color: GemsChrome.primary),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: GemsChrome.primary,
+                side: const BorderSide(color: GemsChrome.primary),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(GemsChrome.radius),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -301,8 +316,8 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
 
   Widget _section(File item) {
     var iconButton = IconButton(
-      icon: Icon(Icons.delete),
-      color: Colors.red,
+      icon: const Icon(Icons.delete_outline),
+      color: GemsChrome.danger,
       onPressed: () => setState(() => listItem.remove(item)),
     );
 
@@ -355,13 +370,13 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
         child: Wrap(
           children: <Widget>[
             ListTile(
-              leading: Icon(Icons.image),
-              title: Text('View Image'),
+              leading: const Icon(Icons.image_outlined, color: GemsChrome.primary),
+              title: Text('View Image', style: GemsChrome.body()),
               onTap: openViewer,
             ),
             ListTile(
-              leading: Icon(Icons.map),
-              title: Text('Open Map'),
+              leading: const Icon(Icons.map_outlined, color: GemsChrome.primary),
+              title: Text('Open Map', style: GemsChrome.body()),
               onTap: openMap,
             ),
           ],
@@ -379,16 +394,19 @@ class _Monthly extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("Select Location"),
-        location,
-        _Field("Meter No", _controllers.last, enabled: false),
-        _Field("Total kWh Consumption", _controllers.first),
-        _Field("Maximum Demand", _controllers[1]),
-        _Field("Total (RM)", _controllers[2]),
-      ],
+    return GemsFormSection(
+      title: 'Monthly reading',
+      icon: Icons.bolt_outlined,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          location,
+          _Field('Meter No', _controllers.last, enabled: false),
+          _Field('Total kWh consumption', _controllers.first),
+          _Field('Maximum demand', _controllers[1]),
+          _Field('Total (RM)', _controllers[2]),
+        ],
+      ),
     );
   }
 }
@@ -402,15 +420,18 @@ class _Daily extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("Select Location"),
-        location,
-        _Field("Meter No", _controllers.first, enabled: false),
-        _Field("Maximum Demand", _controllers[1], enabled: true),
-        _Field("Today Reading", _controllers.last),
-      ],
+    return GemsFormSection(
+      title: 'Daily reading',
+      icon: Icons.bolt_outlined,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          location,
+          _Field('Meter No', _controllers.first, enabled: false),
+          _Field('Maximum demand', _controllers[1], enabled: true),
+          _Field('Today reading', _controllers.last),
+        ],
+      ),
     );
   }
 }
@@ -424,10 +445,14 @@ class _Field extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(labelText: label),
-      enabled: enabled,
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: TextField(
+        controller: controller,
+        enabled: enabled,
+        style: GemsChrome.body(size: 14),
+        decoration: gemsFieldDecoration(label: label, enabled: enabled),
+      ),
     );
   }
 }

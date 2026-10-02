@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:GEMS/controller/PPM/search.dart';
 import 'package:GEMS/controller/Homepage/test.dart';
-import 'package:GEMS/utils/reference.dart';
-
-import '../../view/bar.dart';
 import '../../view/drawer.dart';
+import '../../view/gems_chrome.dart';
 import 'calendar.dart';
 import 'task_view.dart';
 
@@ -45,21 +43,37 @@ class _PreventiveMaintenanceState extends State<PreventiveMaintenance>
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar: bar(
-        _scaffoldKey,
-        text: "Planned Preventive Maintenance",
-        search: true,
-        onTap: () {
-          Navigator.pushNamed(
-            context,
-            "/search",
-            arguments: SearchArguments(index: _tabController.index),
-          );
-        },
-        controller: _tabController,
-        dimmer: isOpened,
-      ) as PreferredSizeWidget?,
+      backgroundColor: GemsChrome.page,
       drawer: BuildDrawer(() => Navigator.pop(context)),
+      appBar: gemsAppBar(
+        title: const Text('Preventive Maintenance'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                "/search",
+                arguments: SearchArguments(index: _tabController.index),
+              );
+            },
+          ),
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: GemsChrome.primary,
+          unselectedLabelColor: GemsChrome.textSoft,
+          indicatorColor: GemsChrome.teal,
+          indicatorWeight: 3,
+          dividerColor: GemsChrome.border,
+          labelStyle: GemsChrome.body(size: 13, weight: FontWeight.w600),
+          unselectedLabelStyle: GemsChrome.body(size: 13, weight: FontWeight.w500),
+          tabs: const [
+            Tab(text: 'Schedule'),
+            Tab(text: 'My Task'),
+          ],
+        ),
+      ),
       body: LayoutBuilder(
         builder: (context, constraints) => Stack(
           children: [

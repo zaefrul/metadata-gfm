@@ -7,6 +7,7 @@ import 'package:GEMS/model/serializers.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/view/dialog.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/view/field.dart';
 import 'package:toast/toast.dart';
 import 'package:GEMS/data/repository/ppm_repository.dart';
@@ -130,12 +131,9 @@ class _FormDState extends State<FormD> {
     ToastContext().init(context);
     provider.context = context;
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(
-          color: colorTheme3,
-        ),
-        title: getTitle("D. Quantitative Task", bold: true),
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('D. Quantitative Task'),
       ),
       body: FutureBuilder<ResponseValue>(
         future: _sectionDataFuture,
@@ -152,17 +150,22 @@ class _FormDState extends State<FormD> {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Card(
-                  color: Colors.orange[50],
+                  elevation: 0,
+                  color: GemsChrome.warningSoft,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(GemsChrome.radius),
+                    side: const BorderSide(color: GemsChrome.border),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.cloud_off, size: 48, color: Colors.orange),
-                        SizedBox(height: 8),
+                        const Icon(Icons.cloud_off, size: 40, color: GemsChrome.warning),
+                        const SizedBox(height: 8),
                         Text(
                           'No Internet Connection',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: GemsChrome.body(size: 16, weight: FontWeight.w600),
                         ),
                         SizedBox(height: 4),
                         Text(
@@ -227,7 +230,7 @@ class _FormDState extends State<FormD> {
           ? null
           : FloatingActionButton.extended(
               label: Text("Save"),
-              backgroundColor: colorTheme2,
+              backgroundColor: GemsChrome.primary,
               onPressed: loading
                   ? null
                   : () async {
@@ -313,22 +316,23 @@ class _FormDState extends State<FormD> {
   }
 
   Widget getForm(UploadItem item) {
-    return Container(
-      padding: EdgeInsets.only(top: 20),
-      child: Column(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: GemsFormSection(
+        title: '${item.number}. ${item.desc}',
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          getTitle("${item.number}. ${item.desc}"),
           Row(
             children: <Widget>[
               Flexible(
                 child: field("Units", (text) {},
-                    horizontal: 0.0, value: item.unit, enable: false),
+                    horizontal: 0.0, outlined: true, value: item.unit, enable: false),
               ),
               SizedBox(width: 16),
               Flexible(
                 child: field("Set Values", (text) => item.setValues = text,
-                    horizontal: 0.0, value: item.setValues, enable: false),
+                    horizontal: 0.0, outlined: true, value: item.setValues, enable: false),
               ),
             ],
           ),
@@ -336,52 +340,55 @@ class _FormDState extends State<FormD> {
             children: <Widget>[
               Flexible(
                 child: field("Measured Values", (text) => item.measuredValues = text,
-                    horizontal: 0.0, value: item.measuredValues),
+                    horizontal: 0.0, outlined: true, value: item.measuredValues),
               ),
               SizedBox(width: 16),
               Flexible(
                 child: field("Limit/ Tolerance", (text) => item.limit = text,
-                    horizontal: 0.0, value: item.limit),
+                    horizontal: 0.0, outlined: true, value: item.limit),
               ),
             ],
           ),
           filter(item),
           field("Remarks", (text) => item.remark = text,
-              horizontal: 0.0, value: item.remark, enable: item.result != "N/A"),
+              horizontal: 0.0, outlined: true, value: item.remark, enable: item.result != "N/A"),
         ],
+        ),
       ),
     );
   }
 
   Widget getFormDisabled(UploadItem item) {
-    return Container(
-      padding: EdgeInsets.only(top: 20),
-      child: Column(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: GemsFormSection(
+        title: '${item.number}. ${item.desc}',
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          getTitle("${item.number}. ${item.desc}"),
           field("Units", (text) {},
-              horizontal: 0.0, value: item.unit, enable: false),
+              horizontal: 0.0, outlined: true, value: item.unit, enable: false),
           field("Set Values", (text) => item.setValues = text,
-              horizontal: 0.0, value: item.setValues, enable: false),
+              horizontal: 0.0, outlined: true, value: item.setValues, enable: false),
           field("Measured Values", (text) => item.measuredValues = text,
-              horizontal: 0.0, value: item.measuredValues, enable: false),
+              horizontal: 0.0, outlined: true, value: item.measuredValues, enable: false),
           field("Limit/ Tolerance", (text) => item.limit = text,
-              horizontal: 0.0, value: item.limit, enable: false),
+              horizontal: 0.0, outlined: true, value: item.limit, enable: false),
           field("Status", (_) {},
-              horizontal: 0.0, value: item.result, enable: false),
+              horizontal: 0.0, outlined: true, value: item.result, enable: false),
           field("Remarks", (text) => item.remark = text,
-              horizontal: 0.0, value: item.remark, enable: false),
+              horizontal: 0.0, outlined: true, value: item.remark, enable: false),
         ],
+        ),
       ),
     );
   }
 
-  DropdownButton<String> filter(UploadItem item) {
-    return DropdownButton<String>(
-      hint: Text("Status"),
+  Widget filter(UploadItem item) {
+    return DropdownButtonFormField<String>(
+      decoration: gemsFieldDecoration(label: 'Status'),
       isExpanded: true,
-      style: TextStyle(fontFamily: "Avenir", color: colorTheme3),
+      style: GemsChrome.body(size: 14),
       value: item.dropDownValue,
       onChanged: (String? newValue) {
         print(newValue);

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/Storekeeper/utils/bloc/bloc_checkin.dart';
 import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 import 'package:GEMS/model/complaint.dart';
@@ -95,10 +96,9 @@ class _CheckinRequestState extends State<CheckinRequest> {
   Widget build(BuildContext context) {
     ToastContext().init(context);
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text("Check In Information"),
-        centerTitle: true,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('Check In Information'),
       ),
       body: ListView(
         children: [
@@ -138,8 +138,8 @@ class _CheckinRequestState extends State<CheckinRequest> {
 
   Widget _addButton(BuildContext context) => FloatingActionButton(
       heroTag: "add_material_fab",
-      backgroundColor: colorTheme2,
-      child: Icon(Icons.add),
+      backgroundColor: GemsChrome.primary,
+      child: const Icon(Icons.add, color: Colors.white),
       onPressed: () {
         print("CheckinRequest: Opening add material page");
         Navigator.pushNamed(context, routeAddStockIn).then((value) {
@@ -157,7 +157,7 @@ class _CheckinRequestState extends State<CheckinRequest> {
 
   Widget _submitButton(BuildContext context) => FloatingActionButton.extended(
       heroTag: "submit_checkin_fab",
-      backgroundColor: colorTheme2,
+      backgroundColor: GemsChrome.primary,
       label: Text(_submitting ? "Submitting..." : "Submit"),
       onPressed: _submitting
           ? null
@@ -401,9 +401,8 @@ class ViewImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        iconTheme: IconThemeData(color: Colors.white),
+      appBar: gemsAppBar(
+        title: const Text('Photo'),
       ),
       body: PhotoView(
         imageProvider: FileImage(File(file.path)),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 import 'package:GEMS/model/complaint.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:rxdart/subjects.dart';
 import '../../../../main.dart';
@@ -27,10 +28,10 @@ class CheckOutList extends StatelessWidget {
         return RefreshIndicator(
           onRefresh: () => refresh(context: navigatorKey.currentContext!),
           child: ListView.separated(
-            padding: EdgeInsets.only(top: 12, bottom: 50),
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 80),
             itemBuilder: (ctx, index) => _Tile(data[index]),
             itemCount: data.length,
-            separatorBuilder: (ctx, index) => Divider(),
+            separatorBuilder: (ctx, index) => const SizedBox(height: 10),
           ),
         );
       },
@@ -64,50 +65,60 @@ class _Tile extends StatelessWidget {
     final woTaskRequestId = value["woTaskRequestId"];
     final woTaskRequestNo = value["woTaskRequestNo"] ?? "N/A";
 
-    return ListTile(
-      title: Text(
-        woTaskRequestNo,
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
+    return GemsAccentCard(
+      accent: GemsChrome.primary,
       onTap: () => Navigator.pushNamed(
         context,
         routeMaterialRequestView,
         arguments: RequestTask.fromJson(value),
       ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          text(value: checkoutBy, top: 8.0),
-          text(value: checkoutTime),
-          text(value: "Total Item : $total"),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    woTaskRequestNo,
+                    style: GemsChrome.body(size: 15, weight: FontWeight.w600),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                state(woTaskNo),
+              ],
+            ),
+            const SizedBox(height: 6),
+            text(checkoutBy),
+            text(checkoutTime),
+            text('Total Item : $total'),
+          ],
+        ),
       ),
-      trailing: state(woTaskNo),
     );
   }
 
-  Widget text({required String value, double top = 3.0}) {
+  Widget text(String value) {
     return Padding(
-      padding: EdgeInsets.only(top: top),
-      child: Text(
-        value,
-        style: TextStyle(color: colorTheme3),
-      ),
+      padding: const EdgeInsets.only(top: 2),
+      child: Text(value, style: GemsChrome.body(size: 13, color: GemsChrome.textSoft)),
     );
   }
 
   Widget state(String no) {
     return Container(
-      height: 40,
-      width: 160,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: colorTheme3,
+        color: GemsChrome.primarySoft,
       ),
-      child: Center(
-        child: Text(
-          no,
-          style: TextStyle(color: Colors.white, fontSize: 14),
+      child: Text(
+        no,
+        style: GemsChrome.body(
+          size: 12,
+          weight: FontWeight.w600,
+          color: GemsChrome.primary,
         ),
       ),
     );

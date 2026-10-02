@@ -5,7 +5,7 @@ import 'package:toast/toast.dart';
 import 'package:GEMS/controller/WorkOrder/material_arguments.dart';
 import 'package:GEMS/data/repository/work_order_detail_repository.dart';
 import 'package:GEMS/model/complaint.dart';
-import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 
 class MaterialEdit extends StatefulWidget {
   const MaterialEdit(this.args, {super.key});
@@ -117,19 +117,10 @@ class _MaterialEditState extends State<MaterialEdit> {
     ToastContext().init(context);
 
     return Scaffold(
-      backgroundColor: AppColors.gray100,
-      appBar: AppBar(
-        title: Text(
-          'Material / Item',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        elevation: 0,
-        backgroundColor: AppColors.bgAppBar,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         centerTitle: true,
-        iconTheme: const IconThemeData(color: AppColors.primary),
+        title: Text('Material / Item', style: GemsChrome.heading(size: 18)),
       ),
       body: Stack(
         children: [
@@ -162,11 +153,13 @@ class _MaterialEditState extends State<MaterialEdit> {
           width: double.infinity,
           child: ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.onPrimary,
+              backgroundColor: GemsChrome.primary,
+              disabledBackgroundColor: GemsChrome.primary.withValues(alpha: 0.45),
+              foregroundColor: Colors.white,
+              disabledForegroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(GemsChrome.radius),
               ),
             ),
             onPressed: _isQuantityValid && !_submitting ? _submit : null,
@@ -182,36 +175,12 @@ class _MaterialEditState extends State<MaterialEdit> {
   }
 
   Widget _buildInformationSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
+    return GemsFormSection(
+      title: 'Item Information',
+      icon: Icons.inventory_outlined,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.inventory_outlined, color: AppColors.primary),
-              const SizedBox(width: 12),
-              Text(
-                'Item Information',
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
           _buildInfoRow('Description', _material.itemDescription ?? '-'),
           _buildInfoRow('Type', _material.itemTypeDesc ?? '-'),
           _buildInfoRow('Group', _material.assetGroupName ?? '-'),
@@ -222,36 +191,12 @@ class _MaterialEditState extends State<MaterialEdit> {
   }
 
   Widget _buildEditSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
+    return GemsFormSection(
+      title: 'Edit Quantity',
+      icon: Icons.edit_outlined,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.edit_outlined, color: AppColors.primary),
-              const SizedBox(width: 12),
-              Text(
-                'Edit Details',
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
           TextFormField(
             controller: _quantityController,
             keyboardType: TextInputType.number,
@@ -284,7 +229,7 @@ class _MaterialEditState extends State<MaterialEdit> {
             label,
             style: GoogleFonts.poppins(
               fontSize: 13,
-              color: AppColors.textSecondary,
+              color: GemsChrome.textSoft,
             ),
           ),
           const SizedBox(height: 4),
@@ -293,7 +238,7 @@ class _MaterialEditState extends State<MaterialEdit> {
             style: GoogleFonts.poppins(
               fontSize: 15,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: GemsChrome.text,
             ),
           ),
         ],
@@ -302,24 +247,6 @@ class _MaterialEditState extends State<MaterialEdit> {
   }
 
   InputDecoration _inputDecoration(String label) {
-    return InputDecoration(
-      labelText: label,
-      labelStyle: GoogleFonts.poppins(color: AppColors.textSecondary),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.gray300),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.primary),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.gray300),
-      ),
-      filled: true,
-      fillColor: AppColors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-    );
+    return gemsFieldDecoration(label: label);
   }
 }

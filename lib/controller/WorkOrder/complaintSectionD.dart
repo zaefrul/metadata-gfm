@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:toast/toast.dart';
 import 'package:GEMS/data/repository/work_order_detail_repository.dart';
 import 'package:GEMS/utils/network.dart';
-import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/view/dialog.dart';
 import 'package:GEMS/main.dart';
 import 'package:GEMS/controller/WorkOrder/pending_sync.dart';
@@ -110,18 +110,14 @@ class _ComplaintSectionDState extends State<ComplaintSectionD> {
     ToastContext().init(context);
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: colorTheme3),
-        title: Text(
-          "${widget.name}. Asset No",
-          style: TextStyle(color: colorTheme3, fontWeight: FontWeight.bold),
-        ),
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: Text("${widget.name}. Asset No"),
         actions: widget.viewer
             ? null
             : [
                 IconButton(
-                  icon: Icon(Icons.camera_alt, color: colorTheme3),
+                  icon: const Icon(Icons.photo_camera_outlined),
                   onPressed: _scanBarcode,
                 )
               ],
@@ -135,9 +131,11 @@ class _ComplaintSectionDState extends State<ComplaintSectionD> {
               children: [
                 _buildBody(),
                 if (_loading)
-                  Container(
-                    color: Colors.black38,
-                    child: Center(child: CircularProgressIndicator()),
+                  const ColoredBox(
+                    color: Color(0xB8F1F5F9),
+                    child: Center(
+                      child: CircularProgressIndicator(color: GemsChrome.primary),
+                    ),
                   ),
               ],
             ),
@@ -149,45 +147,63 @@ class _ComplaintSectionDState extends State<ComplaintSectionD> {
 
   Widget _buildBody() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _row(
-            icon: Icons.confirmation_number,
-            label: "Asset No",
-            child: TextField(
-              controller: _controller,
-              enabled: !widget.viewer,
-              decoration: InputDecoration(
-                hintText: "Enter or scan asset no",
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 8),
-              ),
-              onChanged: (v) => _assetNo = v,
+          Text(
+            'Enter the asset number, or scan it from the camera.',
+            style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+          ),
+          const SizedBox(height: 16),
+          GemsFormSection(
+            title: 'Asset number',
+            icon: Icons.confirmation_number_outlined,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Asset No',
+                  style: GemsChrome.body(size: 13, weight: FontWeight.w500),
+                ),
+                const SizedBox(height: 4),
+                TextField(
+                  controller: _controller,
+                  enabled: !widget.viewer,
+                  style: GemsChrome.body(size: 14),
+                  decoration: gemsFieldDecoration(enabled: !widget.viewer).copyWith(
+                    hintText: 'Enter or scan asset no',
+                  ),
+                  onChanged: (v) => _assetNo = v,
+                ),
+                if (_scanError.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    _scanError,
+                    style: GemsChrome.body(size: 12, color: GemsChrome.danger),
+                  ),
+                ],
+              ],
             ),
           ),
-          if (_scanError.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(_scanError,
-                  style: TextStyle(color: Colors.red, fontSize: 12)),
-            ),
-          const SizedBox(height: 40),
-          if (!widget.viewer)
+          if (!widget.viewer) ...[
+            const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(double.infinity, 48),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                  backgroundColor: colorTheme2,
-                ),
+                style: gemsPrimaryButton(),
                 onPressed: _loading ? null : _saveAssetNo,
-                child: Text("Save", style: TextStyle(color: Colors.white)),
+                child: Text(
+                  'Save',
+                  style: GemsChrome.body(
+                    size: 15,
+                    weight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
+          ],
         ],
       ),
     );
@@ -263,32 +279,6 @@ class _ComplaintSectionDState extends State<ComplaintSectionD> {
     );
   }
 
-  Widget _row({
-    required IconData icon,
-    required String label,
-    required Widget child,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.grey.shade200),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: colorTheme2),
-          const SizedBox(width: 16),
-          Expanded(
-            flex: 2,
-            child: Text(label,
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-          ),
-          Expanded(flex: 3, child: child),
-        ],
-      ),
-    );
-  }
 }
 
 /// Simple full‑screen comments viewer
@@ -302,20 +292,25 @@ class ComplaintSectionE extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         title: Text("$sect. Comment"),
         centerTitle: true,
-        backgroundColor: Colors.white,
       ),
       body: Column(
         children: [
           if (pendingSync != null)
             PendingSyncIndicator(controller: pendingSync!),
           Expanded(
-            child: Padding(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
-              child: SingleChildScrollView(
-                child: Text(text, style: TextStyle(fontSize: 16)),
+              child: GemsFormSection(
+                title: 'Comment',
+                icon: Icons.notes_outlined,
+                child: Text(
+                  text,
+                  style: GemsChrome.body(size: 14),
+                ),
               ),
             ),
           ),

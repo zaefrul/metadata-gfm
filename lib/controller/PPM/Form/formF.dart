@@ -8,6 +8,7 @@ import 'package:GEMS/model/form.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/view/dialog.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:toast/toast.dart';
 import 'package:GEMS/utils/image_compressor.dart';
 import 'package:GEMS/data/repository/ppm_repository.dart';
@@ -113,35 +114,26 @@ class _FormFState extends State<FormF> {
                     Radio<int>(
                       value: 1,
                       groupValue: groupValue,
-                      activeColor: Colors.blueAccent,
+                      activeColor: GemsChrome.primary,
                       onChanged: widget.disable ? null : (value) => onChange(value),
                     ),
-                    const Text(
-                      'Yes',
-                      style: TextStyle(fontSize: 16.0),
-                    ),
+                    Text('Yes', style: GemsChrome.body(size: 15)),
                     Radio<int>(
                       value: 0,
                       groupValue: groupValue,
-                      activeColor: Colors.blueAccent,
+                      activeColor: GemsChrome.primary,
                       onChanged: widget.disable ? null : (value) => onChange(value),
                     ),
-                    const Text(
-                      'No',
-                      style: TextStyle(fontSize: 16.0),
-                    ),
+                    Text('No', style: GemsChrome.body(size: 15)),
                   ],
                 ))
     ];
 
     children.addAll(items);
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(
-          color: colorTheme3,
-        ),
-        title: getTitle("F. Additional Reports", bold: true),
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('F. Additional Reports'),
       ),
       body: loading
           ? Stack(
@@ -173,6 +165,8 @@ class _FormFState extends State<FormF> {
       floatingActionButton: widget.disable
           ? null
           : FloatingActionButton.extended(
+              backgroundColor: GemsChrome.primary,
+              foregroundColor: Colors.white,
               label: const Text("Upload Image"),
               onPressed: loading
                   ? null
@@ -207,8 +201,19 @@ class _FormFState extends State<FormF> {
       );
 
   Widget getListTile(int index, {FormHItem? item, UploadItem? unsaveItem}) {
-    return ListTile(
-      title: Text("$index. ${item != null ? item.uploadName : unsaveItem!.name}"),
+    return Card(
+      elevation: 0,
+      color: Colors.white,
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        side: const BorderSide(color: GemsChrome.border),
+      ),
+      child: ListTile(
+      title: Text(
+        "$index. ${item != null ? item.uploadName : unsaveItem!.name}",
+        style: GemsChrome.body(weight: FontWeight.w500),
+      ),
       trailing: Container(
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -216,8 +221,8 @@ class _FormFState extends State<FormF> {
           children: <Widget>[
             GestureDetector(
               child: const Icon(
-                Icons.image,
-                color: Colors.blueAccent,
+                Icons.image_outlined,
+                color: GemsChrome.primary,
               ),
               onTap: () {
                 if (unsaveItem == null) {
@@ -234,8 +239,8 @@ class _FormFState extends State<FormF> {
                 ? Container()
                 : GestureDetector(
                     child: const Icon(
-                      Icons.delete,
-                      color: Colors.red,
+                      Icons.delete_outline,
+                      color: GemsChrome.danger,
                     ),
                     onTap: () {
                       setState(() => loading = true);
@@ -253,6 +258,7 @@ class _FormFState extends State<FormF> {
                   ),
           ],
         ),
+      ),
       ),
     );
   }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:GEMS/data/repository/notification_repository.dart';
 import 'package:GEMS/model/notification_item.dart';
 import 'package:GEMS/service/notification_router.dart';
-import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/main.dart' show navigatorKey;
 
 class NotificationsScreen extends StatefulWidget {
@@ -79,17 +79,22 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         title: const Text('Notifications'),
         actions: [
           if (_items.any((item) => !item.isRead))
             TextButton(
               onPressed: _markAllRead,
-              child: Text('Mark all read', style: TextStyle(color: colorTheme3)),
+              child: Text(
+                'Mark all read',
+                style: GemsChrome.body(weight: FontWeight.w600, color: GemsChrome.primary),
+              ),
             ),
         ],
       ),
       body: RefreshIndicator(
+        color: GemsChrome.primary,
         onRefresh: _loadNotifications,
         child: _buildBody(),
       ),
@@ -98,7 +103,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator(color: GemsChrome.primary));
     }
     if (_error != null) {
       return ListView(
@@ -108,11 +113,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
-                Text(_error!, textAlign: TextAlign.center),
+                Text(
+                  _error!,
+                  textAlign: TextAlign.center,
+                  style: GemsChrome.body(color: GemsChrome.textSoft),
+                ),
                 const SizedBox(height: 16),
-                ElevatedButton(
+                FilledButton(
+                  style: gemsPrimaryButton(),
                   onPressed: _loadNotifications,
-                  child: const Text('Retry'),
+                  child: Text(
+                    'Retry',
+                    style: GemsChrome.body(weight: FontWeight.w600, color: Colors.white),
+                  ),
                 ),
               ],
             ),
@@ -123,46 +136,75 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (_items.isEmpty) {
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        children: const [
-          SizedBox(height: 120),
-          Center(child: Text('No notifications yet')),
+        children: [
+          const SizedBox(height: 120),
+          const Center(
+            child: Icon(Icons.notifications_none, size: 64, color: GemsChrome.muted),
+          ),
+          const SizedBox(height: 12),
+          Center(
+            child: Text(
+              'No notifications yet',
+              style: GemsChrome.body(color: GemsChrome.textSoft),
+            ),
+          ),
         ],
       );
     }
 
     return ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
       itemCount: _items.length,
-      separatorBuilder: (_, __) => const Divider(height: 1),
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
         final item = _items[index];
-        return ListTile(
-          leading: Icon(
-            item.isRead ? Icons.notifications_none : Icons.notifications,
-            color: item.isRead ? Colors.grey : colorTheme3,
-          ),
-          title: Text(
-            item.title,
-            style: TextStyle(
-              fontWeight: item.isRead ? FontWeight.normal : FontWeight.w600,
-            ),
-          ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 4),
-              Text(item.body),
-              if (item.sentAt != null) ...[
-                const SizedBox(height: 6),
-                Text(
-                  item.sentAt!,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+        final accent = item.isRead ? GemsChrome.border : GemsChrome.primary;
+        return GemsAccentCard(
+          accent: accent,
+          onTap: () => _openNotification(item),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  item.isRead ? Icons.notifications_none : Icons.notifications,
+                  color: item.isRead ? GemsChrome.muted : GemsChrome.primary,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.displayTitle,
+                        style: GemsChrome.body(
+                          size: 15,
+                          weight: item.isRead ? FontWeight.w500 : FontWeight.w600,
+                          color: item.isRead ? GemsChrome.textSoft : GemsChrome.text,
+                        ),
+                      ),
+                      if (item.displayBody.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          item.displayBody,
+                          style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+                        ),
+                      ],
+                      if (item.sentAt != null) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          item.sentAt!,
+                          style: GemsChrome.body(size: 12, color: GemsChrome.muted),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ],
-            ],
+            ),
           ),
-          isThreeLine: true,
-          onTap: () => _openNotification(item),
         );
       },
     );

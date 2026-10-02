@@ -1,5 +1,6 @@
 import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/TaskMonitoring/task_detail.dart';
 import 'package:GEMS/model/monitor.dart';
 import 'package:GEMS/utils/network.dart';
@@ -40,17 +41,16 @@ class _SearchTaskMonitoringState extends State<SearchTaskMonitoring> {
     _provider.context = context;
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppBar(
-        iconTheme: IconThemeData(color: colorTheme3),
-        backgroundColor: Colors.white,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         title: TextField(
           controller: controller,
-          style: TextStyle(fontFamily: 'Avenir', color: colorTheme3),
+          style: GemsChrome.body(size: 16),
           autofocus: true,
           decoration: InputDecoration(
             border: InputBorder.none,
-            hintText: "Search",
-            hintStyle: TextStyle(color: Color(0xcc022c41)),
+            hintText: 'Search',
+            hintStyle: GemsChrome.body(color: GemsChrome.muted),
           ),
           onChanged: (text) => setState(() => keyword = text),
           textInputAction: TextInputAction.search,
@@ -62,16 +62,11 @@ class _SearchTaskMonitoringState extends State<SearchTaskMonitoring> {
             }
           },
         ),
-        actions: <Widget>[
-          GestureDetector(
-            onTap: scan,
-            child: Icon(
-              Icons.camera,
-              color: colorTheme3,
-              size: 30,
-            ),
+        actions: [
+          IconButton(
+            onPressed: scan,
+            icon: const Icon(Icons.photo_camera_outlined),
           ),
-          SizedBox(width: 20),
         ],
       ),
       body: _loading

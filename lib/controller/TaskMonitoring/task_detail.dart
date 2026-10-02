@@ -1,14 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:percent_indicator/percent_indicator.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/PPM/Form/form_view.dart';
 import 'package:GEMS/controller/WorkOrder/complaintSection_v2.dart';
 import 'package:GEMS/model/monitor.dart';
-// import 'package:GEMS/model/responseValue.dart';
 import 'package:GEMS/utils/network.dart';
-import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/main.dart';
 
 class TaskInformation extends StatelessWidget {
@@ -34,14 +31,9 @@ class TaskInformation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Task Information",
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-        ),
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        iconTheme: IconThemeData(color: AppColors.textPrimary),
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('Task Information'),
       ),
       body: FutureBuilder<MonitorDetail>(
         future: _detail,
@@ -50,7 +42,9 @@ class TaskInformation extends StatelessWidget {
             return Center(child: Text(snap.error.toString()));
           }
           if (!snap.hasData) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: GemsChrome.primary),
+            );
           }
           return _buildBody(context, snap.data!);
         },
@@ -93,21 +87,20 @@ class TaskInformation extends StatelessWidget {
               for (var i = 0; i < steps.length; i++) ...[
                 //  a) the circle
                 CircleAvatar(
-                  radius: 20,
-                  backgroundColor: i <= currentStep ? AppColors.primary : AppColors.secondaryLight,
+                  radius: 18,
+                  backgroundColor: i <= currentStep ? GemsChrome.primary : GemsChrome.neutralSoft,
                   child: Icon(
                     i < currentStep ? Icons.check : steps[i]["icon"] as IconData,
                     size: 18,
-                    color: i <= currentStep ? Colors.white : colorTheme3,
+                    color: i <= currentStep ? Colors.white : GemsChrome.muted,
                   ),
                 ),
 
-                // b) the connector line (except after last circle)
                 if (i < steps.length - 1)
                   Expanded(
                     child: Container(
-                      height: 4,
-                      color: i < currentStep ? colorTheme2 : Colors.grey[300],
+                      height: 3,
+                      color: i < currentStep ? GemsChrome.primary : GemsChrome.border,
                     ),
                   ),
               ],
@@ -128,10 +121,10 @@ class TaskInformation extends StatelessWidget {
                 child: Text(
                   step["label"] as String,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: done ? colorTheme3 : Colors.grey[400],
+                  style: GemsChrome.body(
+                    size: 12,
+                    weight: FontWeight.w600,
+                    color: done ? GemsChrome.text : GemsChrome.muted,
                   ),
                 ),
               );
@@ -159,45 +152,31 @@ class TaskInformation extends StatelessWidget {
     }
 
     return ListView(
-      padding: EdgeInsets.symmetric(vertical: 24),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       children: [
-        // — FLOW HEADER —
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Text(
-            d.flowName,
-            style: GoogleFonts.poppins(
-                fontSize: 20, fontWeight: FontWeight.w600),
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // — TWO-COLUMN METADATA GRID —
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Wrap(
-            runSpacing: 12,
-            spacing: 20,
+        GemsFormSection(
+          title: d.flowName,
+          icon: Icons.account_tree_outlined,
+          child: Column(
             children: [
-              _metaItem("Task No", d.transactionNo),
+              _metaItem('Task No', d.transactionNo),
               if ((d.woTaskNo ?? '').isNotEmpty)
-                _metaItem("Work Order", d.woTaskNo!),
-              _metaItem("Checkpoint", d.currentStatus),
-              _metaItem("Initiated By", d.initiateBy),
-              _metaItem("By Group", d.initiateByGroup),
-              _metaItem("Initiated At", d.initiateTimeCreated),
-              _metaItem("Status", d.taskStatus),
-              _metaItem("Current User", d.currentUser),
-              _metaItem("Received At", d.receivedTime),
-              _metaItem("Flow Status", d.flowStatus),
-              _metaItem("Due Date", d.flowDueDate),
+                _metaItem('Work Order', d.woTaskNo!),
+              _metaItem('Checkpoint', d.currentStatus),
+              _metaItem('Initiated By', d.initiateBy),
+              _metaItem('By Group', d.initiateByGroup),
+              _metaItem('Initiated At', d.initiateTimeCreated),
+              _metaItem('Status', d.taskStatus),
+              _metaItem('Current User', d.currentUser),
+              _metaItem('Received At', d.receivedTime),
+              _metaItem('Flow Status', d.flowStatus),
+              _metaItem('Due Date', d.flowDueDate),
             ],
           ),
         ),
 
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
 
-        // — ACTION BUTTONS —
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -243,17 +222,9 @@ class TaskInformation extends StatelessWidget {
           ],
         ),
 
-        const SizedBox(height: 32),
-        Divider(),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
 
-        // — PROGRESS INDICATOR —
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Text("Transaction History",
-              style: GoogleFonts.poppins(
-                  fontSize: 18, fontWeight: FontWeight.w600)),
-        ),
+        Text('Transaction History', style: GemsChrome.heading(size: 16)),
         const SizedBox(height: 16),
         _buildProgressStepper(context, percent, d.flowName == "Work Order"),
         const SizedBox(height: 24),
@@ -280,89 +251,112 @@ class TaskInformation extends StatelessWidget {
   }
 
   Widget _metaItem(String label, String value) {
-    return SizedBox(
-      width: (MediaQueryData.fromView(WidgetsBinding.instance.window)
-                  .size
-                  .width -
-              60) /
-          2,
-      child: Column(
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: GoogleFonts.poppins(
-                  fontSize: 12, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 4),
-          Text(value, style: GoogleFonts.poppins(fontSize: 14)),
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: GemsChrome.body(size: 12, color: GemsChrome.textSoft),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 3,
+            child: Text(
+              value,
+              style: GemsChrome.body(size: 14, weight: FontWeight.w500),
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget _pillButton(String text, VoidCallback onTap) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        // primary: colorTheme1,
-        backgroundColor: AppColors.primaryDark,
-        shape: StadiumBorder(),
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+    return FilledButton(
+      style: FilledButton.styleFrom(
+        backgroundColor: GemsChrome.primary,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(GemsChrome.radius),
+        ),
       ),
       onPressed: onTap,
-      child: Text(text, style: GoogleFonts.poppins(color: Colors.white)),
+      child: Text(text, style: GemsChrome.body(weight: FontWeight.w600, color: Colors.white)),
     );
   }
 
-  Widget _historyCard(MonitorHistory h, int idx) {
-    Color statusColor = AppColors.primaryDark;
-    debugPrint("The status is ${h.taskStatus}");
-    switch (h.taskStatus) {
-      case "In Progress":
-        statusColor = AppColors.primary;
-        break;
-      case "Verify":
-        statusColor = AppColors.warning;
-        break;
-      case "Complete":
-        statusColor = AppColors.success;
-        break;
-      case "Rejected":
-        statusColor = AppColors.danger;
-        break;
+  GemsStatusStyle _historyStatus(String value) {
+    switch (value) {
+      case 'In Progress':
+        return GemsStatusStyle.primary;
+      case 'Verify':
+        return GemsStatusStyle.warning;
+      case 'Complete':
+        return GemsStatusStyle.success;
+      case 'Rejected':
+        return GemsStatusStyle.danger;
+      default:
+        return GemsStatusStyle.neutral;
     }
+  }
+
+  Widget _historyCard(MonitorHistory h, int idx) {
+    final status = _historyStatus(h.taskStatus);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Card(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 2,
+      padding: const EdgeInsets.only(top: 10),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(GemsChrome.radius),
+          border: Border.all(color: GemsChrome.border),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              // header
               Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: AppColors.primaryDark,
-                    child: Text("$idx",
-                        style: GoogleFonts.poppins(
-                            color: Colors.white, fontWeight: FontWeight.bold)),
+                    radius: 16,
+                    backgroundColor: GemsChrome.primarySoft,
+                    child: Text(
+                      '$idx',
+                      style: GemsChrome.body(
+                        size: 13,
+                        weight: FontWeight.w700,
+                        color: GemsChrome.primary,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(h.checkpointId,
-                        style: GoogleFonts.poppins(
-                            fontSize: 16, fontWeight: FontWeight.w600)),
+                    child: Text(
+                      h.checkpointId,
+                      style: GemsChrome.body(size: 15, weight: FontWeight.w600),
+                    ),
                   ),
                   Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                        color: statusColor, borderRadius: BorderRadius.circular(20)),
-                    child: Text(h.taskStatus,
-                        style: GoogleFonts.poppins(
-                            color: Colors.white, fontSize: 12)),
+                      color: status.background,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      h.taskStatus,
+                      style: GemsChrome.body(
+                        size: 12,
+                        weight: FontWeight.w600,
+                        color: status.foreground,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -397,14 +391,12 @@ class TaskInformation extends StatelessWidget {
                 const SizedBox(height: 12),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Text("Remark",
-                      style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w600, fontSize: 14)),
+                  child: Text('Remark', style: GemsChrome.body(weight: FontWeight.w600)),
                 ),
                 const SizedBox(height: 4),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(h.taskRemark, style: GoogleFonts.poppins()),
+                  child: Text(h.taskRemark, style: GemsChrome.body()),
                 ),
               ],
             ],
@@ -420,11 +412,9 @@ class TaskInformation extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: GoogleFonts.poppins(
-                  fontSize: 12, fontWeight: FontWeight.w600)),
+          Text(label, style: GemsChrome.body(size: 12, color: GemsChrome.textSoft)),
           const SizedBox(height: 4),
-          Text(value, style: GoogleFonts.poppins(fontSize: 14)),
+          Text(value, style: GemsChrome.body(size: 14, weight: FontWeight.w500)),
         ],
       ),
     );

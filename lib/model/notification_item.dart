@@ -33,6 +33,34 @@ class NotificationItem {
     );
   }
 
+  /// Push failures are appended to the stored title as `[FAIL: ...]`.
+  static final RegExp _failSuffix = RegExp(r'\s*\[FAIL:[\s\S]*$');
+
+  String get displayTitle {
+    final cleaned = _withoutFail(title);
+    if (cleaned.isNotEmpty) return cleaned;
+    final message = _withoutFail(_plainText(body));
+    if (message.isNotEmpty) return message;
+    return 'Notification';
+  }
+
+  String get displayBody {
+    final message = _withoutFail(_plainText(body));
+    if (message.isEmpty || message == displayTitle) return '';
+    return message;
+  }
+
+  static String _withoutFail(String value) {
+    return value.replaceFirst(_failSuffix, '').trim();
+  }
+
+  static String _plainText(String value) {
+    return value
+        .replaceAll(RegExp(r'<[^>]*>'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+  }
+
   Map<String, String> get routingData {
     if (notiData == null || notiData!.isEmpty) {
       return {};

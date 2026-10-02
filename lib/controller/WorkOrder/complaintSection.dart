@@ -8,6 +8,7 @@ import 'package:GEMS/controller/WorkOrder/complaintPDF.dart';
 import 'package:GEMS/model/responseValue.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/view/dialog.dart';
 import 'package:toast/toast.dart';
 import '../../main.dart';
@@ -170,8 +171,8 @@ class _ComplaintSectionState extends State<ComplaintSection> {
         label: loadingAssign
             ? CircularProgressIndicator()
             : Text(widget.viewer ? "View Form" : "Submit"),
-        backgroundColor:
-            (widget.viewer || enableSubmit) ? colorTheme2 : colorTheme3,
+        backgroundColor: GemsChrome.primary,
+        foregroundColor: Colors.white,
         onPressed: () {
           if (widget.viewer) {
             var page = ComplaintPDF(
@@ -239,11 +240,8 @@ class _ComplaintSectionState extends State<ComplaintSection> {
         });
 
     return Scaffold(
-      appBar: AppBar(
-          backgroundColor: Colors.white,
-          iconTheme: IconThemeData(
-            color: colorTheme3,
-          ),
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
           title: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,7 +259,7 @@ class _ComplaintSectionState extends State<ComplaintSection> {
               onRefresh: _fetch,
               child: ListView.separated(
                   padding: EdgeInsets.symmetric(vertical: 16),
-                  separatorBuilder: (context, index) => Divider(color: Colors.black),
+                  separatorBuilder: (context, index) => const Divider(color: GemsChrome.border, height: 1),
                   itemCount: titles.length,
                   itemBuilder: (context, item) {
                     String value = listStatus[item];
@@ -293,28 +291,27 @@ class _ComplaintSectionState extends State<ComplaintSection> {
         child: Text(text,
             style: TextStyle(
                 fontWeight: bold ? FontWeight.bold : FontWeight.normal,
-                color: colorTheme3,
+                color: GemsChrome.text,
                 fontSize: size)),
       );
 
   Widget status(String text) {
-    Color color;
-    if (text == "Info") {
-      color = colorTheme2;
-    } else if (text == "Pending")
-      color = colorTheme4;
-    else if (text == "In Progress")
-      color = colorTheme1;
-    else
-      color = colorTheme3;
+    final style = GemsStatusStyle.forWorkOrder(text);
     return Container(
-        alignment: Alignment.center,
-        height: 30.0,
-        width: 100.0,
-        decoration: BoxDecoration(
-            color: color, borderRadius: BorderRadius.circular(20.0)),
-        child: Text(text,
-            style: TextStyle(color: Colors.white, fontFamily: 'Avenir')));
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: style.background,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        text,
+        style: GemsChrome.body(
+          size: 11,
+          weight: FontWeight.w600,
+          color: style.foreground,
+        ),
+      ),
+    );
   }
 
   Widget tile(int item, String statusDesc) => ListTile(

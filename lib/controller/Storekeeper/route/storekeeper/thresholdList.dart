@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/model/complaint.dart';
 import 'package:GEMS/model/serializers.dart';
 import 'package:GEMS/utils/network.dart';
@@ -30,7 +31,7 @@ class _ThresholdListViewState extends State<ThresholdListView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _filter,
-            Divider(color: Colors.black38, height: 0),
+            const Divider(color: GemsChrome.border, height: 1),
             StreamBuilder<List<Map<String, String>>>(
                 stream: _controller._materials,
                 builder: (context, snapshot) {
@@ -68,10 +69,7 @@ class _ThresholdListViewState extends State<ThresholdListView> {
                 padding: EdgeInsets.all(12),
                 child: Row(
                   children: [
-                    Text(
-                      "Store :  ",
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    Text('Store :  ', style: GemsChrome.body(size: 16)),
                     DropdownButton<ComplaintDStore>(
                       underline: Container(),
                       value: snapshot.data,
@@ -120,50 +118,66 @@ class _Material extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-      title: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Text(
-          '$index.  $itemDescription',
-          overflow: TextOverflow.ellipsis,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+      child: Material(
+        color: Colors.white,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(GemsChrome.radius),
+          side: const BorderSide(color: GemsChrome.border),
+        ),
+        child: ExpansionTile(
+          title: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Text(
+              '$index.  $itemDescription',
+              overflow: TextOverflow.ellipsis,
+              style: GemsChrome.body(size: 15, weight: FontWeight.w600),
+            ),
+          ),
+          subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            text('$assetGroupName  |  $itemTypeDesc'),
+            text('Quantity : $partCount', color: GemsChrome.warning),
+          ]),
+          children: [
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 22.0),
+                child: Text(
+                  'Threshold Set: $partThreshold',
+                  style: GemsChrome.body(),
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 22.0),
+                child: Text(partRemark, style: GemsChrome.body(color: GemsChrome.textSoft)),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pushNamed(context, routeDetails, arguments: partId);
+              },
+              child: Text(
+                'Open Details',
+                style: GemsChrome.body(weight: FontWeight.w600, color: GemsChrome.primary),
+              ),
+            ),
+          ],
         ),
       ),
-      subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        text(value: "$assetGroupName  |  $itemTypeDesc", top: 8.0),
-        text(value: "Quantity : $partCount", color: colorTheme4),
-      ]),
-      children: [
-        SizedBox(height: 12),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 22.0),
-            child: Text("Threshold Set: $partThreshold"),
-          ),
-        ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 22.0),
-            child: Text(partRemark),
-          ),
-        ),
-        TextButton(
-            onPressed: () {
-              Navigator.pushNamed(context, routeDetails, arguments: partId);
-            },
-            child: Text("Open Details")),
-      ],
     );
   }
 
-  Widget text({required String value, double top = 3.0, Color color = Colors.black}) {
+  Widget text(String value, {Color color = GemsChrome.textSoft}) {
     return Padding(
-      padding: EdgeInsets.only(top: top),
-      child: Text(
-        value,
-        style: TextStyle(color: color ?? colorTheme3),
-      ),
+      padding: const EdgeInsets.only(top: 3),
+      child: Text(value, style: GemsChrome.body(size: 13, color: color)),
     );
   }
 }

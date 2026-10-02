@@ -7,6 +7,7 @@ import 'package:GEMS/model/serializers.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/view/dialog.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/view/field.dart';
 import 'package:toast/toast.dart';
 import 'package:GEMS/data/repository/ppm_repository.dart';
@@ -137,10 +138,9 @@ class _FormCState extends State<FormC> {
     ToastContext().init(context);
     provider.context = context;
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: colorTheme3),
-        title: getTitle("C. Qualitative Task", bold: true),
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('C. Qualitative Task'),
       ),
       body: FutureBuilder<ResponseValue>(
         future: _sectionDataFuture,
@@ -149,8 +149,12 @@ class _FormCState extends State<FormC> {
             // Add pending sync banner
             if (_pendingSync != null)
               PPMPendingSyncIndicator(controller: _pendingSync!),
-            ListTile(
-              title: Text("Enviromental Check"),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+              child: Text(
+                'Enviromental Check',
+                style: GemsChrome.heading(size: 16),
+              ),
             )
           ];
 
@@ -160,16 +164,21 @@ class _FormCState extends State<FormC> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Card(
-                  color: Colors.orange[50],
+                  elevation: 0,
+                  color: GemsChrome.warningSoft,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(GemsChrome.radius),
+                    side: const BorderSide(color: GemsChrome.border),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       children: [
-                        Icon(Icons.cloud_off, size: 48, color: Colors.orange),
-                        SizedBox(height: 8),
+                        const Icon(Icons.cloud_off, size: 40, color: GemsChrome.warning),
+                        const SizedBox(height: 8),
                         Text(
                           'No Internet Connection',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: GemsChrome.body(size: 16, weight: FontWeight.w600),
                         ),
                         SizedBox(height: 4),
                         Text(
@@ -214,7 +223,7 @@ class _FormCState extends State<FormC> {
           ? null
           : FloatingActionButton.extended(
               label: Text("Save"),
-              backgroundColor: colorTheme2,
+              backgroundColor: GemsChrome.primary,
               onPressed: loading
                   ? null
                   : () async {
@@ -295,54 +304,59 @@ class _FormCState extends State<FormC> {
     );
   }
 
-  ListTile getForm(UploadItem item) {
-    print(item);
-    return ListTile(
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          getTitle("${item.number}. ${item.desc}"),
-          filter(item),
-          field(
-            "Remark",
-            (text) => item.remark = text,
-            horizontal: 0.0,
-            value: item.remark,
-          ),
-          SizedBox(height: 30),
-        ],
+  Widget getForm(UploadItem item) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: GemsFormSection(
+        title: '${item.number}. ${item.desc}',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            filter(item),
+            const SizedBox(height: 12),
+            field(
+              "Remark",
+              (text) => item.remark = text,
+              horizontal: 0.0, outlined: true,
+              value: item.remark,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  ListTile getFormDisabled(UploadItem item) {
-    return ListTile(
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          getTitle("${item.number}. ${item.desc}"),
-          field("Status", (_) {},
-              value: item.statusCheck == "N/A" ? "N/A" : item.result,
-              horizontal: 0.0,
-              enable: false),
-          field("Remark", (text) => item.remark = text,
-              horizontal: 0.0, value: item.remark, enable: false),
-          SizedBox(height: 30),
-        ],
+  Widget getFormDisabled(UploadItem item) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: GemsFormSection(
+        title: '${item.number}. ${item.desc}',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            field("Status", (_) {},
+                value: item.statusCheck == "N/A" ? "N/A" : item.result,
+                horizontal: 0.0, outlined: true,
+                enable: false),
+            const SizedBox(height: 12),
+            field("Remark", (text) => item.remark = text,
+                horizontal: 0.0, outlined: true, value: item.remark, enable: false),
+          ],
+        ),
       ),
     );
   }
 
-  DropdownButton<String> filter(UploadItem item) {
-    return DropdownButton<String>(
-      hint: Text("Status"),
+  Widget filter(UploadItem item) {
+    return DropdownButtonFormField<String>(
+      decoration: gemsFieldDecoration(label: 'Status'),
       isExpanded: true,
-      style: TextStyle(fontFamily: "Avenir", color: colorTheme3),
+      style: GemsChrome.body(size: 14),
       value: item.dropDownValue,
       onChanged: (String? newValue) {
         setState(() => item.result = newValue ?? "");
       },
-      items: [
+      items: const [
         DropdownMenuItem(value: "Pass", child: Text("Pass")),
         DropdownMenuItem(value: "Fail", child: Text("Fail")),
         DropdownMenuItem(value: "N/A", child: Text("N/A")),

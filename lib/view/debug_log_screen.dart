@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:intl/intl.dart';
 import 'package:file_picker/file_picker.dart';
 
@@ -91,7 +92,8 @@ class _DebugLogScreenState extends State<DebugLogScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         title: const Text('Debug Logs'),
         actions: [
           if (_isExporting)

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:GEMS/controller/PPM/pending_sync.dart';
 import 'package:GEMS/data/repository/ppm_repository.dart';
 import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:toast/toast.dart';
 
 class PPMPendingSyncIndicator extends StatelessWidget {
@@ -31,7 +32,7 @@ class PPMPendingSyncIndicator extends StatelessWidget {
 
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              color: colorTheme2.withOpacity(0.1),
+              color: GemsChrome.primarySoft,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -39,7 +40,7 @@ class PPMPendingSyncIndicator extends StatelessWidget {
                     children: [
                       Icon(
                         isSyncing ? Icons.sync : Icons.cloud_upload,
-                        color: colorTheme2,
+                        color: GemsChrome.primary,
                         size: 20,
                       ),
                       const SizedBox(width: 12),
@@ -50,10 +51,7 @@ class PPMPendingSyncIndicator extends StatelessWidget {
                               : count == 1
                                   ? '1 action pending sync'
                                   : '$count actions pending sync',
-                          style: TextStyle(
-                            color: colorTheme3,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: GemsChrome.body(weight: FontWeight.w500),
                         ),
                       ),
                       if (!isSyncing)
@@ -94,9 +92,9 @@ class PPMPendingSyncIndicator extends StatelessWidget {
                           },
                           child: Text(
                             'RETRY',
-                            style: TextStyle(
-                              color: colorTheme2,
-                              fontWeight: FontWeight.bold,
+                            style: GemsChrome.body(
+                              weight: FontWeight.w600,
+                              color: GemsChrome.primary,
                             ),
                           ),
                         ),
@@ -106,16 +104,13 @@ class PPMPendingSyncIndicator extends StatelessWidget {
                     const SizedBox(height: 8),
                     LinearProgressIndicator(
                       value: progress.percentage,
-                      backgroundColor: Colors.grey[300],
-                      valueColor: AlwaysStoppedAnimation<Color>(colorTheme2),
+                      backgroundColor: GemsChrome.border,
+                      color: GemsChrome.primary,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '${(progress.percentage * 100).toStringAsFixed(0)}% complete',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: GemsChrome.body(size: 12, color: GemsChrome.textSoft),
                     ),
                   ],
                 ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:date_format/date_format.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/view/dialog.dart';
@@ -50,8 +51,68 @@ class _ComplaintSectionC_RectTimeState extends State<ComplaintSectionC_RectTime>
 
     provider = Provider(
       taskID: widget.id,
-      fetchURL: "/api/m_wo.php?type=wo_rectify_time&woTaskId=",
+      fetchURL: "/api/m_wo.php?type=wr_rectification_time&woTaskId=",
     );
+    _loadExisting();
+  }
+
+  Future<void> _loadExisting() async {
+    try {
+      final value = await provider.fetch();
+      final raw = value.result?.trim() ?? '';
+      if (raw.isEmpty || !mounted) return;
+      DateTime? parsed;
+      try {
+        parsed = DateFormat('yyyy-MM-dd HH:mm:ss').parse(raw);
+      } catch (_) {
+        parsed = DateTime.tryParse(raw.replaceFirst(' ', 'T'));
+      }
+      if (parsed == null || !mounted) return;
+      final loaded = parsed;
+      setState(() {
+        selectedDate = loaded;
+        selectedTime = TimeOfDay.fromDateTime(loaded);
+        _dateController.text = DateFormat.yMd().format(loaded);
+        _hour = selectedTime.hour.toString();
+        _minute = selectedTime.minute.toString();
+        _timeController.text = formatDate(
+          loaded,
+          [hh, ':', nn, ' ', am],
+        );
+      });
+    } catch (err) {
+      debugPrint('Failed to load rectification time: $err');
+    }
+  }
+
+  Future<void> _save() async {
+    if (loading || widget.viewer) return;
+    setState(() => loading = true);
+    final stamp = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+      selectedTime.hour,
+      selectedTime.minute,
+    );
+    try {
+      provider.context = context;
+      await provider.post(
+        url: '/api/m_wo.php',
+        body: {
+          'action': 'save_wr_rectification_time',
+          'woTaskId': widget.id,
+          'rectificationTime': DateFormat('yyyy-MM-dd HH:mm:ss').format(stamp),
+        },
+      );
+      if (!mounted) return;
+      alert('Rectification time saved');
+    } catch (err) {
+      if (!mounted) return;
+      alert(err.toString());
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
   }
 
   @override
@@ -59,9 +120,9 @@ class _ComplaintSectionC_RectTimeState extends State<ComplaintSectionC_RectTime>
     _width = MediaQuery.of(context).size.width;
     _height = MediaQuery.of(context).size.height;
     return Scaffold(
-      appBar: AppBar(
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         title: const Text("C. Rectification Time"),
-        backgroundColor: Colors.white,
       ),
       body: Container(
         padding: const EdgeInsets.all(12),
@@ -131,10 +192,10 @@ class _ComplaintSectionC_RectTimeState extends State<ComplaintSectionC_RectTime>
       floatingActionButton: widget.viewer
           ? null
           : FloatingActionButton.extended(
-              label: const Text("Save"),
-              onPressed: () {
-                // Implement save functionality as needed for rectification time.
-              },
+              backgroundColor: GemsChrome.primary,
+              foregroundColor: Colors.white,
+              label: Text(loading ? "Saving" : "Save"),
+              onPressed: loading ? null : _save,
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

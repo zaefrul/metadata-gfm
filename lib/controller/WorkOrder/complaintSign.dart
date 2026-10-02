@@ -8,7 +8,7 @@ import 'package:GEMS/data/repository/work_order_repository.dart';
 import 'package:rating_dialog/rating_dialog.dart';
 import 'package:signature/signature.dart';
 
-import '../../utils/reference.dart';
+import '../../view/gems_chrome.dart';
 import '../../view/dialog.dart';
 
 class ComplaintSignature extends StatefulWidget {
@@ -56,11 +56,9 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colorTheme3,
-      appBar: AppBar(
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         title: title("Signature"),
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: AppColors.primary),
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -69,7 +67,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
               child: Container(
                 width: 80,
                 decoration: BoxDecoration(
-                  color: Colors.redAccent,
+                  color: GemsChrome.danger,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Center(child: title("Reset", bold: false)),
@@ -83,7 +81,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
               child: Container(
                 width: 80,
                 decoration: BoxDecoration(
-                  color: colorTheme2,
+                  color: GemsChrome.primary,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Center(child: title("Submit", bold: false)),
@@ -368,7 +366,7 @@ class ComplaintSignatureState extends State<ComplaintSignature> {
         text,
         textAlign: TextAlign.center,
         style: TextStyle(
-          color: bold ? colorTheme3 : Colors.white,
+          color: bold ? GemsChrome.text : Colors.white,
           fontWeight: bold ? FontWeight.bold : FontWeight.normal,
         ),
       );

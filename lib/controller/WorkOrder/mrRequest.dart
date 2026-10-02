@@ -3,17 +3,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:GEMS/model/complaint.dart';
 import 'package:GEMS/utils/network.dart';
-import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:GEMS/model/serializers.dart';
 import '../Storekeeper/utils/constant.dart'; // for MR approval routes
 
 class MRTaskList extends StatefulWidget {
   // now initialized once on the widget
-  static const Map<String,String> _statuses = {
+  static const Map<String, String> _statuses = {
     "32": "Request Parts",
     "33": "Request Approval",
     "34": "Stock Request",
@@ -24,7 +23,8 @@ class MRTaskList extends StatefulWidget {
   };
 
   const MRTaskList({super.key});
-  @override _MRTaskListState createState() => _MRTaskListState();
+  @override
+  _MRTaskListState createState() => _MRTaskListState();
 }
 
 class _MRTaskListState extends State<MRTaskList> {
@@ -92,9 +92,7 @@ class _MRTaskListState extends State<MRTaskList> {
 
   List<RequestTask> get _visibleTasks {
     if (_currentFilter == 'All Status') return _tasks;
-    return _tasks
-      .where((t) => _statusLabelFor(t) == _currentFilter)
-        .toList();
+    return _tasks.where((t) => _statusLabelFor(t) == _currentFilter).toList();
   }
 
   @override
@@ -105,44 +103,49 @@ class _MRTaskListState extends State<MRTaskList> {
           children: [
             // — filter dropdown —
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: DropdownButton<String>(
-                isExpanded: true,
-                value: _currentFilter,
-                underline: Container(
-                  height: 1,
-                  color: AppColors.divider,
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(GemsChrome.radius),
+                  border: Border.all(color: GemsChrome.border),
                 ),
-                items: [
-                  'All Status',
-                  ...{
-                    ..._statuses.values,
-                    'Review',
-                  },
-                ]
-                    .map((label) => DropdownMenuItem(
-                          value: label,
-                          child: Text(label,
-                              style:
-                                  GoogleFonts.poppins(fontSize: 14)),
-                        ))
-                    .toList(),
-                onChanged: controller.filter,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    value: _currentFilter,
+                    underline: const SizedBox.shrink(),
+                    style: GemsChrome.body(size: 13),
+                    items: [
+                      'All Status',
+                      ...{
+                        ..._statuses.values,
+                        'Review',
+                      },
+                    ]
+                        .map((label) => DropdownMenuItem(
+                              value: label,
+                              child:
+                                  Text(label, overflow: TextOverflow.ellipsis),
+                            ))
+                        .toList(),
+                    onChanged: controller.filter,
+                  ),
+                ),
               ),
             ),
 
             // — list of cards —
             Expanded(
               child: RefreshIndicator(
-                color: AppColors.primary,
+                color: GemsChrome.primary,
                 onRefresh: _onRefresh,
                 child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   itemCount: _visibleTasks.length,
-                  itemBuilder: (ctx, i) =>
-                      _MRTaskCard(_visibleTasks[i]),
+                  itemBuilder: (ctx, i) => _MRTaskCard(_visibleTasks[i]),
                 ),
               ),
             ),
@@ -151,10 +154,11 @@ class _MRTaskListState extends State<MRTaskList> {
 
         // full-screen spinner overlay
         if (_loading)
-          Container(
-            color: Colors.black.withOpacity(0.5),
-            child: const Center(
-                child: CircularProgressIndicator()),
+          const ColoredBox(
+            color: Color(0xB8F1F5F9),
+            child: Center(
+              child: CircularProgressIndicator(color: GemsChrome.primary),
+            ),
           ),
       ],
     );
@@ -169,148 +173,115 @@ class _MRTaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusLabel = (task.statusId == '33' && task.checkpointDesc == 'MR Reviewer')
-      ? 'Review'
-      : (MRTaskList._statuses[task.statusId] ?? 'Unknown');
-    final color = _colorFor(task.statusId ?? "");
-    final bg = _bgColorFor(task.statusId ?? "");
+    final statusLabel =
+        (task.statusId == '33' && task.checkpointDesc == 'MR Reviewer')
+            ? 'Review'
+            : (MRTaskList._statuses[task.statusId] ?? 'Unknown');
+    final status = _statusStyle(task.statusId ?? '');
 
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => Navigator.pushNamed(
-          context,
-          routeMateralRequest,
-          arguments: task,
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      task.woTaskRequestNo ?? '—',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
+    return GemsAccentCard(
+      margin: const EdgeInsets.symmetric(vertical: 5),
+      accent: status.foreground,
+      onTap: () => Navigator.pushNamed(
+        context,
+        routeMateralRequest,
+        arguments: task,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    task.woTaskRequestNo ?? '—',
+                    style: GemsChrome.body(
+                      size: 15,
+                      weight: FontWeight.w600,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      task.requestBy ?? '',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Icon(Icons.schedule,
-                            size: 14,
-                            color:
-                                AppColors.textSecondary),
-                        const SizedBox(width: 4),
-                        Text(
-                          task.requestTime ?? '',
-                          style: GoogleFonts.poppins(
-                            fontSize: 13,
-                            color:
-                                AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              // status pill
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius:
-                      BorderRadius.circular(20),
-                  border: Border.all(color: color),
-                ),
-                child: Text(
-                  statusLabel,
-                  style: GoogleFonts.poppins(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.white,
                   ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: status.background,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    statusLabel,
+                    style: GemsChrome.body(
+                      size: 11,
+                      weight: FontWeight.w600,
+                      color: status.foreground,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if ((task.requestBy ?? '').isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                task.requestBy ?? '',
+                style: GemsChrome.body(
+                  size: 13,
+                  color: GemsChrome.textSoft,
                 ),
               ),
             ],
-          ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(
+                  Icons.schedule,
+                  size: 14,
+                  color: GemsChrome.muted,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  task.requestTime ?? '',
+                  style: GemsChrome.body(
+                    size: 12,
+                    color: GemsChrome.textSoft,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Color _colorFor(String id) {
+  GemsStatusStyle _statusStyle(String id) {
     switch (id) {
-      case "32":
-      case "47":
-      case "48":
-        return AppColors.warningDark;
-      case "33":
-        return AppColors.dangerDark;
-      case "34":
-        return AppColors.primaryDark;
-      case "38":
-        return AppColors.successDark;
-      case "36":
-        return AppColors.secondaryDark;
+      case '32':
+      case '47':
+      case '48':
+        return GemsStatusStyle.warning;
+      case '33':
+        return GemsStatusStyle.danger;
+      case '34':
+        return GemsStatusStyle.primary;
+      case '38':
+        return GemsStatusStyle.success;
       default:
-        return AppColors.secondaryDark;
-    }
-  }
-
-  Color _bgColorFor(String id) {
-    switch (id) {
-      case "32":
-      case "47":
-      case "48":
-        return AppColors.warningLight;
-      case "33":
-        return AppColors.dangerLight;
-      case "34":
-        return AppColors.primaryLight;
-      case "38":
-        return AppColors.successLight;
-      case "36":
-        return AppColors.secondaryLight;
-      default:
-        return AppColors.gray50;
+        return GemsStatusStyle.neutral;
     }
   }
 }
 
 /// Manages fetching & filtering
 class Controller {
-  final _tasks =
-      BehaviorSubject<List<RequestTask>>.seeded([]);
-  final _filtered =
-      BehaviorSubject<List<RequestTask>>.seeded([]);
-  final _dropdown =
-      BehaviorSubject<String>.seeded('All Status');
+  final _tasks = BehaviorSubject<List<RequestTask>>.seeded([]);
+  final _filtered = BehaviorSubject<List<RequestTask>>.seeded([]);
+  final _dropdown = BehaviorSubject<String>.seeded('All Status');
   final Request _request = Request();
 
   Controller() {
@@ -318,10 +289,8 @@ class Controller {
     _request.refresh.then((list) => _tasks.add(list));
   }
 
-  Stream<List<RequestTask>> get filteredTaskStream =>
-      _filtered.stream;
-  Stream<String> get dropdownValueStream =>
-      _dropdown.stream;
+  Stream<List<RequestTask>> get filteredTaskStream => _filtered.stream;
+  Stream<String> get dropdownValueStream => _dropdown.stream;
 
   Future<void> refresh() async {
     final list = await _request.refresh;
@@ -336,10 +305,8 @@ class Controller {
     if (label == 'All Status') {
       _filtered.add(all);
     } else {
-      _filtered.add(all
-          .where((t) =>
-              MRTaskList._statuses[t.statusId] == label)
-          .toList());
+      _filtered.add(
+          all.where((t) => MRTaskList._statuses[t.statusId] == label).toList());
     }
   }
 
@@ -352,12 +319,10 @@ class Controller {
 
 /// Wraps your provider call
 class Request {
-  final Provider _provider =
-      Provider(fetchURL: "/wo_request/pending_task");
+  final Provider _provider = Provider(fetchURL: "/wo_request/pending_task");
 
   Future<List<RequestTask>> get refresh async {
-    final raw = await _provider
-        .getJson(url: "/wo_request/pending_task");
+    final raw = await _provider.getJson(url: "/wo_request/pending_task");
     return deserializeListOf<RequestTask>(raw).toList();
   }
 }

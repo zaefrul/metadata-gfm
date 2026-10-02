@@ -11,7 +11,7 @@ import 'package:GEMS/controller/WorkOrder/pending_sync.dart';
 import 'package:GEMS/controller/WorkOrder/widgets/pending_sync_banner.dart';
 import 'package:GEMS/data/repository/work_order_detail_repository.dart';
 import 'package:GEMS/model/complaint.dart';
-import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 
 import 'complaintAdd.dart';
 import 'material_arguments.dart';
@@ -394,19 +394,13 @@ class _ComplaintSectionDMaterialState extends State<ComplaintSectionDMaterial> {
         widget.comment.isNotEmpty;
 
     return Scaffold(
-      backgroundColor: AppColors.gray100,
-      appBar: AppBar(
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        centerTitle: true,
         title: Text(
           'Spare Parts / Material User',
-          style: GoogleFonts.poppins(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
+          style: GemsChrome.heading(size: 18),
         ),
-        centerTitle: true,
-        backgroundColor: AppColors.bgAppBar,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.primary),
         actions: [
           if (widget.enableReset)
             TextButton(
@@ -414,7 +408,7 @@ class _ComplaintSectionDMaterialState extends State<ComplaintSectionDMaterial> {
               child: Text(
                 'Re-Apply',
                 style: GoogleFonts.poppins(
-                  color: _busy ? AppColors.secondary : AppColors.primary,
+                  color: _busy ? GemsChrome.muted : GemsChrome.primary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -490,21 +484,25 @@ class _ComplaintSectionDMaterialState extends State<ComplaintSectionDMaterial> {
               children: [
                 FloatingActionButton(
                   heroTag: 'add',
-                  backgroundColor:
-                      _busy ? AppColors.secondary : AppColors.primary,
+                  backgroundColor: _busy
+                      ? GemsChrome.primary.withValues(alpha: 0.45)
+                      : GemsChrome.primary,
+                  foregroundColor: Colors.white,
                   onPressed: _busy ? null : _openAddMaterial,
-                  child: const Icon(Icons.add, color: AppColors.onPrimary),
+                  child: const Icon(Icons.add, color: Colors.white),
                 ),
                 const SizedBox(width: 12),
                 FloatingActionButton.extended(
                   heroTag: 'submit',
-                  backgroundColor:
-                      _busy ? AppColors.secondary : AppColors.primary,
-                  icon: const Icon(Icons.send, color: AppColors.onPrimary),
+                  backgroundColor: _busy
+                      ? GemsChrome.primary.withValues(alpha: 0.45)
+                      : GemsChrome.primary,
+                  foregroundColor: Colors.white,
+                  icon: const Icon(Icons.send, color: Colors.white),
                   label: Text(
                     'Submit',
                     style: GoogleFonts.poppins(
-                      color: AppColors.onPrimary,
+                      color: Colors.white,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -521,15 +519,15 @@ class _ComplaintSectionDMaterialState extends State<ComplaintSectionDMaterial> {
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: AppColors.gray200, width: 1),
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        side: const BorderSide(color: GemsChrome.border, width: 1),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Text(
           widget.comment,
           style: GoogleFonts.poppins(
-            color: AppColors.textSecondary,
+            color: GemsChrome.textSoft,
             fontSize: 14,
             height: 1.5,
           ),
@@ -545,14 +543,14 @@ class _ComplaintSectionDMaterialState extends State<ComplaintSectionDMaterial> {
       child: Column(
         children: [
           const Icon(Icons.inventory_outlined,
-              color: AppColors.secondary, size: 48),
+              color: GemsChrome.muted, size: 48),
           const SizedBox(height: 16),
           Text(
             'No materials yet',
             style: GoogleFonts.poppins(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
+              color: GemsChrome.textSoft,
             ),
           ),
           const SizedBox(height: 8),
@@ -560,7 +558,7 @@ class _ComplaintSectionDMaterialState extends State<ComplaintSectionDMaterial> {
             'Add the parts you plan to use so we can keep track.',
             style: GoogleFonts.poppins(
               fontSize: 13,
-              color: AppColors.textSecondary,
+              color: GemsChrome.textSoft,
             ),
             textAlign: TextAlign.center,
           ),
@@ -590,7 +588,7 @@ class MaterialItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final content = InkWell(
       onTap: enableEdit ? onTap : null,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(GemsChrome.radius),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -620,7 +618,7 @@ class MaterialItemCard extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
+                  color: GemsChrome.textSoft,
                 ),
               ),
               const SizedBox(height: 4),
@@ -628,7 +626,7 @@ class MaterialItemCard extends StatelessWidget {
                 item.woTaskPartsRemark ?? '',
                 style: GoogleFonts.poppins(
                   fontSize: 13,
-                  color: AppColors.textSecondary,
+                  color: GemsChrome.textSoft,
                 ),
               ),
             ],
@@ -638,8 +636,12 @@ class MaterialItemCard extends StatelessWidget {
     );
 
     return Card(
-      elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        side: const BorderSide(color: GemsChrome.border),
+      ),
       child: onDelete != null
           ? Slidable(
               endActionPane: ActionPane(
@@ -647,8 +649,8 @@ class MaterialItemCard extends StatelessWidget {
                 children: [
                   SlidableAction(
                     onPressed: (_) => onDelete?.call(),
-                    backgroundColor: AppColors.danger,
-                    foregroundColor: AppColors.onDanger,
+                    backgroundColor: GemsChrome.danger,
+                    foregroundColor: Colors.white,
                     icon: Icons.delete,
                     label: 'Delete',
                   ),
@@ -670,7 +672,7 @@ class MaterialItemCard extends StatelessWidget {
           label: Text(
             status,
             style: GoogleFonts.poppins(
-              color: AppColors.onPrimary,
+              color: Colors.white,
               fontSize: 11,
               fontWeight: FontWeight.w600,
             ),
@@ -689,12 +691,12 @@ class MaterialItemCard extends StatelessWidget {
           label: Text(
             label,
             style: GoogleFonts.poppins(
-              color: AppColors.warningDark,
+              color: GemsChrome.warning,
               fontSize: 11,
               fontWeight: FontWeight.w600,
             ),
           ),
-          backgroundColor: AppColors.warningLight,
+          backgroundColor: GemsChrome.warningSoft,
           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
       );
@@ -709,7 +711,7 @@ class MaterialItemCard extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: GemsChrome.text,
             ),
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
@@ -735,14 +737,14 @@ class MaterialItemCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
         children: [
-          Icon(icon, size: 16, color: AppColors.textSecondary),
+          Icon(icon, size: 16, color: GemsChrome.textSoft),
           const SizedBox(width: 8),
           Text(
             '$label: ',
             style: GoogleFonts.poppins(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
+              color: GemsChrome.textSoft,
             ),
           ),
           Expanded(
@@ -750,7 +752,7 @@ class MaterialItemCard extends StatelessWidget {
               value,
               style: GoogleFonts.poppins(
                 fontSize: 13,
-                color: AppColors.textSecondary,
+                color: GemsChrome.textSoft,
               ),
             ),
           ),
@@ -762,14 +764,14 @@ class MaterialItemCard extends StatelessWidget {
   Color _getStatusColor(String? status) {
     switch (status?.toLowerCase()) {
       case 'approved':
-        return AppColors.success;
+        return GemsChrome.success;
       case 'pending':
       case 'request approval':
-        return AppColors.warning;
+        return GemsChrome.warning;
       case 'rejected':
-        return AppColors.danger;
+        return GemsChrome.danger;
       default:
-        return AppColors.secondary;
+        return GemsChrome.muted;
     }
   }
 }
@@ -794,7 +796,7 @@ class PendingMaterialCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: ui.background,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
         border: Border.all(color: ui.border),
       ),
       padding: const EdgeInsets.all(16),
@@ -823,7 +825,7 @@ class PendingMaterialCard extends StatelessWidget {
               description,
               style: GoogleFonts.poppins(
                 fontSize: 13,
-                color: AppColors.textSecondary,
+                color: GemsChrome.textSoft,
               ),
             ),
           ],
@@ -831,13 +833,13 @@ class PendingMaterialCard extends StatelessWidget {
           Row(
             children: [
               const Icon(Icons.schedule,
-                  size: 14, color: AppColors.textSecondary),
+                  size: 14, color: GemsChrome.textSoft),
               const SizedBox(width: 6),
               Text(
                 _formatTimestamp(action.createdAt),
                 style: GoogleFonts.poppins(
                   fontSize: 12,
-                  color: AppColors.textSecondary,
+                  color: GemsChrome.textSoft,
                 ),
               ),
             ],
@@ -906,46 +908,46 @@ class _PendingMaterialUi {
         return _PendingMaterialUi(
           icon: Icons.add_circle_outline,
           title: 'Pending add',
-          background: AppColors.primary50,
-          border: AppColors.primary200,
-          iconColor: AppColors.primary,
-          titleColor: AppColors.primaryDark,
+          background: GemsChrome.primarySoft,
+          border: GemsChrome.border,
+          iconColor: GemsChrome.primary,
+          titleColor: GemsChrome.primaryDark,
         );
       case PendingMaterialActionType.update:
         return _PendingMaterialUi(
           icon: Icons.edit_outlined,
           title: 'Pending update',
-          background: AppColors.warningLight,
-          border: AppColors.warning,
-          iconColor: AppColors.warningDark,
-          titleColor: AppColors.warningDark,
+          background: GemsChrome.warningSoft,
+          border: GemsChrome.warning,
+          iconColor: GemsChrome.warning,
+          titleColor: GemsChrome.warning,
         );
       case PendingMaterialActionType.delete:
         return _PendingMaterialUi(
           icon: Icons.delete_outline,
           title: 'Pending removal',
-          background: AppColors.dangerLight,
-          border: AppColors.danger,
-          iconColor: AppColors.danger,
-          titleColor: AppColors.dangerDark,
+          background: GemsChrome.dangerSoft,
+          border: GemsChrome.danger,
+          iconColor: GemsChrome.danger,
+          titleColor: GemsChrome.dangerFg,
         );
       case PendingMaterialActionType.submit:
         return _PendingMaterialUi(
           icon: Icons.send_outlined,
           title: 'Submit queued',
-          background: AppColors.infoLight,
-          border: AppColors.info,
-          iconColor: AppColors.info,
-          titleColor: AppColors.infoDark,
+          background: GemsChrome.infoSoft,
+          border: GemsChrome.info,
+          iconColor: GemsChrome.info,
+          titleColor: GemsChrome.info,
         );
       case PendingMaterialActionType.reset:
         return _PendingMaterialUi(
           icon: Icons.refresh_outlined,
           title: 'Re-apply queued',
-          background: AppColors.secondary50,
-          border: AppColors.secondary,
-          iconColor: AppColors.secondary,
-          titleColor: AppColors.secondaryDark,
+          background: GemsChrome.neutralSoft,
+          border: GemsChrome.muted,
+          iconColor: GemsChrome.muted,
+          titleColor: GemsChrome.textSoft,
         );
       case PendingMaterialActionType.unknown:
         return null;

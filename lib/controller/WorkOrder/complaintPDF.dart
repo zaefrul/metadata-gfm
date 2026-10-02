@@ -9,6 +9,7 @@ import 'package:GEMS/data/repository/work_order_detail_repository.dart';
 import 'package:GEMS/utils/biometric_lock_manager.dart';
 
 import 'package:GEMS/utils/network.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/view/dialog.dart';
 import 'package:GEMS/utils/reference.dart';
 
@@ -182,12 +183,9 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
     if (widget.checkpoint == 3) submitText = "Complete";
 
     return Scaffold(
-      appBar: AppBar(
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         title: title(widget.transactionNo),
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(
-          color: colorTheme3,
-        ),
         actions: widget.viewer
             ? null
             : <Widget>[
@@ -234,7 +232,7 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
                     child: Container(
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(6.0)),
-                          color: colorTheme2),
+                          color: GemsChrome.primary),
                       width: 80,
                       child: Center(child: title(submitText, bold: false)),
                     ),
@@ -256,7 +254,7 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
                             _loadError ??
                                 'Unable to load the work order PDF.',
                             textAlign: TextAlign.center,
-                            style: TextStyle(color: colorTheme3),
+                            style: GemsChrome.body(color: GemsChrome.textSoft),
                           ),
                           const SizedBox(height: 16),
                           ElevatedButton(
@@ -280,7 +278,7 @@ class _ComplaintPDFState extends State<ComplaintPDF> {
         text,
         textAlign: TextAlign.center,
         style: TextStyle(
-          color: bold ? colorTheme3 : Colors.white,
+          color: bold ? GemsChrome.text : Colors.white,
           fontWeight: bold ? FontWeight.bold : FontWeight.normal,
         ),
       );

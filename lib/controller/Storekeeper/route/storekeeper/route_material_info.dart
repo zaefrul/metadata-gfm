@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 import 'package:GEMS/model/complaint.dart';
 
@@ -10,9 +11,9 @@ class MaterialInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(value.itemTypeDesc ?? "No description available"),
-        backgroundColor: Colors.white,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: Text(value.itemTypeDesc ?? 'No description available'),
       ),
       body: ListView.separated(
         itemCount: value.parts?.length ?? 0,

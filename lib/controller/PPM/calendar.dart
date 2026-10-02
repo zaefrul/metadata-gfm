@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:GEMS/controller/PPM/task_view.dart';
 import 'package:GEMS/model/task.dart';
 import 'package:GEMS/utils/network.dart';
-import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import 'Form/form_view.dart';
@@ -18,7 +18,6 @@ class Calendar extends StatefulWidget {
 class _CalendarState extends State<Calendar>
     with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late DateTime _selectedDay;
-  late DateTime _currentMonth;
   final Map<DateTime, List<String>> _events = {};
   Map<DateTime, List<String>> _visibleEvents = {};
   final List<Task> _selectedEvents = [];
@@ -39,7 +38,6 @@ class _CalendarState extends State<Calendar>
   void initState() {
     super.initState();
     _selectedDay = DateTime.now();
-    _currentMonth = DateTime.now();
     firstDate = DateTime(_selectedDay.year, 1, 1);
     lastDate = DateTime(_selectedDay.year, 12, 31);
     fetch(DateTime.now());
@@ -81,7 +79,6 @@ class _CalendarState extends State<Calendar>
 
   void _onDaySelected(DateTime day, DateTime focusedDay) {
     setState(() {
-      _currentMonth = day;
       _selectedDay = day;
     });
   }
@@ -89,7 +86,6 @@ class _CalendarState extends State<Calendar>
   void _onPageChanged(DateTime focusedDay) {
     _checkAndFetch(focusedDay);
     setState(() {
-      _currentMonth = focusedDay;
       _selectedDay = DateTime(focusedDay.year, focusedDay.month, _selectedDay.day);
       _visibleEvents = _events;
     });
@@ -100,13 +96,26 @@ class _CalendarState extends State<Calendar>
     super.build(context);
 
     return Padding(
-      padding: const EdgeInsets.only(top: 12.0),
+      padding: const EdgeInsets.only(top: 4),
       child: Column(
         children: [
           header,
           if (typeViewCalendar) ...[
             _buildTableCalendar(),
-            const SizedBox(height: 8.0),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  DateFormat('EEE, d MMM yyyy').format(_selectedDay),
+                  style: GemsChrome.body(
+                    size: 13,
+                    weight: FontWeight.w600,
+                    color: GemsChrome.textSoft,
+                  ),
+                ),
+              ),
+            ),
             Expanded(child: _buildEventList()),
           ] else if (typeViewListAll)
             Expanded(child: taskView),
@@ -116,25 +125,81 @@ class _CalendarState extends State<Calendar>
   }
 
   Widget _buildTableCalendar() {
-    return TableCalendar<String>(
-      headerVisible: false,
-      locale: 'en_US',
-      eventLoader: (day) => _visibleEvents[day] ?? [],
-      startingDayOfWeek: StartingDayOfWeek.monday,
-      calendarStyle: CalendarStyle(
-        selectedDecoration: BoxDecoration(color: colorTheme2, shape: BoxShape.circle),
-        todayDecoration: BoxDecoration(color: colorTheme2.withOpacity(0.5), shape: BoxShape.circle),
-        markerDecoration: BoxDecoration(color: colorTheme1, shape: BoxShape.circle),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(GemsChrome.radius),
+          border: Border.all(color: GemsChrome.border),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 4, 8, 10),
+          child: TableCalendar<String>(
+            locale: 'en_US',
+            eventLoader: (day) => _visibleEvents[day] ?? [],
+            startingDayOfWeek: StartingDayOfWeek.monday,
+            sixWeekMonthsEnforced: true,
+            rowHeight: 42,
+            daysOfWeekHeight: 28,
+            daysOfWeekStyle: DaysOfWeekStyle(
+              weekdayStyle: GemsChrome.body(
+                size: 12,
+                weight: FontWeight.w600,
+                color: GemsChrome.textSoft,
+              ),
+              weekendStyle: GemsChrome.body(
+                size: 12,
+                weight: FontWeight.w600,
+                color: GemsChrome.muted,
+              ),
+            ),
+            calendarStyle: CalendarStyle(
+              cellMargin: const EdgeInsets.all(4),
+              defaultTextStyle: GemsChrome.body(size: 14),
+              weekendTextStyle: GemsChrome.body(size: 14, color: GemsChrome.textSoft),
+              outsideTextStyle: GemsChrome.body(size: 14, color: GemsChrome.muted),
+              selectedTextStyle: GemsChrome.body(
+                size: 14,
+                weight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              todayTextStyle: GemsChrome.body(
+                size: 14,
+                weight: FontWeight.w600,
+                color: GemsChrome.primaryDark,
+              ),
+              selectedDecoration: const BoxDecoration(
+                color: GemsChrome.primary,
+                shape: BoxShape.circle,
+              ),
+              todayDecoration: BoxDecoration(
+                color: GemsChrome.primary.withValues(alpha: 0.18),
+                shape: BoxShape.circle,
+              ),
+              markerDecoration: const BoxDecoration(
+                color: GemsChrome.teal,
+                shape: BoxShape.circle,
+              ),
+              markersMaxCount: 3,
+            ),
+            headerStyle: HeaderStyle(
+              formatButtonVisible: false,
+              titleCentered: true,
+              titleTextStyle: GemsChrome.heading(size: 16),
+              leftChevronIcon: const Icon(Icons.chevron_left, color: GemsChrome.text),
+              rightChevronIcon: const Icon(Icons.chevron_right, color: GemsChrome.text),
+              headerPadding: const EdgeInsets.symmetric(vertical: 2),
+            ),
+            firstDay: firstDate,
+            lastDay: lastDate,
+            focusedDay: _selectedDay,
+            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+            onDaySelected: _onDaySelected,
+            onPageChanged: _onPageChanged,
+          ),
+        ),
       ),
-      headerStyle: HeaderStyle(
-        formatButtonVisible: false,
-      ),
-      firstDay: firstDate,
-      lastDay: lastDate,
-      focusedDay: _selectedDay,
-      selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-      onDaySelected: _onDaySelected,
-      onPageChanged: _onPageChanged,
     );
   }
 
@@ -143,10 +208,18 @@ class _CalendarState extends State<Calendar>
       future: fetchCalendar(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
-        if (snapshot.data!.isEmpty) return Container();
+        if (snapshot.data!.isEmpty) {
+          return Center(
+            child: Text(
+              'No tasks on this day',
+              style: GemsChrome.body(color: GemsChrome.muted),
+            ),
+          );
+        }
         return RefreshIndicator(
           onRefresh: () async => setState(() {}),
           child: ListView(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
             children: snapshot.data!.map(tile).toList(),
           ),
         );
@@ -154,23 +227,20 @@ class _CalendarState extends State<Calendar>
     );
   }
 
-  Widget get header => ListTile(
-        title: Text(
-          DateFormat.yMMMM("en_US").format(_currentMonth),
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
+  Widget get header => Padding(
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             IconButton(
-              icon: Icon(Icons.calendar_today, color: typeViewCalendar ? colorTheme2 : Colors.grey),
+              icon: Icon(Icons.calendar_today, color: typeViewCalendar ? GemsChrome.primary : GemsChrome.muted),
               onPressed: () => setState(() {
                 typeViewCalendar = true;
                 typeViewListAll = false;
               }),
             ),
             IconButton(
-              icon: Icon(Icons.list, color: typeViewListAll ? colorTheme2 : Colors.grey),
+              icon: Icon(Icons.list, color: typeViewListAll ? GemsChrome.primary : GemsChrome.muted),
               onPressed: () => setState(() {
                 typeViewCalendar = false;
                 typeViewListAll = true;
@@ -180,62 +250,94 @@ class _CalendarState extends State<Calendar>
         ),
       );
 
-  Widget tile(Task task) => ListTile(
-        contentPadding: EdgeInsets.all(12),
-        title: Column(
+  Widget tile(Task task) {
+    final style = _statusStyle(task.statusDesc);
+    return GemsAccentCard(
+      margin: const EdgeInsets.only(bottom: 10),
+      accent: style.foreground,
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => FormView(
+              id: task.ppmTaskId,
+              siteName: task.siteName,
+              taskNo: task.transactionNo,
+              taskStatus: task.statusDesc,
+              refresh: () => fetch(_selectedDay),
+              viewer: true,
+            ),
+          ),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            getTitle(task.transactionNo, bold: true),
-            getTitle(task.siteName),
-            getTitle(task.assetTypeName),
-            getTitle(task.taskDateDue),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    task.transactionNo,
+                    style: GemsChrome.body(size: 15, weight: FontWeight.w600),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                status(task.statusDesc),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(task.siteName, style: GemsChrome.body(size: 13, color: GemsChrome.textSoft)),
+            Text(task.assetTypeName, style: GemsChrome.body(size: 12, color: GemsChrome.textSoft)),
+            Text(task.taskDateDue, style: GemsChrome.body(size: 12, color: GemsChrome.textSoft)),
           ],
         ),
-        trailing: status(task.statusDesc),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => FormView(
-                id: task.ppmTaskId,
-                siteName: task.siteName,
-                taskNo: task.transactionNo,
-                taskStatus: task.statusDesc,
-                refresh: () => fetch(_selectedDay),
-                viewer: true,
-              ),
-            ),
-          );
-        },
-      );
+      ),
+    );
+  }
 
   Widget getTitle(String text, {bool bold = false}) => Text(
         text,
         style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal),
       );
 
-  Widget status(String value) {
-    var color = colorTheme1;
+  GemsStatusStyle _statusStyle(String value) {
     switch (value) {
-      case "In Progress":
-        color = colorTheme5;
-        break;
-      case "Closed":
-        color = colorTheme4;
-        break;
-      case "Pending Check":
-        color = colorTheme2;
-        break;
-      case "Pending Verification":
-        color = colorTheme3;
-        break;
+      case 'In Progress':
+        return GemsStatusStyle.primary;
+      case 'Closed':
+      case 'Completed':
+        return GemsStatusStyle.success;
+      case 'Pending Check':
+      case 'Check':
+        return GemsStatusStyle.info;
+      case 'Pending Verification':
+      case 'Verify':
+      case 'Re-Open':
+        return GemsStatusStyle.warning;
+      default:
+        return GemsStatusStyle.neutral;
     }
+  }
+
+  Widget status(String value) {
+    final style = _statusStyle(value);
     return Container(
-      alignment: Alignment.center,
-      height: 30.0,
-      width: 100.0,
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(20.0)),
-      child: Text(value, style: TextStyle(color: Colors.white)),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: style.background,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        value,
+        style: GemsChrome.body(
+          size: 11,
+          weight: FontWeight.w600,
+          color: style.foreground,
+        ),
+      ),
     );
   }
 

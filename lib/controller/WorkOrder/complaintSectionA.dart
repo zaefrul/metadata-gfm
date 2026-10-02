@@ -9,7 +9,7 @@ import 'package:GEMS/model/workorder.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:GEMS/utils/biometric_lock_manager.dart';
 // import 'package:GEMS/controller/Storekeeper/utils/constant.dart'; // for colorTheme2
-import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../main.dart';
 
@@ -94,14 +94,10 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
         : const SizedBox.shrink();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text("A. Complaint Details"),
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         centerTitle: true,
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: colorTheme3),
-        titleTextStyle: TextStyle(
-          color: colorTheme3, fontSize: 18, fontWeight: FontWeight.w600
-        ),
+        title: const Text("A. Complaint Details"),
       ),
       body: Column(
         children: [
@@ -178,7 +174,7 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
     final fields = _makeFields(d);
     return ListView.separated(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      separatorBuilder: (_, __) => Divider(height: 1, color: Colors.grey[200]),
+      separatorBuilder: (_, __) => const Divider(height: 1, color: GemsChrome.border),
       itemCount: fields.length + d.complaintImages.length,
       itemBuilder: (c, i) {
         if (i < fields.length) {
@@ -225,10 +221,10 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: colorTheme3.withOpacity(0.12),
+                color: GemsChrome.primarySoft,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(icon, color: colorTheme3),
+              child: Icon(icon, color: GemsChrome.primary),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -239,7 +235,7 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
                     label,
                     style: const TextStyle(
                       fontSize: 12,
-                      color: Colors.black54,
+                      color: GemsChrome.textSoft,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -273,7 +269,7 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
             Icon(
               Icons.info_outline,
               size: 48,
-              color: colorTheme3.withOpacity(0.6),
+              color: GemsChrome.primary.withValues(alpha: 0.6),
             ),
             const SizedBox(height: 16),
             Text(
@@ -285,7 +281,10 @@ class _ComplaintSectionAState extends State<ComplaintSectionA> {
             ElevatedButton(
               onPressed: _refreshDetail,
               style: ElevatedButton.styleFrom(
-                backgroundColor: colorTheme2,
+                backgroundColor: GemsChrome.primary,
+                disabledBackgroundColor: GemsChrome.primary.withValues(alpha: 0.45),
+                foregroundColor: Colors.white,
+                disabledForegroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),

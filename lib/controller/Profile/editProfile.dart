@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/model/responseValue.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/view/dialog.dart';
@@ -9,8 +10,6 @@ import 'package:toast/toast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:GEMS/utils/image_compressor.dart';
 
-import '../../utils/reference.dart';
-import '../../view/button.dart';
 import '../../view/field.dart';
 import '../../model/user.dart';
 import '../PPM/Form/openImage.dart';
@@ -81,48 +80,65 @@ class _EditState extends State<Edit> {
       );
     }
 
-    final bodyContent = Column(
-      children: <Widget>[
-        const SizedBox(height: 40),
-        GestureDetector(
-          onTap: _bottomSheet,
-          child: image,
-        ),
-        const SizedBox(height: 12),
-        GestureDetector(
-          onTap: _bottomSheet,
-          child: Text(
-            "Change Profile Picture",
-            style: TextStyle(color: colorTheme1),
+    final bodyContent = SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: <Widget>[
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: _bottomSheet,
+            child: image,
           ),
-        ),
-        const SizedBox(height: 30),
-        field("Name", (text) {
-          name = text;
-        }, secure: false, value: name),
-        field("Contact No", (text) {
-          contact = text;
-        }, secure: false, value: contact, phoneType: true),
-        const SizedBox(height: 80),
-        SizedBox(
-          width: 200,
-          height: 50,
-          child: Button(
-            text: "Done",
-            onPressed: _action,
-            color: colorTheme2,
+          TextButton(
+            onPressed: _bottomSheet,
+            child: Text(
+              'Change profile picture',
+              style: GemsChrome.body(weight: FontWeight.w600, color: GemsChrome.primary),
+            ),
           ),
-        )
-      ],
+          const SizedBox(height: 8),
+          GemsFormSection(
+            title: 'Profile',
+            icon: Icons.person_outline,
+            child: Column(
+              children: [
+                field(
+                  'Name',
+                  (text) => name = text,
+                  value: name,
+                  outlined: true,
+                  horizontal: 0,
+                ),
+                const SizedBox(height: 12),
+                field(
+                  'Contact No',
+                  (text) => contact = text,
+                  value: contact,
+                  phoneType: true,
+                  outlined: true,
+                  horizontal: 0,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          FilledButton(
+            style: gemsPrimaryButton(),
+            onPressed: loading ? null : _action,
+            child: Text(
+              'Save',
+              style: GemsChrome.body(weight: FontWeight.w600, color: Colors.white),
+            ),
+          ),
+        ],
+      ),
     );
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        title: title("Edit Profile"),
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        iconTheme: IconThemeData(color: colorTheme3),
+      resizeToAvoidBottomInset: true,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('Edit Profile'),
       ),
       body: loading
           ? Stack(
@@ -131,7 +147,7 @@ class _EditState extends State<Edit> {
                 Container(
                   color: Colors.black.withOpacity(0.5),
                   child: const Center(
-                    child: CircularProgressIndicator(),
+                    child: CircularProgressIndicator(color: GemsChrome.primary),
                   ),
                 )
               ],
@@ -139,17 +155,6 @@ class _EditState extends State<Edit> {
           : bodyContent,
     );
   }
-
-  Widget title(String text, {double size = 30.0}) => Text(
-        text,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: colorTheme3,
-          fontFamily: 'Avenir',
-          fontSize: size,
-          fontWeight: FontWeight.bold,
-        ),
-      );
 
   Future<void> _action() async {
     setState(() => loading = true);
@@ -227,14 +232,14 @@ class _EditState extends State<Edit> {
   void _bottomSheet() {
     List<Widget> children = [
       ListTile(
-          leading: const Icon(Icons.camera),
-          title: const Text('Open Camera'),
+          leading: const Icon(Icons.photo_camera_outlined, color: GemsChrome.primary),
+          title: Text('Open Camera', style: GemsChrome.body()),
           onTap: () => getImageCamera().then((value) {
                 if (value != null) setImage(value);
               })),
       ListTile(
-          leading: const Icon(Icons.image),
-          title: const Text('Open Gallery'),
+          leading: const Icon(Icons.image_outlined, color: GemsChrome.primary),
+          title: Text('Open Gallery', style: GemsChrome.body()),
           onTap: () => getImageGallery().then((value) {
                 if (value != null) setImage(value);
               })),
@@ -242,8 +247,8 @@ class _EditState extends State<Edit> {
 
     if (imageSrc.isNotEmpty || path != null) {
       children.add(ListTile(
-          leading: const Icon(Icons.visibility),
-          title: const Text('View Image'),
+          leading: const Icon(Icons.visibility_outlined, color: GemsChrome.primary),
+          title: Text('View Image', style: GemsChrome.body()),
           onTap: viewImage));
     }
 

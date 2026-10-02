@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:GEMS/model/responseValue.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 
 class FormB extends StatelessWidget {
   final String id;
@@ -16,12 +17,11 @@ class FormB extends StatelessWidget {
   Widget build(BuildContext context) {
     provider.context = context;
     return Scaffold(
-      appBar: AppBar(
-        title: getTitle("B. Safety Precaution / General Guideline",
-            bold: true, size: 18.0),
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(
-          color: colorTheme3,
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: Text(
+          'B. Safety Precaution / General Guideline',
+          style: GemsChrome.heading(size: 16),
         ),
       ),
       body: FutureBuilder<ResponseValue>(
@@ -31,8 +31,15 @@ class FormB extends StatelessWidget {
             return Center(child: CircularProgressIndicator());
           } else {
             return Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(snapshot.data!.sectionBList?.ppmTaskGuideline ?? 'No guideline available'),
+              padding: const EdgeInsets.all(16),
+              child: GemsFormSection(
+                title: 'Guideline',
+                icon: Icons.menu_book_outlined,
+                child: Text(
+                  snapshot.data!.sectionBList?.ppmTaskGuideline ?? 'No guideline available',
+                  style: GemsChrome.body(size: 14),
+                ),
+              ),
             );
           }
         },

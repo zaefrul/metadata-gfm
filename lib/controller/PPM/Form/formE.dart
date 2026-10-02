@@ -3,6 +3,7 @@ import 'package:GEMS/model/form.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:GEMS/utils/reference.dart';
 import 'package:GEMS/view/dialog.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'package:toast/toast.dart';
 import 'package:GEMS/data/repository/ppm_repository.dart';
 import 'package:GEMS/controller/PPM/pending_sync.dart';
@@ -82,39 +83,41 @@ class _FormEState extends State<FormE> {
           // Add pending sync banner
           if (_pendingSync != null)
             PPMPendingSyncIndicator(controller: _pendingSync!),
-          TextField(
-            maxLength: 20,
-            enabled: !widget.disable,
-            controller: controller,
-            decoration:
-                InputDecoration(labelText: "Spare Parts/ Material Used"),
-          ),
-          widget.disable
-              ? Container()
-              : Row(
-                  children: <Widget>[
-                    Radio<int>(
-                      value: 1,
-                      groupValue: groupValue,
-                      activeColor: Colors.blueAccent,
-                      onChanged: (int? value) => onChange(value!),
-                    ),
-                    Text(
-                      'Yes',
-                      style: TextStyle(fontSize: 16.0),
-                    ),
-                    Radio<int>(
-                      groupValue: groupValue,
-                      value: 0,
-                      activeColor: Colors.blueAccent,
-                      onChanged: (int? value) => onChange(value!),
-                    ),
-                    Text(
-                      'No',
-                      style: TextStyle(fontSize: 16.0),
-                    ),
-                  ],
+          GemsFormSection(
+            title: 'Spare parts',
+            icon: Icons.inventory_2_outlined,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  maxLength: 20,
+                  enabled: !widget.disable,
+                  controller: controller,
+                  style: GemsChrome.body(size: 14),
+                  decoration: gemsFieldDecoration(label: 'Spare parts / material used'),
                 ),
+                if (!widget.disable)
+                  Row(
+                    children: <Widget>[
+                      Radio<int>(
+                        value: 1,
+                        groupValue: groupValue,
+                        activeColor: GemsChrome.primary,
+                        onChanged: (int? value) => onChange(value!),
+                      ),
+                      Text('Yes', style: GemsChrome.body(size: 15)),
+                      Radio<int>(
+                        groupValue: groupValue,
+                        value: 0,
+                        activeColor: GemsChrome.primary,
+                        onChanged: (int? value) => onChange(value!),
+                      ),
+                      Text('No', style: GemsChrome.body(size: 15)),
+                    ],
+                  ),
+              ],
+            ),
+          ),
           children2.isEmpty
               ? Container()
               : Expanded(
@@ -132,13 +135,9 @@ class _FormEState extends State<FormE> {
     );
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: colorTheme3),
-        title: Text(
-          "E. Spare Parts/ Material Used",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
+        title: const Text('E. Spare Parts / Material Used'),
       ),
       body: loading
           ? Stack(
@@ -156,6 +155,8 @@ class _FormEState extends State<FormE> {
       floatingActionButton: widget.disable
           ? null
           : FloatingActionButton(
+              backgroundColor: GemsChrome.primary,
+              foregroundColor: Colors.white,
               onPressed: loading
                   ? null
                   : () {
@@ -191,18 +192,23 @@ class _FormEState extends State<FormE> {
   }
 
   Widget getTitle(int index, FormEItem item, {bool bold = false}) {
-    return ListTile(
+    return Card(
+      elevation: 0,
+      color: Colors.white,
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(GemsChrome.radius),
+        side: const BorderSide(color: GemsChrome.border),
+      ),
+      child: ListTile(
       title: Text(
         "$index. ${item.ppmTaskPartsDesc}",
-        style: TextStyle(
-          fontWeight: bold ? FontWeight.bold : FontWeight.normal,
-          color: colorTheme3,
-        ),
+        style: GemsChrome.body(weight: bold ? FontWeight.w600 : FontWeight.w500),
       ),
       trailing: widget.disable
           ? null
           : TextButton(
-              child: Icon(Icons.remove),
+              child: const Icon(Icons.delete_outline, color: GemsChrome.danger),
               onPressed: () async {
                 setState(() => loading = true);
                 await provider
@@ -216,6 +222,7 @@ class _FormEState extends State<FormE> {
                 });
               },
             ),
+      ),
     );
   }
 

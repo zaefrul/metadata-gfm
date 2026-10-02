@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../constant.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 
 class AwesomeFAB extends StatefulWidget {
   const AwesomeFAB({super.key});
@@ -74,7 +74,7 @@ class _AwesomeFABState extends State<AwesomeFAB>
           matrix(
             y: _matrixY.value * 7.0,
             child: container(
-              colorTheme2, 
+              GemsChrome.primary, 
               "My Dashboard",
               value: "My Dashboard", 
               icon: Icons.assessment,
@@ -83,7 +83,7 @@ class _AwesomeFABState extends State<AwesomeFAB>
           matrix(
             y: _matrixY.value * 6.0,
             child: container(
-              colorTheme2, 
+              GemsChrome.primary, 
               "My Check Out",
               value: "My Check Out", 
               icon: Icons.assignment_late,
@@ -92,7 +92,7 @@ class _AwesomeFABState extends State<AwesomeFAB>
           matrix(
             y: _matrixY.value * 5.0,
             child: container(
-              colorTheme2, 
+              GemsChrome.primary, 
               "My Check In",
               value: "My Check In", 
               icon: Icons.assignment_turned_in,
@@ -101,7 +101,7 @@ class _AwesomeFABState extends State<AwesomeFAB>
           matrix(
             y: _matrixY.value * 4.5,
             child: container(
-              colorTheme3, 
+              GemsChrome.primaryDark, 
               "Return Item",
               value: "Return Item", 
               icon: Icons.keyboard_return,
@@ -110,7 +110,7 @@ class _AwesomeFABState extends State<AwesomeFAB>
           matrix(
             y: _matrixY.value * 4.0,
             child: container(
-              colorTheme2, 
+              GemsChrome.primary, 
               "My Stock",
               value: "My Stock", 
               icon: Icons.category,
@@ -119,7 +119,7 @@ class _AwesomeFABState extends State<AwesomeFAB>
           matrix(
             y: _matrixY.value * 3.0,
             child: container(
-              colorTheme4, 
+              GemsChrome.warning, 
               "Threshold Alert",
               value: "Threshold", 
               icon: Icons.warning,
@@ -128,7 +128,7 @@ class _AwesomeFABState extends State<AwesomeFAB>
           matrix(
             y: _matrixY.value * 2.0,
             child: container(
-              colorTheme5, 
+              GemsChrome.teal, 
               "My Task",
               value: "My Task", 
               icon: Icons.account_tree_rounded,
@@ -137,7 +137,7 @@ class _AwesomeFABState extends State<AwesomeFAB>
           matrix(
             y: _fabHeight,
             child: container(
-              colorTheme1, 
+              GemsChrome.primary, 
               "",
               aIcon: AnimatedIcon(
                 icon: AnimatedIcons.menu_close,
@@ -170,13 +170,10 @@ class _AwesomeFABState extends State<AwesomeFAB>
       children: <Widget>[
         Text(
           text,
-          style: const TextStyle(
-            fontFamily: "Avenir",
+          style: GemsChrome.body(
+            size: 16,
             color: Colors.white,
-            fontSize: 16.0,
-            fontWeight: FontWeight.normal,
-            decoration: TextDecoration.none,
-          ),
+          ).copyWith(decoration: TextDecoration.none),
         ),
         RawMaterialButton(
           onPressed: value == null

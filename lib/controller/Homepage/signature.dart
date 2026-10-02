@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:GEMS/view/gems_chrome.dart';
 import 'dart:typed_data';
 import 'package:GEMS/controller/Storekeeper/utils/constant.dart';
 import 'package:GEMS/controller/Storekeeper/utils/widget/dialog.dart';
@@ -43,11 +44,9 @@ class SignatureViewState extends State<SignatureView> {
     ToastContext().init(context);
 
     return Scaffold(
-      backgroundColor: colorTheme3,
-      appBar: AppBar(
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(
         title: title("Signature"),
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: colorTheme3),
         actions: <Widget>[
           Padding(
             padding: const EdgeInsets.all(8.0),
