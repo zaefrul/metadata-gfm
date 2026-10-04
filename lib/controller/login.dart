@@ -13,6 +13,7 @@ import '../utils/reference.dart';
 import '../utils/network.dart';
 import '../view/gems_chrome.dart';
 import 'forgotPassword.dart';
+import '../data/repository/utility_repository.dart';
 import '../utils/auth_secure_storage.dart';
 
 class Login extends StatefulWidget {
@@ -490,6 +491,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       final user =
           await login(_username!, _password!, source: _selectedNetworkSource);
       user.saveUser();
+      UtilitySyncScheduler.instance.kick();
       await _handlePostLoginBiometric();
       if (!mounted) return;
       await _registerTokenAndOpenPending();
@@ -653,6 +655,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
       final user = await login(creds.username, creds.password, source: source);
       user.saveUser();
+      UtilitySyncScheduler.instance.kick();
       // Ensure the enabled flag and creds stay consistent (prevents button disappearing).
       await AuthSecureStorage.enable(
         creds.username,

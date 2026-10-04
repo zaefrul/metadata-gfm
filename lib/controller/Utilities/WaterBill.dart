@@ -1,22 +1,21 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/PPM/Form/openImage.dart';
+import 'package:GEMS/data/repository/utility_repository.dart';
 import 'package:GEMS/model/meter.dart';
-import 'package:GEMS/model/serializers.dart';
 import 'package:GEMS/utils/image_compressor.dart';
 import 'package:GEMS/utils/biometric_lock_manager.dart';
-import 'package:GEMS/utils/network.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:toast/toast.dart';
 // Removed flutter_image_compress import
 import 'package:url_launcher/url_launcher.dart';
-import 'package:GEMS/utils/biometric_lock_manager.dart';
 import '../../main.dart';
 
 class WaterBillScreen extends StatefulWidget {
@@ -37,6 +36,8 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
   List<File> listItem = [];
   List<Meter> list = [];
   bool _submitting = false;
+  bool _loadingMeters = true;
+  String? _loadError;
 
   _WaterBillScreenState({bool isDaily = false, bool isMontly = false}) {
     _controllers.addAll(List.generate(2, (index) => TextEditingController()));
@@ -56,17 +57,26 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
   }
 
   @override
-  void didChangeDependencies() {
-    final Provider providerMeter = Provider(fetchURL: "/utility_meter/Water");
-    providerMeter.context = context;
+  void initState() {
+    super.initState();
+    _loadMeters();
+  }
 
-    providerMeter.getJson(url: "/utility_meter/Water").then((value) {
-      final values = deserializeListOf<Meter>(value).toList();
+  Future<void> _loadMeters() async {
+    try {
+      final values = await UtilityRepository.instance.loadWaterMeters();
+      if (!mounted) return;
       setState(() {
         list = values;
+        _loadingMeters = false;
       });
-    }).catchError((err) => Toast.show(err));
-    super.didChangeDependencies();
+    } catch (err) {
+      if (!mounted) return;
+      setState(() {
+        _loadError = err.toString();
+        _loadingMeters = false;
+      });
+    }
   }
 
   @override
@@ -77,16 +87,26 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
       appBar: gemsAppBar(
         title: Text("Water Bill : ${widget.isDaily ? 'Daily' : 'Monthly'}"),
       ),
-      body: list.isEmpty
-          ? Container(
-              child: Center(
-                child: CircularProgressIndicator(color: GemsChrome.primary),
-              ),
-            )
-          : Container(
-              child: ListView(
-                padding: EdgeInsets.all(12),
+      body: _loadingMeters
+          ? const Center(child: CircularProgressIndicator(color: GemsChrome.primary))
+          : _loadError != null
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Text(_loadError!, textAlign: TextAlign.center),
+                  ),
+                )
+              : ListView(
+                padding: const EdgeInsets.all(12),
                 children: [
+                  if (widget.isDaily)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Text(
+                        'The shift is taken from the time you tap Submit. Morning is 06:00–18:00, Evening is 18:00–22:00, and anything else is Night. Before 06:00 counts as the previous day. If there is no network, the reading stays on this phone and is sent automatically later.',
+                        style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+                      ),
+                    ),
                   if (widget.isDaily) _Daily(_controllers, _filter(list)),
                   if (widget.isMontly) _Monthly(_controllers, _filter(list)),
                   _addPhoto,
@@ -95,7 +115,6 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
                   if (listItem.length == 3) _section(listItem[2]),
                 ],
               ),
-            ),
       floatingActionButton: FloatingActionButton.extended(
           backgroundColor: GemsChrome.primary,
           foregroundColor: Colors.white,
@@ -184,69 +203,78 @@ class _WaterBillScreenState extends State<WaterBillScreen> {
       return;
     }
 
-    showDialog(
-      context: navigatorKey.currentContext!,
-      builder: (_) => const Center(child: CircularProgressIndicator(color: GemsChrome.primary)),
-    );
+    if (!dropdownValue.hasValue) {
+      Toast.show('Select a location');
+      if (mounted) setState(() => _submitting = false);
+      return;
+    }
 
-    final Provider provider = Provider(fetchURL: "/utility/Water/");
-    provider.context = context;
-
-    File file = listItem.first;
-    String url = "/utility/Water/";
+    final capturedAt = DateTime.now();
+    final file = listItem.first;
+    var url = "/utility/Water/";
     String reading;
-    String max = "";
-    String amount = '';
+    var amount = '';
 
     final bytes = await compressFile(File(file.path), settings: {
       'quality': Platform.isIOS ? 20 : 60,
       'minWidth': 480,
       'minHeight': 640,
     }) ?? Uint8List(0);
-    String size = bytes.length.toString();
-    String base64Image = base64Encode(bytes);
-    String name =
-        "${DateFormat('kk:mm:ss EEE d MMM').format(DateTime.now())}.jpg";
-    final Image image = Image.file(File(file.path));
-    image.image
-        .resolve(ImageConfiguration())
-        .completer
-        ?.addListener(ImageStreamListener((info, _) async {
-      String height = info.image.height.toString();
-      String width = info.image.width.toString();
+    if (bytes.isEmpty) {
+      Toast.show('Could not read the photo');
+      if (mounted) setState(() => _submitting = false);
+      return;
+    }
+    final codec = await ui.instantiateImageCodec(bytes);
+    final frame = await codec.getNextFrame();
+    final height = frame.image.height.toString();
+    final width = frame.image.width.toString();
+    frame.image.dispose();
 
-      if (widget.isDaily) {
-        url += "Daily";
-        reading = _controllers.last.text;
-      } else {
-        url += "Monthly";
-        reading = _controllers.first.text;
-        amount = _controllers[1].text;
+    if (widget.isDaily) {
+      url += "Daily";
+      reading = _controllers.last.text;
+    } else {
+      url += "Monthly";
+      reading = _controllers.first.text;
+      amount = _controllers[1].text;
+    }
+    final meter = dropdownValue.value;
+    final param = <String, String>{
+      "meterId": meter.meterId,
+      "utilityDate": f.format(capturedAt),
+      "utilityReading": reading,
+      "utilityMaxDemand": "",
+      'utilityTotalRm': amount,
+      if (widget.isDaily)
+        'utilityCapturedAt': DateFormat('yyyy-MM-dd HH:mm:ss').format(capturedAt),
+      'readingImage[name]': "Utility Image",
+      'readingImage[filename]':
+          "${DateFormat('kk:mm:ss EEE d MMM').format(capturedAt)}.jpg",
+      'readingImage[type]': 'data:image/jpeg;base64',
+      'readingImage[size]': bytes.length.toString(),
+      'readingImage[data]': base64Encode(bytes),
+      'readingImage[height]': height,
+      'readingImage[width]': width,
+    };
+    try {
+      final result = await UtilityRepository.instance.saveWaterReading(
+        url: url,
+        fields: param,
+        summary: '${meter.meterLocation}: $reading m³',
+        meterId: meter.meterId,
+        capturedAt: capturedAt,
+      );
+      if (!mounted) return;
+      Toast.show(result.message, duration: 4);
+      if (!result.rejected) {
+        Navigator.pop(context);
       }
-      final param = {
-        "meterId": dropdownValue.value.meterId,
-        "utilityDate": f.format(DateTime.now()),
-        "utilityReading": reading,
-        "utilityMaxDemand": max,
-        'utilityTotalRm': amount,
-        'readingImage[name]': "Utility Image",
-        'readingImage[filename]': name,
-        'readingImage[type]': 'data:image/jpg:base64',
-        'readingImage[size]': size,
-        'readingImage[data]': base64Image,
-        'readingImage[height]': height,
-        'readingImage[width]': width,
-      };
-      provider.postUtilities(url: url, body: param).then((value) {
-        Toast.show("Submitted");
-        Navigator.pop(context);
-      }).catchError((err) {
-        Toast.show(err);
-      }).whenComplete(() {
-        if (mounted) setState(() => _submitting = false);
-        Navigator.pop(context);
-      });
-    }));
+    } catch (err) {
+      Toast.show(err.toString(), duration: 4);
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
 
   Widget _filter(List<Meter> values) => StreamBuilder<Meter>(
@@ -409,7 +437,7 @@ class _Monthly extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           location,
-          _Field('Total usage (35m³)', _controllers.first),
+          _Field('Total usage (m³)', _controllers.first),
           _Field('Total (RM)', _controllers.last),
         ],
       ),

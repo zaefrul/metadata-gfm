@@ -128,6 +128,8 @@ Future<User> login(String username, String password,
       if (previousSessionContext != null &&
           previousSessionContext != currentSessionContext) {
         await OfflineDatabase.instance.clearAll();
+        await OfflineDatabase.instance
+            .discardUtilityReadingsExcept(currentSessionContext);
       }
 
       await prefs.setString(_sessionContextPrefsKey, currentSessionContext);

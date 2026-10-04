@@ -21,6 +21,7 @@ import 'controller/TaskMonitoring/taskMonitoring.dart';
 import 'controller/Homepage/homepage.dart' as main_home;
 import 'controller/Homepage/support.dart';
 import 'controller/Utilities/Homepage.dart' as utilities_home;
+import 'data/repository/utility_repository.dart';
 import 'controller/WorkOrder/complaintMaterial.dart';
 import 'controller/WorkOrder/material_arguments.dart';
 import 'controller/WorkOrder/complaintSearch.dart';
@@ -155,6 +156,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         _handleResume();
       }
       _refreshLocationSession();
+      UtilitySyncScheduler.instance.kick();
     }
   }
 

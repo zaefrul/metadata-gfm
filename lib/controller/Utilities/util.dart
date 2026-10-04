@@ -27,7 +27,7 @@ class UtilsBill {
               style: FilledButton.styleFrom(backgroundColor: GemsChrome.primary),
               onPressed: () {
                 Navigator.pop(dialogContext);
-                showElectric(context, isDaily: true);
+                showElectric(context);
               },
               icon: const Icon(Icons.bolt, color: Colors.white),
               label: Text(
@@ -60,8 +60,7 @@ class UtilsBill {
     );
   }
 
-  void selectFrequency(BuildContext context,
-      {bool isWater = false, bool isElectric = false}) {
+  void selectFrequency(BuildContext context, {bool isWater = false}) {
     showDialog(
       context: navigatorKey.currentContext!,
       builder: (dialogContext) => AlertDialog(
@@ -80,7 +79,6 @@ class UtilsBill {
             onPressed: () {
               Navigator.pop(dialogContext);
               if (isWater) showWater(context, isDaily: true);
-              if (isElectric) showElectric(context, isDaily: true);
             },
             child: Text(
               'Daily',
@@ -92,7 +90,6 @@ class UtilsBill {
             onPressed: () {
               Navigator.pop(dialogContext);
               if (isWater) showWater(context, isMonthly: true);
-              if (isElectric) showElectric(context, isMonthly: true);
             },
             child: Text(
               'Monthly',
@@ -114,13 +111,11 @@ class UtilsBill {
     ).whenComplete(onRefresh);
   }
 
-  void showElectric(BuildContext context,
-      {bool isMonthly = false, bool isDaily = false}) {
+  void showElectric(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) =>
-            ElectricBillScreen(isMontly: isMonthly, isDaily: isDaily),
+        builder: (_) => const ElectricBillScreen(),
       ),
     ).whenComplete(onRefresh);
   }

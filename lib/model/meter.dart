@@ -60,7 +60,7 @@ abstract class Reading implements Built<Reading, ReadingBuilder> {
   String get day => DateTime.parse(utilityDate!).day.toString();
   String get year => DateTime.parse(utilityDate!).year.toString();
   String get time =>
-      DateFormat("hh:ss a").format(DateTime.parse(utilityTimestamp!));
+      DateFormat("hh:mm a").format(DateTime.parse(utilityTimestamp!));
 
   Reading._();
   factory Reading([void Function(ReadingBuilder) updates]) = _$Reading;

@@ -8,7 +8,7 @@ import 'package:sqflite/sqflite.dart';
 import 'entities/ppm_entities.dart';
 
 const _dbName = 'gems_offline.db';
-const _dbVersion = 17; // Add action_id column for batch sync tracking
+const _dbVersion = 18; // Utility readings queued while offline
 
 class OfflineDatabase {
   OfflineDatabase._();
@@ -65,6 +65,7 @@ class OfflineDatabase {
     await db.execute(_PPMSnapshotSectionsTable.snapshotIndexSql);
     await db.execute(_PPMOfflineActionsTable.createSql);
     await db.execute(_PPMTechnicianCacheTable.createSql);
+    await db.execute(_UtilityPendingReadingsTable.createSql);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -161,6 +162,9 @@ class OfflineDatabase {
           )
           .catchError((_) => null);
     }
+    if (oldVersion < 18) {
+      await db.execute(_UtilityPendingReadingsTable.createSql);
+    }
   }
 
   Future<void> clearAll() async {
@@ -191,6 +195,8 @@ class OfflineDatabase {
       await txn.delete(_PPMSnapshotsTable.tableName);
       await txn.delete(_PPMOfflineActionsTable.tableName);
       await txn.delete(_PPMTechnicianCacheTable.tableName);
+      // utility_pending_readings is intentionally kept. Unsent meter
+      // readings survive logout and are only removed for a different user.
     });
   }
 
@@ -1512,6 +1518,107 @@ ORDER BY h.scheduled_start DESC, h.work_order_number DESC
     );
   }
 
+  // ============================================================================
+  // UTILITY / ENERGY READINGS QUEUED OFFLINE
+  // ============================================================================
+
+  Future<int> insertUtilityPending(UtilityPendingReading reading) async {
+    final db = await database;
+    return db.insert(
+      _UtilityPendingReadingsTable.tableName,
+      reading.toMap(),
+    );
+  }
+
+  Future<List<UtilityPendingReading>> listUtilityPending({
+    required String sessionContext,
+    String? status,
+  }) async {
+    final db = await database;
+    final rows = await db.query(
+      _UtilityPendingReadingsTable.tableName,
+      where: status == null
+          ? 'session_context = ?'
+          : 'session_context = ? AND status = ?',
+      whereArgs:
+          status == null ? [sessionContext] : [sessionContext, status],
+      orderBy: 'created_at ASC, id ASC',
+    );
+    return rows.map(UtilityPendingReading.fromMap).toList();
+  }
+
+  Future<int> countUtilityPending({
+    required String sessionContext,
+    String? status,
+  }) async {
+    final db = await database;
+    final where = status == null
+        ? 'session_context = ?'
+        : 'session_context = ? AND status = ?';
+    final args =
+        status == null ? [sessionContext] : [sessionContext, status];
+    final result = await db.rawQuery(
+      'SELECT COUNT(*) FROM ${_UtilityPendingReadingsTable.tableName} WHERE $where',
+      args,
+    );
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
+
+  Future<void> updateUtilityPending(
+    int id, {
+    String? payloadJson,
+    String? status,
+    int? attempts,
+    String? lastError,
+    bool clearError = false,
+  }) async {
+    final values = <String, Object?>{};
+    if (payloadJson != null) values['payload_json'] = payloadJson;
+    if (status != null) values['status'] = status;
+    if (attempts != null) values['attempts'] = attempts;
+    if (clearError) {
+      values['last_error'] = null;
+    } else if (lastError != null) {
+      values['last_error'] = lastError;
+    }
+    if (values.isEmpty) return;
+    final db = await database;
+    await db.update(
+      _UtilityPendingReadingsTable.tableName,
+      values,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<void> deleteUtilityPending(int id) async {
+    final db = await database;
+    await db.delete(
+      _UtilityPendingReadingsTable.tableName,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  /// Drops queued readings that belong to a different user or environment.
+  Future<void> discardUtilityReadingsExcept(String sessionContext) async {
+    final db = await database;
+    await db.delete(
+      _UtilityPendingReadingsTable.tableName,
+      where: 'session_context != ?',
+      whereArgs: [sessionContext],
+    );
+  }
+
+  Future<void> discardUtilityReadingsFor(String sessionContext) async {
+    final db = await database;
+    await db.delete(
+      _UtilityPendingReadingsTable.tableName,
+      where: 'session_context = ?',
+      whereArgs: [sessionContext],
+    );
+  }
+
   Future<void> close() async {
     if (_database == null) return;
     await _database!.close();
@@ -2502,6 +2609,81 @@ CREATE TABLE IF NOT EXISTS $tableName (
   timestamp TEXT NOT NULL,
   synced INTEGER DEFAULT 0,
   sync_error TEXT
+)
+''';
+}
+
+@immutable
+class UtilityPendingReading {
+  const UtilityPendingReading({
+    this.id,
+    required this.clientRef,
+    required this.kind,
+    required this.sessionContext,
+    required this.payloadJson,
+    required this.capturedAt,
+    required this.createdAt,
+    this.status = 'pending',
+    this.attempts = 0,
+    this.lastError,
+  });
+
+  final int? id;
+  final String clientRef;
+  final String kind;
+  final String sessionContext;
+  final String payloadJson;
+  final DateTime capturedAt;
+  final DateTime createdAt;
+  final String status;
+  final int attempts;
+  final String? lastError;
+
+  Map<String, Object?> toMap() {
+    return {
+      if (id != null) 'id': id,
+      'client_ref': clientRef,
+      'kind': kind,
+      'session_context': sessionContext,
+      'payload_json': payloadJson,
+      'captured_at': capturedAt.toIso8601String(),
+      'status': status,
+      'attempts': attempts,
+      'last_error': lastError,
+      'created_at': createdAt.toIso8601String(),
+    };
+  }
+
+  static UtilityPendingReading fromMap(Map<String, Object?> map) {
+    return UtilityPendingReading(
+      id: map['id'] as int?,
+      clientRef: map['client_ref'] as String,
+      kind: map['kind'] as String,
+      sessionContext: map['session_context'] as String,
+      payloadJson: map['payload_json'] as String,
+      capturedAt: DateTime.parse(map['captured_at'] as String),
+      createdAt: DateTime.parse(map['created_at'] as String),
+      status: map['status'] as String? ?? 'pending',
+      attempts: map['attempts'] as int? ?? 0,
+      lastError: map['last_error'] as String?,
+    );
+  }
+}
+
+class _UtilityPendingReadingsTable {
+  static const tableName = 'utility_pending_readings';
+  static const createSql = '''
+CREATE TABLE IF NOT EXISTS $tableName (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  client_ref TEXT NOT NULL UNIQUE,
+  kind TEXT NOT NULL,
+  session_context TEXT NOT NULL,
+  payload_json TEXT NOT NULL,
+  captured_at TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending',
+  attempts INTEGER NOT NULL DEFAULT 0,
+  last_error TEXT,
+  created_at TEXT NOT NULL
 )
 ''';
 }

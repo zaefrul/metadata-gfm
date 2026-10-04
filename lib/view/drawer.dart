@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:toast/toast.dart';
 
+import '../data/repository/utility_repository.dart';
 import '../model/user.dart';
 import 'gems_chrome.dart';
 
@@ -97,6 +99,53 @@ class BuildDrawer extends StatelessWidget {
                   label: 'Logout',
                   icon: Icons.logout,
                   onTap: () async {
+                    final utility = UtilityRepository.instance;
+                    final waiting = await utility.unsentCount();
+                    if (waiting > 0 && context.mounted) {
+                      final action = await showDialog<String>(
+                        context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          title: Text('Unsent readings', style: GemsChrome.heading(size: 18)),
+                          content: Text(
+                            '$waiting reading${waiting == 1 ? '' : 's'} not yet sent. Sync now or discard?',
+                            style: GemsChrome.body(),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(dialogContext, 'cancel'),
+                              child: Text('Cancel', style: GemsChrome.body(color: GemsChrome.textSoft)),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(dialogContext, 'discard'),
+                              child: Text('Discard', style: GemsChrome.body(color: GemsChrome.danger)),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(dialogContext, 'sync'),
+                              child: Text(
+                                'Sync now',
+                                style: GemsChrome.body(weight: FontWeight.w600, color: GemsChrome.primary),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (action == null || action == 'cancel') return;
+                      if (action == 'sync') {
+                        final report = await utility.syncPending();
+                        final left = await utility.unsentCount();
+                        if (left > 0) {
+                          Toast.show(
+                            report.needsLogin
+                                ? 'Please log in again to sync $left readings.'
+                                : 'Still offline. $left readings stay on this phone.',
+                            duration: 4,
+                          );
+                          return;
+                        }
+                      } else if (action == 'discard') {
+                        await utility.discardCurrentSession();
+                      }
+                    }
                     if (currentUser != null) {
                       await currentUser.removeUser();
                     }
