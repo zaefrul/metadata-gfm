@@ -1,5 +1,6 @@
 import 'package:GEMS/data/repository/utility_repository.dart';
 import 'package:GEMS/model/energy.dart';
+import 'package:GEMS/model/water.dart';
 import 'package:GEMS/model/meter.dart';
 import 'package:GEMS/utils/network.dart';
 import 'package:rxdart/subjects.dart';
@@ -26,7 +27,14 @@ class Bloc {
   final _energyMe = BehaviorSubject<EnergyMe?>.seeded(null);
   final _energyMeters = BehaviorSubject<List<EnergyMeter>>.seeded([]);
   final _energyMonth = BehaviorSubject<EnergyMonth?>.seeded(null);
+  final _waterMe = BehaviorSubject<EnergyMe?>.seeded(null);
+  final _waterMeters = BehaviorSubject<List<EnergyMeter>>.seeded([]);
+  final _waterMonth = BehaviorSubject<WaterMonth?>.seeded(null);
   final _fromCache = BehaviorSubject<bool>.seeded(false);
+  final _energyError = BehaviorSubject<String>.seeded('');
+  final _waterError = BehaviorSubject<String>.seeded('');
+  var _energyFromCache = false;
+  var _waterFromCache = false;
 
   final _errMsg = BehaviorSubject<String>();
   final _loadingState = BehaviorSubject<bool>();
@@ -42,7 +50,12 @@ class Bloc {
   Stream<EnergyMe?> get energyMe$ => _energyMe.stream;
   Stream<List<EnergyMeter>> get energyMeters$ => _energyMeters.stream;
   Stream<EnergyMonth?> get energyMonth$ => _energyMonth.stream;
+  Stream<EnergyMe?> get waterMe$ => _waterMe.stream;
+  Stream<List<EnergyMeter>> get waterMeters$ => _waterMeters.stream;
+  Stream<WaterMonth?> get waterMonth$ => _waterMonth.stream;
   Stream<bool> get fromCache$ => _fromCache.stream;
+  Stream<String> get energyError$ => _energyError.stream;
+  Stream<String> get waterError$ => _waterError.stream;
   Stream<String> get err$ => _errMsg.stream;
   Stream<bool> get loadingState$ => _loadingState.stream;
 
@@ -82,7 +95,12 @@ class Bloc {
     _energyMe.close();
     _energyMeters.close();
     _energyMonth.close();
+    _waterMe.close();
+    _waterMeters.close();
+    _waterMonth.close();
     _fromCache.close();
+    _energyError.close();
+    _waterError.close();
     _errMsg.close();
     _loadingState.close();
   }
@@ -114,9 +132,36 @@ class Bloc {
         _energyMe.add(data.me);
         _energyMeters.add(data.meters);
         _energyMonth.add(data.month);
-        _fromCache.add(data.fromCache);
+        _energyFromCache = data.fromCache;
+        _publishCache();
+        _energyError.add('');
       }),
-    );
+    ).catchError((error) {
+      if (_energyMeters.value.isEmpty) {
+        _energyError.add(error.toString().replaceFirst('Exception: ', ''));
+      }
+    });
+  }
+
+  Future<void> fetchWater({int? year, int? month}) {
+    return checker(
+      _utility.loadWaterHome(year: year, month: month).then((data) {
+        _waterMe.add(data.me);
+        _waterMeters.add(data.meters);
+        _waterMonth.add(data.month);
+        _waterFromCache = data.fromCache;
+        _publishCache();
+        _waterError.add('');
+      }),
+    ).catchError((error) {
+      if (_waterMeters.value.isEmpty) {
+        _waterError.add(error.toString().replaceFirst('Exception: ', ''));
+      }
+    });
+  }
+
+  void _publishCache() {
+    _fromCache.add(_energyFromCache || _waterFromCache);
   }
 }
 

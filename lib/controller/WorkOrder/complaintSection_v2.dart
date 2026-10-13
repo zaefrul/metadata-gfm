@@ -30,6 +30,9 @@ class ComplaintSection extends StatefulWidget {
   final String woTaskType;
   final String woTaskCategory;
 
+  /// When set, the screen uses this repository instead of the live API.
+  final WorkOrderDetailRepository? repository;
+
   const ComplaintSection({
     super.key,
     required this.id,
@@ -41,6 +44,7 @@ class ComplaintSection extends StatefulWidget {
     this.isComplaintProgress = false,
     required this.woTaskType,
     required this.woTaskCategory,
+    this.repository,
   });
 
   @override
@@ -69,6 +73,7 @@ class ComplaintSectionState extends State<ComplaintSection> {
         taskNo: widget.taskNo,
         context: navigatorKey.currentContext!,
         woTaskCategory: widget.woTaskType,
+        repository: widget.repository,
       );
       _pendingSyncController = PendingSyncController(
         pendingCount$: _bloc.pendingActions$,
@@ -132,6 +137,9 @@ class ComplaintSectionState extends State<ComplaintSection> {
       backgroundColor: GemsChrome.page,
       appBar: gemsAppBar(
         title: Text(widget.taskNo),
+        actions: [
+          if (!widget.viewer && _blocInitialized) _offlineAppBarAction(),
+        ],
       ),
       body: StreamBuilder<List<WorkOrderStatus>>(
         stream: _bloc.sections$,
@@ -148,29 +156,39 @@ class ComplaintSectionState extends State<ComplaintSection> {
               'ComplaintSection UI: Rendering ${sections.length} sections');
 
           if (sections.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.cloud_off, size: 48, color: GemsChrome.muted),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No sections available yet.',
-                    style: GemsChrome.body(size: 16, weight: FontWeight.w600),
+            return Column(
+              children: [
+                _offlineStatusBar(),
+                Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.cloud_off,
+                            size: 48, color: GemsChrome.muted),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No sections available yet.',
+                          style:
+                              GemsChrome.body(size: 16, weight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Pull down to refresh or reconnect to the network.',
+                          style: GemsChrome.body(
+                              size: 12, color: GemsChrome.textSoft),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Pull down to refresh or reconnect to the network.',
-                    style: GemsChrome.body(size: 12, color: GemsChrome.textSoft),
-                  ),
-                ],
-              ),
+                ),
+              ],
             );
           }
 
           return Column(
             children: [
-              _buildOfflineControls(),
+              _offlineStatusBar(),
               PendingSyncIndicator(controller: _pendingSyncController),
               // 1) The scrolling list
               Expanded(
@@ -240,18 +258,6 @@ class ComplaintSectionState extends State<ComplaintSection> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          if (isOffline)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Text(
-                                'Reconnect to the network to submit or change status.',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: AppColors.dark.withValues(alpha: 0.7),
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
                           AbsorbPointer(
                             absorbing: isOffline,
                             child: Opacity(
@@ -341,204 +347,146 @@ class ComplaintSectionState extends State<ComplaintSection> {
   bool get _isOfflineEligible =>
       _offlineEligibleStatuses.contains(widget.taskStatus);
 
-  String _formatTimestamp(DateTime timestamp) {
-    final formatter = DateFormat('d MMM yyyy • h:mm a');
-    return formatter.format(timestamp.toLocal());
-  }
-
-  String? _formatCount(int count, String label) {
-    if (count <= 0) return null;
-    final suffix = count == 1 ? label : '${label}s';
-    return '$count $suffix';
-  }
-
-  String _buildSnapshotStatsLine(WorkOrderSnapshotData data) {
-    final segments = <String?>[
-      _formatCount(data.sections.length, 'section'),
-      _formatCount(data.materials.length, 'material'),
-      _formatCount(data.repairImages.length, 'repair photo'),
-      _formatCount(data.responseImages.length, 'response photo'),
-    ];
-    return segments.whereType<String>().join(' • ');
-  }
-
-  Widget _buildOfflineControls() {
+  Widget _offlineStatusBar() {
+    if (widget.viewer) return const SizedBox.shrink();
     return StreamBuilder<bool>(
       stream: _bloc.offlineMode$,
       builder: (context, snapshot) {
         final isOffline = snapshot.data ?? false;
-        final isEligible = _isOfflineEligible;
-        if (!isEligible && !isOffline) {
+        if (!isOffline && !_offlineToggleInFlight) {
           return const SizedBox.shrink();
         }
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: Container(
-            decoration: BoxDecoration(
-              color: GemsChrome.primarySoft,
-              borderRadius: BorderRadius.circular(GemsChrome.radius),
-              border: Border.all(color: GemsChrome.border),
-            ),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      isOffline ? Icons.offline_pin : Icons.cloud_queue,
+        return Material(
+          color: GemsChrome.primarySoft,
+          child: InkWell(
+            onTap: _openOfflineSheet,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Row(
+                children: [
+                  if (_offlineToggleInFlight)
+                    const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: GemsChrome.primary,
+                      ),
+                    )
+                  else
+                    const Icon(
+                      Icons.offline_pin,
+                      size: 18,
                       color: GemsChrome.primary,
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Offline mode',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.dark,
-                        ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _offlineToggleInFlight
+                          ? 'Saving offline copy…'
+                          : 'Offline mode on',
+                      style: GemsChrome.body(
+                        size: 13,
+                        weight: FontWeight.w600,
                       ),
                     ),
-                    Switch(
-                      value: isOffline,
-                      onChanged: _offlineToggleInFlight
-                          ? null
-                          : (value) {
-                              if (value && !isEligible) {
-                                Toast.show(
-                                  'Offline mode is only available for In Progress or WR Check tickets.',
-                                  duration: Toast.lengthShort,
-                                  gravity: Toast.bottom,
-                                );
-                                return;
-                              }
-                              _toggleOfflineMode(value);
-                            },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  isOffline
-                      ? 'We\'ll save all updates on this device. Tap Sync now once you\'re ready to push changes online.'
-                      : isEligible
-                          ? 'Enable offline mode when you expect to lose connectivity. We\'ll cache the task and you can sync later.'
-                          : 'Offline mode is limited to tickets that are In Progress or WR Check.',
-                  style: const TextStyle(fontSize: 14, height: 1.4),
-                ),
-                if (_offlineToggleInFlight) ...[
-                  const SizedBox(height: 12),
-                  const LinearProgressIndicator(minHeight: 3),
-                ],
-                StreamBuilder<WorkOrderSnapshotData?>(
-                  stream: _bloc.snapshot$,
-                  builder: (context, snapshotData) {
-                    final cached = snapshotData.data;
-                    if (cached == null) {
-                      if (!isOffline) {
-                        return const SizedBox.shrink();
-                      }
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: Text(
-                          'Preparing offline copy…',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: AppColors.dark.withValues(alpha: 0.7),
-                          ),
-                        ),
-                      );
-                    }
-                    final downloadedAt =
-                        _formatTimestamp(cached.snapshot.metadata.createdAt);
-                    final statsLine = _buildSnapshotStatsLine(cached);
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Cached on $downloadedAt',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: AppColors.dark.withValues(alpha: 0.7),
+                  ),
+                  if (isOffline && !_offlineToggleInFlight)
+                    StreamBuilder<int>(
+                      stream: _bloc.pendingActions$,
+                      initialData: _bloc.pendingCount,
+                      builder: (context, pendingSnapshot) {
+                        final pending = pendingSnapshot.data ?? 0;
+                        if (pending <= 0) return const SizedBox.shrink();
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 4),
+                          child: Text(
+                            '$pending to sync',
+                            style: GemsChrome.body(
+                              size: 12,
+                              color: GemsChrome.textSoft,
                             ),
                           ),
-                          if (statsLine.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4),
-                              child: Text(
-                                statsLine,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color:
-                                      AppColors.dark.withValues(alpha: 0.6),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-                if (isOffline) ...[
-                  const SizedBox(height: 12),
-                  StreamBuilder<int>(
-                    stream: _bloc.pendingActions$,
-                    builder: (context, pendingSnapshot) {
-                      final pending = pendingSnapshot.data ?? 0;
-                      final label = pending == 1
-                          ? 'action waiting to sync'
-                          : 'actions waiting to sync';
-                      return Text(
-                        '$pending $label',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.dark.withValues(alpha: 0.7),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      icon: _syncInFlight
-                          ? const SizedBox(
-                              height: 16,
-                              width: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.sync),
-                      label: Text(_syncInFlight ? 'Syncing…' : 'Sync now'),
-                      onPressed: _syncInFlight ? null : _handleManualSync,
+                        );
+                      },
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      icon: _snapshotRefreshInFlight
-                          ? const SizedBox(
-                              height: 16,
-                              width: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.download_for_offline),
-                      label: Text(_snapshotRefreshInFlight
-                          ? 'Updating cache…'
-                          : 'Refresh offline copy'),
-                      onPressed:
-                          _snapshotRefreshInFlight ? null : _handleRefreshSnapshot,
-                    ),
+                  const Icon(
+                    Icons.chevron_right,
+                    size: 18,
+                    color: GemsChrome.muted,
                   ),
                 ],
-              ],
+              ),
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _offlineAppBarAction() {
+    return StreamBuilder<bool>(
+      stream: _bloc.offlineMode$,
+      builder: (context, snapshot) {
+        final isOffline = snapshot.data ?? false;
+        if (!_isOfflineEligible && !isOffline && !_offlineToggleInFlight) {
+          return const SizedBox.shrink();
+        }
+        return StreamBuilder<int>(
+          stream: _bloc.pendingActions$,
+          initialData: _bloc.pendingCount,
+          builder: (context, pendingSnapshot) {
+            final pending = pendingSnapshot.data ?? 0;
+            final icon = _offlineToggleInFlight
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: GemsChrome.primary,
+                    ),
+                  )
+                : Icon(
+                    isOffline
+                        ? Icons.offline_pin
+                        : Icons.cloud_download_outlined,
+                    color: isOffline ? GemsChrome.primary : GemsChrome.text,
+                  );
+            return IconButton(
+              tooltip: isOffline ? 'Offline mode on' : 'Offline mode',
+              onPressed: _openOfflineSheet,
+              icon: Badge(
+                isLabelVisible: isOffline && pending > 0 && !_offlineToggleInFlight,
+                label: Text('$pending'),
+                child: icon,
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _openOfflineSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => _OfflineModeSheet(
+        offlineMode$: _bloc.offlineMode$,
+        snapshot$: _bloc.snapshot$,
+        pendingActions$: _bloc.pendingActions$,
+        initialOffline: _bloc.isOfflineMode,
+        initialPending: _bloc.pendingCount,
+        initialSnapshot: _bloc.snapshotValue,
+        isEligible: _isOfflineEligible,
+        onToggle: _toggleOfflineMode,
+        onSync: _handleManualSync,
+        onRefresh: _handleRefreshSnapshot,
+      ),
     );
   }
 
@@ -666,6 +614,238 @@ class ComplaintSectionState extends State<ComplaintSection> {
           }
         },
       ),
+    );
+  }
+}
+
+class _OfflineModeSheet extends StatefulWidget {
+  const _OfflineModeSheet({
+    required this.offlineMode$,
+    required this.snapshot$,
+    required this.pendingActions$,
+    required this.initialOffline,
+    required this.initialPending,
+    required this.initialSnapshot,
+    required this.isEligible,
+    required this.onToggle,
+    required this.onSync,
+    required this.onRefresh,
+  });
+
+  final Stream<bool> offlineMode$;
+  final Stream<WorkOrderSnapshotData?> snapshot$;
+  final Stream<int> pendingActions$;
+  final bool initialOffline;
+  final int initialPending;
+  final WorkOrderSnapshotData? initialSnapshot;
+  final bool isEligible;
+  final Future<void> Function(bool enable) onToggle;
+  final Future<void> Function() onSync;
+  final Future<void> Function() onRefresh;
+
+  @override
+  State<_OfflineModeSheet> createState() => _OfflineModeSheetState();
+}
+
+class _OfflineModeSheetState extends State<_OfflineModeSheet> {
+  bool _toggleInFlight = false;
+  bool _syncInFlight = false;
+  bool _refreshInFlight = false;
+
+  bool get _busy => _toggleInFlight || _syncInFlight || _refreshInFlight;
+
+  Future<void> _run(
+    void Function(bool) mark,
+    Future<void> Function() action,
+  ) async {
+    if (_busy) return;
+    setState(() => mark(true));
+    try {
+      await action();
+    } finally {
+      if (mounted) setState(() => mark(false));
+    }
+  }
+
+  String _formatTimestamp(DateTime timestamp) {
+    final formatter = DateFormat('d MMM yyyy • h:mm a');
+    return formatter.format(timestamp.toLocal());
+  }
+
+  String? _formatCount(int count, String label) {
+    if (count <= 0) return null;
+    final suffix = count == 1 ? label : '${label}s';
+    return '$count $suffix';
+  }
+
+  String _statsLine(WorkOrderSnapshotData data) {
+    final segments = <String?>[
+      _formatCount(data.sections.length, 'section'),
+      _formatCount(data.materials.length, 'material'),
+      _formatCount(data.repairImages.length, 'repair photo'),
+      _formatCount(data.responseImages.length, 'response photo'),
+    ];
+    return segments.whereType<String>().join(' • ');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottom = MediaQuery.paddingOf(context).bottom;
+    return StreamBuilder<bool>(
+      stream: widget.offlineMode$,
+      initialData: widget.initialOffline,
+      builder: (context, snapshot) {
+        final isOffline = snapshot.data ?? false;
+        return Padding(
+          padding: EdgeInsets.fromLTRB(20, 12, 20, 16 + bottom),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: GemsChrome.border,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Icon(
+                    isOffline ? Icons.offline_pin : Icons.cloud_download_outlined,
+                    color: GemsChrome.primary,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Offline mode',
+                      style: GemsChrome.heading(size: 18),
+                    ),
+                  ),
+                  Switch(
+                    value: isOffline,
+                    onChanged: _busy
+                        ? null
+                        : (value) {
+                            if (value && !widget.isEligible) {
+                              Toast.show(
+                                'Offline mode is only available for In Progress or WR Check tickets.',
+                                duration: Toast.lengthShort,
+                                gravity: Toast.bottom,
+                              );
+                              return;
+                            }
+                            unawaited(_run(
+                              (busy) => _toggleInFlight = busy,
+                              () => widget.onToggle(value),
+                            ));
+                          },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                isOffline
+                    ? 'Updates stay on this device until you sync.'
+                    : 'Save this task on the device before you lose connection.',
+                style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+              ),
+              if (_toggleInFlight) ...[
+                const SizedBox(height: 12),
+                const LinearProgressIndicator(minHeight: 3),
+              ],
+              if (isOffline) ...[
+                const SizedBox(height: 16),
+                StreamBuilder<WorkOrderSnapshotData?>(
+                  stream: widget.snapshot$,
+                  initialData: widget.initialSnapshot,
+                  builder: (context, snapshotData) {
+                    final cached = snapshotData.data;
+                    if (cached == null) {
+                      return Text(
+                        'Preparing offline copy…',
+                        style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+                      );
+                    }
+                    final stats = _statsLine(cached);
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Cached ${_formatTimestamp(cached.snapshot.metadata.createdAt)}',
+                          style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+                        ),
+                        if (stats.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            stats,
+                            style: GemsChrome.body(size: 13, color: GemsChrome.muted),
+                          ),
+                        ],
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+                StreamBuilder<int>(
+                  stream: widget.pendingActions$,
+                  initialData: widget.initialPending,
+                  builder: (context, pendingSnapshot) {
+                    final pending = pendingSnapshot.data ?? 0;
+                    final label = pending == 1
+                        ? 'action waiting to sync'
+                        : 'actions waiting to sync';
+                    return Text(
+                      '$pending $label',
+                      style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+                    );
+                  },
+                ),
+                const SizedBox(height: 16),
+                OutlinedButton.icon(
+                  icon: _syncInFlight
+                      ? const SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.sync),
+                  label: Text(_syncInFlight ? 'Syncing…' : 'Sync now'),
+                  onPressed: _busy
+                      ? null
+                      : () => unawaited(_run(
+                            (busy) => _syncInFlight = busy,
+                            widget.onSync,
+                          )),
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  icon: _refreshInFlight
+                      ? const SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.download_for_offline),
+                  label: Text(
+                    _refreshInFlight ? 'Updating cache…' : 'Refresh offline copy',
+                  ),
+                  onPressed: _busy
+                      ? null
+                      : () => unawaited(_run(
+                            (busy) => _refreshInFlight = busy,
+                            widget.onRefresh,
+                          )),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:GEMS/data/local/offline_database.dart';
 import 'package:GEMS/model/energy.dart';
+import 'package:GEMS/model/water.dart';
 import 'package:GEMS/model/meter.dart';
 import 'package:GEMS/model/serializers.dart';
 import 'package:GEMS/model/user.dart';
@@ -15,9 +16,12 @@ import 'package:uuid/uuid.dart';
 
 const _energyReading = 'energy_reading';
 const _waterReading = 'water_reading';
+const _waterMeterReading = 'water_meter_reading';
 const _cacheEnergyMe = 'energy_me';
 const _cacheEnergyMeter = 'energy_meter';
 const _cacheWaterMeter = 'water_meter';
+const _cacheWaterMe = 'water_me';
+const _cacheWaterBook = 'water_meter_book';
 
 enum UtilitySaveStatus { saved, queued, rejected }
 
@@ -71,6 +75,20 @@ class EnergyHomeData {
   final EnergyMe? me;
   final List<EnergyMeter> meters;
   final EnergyMonth? month;
+  final bool fromCache;
+}
+
+class WaterHomeData {
+  const WaterHomeData({
+    required this.me,
+    required this.meters,
+    required this.month,
+    required this.fromCache,
+  });
+
+  final EnergyMe? me;
+  final List<EnergyMeter> meters;
+  final WaterMonth? month;
   final bool fromCache;
 }
 
@@ -134,9 +152,6 @@ class UtilityRepository {
     final y = year ?? now.year;
     final m = month ?? now.month;
     try {
-      if (!await _hostReachable()) {
-        throw const SocketException('offline');
-      }
       final me = EnergyMe.fromJson(await _getMap('/energy/me'));
       final meters = _metersFrom(await _getList('/energy/meter?activeOnly=1'));
       await _writeCache(_cacheEnergyMe, 'me', me.toJson());
@@ -146,9 +161,8 @@ class UtilityRepository {
         grid = EnergyMonth.fromJson(
           await _getMap('/energy/daily?year=$y&month=$m'),
         );
-      } on SocketException {
-        grid = null;
-      } on TimeoutException {
+      } catch (err) {
+        if (!_isTransport(err)) rethrow;
         grid = null;
       }
       return EnergyHomeData(
@@ -180,19 +194,105 @@ class UtilityRepository {
   }
 
   Future<EnergyFormData> loadEnergyForm() async {
-    final home = await loadEnergyHome();
-    return EnergyFormData(
-      me: home.me,
-      meters: home.meters,
-      fromCache: home.fromCache,
-    );
+    try {
+      final me = EnergyMe.fromJson(await _getMap('/energy/me'));
+      final meters = _metersFrom(await _getList('/energy/meter?activeOnly=1'));
+      await _writeCache(_cacheEnergyMe, 'me', me.toJson());
+      await _writeCacheList(
+        _cacheEnergyMeter,
+        meters.map((meter) => meter.toJson()).toList(),
+      );
+      return EnergyFormData(me: me, meters: meters, fromCache: false);
+    } catch (err) {
+      if (!_isTransport(err)) rethrow;
+      final meters = await _readMeterCache();
+      if (meters == null) {
+        throw Exception(
+          'No connection, and no electricity meters are saved on this phone yet.',
+        );
+      }
+      return EnergyFormData(
+        me: await _readMeCache(),
+        meters: meters,
+        fromCache: true,
+      );
+    }
+  }
+
+  Future<WaterHomeData> loadWaterHome({int? year, int? month}) async {
+    final now = DateTime.now();
+    final y = year ?? now.year;
+    final m = month ?? now.month;
+    try {
+      final me = EnergyMe.fromJson(await _getMap('/water/me'));
+      final meters = _metersFrom(await _getList('/water/meter?activeOnly=1'));
+      await _writeCache(_cacheWaterMe, 'me', me.toJson());
+      await _writeCacheList(_cacheWaterBook, meters.map((meter) => meter.toJson()).toList());
+      WaterMonth? grid;
+      try {
+        grid = WaterMonth.fromJson(
+          await _getMap('/water/daily?year=$y&month=$m'),
+        );
+      } catch (err) {
+        if (!_isTransport(err)) rethrow;
+        grid = null;
+      }
+      return WaterHomeData(
+        me: me,
+        meters: meters,
+        month: grid,
+        fromCache: false,
+      );
+    } catch (err) {
+      if (!_isTransport(err)) rethrow;
+      final meters = await _readMeterCache(_cacheWaterBook);
+      if (meters == null) {
+        throw Exception(
+          'No connection, and no water meters are saved on this phone yet.',
+        );
+      }
+      return WaterHomeData(
+        me: await _readMeCache(_cacheWaterMe),
+        meters: meters,
+        month: null,
+        fromCache: true,
+      );
+    }
+  }
+
+  Future<WaterMonth> loadWaterMonth(int year, int month) async {
+    final json = await _getMap('/water/daily?year=$year&month=$month');
+    return WaterMonth.fromJson(json);
+  }
+
+  Future<EnergyFormData> loadWaterForm() async {
+    try {
+      final me = EnergyMe.fromJson(await _getMap('/water/me'));
+      final meters = _metersFrom(await _getList('/water/meter?activeOnly=1'));
+      await _writeCache(_cacheWaterMe, 'me', me.toJson());
+      await _writeCacheList(
+        _cacheWaterBook,
+        meters.map((meter) => meter.toJson()).toList(),
+      );
+      return EnergyFormData(me: me, meters: meters, fromCache: false);
+    } catch (err) {
+      if (!_isTransport(err)) rethrow;
+      final meters = await _readMeterCache(_cacheWaterBook);
+      if (meters == null) {
+        throw Exception(
+          'No connection, and no water meters are saved on this phone yet.',
+        );
+      }
+      return EnergyFormData(
+        me: await _readMeCache(_cacheWaterMe),
+        meters: meters,
+        fromCache: true,
+      );
+    }
   }
 
   Future<List<Meter>> loadWaterMeters() async {
     try {
-      if (!await _hostReachable()) {
-        throw const SocketException('offline');
-      }
       final raw = await _getList('/utility_meter/Water');
       await _writeCacheList(_cacheWaterMeter, raw);
       return deserializeListOf<Meter>(raw).toList();
@@ -228,6 +328,31 @@ class UtilityRepository {
       url: '/energy/reading',
       fields: fields,
       summary: '$meterName: $cumulativeKwh kWh on $readingDate',
+      meterId: meterId,
+      capturedAt: DateTime.now(),
+    );
+  }
+
+  Future<UtilitySaveResult> saveWaterMeterReading({
+    required String meterId,
+    required String meterName,
+    required String readingDate,
+    required String cumulativeVolume,
+    String iotVolume = '',
+    String remark = '',
+  }) {
+    final fields = <String, String>{
+      'meterId': meterId,
+      'readingDate': readingDate,
+      'cumulativeVolume': cumulativeVolume,
+      'iotVolume': iotVolume.trim(),
+      'remark': remark.trim(),
+    };
+    return _sendOrQueue(
+      kind: _waterMeterReading,
+      url: '/water/reading',
+      fields: fields,
+      summary: '$meterName: $cumulativeVolume m³ on $readingDate',
       meterId: meterId,
       capturedAt: DateTime.now(),
     );
@@ -661,8 +786,8 @@ class UtilityRepository {
     return _writeCache(category, 'list', {'rows': rows});
   }
 
-  Future<EnergyMe?> _readMeCache() async {
-    final rows = await _database.getReferenceData(category: _cacheEnergyMe);
+  Future<EnergyMe?> _readMeCache([String category = _cacheEnergyMe]) async {
+    final rows = await _database.getReferenceData(category: category);
     if (rows.isEmpty || rows.first.extraJson == null) return null;
     final decoded = jsonDecode(rows.first.extraJson!);
     if (decoded is! Map) return null;
@@ -671,8 +796,8 @@ class UtilityRepository {
     );
   }
 
-  Future<List<EnergyMeter>?> _readMeterCache() async {
-    final rows = await _readCacheList(_cacheEnergyMeter);
+  Future<List<EnergyMeter>?> _readMeterCache([String category = _cacheEnergyMeter]) async {
+    final rows = await _readCacheList(category);
     if (rows == null) return null;
     return _metersFrom(rows);
   }

@@ -20,7 +20,13 @@ import 'resetPassword.dart';
 // --- Constants for Role IDs ---
 const String _roleAdminId = "1";
 const String _roleStorekeeperId = "16";
-const String _roleUtilitiesId = "18";
+const Set<String> _utilitiesRoleIds = {
+  "1", // Administrator
+  "2", // Site Manager
+  "10", // GFM Management
+  "18", // Utility Officer
+  "30", // KPI Admin
+};
 
 // --- Constants for Route Names (if not already in constant.dart) ---
 // const String routePPM = "/ppm";
@@ -185,7 +191,7 @@ class _HomepageState extends State<Homepage> {
         if (role.id == _roleStorekeeperId) {
           tempIsStorekeeper = true;
         }
-        if (role.id == _roleUtilitiesId) {
+        if (_utilitiesRoleIds.contains(role.id)) {
           tempIsUtilities = true;
         }
       }

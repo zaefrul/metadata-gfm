@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:GEMS/view/gems_chrome.dart';
 import 'ElectricBill.dart';
 import 'WaterBill.dart';
+import 'WaterReading.dart';
 import '../../main.dart';
 
 class UtilsBill {
@@ -40,7 +41,7 @@ class UtilsBill {
               style: FilledButton.styleFrom(backgroundColor: GemsChrome.primary),
               onPressed: () {
                 Navigator.pop(dialogContext);
-                showWater(context, isDaily: true);
+                showWaterReading(context);
               },
               icon: const Icon(Icons.water_drop, color: Colors.white),
               label: Text(
@@ -99,6 +100,15 @@ class UtilsBill {
         ],
       ),
     );
+  }
+
+  void showWaterReading(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const WaterReadingScreen(),
+      ),
+    ).whenComplete(onRefresh);
   }
 
   void showWater(BuildContext context,

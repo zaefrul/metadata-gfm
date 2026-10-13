@@ -37,7 +37,6 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
     super.initState();
     _load();
   }
-
   @override
   void dispose() {
     _kwh.dispose();
@@ -64,7 +63,7 @@ class _ElectricBillScreenState extends State<ElectricBillScreen> {
     } catch (err) {
       if (!mounted) return;
       setState(() {
-        _loadError = err.toString();
+        _loadError = err.toString().replaceFirst('Exception: ', '');
         _loading = false;
       });
     }

@@ -90,7 +90,9 @@ class MainBloc {
   bool get isLoading => _loading.value;
   Stream<ExecutionModel> get execution$ => _execution.stream;
   Stream<int> get pendingActions$ => _pendingActions.stream;
+  int get pendingCount => _pendingActions.value;
   Stream<bool> get offlineMode$ => _offlineMode.stream;
+  bool get isOfflineMode => _offlineMode.value;
   Stream<MutationFeedback> get feedback$ => _feedback.stream;
   Stream<WorkOrderSnapshotData?> get snapshot$ => _snapshot.stream;
   WorkOrderSnapshotData? get snapshotValue => _snapshot.valueOrNull;

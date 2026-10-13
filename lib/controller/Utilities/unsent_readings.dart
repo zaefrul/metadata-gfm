@@ -66,10 +66,12 @@ class _UnsentReadingsScreenState extends State<UnsentReadingsScreen> {
       });
     }
     final isEnergy = reading.kind == 'energy_reading';
+    final isWaterMeter = reading.kind == 'water_meter_reading';
     final edited = await showDialog<Map<String, String>>(
       context: context,
       builder: (dialogContext) => _EditReadingDialog(
         isEnergy: isEnergy,
+        isWaterMeter: isWaterMeter,
         fields: fields,
       ),
     );
@@ -78,7 +80,9 @@ class _UnsentReadingsScreenState extends State<UnsentReadingsScreen> {
     final meterName = previous.contains(':') ? previous.split(':').first.trim() : 'Meter';
     final summary = isEnergy
         ? '$meterName: ${edited['cumulativeKwh']} kWh on ${edited['readingDate']}'
-        : '$meterName: ${edited['utilityReading']} m³';
+        : isWaterMeter
+            ? '$meterName: ${edited['cumulativeVolume']} m³ on ${edited['readingDate']}'
+            : '$meterName: ${edited['utilityReading']} m³';
     edited.remove('meterName');
     await _utility.requeue(reading, fields: edited, summary: summary);
     final report = await _utility.syncPending();
@@ -185,9 +189,14 @@ class _UnsentReadingsScreenState extends State<UnsentReadingsScreen> {
 }
 
 class _EditReadingDialog extends StatefulWidget {
-  const _EditReadingDialog({required this.isEnergy, required this.fields});
+  const _EditReadingDialog({
+    required this.isEnergy,
+    required this.fields,
+    this.isWaterMeter = false,
+  });
 
   final bool isEnergy;
+  final bool isWaterMeter;
   final Map<String, String> fields;
 
   @override
@@ -206,6 +215,11 @@ class _EditReadingDialogState extends State<_EditReadingDialog> {
     if (widget.isEnergy) {
       _primary = TextEditingController(text: widget.fields['cumulativeKwh'] ?? '');
       _demand = TextEditingController(text: widget.fields['maxDemandKw'] ?? '');
+      _remark = TextEditingController(text: widget.fields['remark'] ?? '');
+      _date = DateTime.tryParse(widget.fields['readingDate'] ?? '') ?? DateTime.now();
+    } else if (widget.isWaterMeter) {
+      _primary = TextEditingController(text: widget.fields['cumulativeVolume'] ?? '');
+      _demand = TextEditingController(text: widget.fields['iotVolume'] ?? '');
       _remark = TextEditingController(text: widget.fields['remark'] ?? '');
       _date = DateTime.tryParse(widget.fields['readingDate'] ?? '') ?? DateTime.now();
     } else {
@@ -249,6 +263,17 @@ class _EditReadingDialogState extends State<_EditReadingDialog> {
         next['remark'] = _remark.text.trim();
       }
       next['meterName'] = widget.fields['meterName'] ?? 'Meter';
+    } else if (widget.isWaterMeter) {
+      if (_demand.text.trim().isNotEmpty &&
+          (double.tryParse(_demand.text.trim()) == null || double.parse(_demand.text.trim()) < 0)) {
+        Toast.show('IoT consumption must be a number of 0 or more');
+        return;
+      }
+      next['cumulativeVolume'] = _primary.text.trim();
+      next['readingDate'] = DateFormat('yyyy-MM-dd').format(_date);
+      next['iotVolume'] = _demand.text.trim();
+      next['remark'] = _remark.text.trim();
+      next['meterName'] = widget.fields['meterName'] ?? 'Meter';
     } else {
       next['utilityReading'] = _primary.text.trim();
     }
@@ -262,7 +287,7 @@ class _EditReadingDialogState extends State<_EditReadingDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (widget.isEnergy)
+          if (widget.isEnergy || widget.isWaterMeter)
             OutlinedButton(
               onPressed: () async {
                 final today = DateTime.now();
@@ -280,14 +305,20 @@ class _EditReadingDialogState extends State<_EditReadingDialog> {
             controller: _primary,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: gemsFieldDecoration(
-              label: widget.isEnergy ? 'Cumulative kWh' : 'Reading (m³)',
+              label: widget.isEnergy
+                  ? 'Cumulative kWh'
+                  : widget.isWaterMeter
+                      ? 'Cumulative m³'
+                      : 'Reading (m³)',
             ),
           ),
-          if (widget.isEnergy) ...[
+          if (widget.isEnergy || widget.isWaterMeter) ...[
             const SizedBox(height: 8),
             TextField(
               controller: _demand,
-              decoration: gemsFieldDecoration(label: 'Maximum demand'),
+              decoration: gemsFieldDecoration(
+                label: widget.isEnergy ? 'Maximum demand' : 'IoT consumption',
+              ),
             ),
             const SizedBox(height: 8),
             TextField(

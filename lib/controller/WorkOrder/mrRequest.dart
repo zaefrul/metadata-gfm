@@ -22,7 +22,18 @@ class MRTaskList extends StatefulWidget {
     "48": "Waiting for Purchase",
   };
 
-  const MRTaskList({super.key});
+  /// MR Reviewer tasks share statusId=33 with supervisors; differentiate via checkpoint.
+  static String statusLabelFor(RequestTask task) {
+    if (task.statusId == '33' && task.checkpointDesc == 'MR Reviewer') {
+      return 'Review';
+    }
+    return _statuses[task.statusId] ?? 'Unknown';
+  }
+
+  /// [controller] is for tests that need a fixed task list.
+  final Controller? controller;
+
+  const MRTaskList({super.key, this.controller});
   @override
   _MRTaskListState createState() => _MRTaskListState();
 }
@@ -36,29 +47,12 @@ class _MRTaskListState extends State<MRTaskList> {
   String _currentFilter = 'All Status';
   List<RequestTask> _tasks = [];
 
-  // statusId → label
-  static const Map<String, String> _statuses = {
-    "32": "Request Parts",
-    "33": "Request Approval",
-    "34": "Stock Request",
-    "38": "Ready For Collection",
-    "36": "Parts Collected",
-    "47": "Need to Order",
-    "48": "Waiting for Purchase",
-  };
-
-  String _statusLabelFor(RequestTask task) {
-    // MR Reviewer tasks share statusId=33 with supervisors; differentiate via checkpoint.
-    if (task.statusId == '33' && task.checkpointDesc == 'MR Reviewer') {
-      return 'Review';
-    }
-    return _statuses[task.statusId] ?? 'Unknown';
-  }
+  String _statusLabelFor(RequestTask task) => MRTaskList.statusLabelFor(task);
 
   @override
   void initState() {
     super.initState();
-    controller = Controller();
+    controller = widget.controller ?? Controller();
 
     // 1) listen for filter changes
     _filterSub = controller.dropdownValueStream.listen((label) {
@@ -73,8 +67,10 @@ class _MRTaskListState extends State<MRTaskList> {
       });
     });
 
-    // 3) kick off initial load
-    controller.refresh();
+    // Injected controllers already have their tasks. Live ones load from the API.
+    if (widget.controller == null) {
+      controller.refresh();
+    }
   }
 
   @override
@@ -120,7 +116,7 @@ class _MRTaskListState extends State<MRTaskList> {
                     items: [
                       'All Status',
                       ...{
-                        ..._statuses.values,
+                        ...MRTaskList._statuses.values,
                         'Review',
                       },
                     ]
@@ -173,10 +169,7 @@ class _MRTaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusLabel =
-        (task.statusId == '33' && task.checkpointDesc == 'MR Reviewer')
-            ? 'Review'
-            : (MRTaskList._statuses[task.statusId] ?? 'Unknown');
+    final statusLabel = MRTaskList.statusLabelFor(task);
     final status = _statusStyle(task.statusId ?? '');
 
     return GemsAccentCard(
@@ -289,6 +282,14 @@ class Controller {
     _request.refresh.then((list) => _tasks.add(list));
   }
 
+  /// Skips the network load so tests can drive [filter] directly.
+  Controller.seeded(List<RequestTask> tasks) {
+    _tasks.add(tasks);
+    _filtered.add(tasks);
+    // skip(1) ignores the replay of the list we just added.
+    _tasks.skip(1).listen((all) => _filtered.add(all));
+  }
+
   Stream<List<RequestTask>> get filteredTaskStream => _filtered.stream;
   Stream<String> get dropdownValueStream => _dropdown.stream;
 
@@ -306,7 +307,7 @@ class Controller {
       _filtered.add(all);
     } else {
       _filtered.add(
-          all.where((t) => MRTaskList._statuses[t.statusId] == label).toList());
+          all.where((t) => MRTaskList.statusLabelFor(t) == label).toList());
     }
   }
 

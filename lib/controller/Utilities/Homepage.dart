@@ -6,6 +6,7 @@ import 'package:GEMS/controller/Utilities/unsent_readings.dart';
 import 'package:GEMS/data/local/offline_database.dart';
 import 'package:GEMS/data/repository/utility_repository.dart';
 import 'package:GEMS/model/energy.dart';
+import 'package:GEMS/model/water.dart';
 import 'package:GEMS/model/meter.dart';
 import 'package:GEMS/utils/pending_sync_controller.dart';
 import 'package:GEMS/view/drawer.dart';
@@ -31,7 +32,7 @@ class _UtilitiesHomeState extends State<UtilitiesHome> {
   @override
   void initState() {
     super.initState();
-    bloc.fetch(api.MetersW);
+    bloc.fetchWater();
     bloc.fetchEnergy();
     UtilitySyncScheduler.instance.kick();
     _errors = bloc.err$.listen((event) => Toast.show(event, duration: 4));
@@ -57,7 +58,7 @@ class _UtilitiesHomeState extends State<UtilitiesHome> {
       throw Exception('offline');
     }
     bloc.fetchEnergy();
-    bloc.fetch(api.MetersW);
+    bloc.fetchWater();
   }
 
   @override
@@ -73,7 +74,7 @@ class _UtilitiesHomeState extends State<UtilitiesHome> {
           actions: [
             _BuildAddButton(onRefresh: () {
               bloc.fetchEnergy();
-              bloc.fetch(api.ReadingW);
+              bloc.fetchWater();
             })
           ],
           bottom: TabBar(
@@ -121,7 +122,7 @@ class _UtilitiesHomeState extends State<UtilitiesHome> {
             Expanded(
               child: TabBarView(
                 children: [
-                  ListReading(bloc, bloc.mw$, isWater: true),
+                  WaterMeterList(bloc: bloc),
                   EnergyMeterList(bloc: bloc),
                 ],
               ),
@@ -211,7 +212,22 @@ class EnergyMeterList extends StatelessWidget {
           stream: bloc.energyMonth$,
           builder: (context, monthSnap) {
             if (meters.isEmpty) {
-              return const Center(child: Text('No electricity meters yet'));
+              return StreamBuilder<String>(
+                stream: bloc.energyError$,
+                builder: (context, errorSnap) {
+                  final message = errorSnap.data ?? '';
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        message.isEmpty ? 'No electricity meters yet' : message,
+                        textAlign: TextAlign.center,
+                        style: GemsChrome.body(color: GemsChrome.textSoft),
+                      ),
+                    ),
+                  );
+                },
+              );
             }
             final month = monthSnap.data;
             return RefreshIndicator(
@@ -303,6 +319,145 @@ class _EnergyMeterTile extends StatelessWidget {
         );
       },
     );
+  }
+
+  String _meterId(UtilityPendingReading row) {
+    final summary = row.payloadJson;
+    final marker = '"meterId":"';
+    final start = summary.indexOf(marker);
+    if (start < 0) return '';
+    final from = start + marker.length;
+    final end = summary.indexOf('"', from);
+    if (end < 0) return '';
+    return summary.substring(from, end);
+  }
+}
+
+class WaterMeterList extends StatelessWidget {
+  const WaterMeterList({super.key, required this.bloc});
+
+  final Bloc bloc;
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<List<EnergyMeter>>(
+      stream: bloc.waterMeters$,
+      builder: (context, metersSnap) {
+        final meters = metersSnap.data ?? const <EnergyMeter>[];
+        return StreamBuilder<WaterMonth?>(
+          stream: bloc.waterMonth$,
+          builder: (context, monthSnap) {
+            if (meters.isEmpty) {
+              return StreamBuilder<String>(
+                stream: bloc.waterError$,
+                builder: (context, errorSnap) {
+                  final message = errorSnap.data ?? '';
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        message.isEmpty ? 'No water meters yet' : message,
+                        textAlign: TextAlign.center,
+                        style: GemsChrome.body(color: GemsChrome.textSoft),
+                      ),
+                    ),
+                  );
+                },
+              );
+            }
+            final month = monthSnap.data;
+            return RefreshIndicator(
+              onRefresh: () => bloc.fetchWater(),
+              color: GemsChrome.primary,
+              child: ListView.separated(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
+                itemCount: meters.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                itemBuilder: (_, i) => _WaterMeterTile(
+                  meter: meters[i],
+                  month: month,
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class _WaterMeterTile extends StatelessWidget {
+  const _WaterMeterTile({required this.meter, required this.month});
+
+  final EnergyMeter meter;
+  final WaterMonth? month;
+
+  @override
+  Widget build(BuildContext context) {
+    final latest = month?.latestFor(meter.meterId);
+    final total = month?.totalFor(meter.meterId);
+    return StreamBuilder<List<UtilityPendingReading>>(
+      stream: UtilityRepository.instance.unsent$,
+      builder: (context, snapshot) {
+        final waiting = (snapshot.data ?? const <UtilityPendingReading>[])
+            .where((row) => row.kind == 'water_meter_reading' && _meterId(row) == meter.meterId)
+            .length;
+        return GemsAccentCard(
+          accent: GemsChrome.teal,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => page.WaterMeterDaily(meter: meter),
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  meter.meterName,
+                  style: GemsChrome.body(size: 15, weight: FontWeight.w600),
+                ),
+                if (meter.meterDesc.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    meter.meterDesc,
+                    style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+                  ),
+                ],
+                const SizedBox(height: 8),
+                Text(
+                  latest == null
+                      ? 'Latest reading: —'
+                      : 'Latest reading: ${_volume(latest.cell.cumulativeVolume)} m³ on ${latest.date}',
+                  style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  total == null ? 'This month: —' : 'This month: ${_volume(total)} m³',
+                  style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+                ),
+                if (waiting > 0) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    'Waiting to send: $waiting',
+                    style: GemsChrome.body(size: 13, weight: FontWeight.w600, color: GemsChrome.primary),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  String _volume(double? value) {
+    if (value == null) return '—';
+    return value.toStringAsFixed(2);
   }
 
   String _meterId(UtilityPendingReading row) {

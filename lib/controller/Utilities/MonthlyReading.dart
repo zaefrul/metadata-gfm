@@ -3,6 +3,7 @@ import 'package:GEMS/view/gems_chrome.dart';
 import 'package:GEMS/controller/Utilities/Bloc/bloc.dart';
 import 'package:GEMS/data/repository/utility_repository.dart';
 import 'package:GEMS/model/energy.dart';
+import 'package:GEMS/model/water.dart';
 import 'package:GEMS/model/meter.dart';
 import 'package:intl/intl.dart';
 import 'package:photo_view/photo_view.dart';
@@ -348,6 +349,194 @@ class _EnergyMeterDailyState extends State<EnergyMeterDaily> {
                                           const SizedBox(height: 4),
                                           Text(
                                             'Max demand: ${cell.maxDemandKw ?? "—"}',
+                                            style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+                                          ),
+                                          if (cell.remark.isNotEmpty) ...[
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              cell.remark,
+                                              style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class WaterMeterDaily extends StatefulWidget {
+  const WaterMeterDaily({super.key, required this.meter});
+
+  final EnergyMeter meter;
+
+  @override
+  State<WaterMeterDaily> createState() => _WaterMeterDailyState();
+}
+
+class _WaterMeterDailyState extends State<WaterMeterDaily> {
+  final _utility = UtilityRepository.instance;
+  late DateTime _month;
+  WaterMonth? _grid;
+  String? _error;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    _month = DateTime(now.year, now.month);
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final grid = await _utility.loadWaterMonth(_month.year, _month.month);
+      if (!mounted) return;
+      setState(() {
+        _grid = grid;
+        _loading = false;
+      });
+    } catch (err) {
+      if (!mounted) return;
+      setState(() {
+        _error = err.toString();
+        _loading = false;
+      });
+    }
+  }
+
+  void _shift(int delta) {
+    setState(() {
+      _month = DateTime(_month.year, _month.month + delta);
+    });
+    _load();
+  }
+
+  String _volume(double? value) {
+    if (value == null) return '—';
+    return value.toStringAsFixed(2);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final label = DateFormat.yMMMM().format(_month);
+    final days = _grid?.rows.where((row) {
+          final cell = row.cellFor(widget.meter.meterId);
+          return cell != null && cell.hasReading;
+        }).toList() ??
+        const <WaterDay>[];
+    return Scaffold(
+      backgroundColor: GemsChrome.page,
+      appBar: gemsAppBar(title: Text(widget.meter.meterName)),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: () => _shift(-1),
+                  icon: const Icon(Icons.chevron_left),
+                ),
+                Expanded(
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: GemsChrome.body(size: 16, weight: FontWeight.w600),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => _shift(1),
+                  icon: const Icon(Icons.chevron_right),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: _loading
+                ? const Center(child: CircularProgressIndicator(color: GemsChrome.primary))
+                : _error != null
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Text(
+                            'History needs a connection.\n$_error',
+                            textAlign: TextAlign.center,
+                            style: GemsChrome.body(color: GemsChrome.textSoft),
+                          ),
+                        ),
+                      )
+                    : RefreshIndicator(
+                        onRefresh: _load,
+                        color: GemsChrome.primary,
+                        child: days.isEmpty
+                            ? ListView(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(24),
+                                    child: Text(
+                                      'No readings this month.',
+                                      textAlign: TextAlign.center,
+                                      style: GemsChrome.body(color: GemsChrome.textSoft),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : ListView.separated(
+                                padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
+                                itemCount: days.length,
+                                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                                itemBuilder: (_, i) {
+                                  final row = days[i];
+                                  final cell = row.cellFor(widget.meter.meterId)!;
+                                  final consumption = cell.consumptionVolume == null
+                                      ? '—'
+                                      : '${_volume(cell.consumptionVolume)} m³${cell.estimated ? ' est.' : ''}';
+                                  final variance = cell.variancePct == null
+                                      ? '—'
+                                      : '${cell.variancePct!.toStringAsFixed(2)}%';
+                                  return GemsAccentCard(
+                                    accent: GemsChrome.teal,
+                                    onTap: () {},
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            row.date,
+                                            style: GemsChrome.body(size: 15, weight: FontWeight.w600),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            'Cumulative: ${_volume(cell.cumulativeVolume)} m³',
+                                            style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            'Consumption: $consumption',
+                                            style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            'IoT: ${_volume(cell.iotVolume)} m³',
+                                            style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            'Variance: $variance',
                                             style: GemsChrome.body(size: 13, color: GemsChrome.textSoft),
                                           ),
                                           if (cell.remark.isNotEmpty) ...[
